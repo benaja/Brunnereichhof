@@ -1,0 +1,15 @@
+.margin-0{
+    margin: 0;
+}
+
+.dp-modal{
+    z-index: 100;
+}
+
+.collapsible-body{
+    background-color: white;
+}
+
+.collapsible{
+    margin-top: 50px;
+}

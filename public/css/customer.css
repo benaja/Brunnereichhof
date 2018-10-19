@@ -1,0 +1,177 @@
+form{
+    background-color: white;
+    box-shadow: 0 0 5px lightgray;
+    border-radius: 3px;
+    margin-top: 0;
+    margin-bottom: 100px;
+}
+
+.row{
+    margin-bottom: 0;
+}
+
+.checkbox{
+    height: 40px;
+}
+
+.verpflegung{
+    display: none;
+}
+
+.kunden-login{
+    display: none;
+}
+
+
+strong{
+    color:#F44336;
+}
+
+#addbutton{
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+}
+
+.details{
+    margin-top: -5px;
+    margin-bottom: -5px;
+}
+
+.single-customer{
+    margin: 50px auto;
+}
+
+.single-customer form .row{
+    height: 80px;
+}
+
+.bezeichnung{
+    margin-top: 30px;
+}
+
+.info_content{
+    margin-top: 30px;
+}
+
+.single-customer input{
+    margin-top: 15px !important;
+}
+
+.bezeichnung{
+    font-weight: bold;
+}
+
+#allgemaine_bemerkungen{
+    margin-top: 20px;
+}
+
+#maps_link{
+    margin-top: 20px;
+}
+
+.info_content{
+    height: 1em;
+}
+
+.oneline{
+    margin-top: 30px;
+}
+
+.twolines{
+    margin-top: 20px;
+}
+
+
+.customer-create{
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    float: none !important;
+}
+
+.swal2-input{
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: lightgray !important;
+    margin-top: 15px !important;
+    border-radius: 3px !important;
+}
+
+.swal2-input:focus{
+    border-bottom-color: lightgray !important;
+    -webkit-box-shadow: 0 0 0 0 lightgray !important;
+
+    border: 1px solid #b4dbed !important;
+    outline: none !important;
+    box-shadow: 0 0 3px #c4e6f5 !important;
+}
+
+.projekt_titel{
+    margin-bottom: 0;
+}
+
+.chips .input{
+    width: 150px !important;
+}
+
+.delete_button{
+    margin-bottom: 15px;
+}
+
+@media only screen and (max-width:480px){
+    .delete_button{
+        margin-top: 50px;
+    }
+
+    .edit_input {
+        margin-top: 10px !important;
+    }
+
+    .user-information{
+        margin-left: 20px;
+    }
+
+    .collapsible-body{
+        padding-top: 0;
+    }
+
+    #addbutton{
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .customer-create{
+        width: 94%;
+        margin-left: 3%;
+    }
+
+    form{
+        box-shadow: none;
+        background-color: transparent;
+        margin-bottom: 0;
+    }
+
+    .citchen_col{
+        width: 100% !important;
+        float: none !important;
+    }
+
+    .max_catering_col{
+        float: none !important;
+        width: 100% !important;
+        margin-left: 0;
+    }
+
+    .single-customer{
+        margin-top: 10px;
+    }
+
+    .maps_url{
+        margin-top: 10px;
+    }
+
+    .maps_link{
+        margin-left: 10px;
+    }
+}

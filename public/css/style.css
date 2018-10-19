@@ -1,0 +1,281 @@
+*{
+    font-family: "raleway", sans-serif;
+}
+
+body{
+    background-color: #f5f8fa;
+}
+
+.nav{
+    width: 580px;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.nav-kunde{
+    width: 240px;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error{
+    color:#F44336;
+    font-size: 15px;
+    line-height: 1em;
+    height: 1em;
+    font-weight: normal;
+    margin-top: 0;
+}
+
+strong{
+    color:#F44336;
+    font-size: 15px;
+    line-height: 1em;
+    height: 1em;
+    font-weight: normal;
+}
+
+nav{
+    height: 70px;
+    background-color: white;
+    box-shadow: 0 0 10px lightgray;
+}
+
+.nav ul li a{
+    color: #444444;
+}
+
+.nav-kunde ul li a{
+    color: #444444;
+}
+
+#nav-mobile{
+    line-height: 70px;
+}
+
+.brand-logo img{
+    height: 50px;
+}
+
+.login{
+    height: 70px;
+    width: 200px;
+    float: right;
+    cursor: pointer;
+}
+
+.login img{
+    height: 50px;
+    margin-top: 7px;
+    margin-right: 7px;
+    float: right;
+}
+
+.login p{
+    color: black;
+    margin: 0;
+    text-align: right;
+    margin-right: 70px;
+    line-height: 70px;
+}
+
+.brand-logo{
+    float: left;
+    height: 50px;
+    position: absolute;
+    top:7px;
+    left: 7px;
+}
+
+.btn-primary{
+    background-color: #23B14B;
+    border-color: #23B14B;
+}
+
+.btn-primary:hover{
+    background-color: rgb(23, 119, 50);
+    border-color: rgb(23, 119, 50);
+}
+
+.btn-link{
+    color: #23B14B;
+}
+
+.btn-link:hover{
+    color: rgb(23, 119, 50);
+}
+
+.logout_link{
+    color: black;
+}
+
+.kunden-dropdown{
+    top: -70px;
+    width: 200px;
+}
+
+.kunden-dropdown li{
+    float: none;
+}
+
+.form{
+    background-color: white;
+    box-shadow: 0 0 5px lightgrey;
+    border-radius: 3px;
+    margin-top: 0;
+    margin-bottom: 100px;
+}
+
+.em1{
+    height: 1em;
+}
+
+.w100{
+    width: 100%;
+}
+
+.week{
+    width: 120px;
+}
+
+.hours{
+    width: 170px;
+}
+
+.culture{
+    width: 250px;
+}
+
+.löschen{
+    width: 50px;
+}
+
+.margin-0{
+    margin: 0;
+}
+
+#menu-button{
+    display: none;
+}
+
+.passwort-change-form{
+    width: 500px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.password_row{
+    margin-bottom: 0;
+}
+
+.save_button{
+    margin-bottom: 30px;
+}
+
+.empty{
+    height: 50px !important;
+    margin-top: 10px !important;
+    margin-bottom: 0;
+}
+
+.addbutton{
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+}
+
+
+.delete_button{
+    margin-left: auto;
+    margin-right: auto;
+    width: 150px;
+}
+
+.btn-danger{
+    background-color: #f44336;
+    margin-right: 30px;
+}
+
+.btn-left{
+    margin-right: 30px;
+}
+
+.swal2-popup .swal2-styled:focus{
+    box-shadow: none !important;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.sidenav .collapsible-header{
+    padding: 0 32px;
+}
+
+.sidenav .collapsible-body li a{
+    padding: 0 64px;
+}
+
+@media only screen and (max-width:980px){
+    #menu-button {
+        display: block;
+        float: left;
+        height: 70px;
+        width: 70px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    #menu-icon {
+        font-size: 50px;
+    }
+}
+
+@media only screen and (max-width:480px){
+    .passwort-change-form{
+        width: 90%;
+    }
+
+    .passwort-change-form .form{
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    .success-image{
+        width: 150px;
+    }
+
+    .container{
+        width: 100%;
+    }
+
+    .login p{
+        display: none;
+    }
+
+    .addbutton{
+        bottom: 20px;
+        right: 20px;
+    }
+
+    h1{
+        font-size: 2.5rem;
+        text-align: center;
+    }
+
+    h2{
+        font-size: 2rem;
+    }
+
+    h3{
+        font-size: 2em;
+    }
+
+    .nav{
+        display: none;
+    }
+}
+
+

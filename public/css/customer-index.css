@@ -1,0 +1,17 @@
+.first-link{
+    float: left;
+}
+
+@media only screen and (max-width:480px){
+    .second-link{
+        margin-top: 50px;
+    }
+
+    .second-link a{
+        margin-right: 0 !important;
+    }
+
+    .first-link a{
+        margin: 0;
+    }
+}

@@ -1,0 +1,107 @@
+.check_week{
+    margin: 1em 0 1em 33%;
+}
+
+.weiter{
+    margin: 0 auto;
+}
+
+#chose_week{
+    /* display: none; */
+}
+
+#select_time{
+    display: none;
+}
+
+.number_input{
+    width: 100px;
+}
+
+.kultur_input{
+    width: 300px;
+}
+
+.rotate-180{
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.week_table td{
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.week_table td textarea{
+    margin-top: 5px;
+    margin-bottom: 6px;
+}
+
+.swal2-popup .swal2-styled.swal2-confirm{
+    background-color: #26a69a;
+}
+
+.swal2-popup .swal2-styled:focus{
+    box-shadow: none;
+}
+
+.form h6{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.edit_form{
+    margin-top: 50px;
+}
+
+@media only screen and (max-width:480px){
+
+    .row .col.offset-s3{
+        margin-left: 0;
+    }
+
+    .check_week{
+        margin-left: 10%;
+    }
+
+    .form h6{
+        margin-bottom: 0;
+        margin-top: 15px;
+        margin-left: 0.75em;
+        font-weight: bold;
+    }
+
+    .col.right{
+        margin-bottom: 30px;
+    }
+
+    .col .margin-0{
+        margin:0;
+    }
+
+    .form{
+        margin-bottom: 30px;
+        padding-top: 1px;
+    }
+
+    .edit_form{
+        margin-top: 10px;
+    }
+
+    .lenght90{
+        width: 80%;
+        margin: auto;   
+    }
+
+    .week_title{
+        padding-left: 10px;
+    }
+
+    .col .row{
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
