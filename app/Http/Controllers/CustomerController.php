@@ -18,17 +18,21 @@ class CustomerController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     // GET customer
     public function index(Request $request)
     {
-        $request->user()->authorizeRoles(['admin']);
+        // $request->user()->authorizeRoles(['admin']);
 
-        $customers = DB::table('customer')->select('customer.*', 'user.email', 'user.username')->join('user', 'customer.user_id', 'user.id')->get();
+        // $customers = DB::table('customer')->select('customer.*', 'user.email', 'user.username')->join('user', 'customer.user_id', 'user.id')->get();
 
-        return view('pages.admin.customer.index', compact('customers'));        
+        // return view('pages.admin.customer.index', compact('customers'));       
+        
+        $customers = Customer::all();
+
+        return response($customers);
     }
 
     // GET customer/create
