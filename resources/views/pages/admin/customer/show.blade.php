@@ -133,7 +133,7 @@
                     <div class="col s12">
                         <p class="bezeichnung projekt_titel">Projekte</p>
                         <div class="chips chips-autocomplete">
-                        </div>     
+                        </div>
                     </div>    
                 </div>
             </div>
