@@ -15,15 +15,25 @@ class WorkerController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     // GET worker
     public function index(Request $request)
     {
-        $request->user()->authorizeRoles(['admin']);
-
         $workers = User::where('authorization_id', AuthorizationType::Worker)->get();
+
+        foreach($workers as $worker){
+            $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
+            $worker->lunchThisMonth = $worker->getNumberOfLunches(new \DateTime('first day of this month'));
+
+            $worker->workHoursLastMonth = $worker->totalHours(new \DateTime('first day of last month'));
+            $worker->luchLastMonth = $worker->getNumberOfLunches(new \DateTime('first day of last month'));
+
+            $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
+            $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
+        }
+        return $workers;
 
         return view('pages.admin.worker.index', compact('workers'));
     }
@@ -48,16 +58,13 @@ class WorkerController extends Controller
     // POST worker
     public function store(Request $request)
     {
-        $request->user()->authorizeRoles(['admin']);
-
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
             'lastname' => 'required|string|max:100',
-            'email' => 'required|email|unique:user',
-            'username' => 'required|string|max:100'
+            'email' => 'required|email|unique:user'
         ]);
 
-        $username = request('username');
+        $username = strtolower($request->firstname) . "." . strtolower($request->lastname);
 
         if($this->checkIfUsernameExist(request('username'))){
             $usernameIsUnique = false;
@@ -96,9 +103,9 @@ class WorkerController extends Controller
     // GET worker/{id}
     public function show(Request $request, $id)
     {
-        $request->user()->authorizeRoles(['admin']);
-
         $worker = User::find($id);
+        
+        return $worker;
 
         return view('pages.admin.worker.show', compact('worker'));
     }
@@ -112,7 +119,9 @@ class WorkerController extends Controller
     // DELETE worker/{id}
     public function destroy($id)
     {
-        //
+        $worker = User::find($id);
+
+        $worker->delete();
     }
 
     

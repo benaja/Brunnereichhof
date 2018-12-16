@@ -18,12 +18,13 @@ class CustomerController extends Controller
 
     public function __construct()
     {
-        //$this->middleware('auth');
+        $this->middleware('jwt.auth');
     }
 
     // GET customer
     public function index(Request $request)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
         $customers = Customer::all();
 
         foreach ($customers as $customer) {
@@ -35,17 +36,11 @@ class CustomerController extends Controller
         return response($customers);
     }
 
-    // GET customer/create
-    public function create(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        return view('pages.admin.customer.create');
-    }
-
     // POST customer
     public function store(Request $request)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $this->validate($request, $this->validateArray);
         $this->validate($request, [
             'email' => 'nullable|email|unique:user'
@@ -116,6 +111,8 @@ class CustomerController extends Controller
     // GET customer/{id}
     public function show(Request $request, Customer $customer)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
         if($customer->secret != null){
@@ -127,6 +124,8 @@ class CustomerController extends Controller
     //PATCH customer/{id}
     public function update(Request $request, $id)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $this->validate($request, $this->validateArray);
 
         $customer = Customer::find($id);
@@ -168,6 +167,8 @@ class CustomerController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $customer = Customer::find($id);
 
         $password = str_random(8);
@@ -185,28 +186,10 @@ class CustomerController extends Controller
     // DELETE customer/{id}
     public function destroy(Request $request, $id)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $customer = Customer::find($id);
         $customer->user->delete();
-    }
-
-    // GET customer/all
-    public function all(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        return Customer::all();
-    }
-
-    // GET customer/find
-    public function find(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $name = explode(" ", $request->name);
-
-        $customer = Customer::where([['firstname', '=', $name[0]], ['lastname', '=', $name[count($name) - 1]]])->first();
-
-        return $customer;
     }
 
     //-- helpers --//

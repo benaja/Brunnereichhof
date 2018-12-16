@@ -162,8 +162,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        Codedge\Fpdf\FpdfServiceProvider::class
-
+        Codedge\Fpdf\FpdfServiceProvider::class,
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class
     ],
 
     /*
@@ -213,7 +213,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class
+        'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class
     ],
 
 ];
