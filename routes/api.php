@@ -26,7 +26,7 @@ Route::resource('/worker', 'WorkerController');
 //Project
 Route::get('/project/customer/{customer}', 'ProjectController@allByCustomer');
 Route::get('/project/exist/{name}', 'ProjectController@exist');
-Route::delete('/project/{projectName}/customer/{customer}', 'ProjectController@removeFromCustomer');
+Route::delete('/project/{projectId}/customer/{customer}', 'ProjectController@removeFromCustomer');
 Route::post('/project/add', 'ProjectController@addToCustomer');
 Route::resource('/project', 'ProjectController');
 

@@ -20,7 +20,11 @@ class ProjectController extends Controller
 
     // POST project/add
     public function addToCustomer(Request $request){
-        $project = Project::where('name', $request->title)->first();
+        $project = Project::find($request->projectId);
+
+        if ($project == null) {
+            return response('project no exists', 400);
+        }
 
         $customer = Customer::find($request->customerId);
 
@@ -38,15 +42,6 @@ class ProjectController extends Controller
         $customer = Customer::find($request->customerId);
         $project->customer()->attach($customer);
         return $project->id;
-    }
-
-    public function exist(Request $request, $name){
-        $projectExist = Project::where('name', $name)->exists();
-        if($projectExist){
-            return 1;
-        }else{
-            return 0;
-        }
     }
 
     // GET project/{id}
@@ -68,11 +63,10 @@ class ProjectController extends Controller
     }
 
     // DELETE project/{projectName}/customer/{customerId}
-    public function removeFromCustomer(Request $request, $projectName, Customer $customer){
-        $project = Project::where('name', $projectName)->first();
+    public function removeFromCustomer(Request $request, $projectId, Customer $customer){
+        $project = Project::find($projectId);
 
         $customer->projects()->detach($project);
-
     }
 
     // DELETE project/{id}

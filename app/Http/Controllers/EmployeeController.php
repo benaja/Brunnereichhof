@@ -184,6 +184,8 @@ class EmployeeController extends Controller
         if (file_exists($smallImagePath)) {
             unlink($smallImagePath);
         }
+        $employee->profileimage = null;
+        $employee->save();
     }
 
     // DELETE employee/{id}
