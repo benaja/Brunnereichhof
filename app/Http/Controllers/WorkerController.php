@@ -15,12 +15,14 @@ class WorkerController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('jwt.auth');
     }
 
     // GET worker
     public function index(Request $request)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        
         $workers = User::where('authorization_id', AuthorizationType::Worker)->get();
 
         foreach($workers as $worker){
@@ -58,6 +60,8 @@ class WorkerController extends Controller
     // POST worker
     public function store(Request $request)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
             'lastname' => 'required|string|max:100',
@@ -103,6 +107,8 @@ class WorkerController extends Controller
     // GET worker/{id}
     public function show(Request $request, $id)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $worker = User::find($id);
         
         return $worker;
@@ -119,6 +125,8 @@ class WorkerController extends Controller
     // DELETE worker/{id}
     public function destroy($id)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        
         $worker = User::find($id);
 
         $worker->delete();
