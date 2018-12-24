@@ -17,4 +17,4 @@ class Project extends Model
     public function rapportdetails(){
         return $this->hasMany(Rapportdetail::class);
     }
-}
+}   

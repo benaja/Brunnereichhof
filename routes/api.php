@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 Route::post('auth/login', 'AuthController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
+    Route::get('/pdftoken', 'AuthController@generatePdfToken');
     
 });
 Route::group(['middleware' => 'jwt.refresh'], function () {
@@ -36,5 +37,7 @@ Route::resource('/project', 'ProjectController');
 // Route::get('/rapport/show', 'RapportController@showAll');
 // Route::post('/rapport/convertdate', 'RapportController@convertDate');
 Route::get('/rapport/week/{week}', 'RapportController@showWeek');
-// Route::get('/rapport/{rapport}/pdf', 'RapportController@generatePdf');
+Route::get('/rapport/{rapport}/pdf', 'PdfController@rapportWeek');
+Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
+Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
 Route::resource('/rapport', 'RapportController');

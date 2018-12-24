@@ -70,15 +70,15 @@ class WorkerController extends Controller
 
         $username = strtolower($request->firstname) . "." . strtolower($request->lastname);
 
-        if($this->checkIfUsernameExist(request('username'))){
+        if($this->checkIfUsernameExist($username)){
             $usernameIsUnique = false;
             $counter = 1;
             
             while(!$usernameIsUnique){
-                if($this->checkIfUsernameExist(request('username').$counter)){
+                if($this->checkIfUsernameExist($username.$counter)){
                     $counter++;
                 }else{
-                    $username = request('username').$counter;
+                    $username = $username .$counter;
                     $usernameIsUnique = true;
                 }
             }
@@ -101,7 +101,7 @@ class WorkerController extends Controller
         $data['password'] = $password;
 
         \Mail::to($user->email)->send(new WorkerCreated($data));
-        return redirect('/worker');
+        return 'success';
     }
 
     // GET worker/{id}

@@ -198,6 +198,50 @@ class RapportController extends Controller
         return view('pages.admin.rapport.show-all', compact('rapportWeeks', 'newWeek'));
     }
 
+    public function addEmployee(Request $request, Rapport $rapport) {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $date = new \DateTime($rapport->startdate);
+        $employee = Employee::find($request->employee_id);
+        $commonProject = Project::where('name', 'Allgemein')->first();
+
+        $rapportdetails = $rapport->rapportdetails->where('employee_id', $employee->id);
+
+        if(count($rapportdetails) == 0) {
+            for ($i = 0; $i < 6; $i++) {
+                $rapportdetail = Rapportdetail::create([
+                    'date' => $date->format('Y-m-d'),
+                    'day' => $i,
+                ]);
+                $rapportdetail->employee()->associate($employee);
+                $rapportdetail->rapport()->associate($rapport);
+                $rapportdetail->project()->associate($commonProject);
+
+                $rapportdetail->save();
+                $date->modify('+1 day');
+            }
+        } else {
+            return response('employee already exists', 400);
+        }
+
+        $rapportdetails = Rapportdetail::where([
+            'rapport_id' => $rapport->id,
+            'employee_id' => $employee->id
+        ])->get();
+        return $rapportdetails;
+    }
+
+    public function removeEmployee(Rapport $rapport, Employee $employee) {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        Rapportdetail::where([
+            'rapport_id' => $rapport->id,
+            'employee_id' => $employee->id
+        ])->delete();
+
+        return 'success';
+    }
+
     // PATCH rapport/{id}
     public function update(Request $request, Rapport $rapport)
     {
@@ -213,22 +257,7 @@ class RapportController extends Controller
             $rapportdetail->foodtype_id = $request->foodType;
             $rapportdetail->save();
         }else if($request->type == 'addEmployee'){
-            foreach ($request->employees as $employeeId) {
-                $date = new \DateTime($rapport->startdate);
-                for($i = 0; $i < 6; $i++){
-                    $rapportdetail = Rapportdetail::create([
-                        'date' => $date->format('Y-m-d'),
-                        'day' => $i,
-                    ]);
-                    echo $i;
-                    $employee = Employee::find($employeeId);
-                    $rapportdetail->employee()->associate($employee);
-                    $rapportdetail->rapport()->associate($rapport);
-    
-                    $rapportdetail->save();
-                    $date->modify('+1 day');
-                }
-            }
+            
         }else if($request->type == 'projectAll'){
             $rapportdetails = $rapport->rapportdetails->where('day', $request->day);
 
@@ -285,7 +314,8 @@ class RapportController extends Controller
 
     // GET rapport/{id}/pdf
     public function generatePdf(Request $request, Rapport $rapport){
-        $request->user()->authorizeRoles(['admin']);
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
         $pdf = new Fpdf('P','mm','A4');
         $pdf::SetFont('Arial','B',16);
         Fpdf::AddPage('L');
@@ -377,7 +407,9 @@ class RapportController extends Controller
             Fpdf::cell(40, $cellHeight, $time . " h", 0, 'R', 'L', $fill);
         }
         
-        $filename="{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf";
-        Fpdf::Output('D', $filename);
+        $filename="pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf";
+        Fpdf::Output( $filename, 'F');
+
+        readfile($filename);
     }
 }

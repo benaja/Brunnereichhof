@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Auth;
 use JWTAuth;
 use App\User;
-use Auth;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -62,5 +63,14 @@ class AuthController extends Controller
             'status' => 'success',
             'msg' => 'Logged out Successfully.'
         ], 200);
+    }
+
+    public function generatePdfToken() {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $token = str_random(32);
+        Cache::put('pdfToken', $token, 1);
+
+        return $token;
     }
 }

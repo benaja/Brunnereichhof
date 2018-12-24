@@ -4,7 +4,7 @@ use 19911184_rapport2;
 
 create table authorization(id int primary key auto_increment, name text);
 
-create table user(id int primary key auto_increment, email text, username text, firstname text, lastname text, authorization_id int, password text, ismealdefault boolean, remember_token text, updated_at datetime, created_at datetime, foreign key(authorization_id) references authorization(id));
+create table user(id int primary key auto_increment, email text, username text, firstname text, lastname text, authorization_id int, password text, ismealdefault boolean, remember_token text, isPasswordChanged boolean, updated_at datetime, created_at datetime, foreign key(authorization_id) references authorization(id));
 
 create table customer(id int primary key auto_increment, firstname text, lastname text, addition text, street text, place text, plz text, mobile text, phone text, hasCatering boolean, kitchen_infrastructure text, max_catering int, comment_catering text, driver_info text, comment text, maps text, secret text, customer_number int, needs_payment_order boolean, user_id int, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
 
@@ -21,8 +21,6 @@ create table workplace(id int primary key auto_increment, name text, updated_at 
 create table workplace_personal(workplace_id int, employee_id int, updated_at datetime, created_at datetime, primary key(workplace_id, employee_id), foreign key(workplace_id) references workplace(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
 
 
-
------------
 create table settings(id int primary key auto_increment, hoursPerDay double, updated_at datetime, created_at datetime);
 
 create table timerecord(id int primary key auto_increment, user_id int, date date, lunch boolean, comment text, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
@@ -41,10 +39,12 @@ CREATE table foodtype(id int primary key auto_increment, foodname text, updated_
 
 CREATE table rapportdetail(id int primary key auto_increment, rapport_id int, project_id int, employee_id int, foodtype_id int, hours double, day int, comment text, date date, updated_at datetime, created_at datetime, foreign key(rapport_id) references rapport(id) on delete cascade, foreign key(project_id) references project(id) on delete set null, foreign key(employee_id) REFERENCES employee(id) on delete cascade, foreign key(foodtype_id) references foodtype(id) on delete cascade);
 
-insert into authorization(name) values('customer'),('admin'),('worker');
+insert into authorization(name) values('customer'),('admin'),('worker'),('superadmin');
 
 insert into foodtype(foodname) VALUE('eichohof'),('customer'),('none');
 
 insert into worktype(name, name_de) VALUE('productiveHours', 'Produktivstunden'), ('holidays', 'Ferien'), ('sick', 'Krank'), ('accident', 'Unfall');
+
+insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten')
 
 $2y$10$MJV/WP5/RAc41AbD/kg/xeOvmxixCHfh5B/MReXJu8HMecKEv2CeS
