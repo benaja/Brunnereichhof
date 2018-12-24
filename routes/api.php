@@ -30,3 +30,11 @@ Route::delete('/project/{projectId}/customer/{customer}', 'ProjectController@rem
 Route::post('/project/add', 'ProjectController@addToCustomer');
 Route::resource('/project', 'ProjectController');
 
+//Rapport
+// Route::get('/rapport/choosecustomer', 'RapportController@chooseCustomer');
+// Route::get('/rapport/addcustomer/{customer}', 'RapportController@addCustomer');
+// Route::get('/rapport/show', 'RapportController@showAll');
+// Route::post('/rapport/convertdate', 'RapportController@convertDate');
+Route::get('/rapport/week/{week}', 'RapportController@showWeek');
+// Route::get('/rapport/{rapport}/pdf', 'RapportController@generatePdf');
+Route::resource('/rapport', 'RapportController');

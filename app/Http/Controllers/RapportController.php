@@ -15,14 +15,35 @@ class RapportController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('jwt.auth');
     }
     
     // GET rapport
     public function index(Request $request)
     {
-        $request->user()->authorizeRoles(['admin']);
-        return view('pages.admin.rapport.index');
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $rapports = Rapport::get()->sortBy('startdate')->groupBy('startdate');
+
+        $rapportWeeks = array();
+        foreach ($rapports as $rapportGroup) {
+            $date = new \DateTime($rapportGroup[0]->startdate);
+            $isFinished = true;
+            foreach ($rapportGroup as $rapport) {
+                if ($rapport->isFinished == 0) {
+                    $isFinished = false;
+                }
+            }
+            $week = [
+                'date' => $date,
+                'isFinished' => $isFinished
+            ];
+            array_push($rapportWeeks, $week);
+        }
+
+        $rapportWeeks = array_reverse($rapportWeeks);
+
+        return $rapportWeeks;
     }
 
     // GET rapport/choosecustomer
@@ -58,14 +79,37 @@ class RapportController extends Controller
 
     // GET rapport/week/{week}
     public function showWeek(Request $request, $week){
-        $request->user()->authorizeRoles(['admin']);
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
         
         $week = new \DateTime($week);
+        $week->modify('monday this week');
 
         $rapports = Rapport::where('startdate', $week->format('Y-m-d'))->get();
 
+        foreach ($rapports as $rapport) {
+            $rapport->customer = $rapport->customer;
+        }
+        return $rapports;
+    }
 
-        return view('pages.admin.rapport.show-week', compact('rapports'));
+    public function store(Request $request) {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $week = new \DateTime($request->week);
+        $week->modify('monday this week');
+
+        $rapport = Rapport::firstOrCreate(
+            ['startdate' => $week->format('Y-m-d'), 'customer_id' => $request->customer_id]
+        );
+
+        if($rapport->customer_id == null) {
+            $rapport->customer_id = $request->customer_id;
+            $rapport->startdate = $week->format('Y-m-d');
+            $rapport->isFinished = false;
+            $rapport->save();
+        }
+
+        return $rapport;
     }
 
     // POST rapport
@@ -106,19 +150,17 @@ class RapportController extends Controller
     // GET rapport/{id}
     public function show(Request $request, Rapport $rapport)
     {
-        $request->user()->authorizeRoles(['admin']);
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $customer = $rapport->customer;
+        $rapport->customer = $rapport->customer;
+        $rapport->rapportdetails = $rapport->rapportdetails->groupBy('employee_id');
 
         $employees = Employee::where('isActive', 1)->get();
 
-        $employeesInRapport = $rapport->rapportdetails->groupBy('employee_id');
-
-        $startdate = new \DateTime($rapport->startdate);
-
-        $commentDays = ['comment_mo', 'comment_tu', 'comment_we', 'comment_th', 'comment_fr', 'comment_sa'];
-
-        return view('pages.admin.rapport.create-week', compact('rapport', 'employees', 'startdate', 'employeesInRapport', 'commentDays'));
+        return [
+            'rapport' => $rapport,
+            'employees' => $employees
+        ];
     }
 
     // GET rapport/show
