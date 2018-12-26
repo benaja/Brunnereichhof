@@ -10,6 +10,7 @@ use App\Employee;
 use App\Rapportdetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Foodtype;
 
 class RapportController extends Controller
 {
@@ -209,6 +210,7 @@ class RapportController extends Controller
         $date = new \DateTime($rapport->startdate);
         $employee = Employee::find($request->employee_id);
         $commonProject = Project::where('name', 'Allgemein')->first();
+        $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
 
         $rapportdetails = $rapport->rapportdetails->where('employee_id', $employee->id);
 
@@ -221,6 +223,7 @@ class RapportController extends Controller
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
                 $rapportdetail->project()->associate($commonProject);
+                $rapportdetail->foodtype()->associate($defaultFoodType);
 
                 $rapportdetail->save();
                 $date->modify('+1 day');
@@ -265,179 +268,43 @@ class RapportController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-
         $updatetKey = key($request->except('_token'));
 
         $updatedValue = (string)$request->$updatetKey;
-        if($updatedValue == ''){
+        if ($updatedValue == '') {
             $updatedValue = null;
         }
         $rapport->$updatetKey = $updatedValue;
         $rapport->save();
-        // if($request->type == 'hours'){
-        //     $rapportdetail = $rapport->rapportdetails->where('employee_id', $request->employeeId)->where('day', $request->day)->first();
+    }
 
-        //     $rapportdetail->hours = $request->hours;
-        //     $rapportdetail->save();
-        // }else if($request->type == 'food'){
-        //     $rapportdetail = $rapport->rapportdetails->where('employee_id', $request->employeeId)->where('day', $request->day)->first();
-        //     $rapportdetail->foodtype_id = $request->foodType;
-        //     $rapportdetail->save();
-        // }else if($request->type == 'addEmployee'){
-            
-        // }else if($request->type == 'projectAll'){
-        //     $rapportdetails = $rapport->rapportdetails->where('day', $request->day);
+    public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        //     foreach($rapportdetails as $rapportdetail){
-        //         $project = Project::find($request->projectId);
-        //         $rapportdetail->project()->associate($project);
-        //         $rapportdetail->save();
-        //     }
-        // }else if($request->type == "project"){
-        //     $rapportdetail = $rapport->rapportdetails->where('employee_id', $request->employeeId)->where('day', $request->day)->first();
-        //     $project = Project::find($request->projectId);
-        //     $rapportdetail->project()->associate($project);
-        //     $rapportdetail->save();
-        // }else if($request->type == "comment"){
-        //     $commentDay = $request->commentDay;
-        //     $rapport->$commentDay = $request->comment;
-        //     $rapport->save();
-        // }else if($request->type == "deleteEmployee"){
-        //     $rapportdetails = Rapportdetail::where('rapport_id', $rapport->id)->where('employee_id', $request->employeeId)->delete();
-        // }else if($request->type == "isFinished"){
-        //     $rapport->isFinished = $request->data;
-        //     $rapport->save();
-        // }
+        $updatetKey = key($request->except('_token'));
 
+        $updatedValue = (string)$request->$updatetKey;
+        if ($updatedValue == '') {
+            $updatedValue = null;
+        }
+        if ($updatetKey == 'project_id') {
+            $project = Project::find($updatedValue);
+            $rapportdetail->project()->associate($project);
+        } else if ($updatetKey == 'foodtype_id') {
+            $foodtype = Foodtype::find($updatedValue);
+            $rapportdetail->foodtype()->associate($foodtype);
+        } else {
+            $rapportdetail->$updatetKey = $updatedValue;
+        }
+        $rapportdetail->save();
     }
 
     // DELETE /rapport/{id}
     public function destroy(Request $request, Rapport $rapport)
     {
-        $request->user()->authorizeRoles(['admin']);
-
-        $rapport->delete();
-    }
-
-    // POST rapport/convertdate
-    public function convertDate(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $date = new \DateTime($request->date);
-
-        $lastMonday = $date->modify("Monday this week")->format('d.m.Y');
-        $nextSonday = $date->modify("+6 Days")->format('d.m.Y');
-        $week = $date->format('W');
-
-        $response = [
-            'lastMonday' => $lastMonday,
-            'nextSonday' => $nextSonday,
-            'week' => $week
-
-        ];
-
-        return $response;
-    }
-
-    // GET rapport/{id}/pdf
-    public function generatePdf(Request $request, Rapport $rapport)
-    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $pdf = new Fpdf('P', 'mm', 'A4');
-        $pdf::SetFont('Arial', 'B', 16);
-        Fpdf::AddPage('L');
-        Fpdf::SetFont('Arial', 'B', 18);
-
-        $header = [
-            'Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
-        ];
-
-        $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
-        $rapportdetailsGruped = $rapport->rapportdetails->groupBy('employee_id');
-
-        $totalTime = 0;
-        foreach ($rapportdetailsGruped as $rapportdetails) {
-            $counter = 0;
-            foreach ($rapportdetails as $rapportdetail) {
-                $totalTime += $rapportdetail->hours;
-                $counter++;
-            }
-        }
-
-        $cellHeight = 8;
-
-        Fpdf::SetFillColor(42, 168, 42);
-        Fpdf::SetDrawColor(255);
-        Fpdf::SetLineWidth(.3);
-        Fpdf::AddFont('Raleway', '', 'Raleway-Regular.php');
-        Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
-        // Fpdf::AddFont('Raleway','I', 'Raleway-Italic.php');
-
-        Fpdf::SetFont('Raleway', 'B', 20);
-        Fpdf::Cell(0, 15, utf8_decode("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}"), 0, 2);
-        Fpdf::SetFont('Raleway', '', 18);
-        $startdate = new \DateTime($rapport->startdate);
-        Fpdf::Cell(0, 12, "Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})", 0, 2);
-        Fpdf::Cell(0, 12, "Totale Arbeitsstunden: {$totalTime}");
-        Fpdf::Ln();
-
-
-        Fpdf::SetFont('Raleway', 'B', 12);
-        Fpdf::SetTextColor(255);
-        // Header
-        $cellWidth = 40;
-        for ($i = 0; $i < count($header); $i++) {
-            Fpdf::Cell($cellWidth, $cellHeight, $header[$i], 0, 0, 'L', true);
-        }
-        Fpdf::Ln();
-        // Color and font restoration
-        Fpdf::SetFillColor(242, 242, 242);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', 10);
-        // Data
-        $fill = false;
-        $marginLeft = Fpdf::getX();
-        $marginTop = Fpdf::getY();
-        foreach ($comments as $comment) {
-            Fpdf::SetXY($marginLeft, $marginTop);
-            Fpdf::MultiCell(40, $cellHeight, utf8_decode($comment), 'L', $fill);
-            $marginLeft += 40;
-        }
-        Fpdf::Ln();
-        $fill = !$fill;
-
-
-        $timePerDay = [0, 0, 0, 0, 0, 0];
-        foreach ($rapportdetailsGruped as $rapportdetails) {
-            Fpdf::cell(40, $cellHeight, utf8_decode("{$rapportdetails[0]->employee->firstname} {$rapportdetails[0]->employee->lastname}"), 0, 'R', 'L', $fill);
-
-            $counter = 0;
-            foreach ($rapportdetails as $rapportdetail) {
-                $timePerDay[$counter] += $rapportdetail->hours;
-                $counter++;
-                Fpdf::cell(40, $cellHeight, $rapportdetail->hours != null ? $rapportdetail->hours . " h" : "0" . " h", 0, 'R', 'L', $fill);
-            }
-            Fpdf::Ln();
-
-
-            Fpdf::cell(40, $cellHeight, "", 0, 'R', 'L', $fill);
-            foreach ($rapportdetails as $rapportdetail) {
-                Fpdf::cell(40, $cellHeight, utf8_decode($rapportdetail->project != null ? $rapportdetail->project->name : "keine Angabe"), 0, 'R', 'L', $fill);
-            }
-            Fpdf::Ln();
-            $fill = !$fill;
-        }
-        // Closing line
-        Fpdf::cell(40, $cellHeight, "Total Zeit", 0, 'R', 'L', $fill);
-        foreach ($timePerDay as $time) {
-            Fpdf::cell(40, $cellHeight, $time . " h", 0, 'R', 'L', $fill);
-        }
-
-        $filename = "pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf";
-        Fpdf::Output($filename, 'F');
-
-        readfile($filename);
+        $rapport->delete();
     }
 }

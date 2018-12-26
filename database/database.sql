@@ -41,7 +41,7 @@ CREATE table rapportdetail(id int primary key auto_increment, rapport_id int, pr
 
 insert into authorization(name) values('customer'),('admin'),('worker'),('superadmin');
 
-insert into foodtype(foodname) VALUE('eichohof'),('customer'),('none');
+insert into foodtype(foodname) VALUE('eichhof'),('customer'),('none');
 
 insert into worktype(name, name_de) VALUE('productiveHours', 'Produktivstunden'), ('holidays', 'Ferien'), ('sick', 'Krank'), ('accident', 'Unfall');
 

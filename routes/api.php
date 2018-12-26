@@ -6,7 +6,7 @@ Route::post('auth/login', 'AuthController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
     Route::get('/pdftoken', 'AuthController@generatePdfToken');
-    
+
 });
 Route::group(['middleware' => 'jwt.refresh'], function () {
     Route::get('auth/refresh', 'AuthController@refresh');
@@ -40,4 +40,5 @@ Route::get('/rapport/week/{week}', 'RapportController@showWeek');
 Route::get('/rapport/{rapport}/pdf', 'PdfController@rapportWeek');
 Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
 Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
+Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');
 Route::resource('/rapport', 'RapportController');

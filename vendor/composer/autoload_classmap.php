@@ -14,7 +14,7 @@ return array(
     'App\\Enums\\AuthorizationType' => $baseDir . '/app/Enums/AuthorizationType.php',
     'App\\Enums\\WorkType' => $baseDir . '/app/Enums/WorkType.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
-    'App\\Foottype' => $baseDir . '/app/Foottype.php',
+    'App\\Foodtype' => $baseDir . '/app/Foodtype.php',
     'App\\Hour' => $baseDir . '/app/Hour.php',
     'App\\Hourrecord' => $baseDir . '/app/Hourrecord.php',
     'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => $baseDir . '/app/Http/Controllers/Auth/ForgotPasswordController.php',

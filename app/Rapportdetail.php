@@ -10,19 +10,23 @@ class Rapportdetail extends Model
 
     protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date'];
 
-    public function rapport(){
-        return $this->belongsTo(Rapport::class);     
+    public function rapport()
+    {
+        return $this->belongsTo(Rapport::class);
     }
 
-    public function project(){
+    public function project()
+    {
         return $this->belongsTo(Project::class);
     }
 
-    public function employee(){
+    public function employee()
+    {
         return $this->belongsTo(Employee::class);
     }
 
-    public function foodtype(){
-        return $this->belongsTo(Foottype::class);
+    public function foodtype()
+    {
+        return $this->belongsTo(Foodtype::class);
     }
 }
