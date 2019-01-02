@@ -115,7 +115,7 @@ class CustomerController extends Controller
 
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
-        if($customer->secret != null){
+        if ($customer->secret != null) {
             $customer->secret = decrypt($customer->secret);
         }
         return response($customer);
@@ -149,20 +149,23 @@ class CustomerController extends Controller
             'customer_number' => $request->customer_number,
             'needs_payment_order' => $request->needs_payment_order
         ]);
-        $customer->save();
-        // if(request('element') == 'email'){
-        //     $user = User::find($customer->user_id);
-        //     $user->email = request('data'); 
-        //     $user->save();
-        // }else{
-        //     $customer->$element = request('data');
-        // }
-        // if(request('element') == "hasCatering" && request('data') == 0){
-        //     $customer->kitchen_infrastructure = null;
-        //     $customer->max_catering = null;
-        //     $customer->comment_catering = null;
-        // }
-        // $customer->save();
+
+        if ($request->email != $customer->user->email) {
+            $this->validate($request, [
+                'email' => 'nullable|email|unique:user'
+            ]);
+            $customer->user->email = $request->email;
+            $customer->user->save();
+
+            if ($request->email != '') {
+                $data['mail'] = $request->email;
+                $data['password'] = decrypt($customer->secret);
+
+                \Mail::to($request->email)->send(new CustomerCreated($data));
+                return response('email send');
+            }
+        }
+        return response('success');
     }
 
     public function resetPassword(Request $request, $id)
@@ -172,9 +175,10 @@ class CustomerController extends Controller
         $customer = Customer::find($id);
 
         $password = str_random(8);
-        $secret = encrypt($password); 
+        $secret = encrypt($password);
 
         $customer->user->password = Hash::make($password);
+        $customer->user->isPasswordChanged = 0;
         $customer->secret = $secret;
 
         $customer->user->save();
