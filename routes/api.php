@@ -42,3 +42,9 @@ Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
 Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
 Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');
 Route::resource('/rapport', 'RapportController');
+
+Route::get('/pdf/worker/month/{month}', 'PdfController@workerMonthRapport');
+Route::get('/pdf/employee/year/{year}', 'PdfController@employeeYearRapport');
+Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
+Route::get('/pdf/employees', 'PdfController@employeeList');
+Route::get('/pdf/customer/year/{year}', 'PdfController@customerYearRapport');
