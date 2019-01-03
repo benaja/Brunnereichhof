@@ -35,7 +35,7 @@ class ValidTime implements Rule
     {
         $to = new \DateTime($to);
         foreach ($this->timerecord->hours as $hour) {
-            if($this->id != $hour->id){
+            if ($this->id != $hour->id) {
                 if ($this->from >= $hour->from() && $this->from < $hour->to()) {
                     return false;
                 }

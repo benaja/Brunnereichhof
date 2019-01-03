@@ -10,11 +10,13 @@ class Timerecord extends Model
 
     protected $fillable = ['date', 'lunch', 'comment'];
 
-    public function date(){
+    public function date()
+    {
         return new \DateTime($this->date);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
@@ -23,14 +25,15 @@ class Timerecord extends Model
         return $this->hasMany(Hour::class);
     }
 
-    public function totalHours(){
+    public function totalHours()
+    {
         $total = 0;
 
-        foreach($this->hours as $hour){
+        foreach ($this->hours as $hour) {
             $different = $hour->from()->diff($hour->to());
             $total += $different->h;
             $total += number_format((float)$different->i / 60, 2, '.', '');
-            
+
         }
         return $total;
     }

@@ -53,3 +53,4 @@ Route::post('/password/change', 'UserController@changePassword');
 Route::post('/resetpassword/{user}', 'UserController@resetPassword');
 
 Route::get('/time/{date}', 'TimeController@index');
+Route::resource('/time', 'TimeController');

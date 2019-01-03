@@ -40,82 +40,49 @@ class TimeController extends Controller
         $isMealDefault = auth()->user()->ismealdefault;
         $totalHours = $timerecord->totalHours();
 
+        foreach ($timerecord->hours as $hour) {
+            $hour->lunch = $timerecord->lunch;
+        }
+
         return $timerecord->hours;
-
-        // if ($agent->isMobile()) {
-        //     $timerecord = Timerecord::firstOrNew(
-        //         ['date' => $currentDate->format('Y-m-d')],
-        //         ['user_id' => $request->user()->id]
-        //     );
-
-        //     $isMealDefault = $request->user()->ismealdefault;
-        //     $isMobile = true;
-        //     $totalHours = $timerecord->totalHours();
-
-        //     return view('pages.worker.index-mobile', compact("currentDate", "error", "timerecord", "isMealDefault", "settings", "hasUpdated", "isMobile", "totalHours"));
-        // } else {
-        //     $tmpDate = clone $currentDate;
-        //     $tmpDate->modify('monday this week');
-        //     $timerecords = [];
-        //     $totalHours = 0;
-        //     for ($i = 0; $i < 7; $i++) {
-        //         $timerecord = Timerecord::where('date', $tmpDate->format('Y-m-d'))
-        //             ->where('user_id', $request->user()->id)
-        //             ->first();
-        //         if ($timerecord == null) {
-        //             $timerecord = new Timerecord();
-        //             $timerecord->hours = [];
-        //             $timerecord->date = $tmpDate->format('Y-m-d');
-        //         } else {
-        //             $totalHours += $timerecord->totalHours();
-        //         }
-        //         array_push($timerecords, $timerecord);
-        //         $tmpDate->modify("+1 day");
-        //     }
-
-        //     $isMealDefault = $request->user()->ismealdefault;
-        //     $isMobile = false;
-
-        //     return view('pages.worker.index', compact("currentDate", "error", "timerecords", "timerecord", "isMealDefault", "settings", "hasUpdated", "dayNamesGerman", "isMobile", "totalHours"));
-        // }
     }
 
     // POST time
     public function store(Request $request)
     {
-        $request->user()->authorizeRoles(['worker']);
-        Session::put('hasUpdated', false);
+        auth()->user()->authorizeRoles(['worker']);
+
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
             ['date' => $date->format('Y-m-d')],
-            ['user_id' => $request->user()->id]
+            ['user_id' => auth()->user()->id]
         );
 
         $request->validate([
             'workType' => 'required|string',
             'from' => 'required|before:to',
             'to' => ['required', new ValidTime($request->from, $timerecord)],
-            'interrupt' => 'nullable|boolean',
+            'hasBreak' => 'nullable|boolean',
             'lunch' => 'nullable|boolean',
             'date' => 'required|date',
-            'commnet' => 'nullable|string'
+            'comment' => 'nullable|string'
         ]);
 
-        if ($request->interrupt == 1) {
+        if ($request->hasBreak) {
             $request->validate([
-                'interruptFrom' => 'required|after:from',
-                'interruptTo' => 'required|after:interruptFrom|before:to'
+                'breakFrom' => 'required|after:from',
+                'breakTo' => 'required|after:breakFrom|before:to'
             ]);
         }
 
         $timerecord->lunch = $request->lunch;
         $timerecord->save();
 
-        if ($request->interrupt == 1) {
-            if (!$this->createHour($timerecord, $request->from, $request->interruptFrom, $request->comment, $request->workType)) {
+        if ($request->hasBreak) {
+            if (!$this->createHour($timerecord, $request->from, $request->breakFrom, $request->comment, $request->workType)) {
                 return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
             }
-            if (!$this->createHour($timerecord, $request->interruptTo, $request->to, $request->comment, $request->workType)) {
+            if (!$this->createHour($timerecord, $request->breakTo, $request->to, $request->comment, $request->workType)) {
                 return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
             }
         } else {
@@ -123,23 +90,27 @@ class TimeController extends Controller
                 return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
             }
         }
-        $request->user()->ismealdefault = $request->lunch;
-        $request->user()->save();
+        auth()->user()->ismealdefault = $request->lunch;
+        auth()->user()->save();
+        auth()->user()->timerecords()->save($timerecord);
 
-        $request->user()->timerecords()->save($timerecord);
+        $timerecord = Timerecord::find($timerecord->id);
+        foreach ($timerecord->hours as $hour) {
+            $hour->lunch = $timerecord->lunch;
+        }
 
-        return redirect("/time?date=" . $date->format('d.m.Y'));
+        return $timerecord->hours;
     }
 
     // PATCH time/{id}
     public function update(Request $request, $id)
     {
-        $request->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker']);
 
         $hour = Hour::find($id);
         if ($hour->timerecord->user == $request->user()) {
             $request->validate([
-                'workType' => 'required|string',
+                'workType' => 'required|integer',
                 'from' => 'required|before:to',
                 'to' => ['required', new ValidTime($request->from, $hour->timerecord, $hour->id)],
                 'lunch' => 'nullable|boolean',
@@ -152,7 +123,7 @@ class TimeController extends Controller
             $hour->to = $request->to;
             $hour->comment = $request->comment;
 
-            $worktype = Worktype::where('name', $request->workType)->first();
+            $worktype = Worktype::find($request->workType);
             $worktype->hours()->save($hour);
 
             $hour->save();
@@ -160,21 +131,33 @@ class TimeController extends Controller
             $hour->timerecord->lunch = $request->lunch;
             $hour->timerecord->save();
 
-            return redirect("/time?date={$date->format('d.m.Y')}");
+            $timerecord = Timerecord::find($hour->timerecord->id);
+            foreach ($timerecord->hours as $hour) {
+                $hour->lunch = $timerecord->lunch;
+            }
+
+            return $timerecord->hours;
         }
     }
 
     // DELETE time/{id}
     public function destroy(Request $request, $id)
     {
-        $request->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker']);
 
         $hour = Hour::find($id);
+        $timerecordId = $hour->timerecord->id;
 
         if ($hour->timerecord->user == $request->user()) {
             Hour::destroy($id);
         }
 
+        $timerecord = Timerecord::find($timerecordId);
+        foreach ($timerecord->hours as $hour) {
+            $hour->lunch = $timerecord->lunch;
+        }
+
+        return $timerecord->hours;
     }
 
     //-- helpers --//

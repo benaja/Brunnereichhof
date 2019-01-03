@@ -10,33 +10,40 @@ class Hour extends Model
 
     protected $fillable = ['from', 'to', 'comment'];
 
-    public function from(){
+    public function from()
+    {
         return new \DateTime($this->from);
     }
 
-    public function to(){
+    public function to()
+    {
         return new \DateTime($this->to);
     }
 
-    public function getMarginTop(){
+    public function getMarginTop()
+    {
         $different = $this->from()->diff(new \DateTime("00:00"));
         return ($different->h * 41) + (41 / 60 * $different->i);
     }
 
-    public function getHeight(){
+    public function getHeight()
+    {
         $different = $this->from()->diff($this->to());
         return ($different->h * 41) + (41 / 60 * $different->i);
     }
 
-    public function timerecord(){
+    public function timerecord()
+    {
         return $this->belongsTo(Timerecord::class);
     }
 
-    public function worktype(){
+    public function worktype()
+    {
         return $this->belongsTo(Worktype::class);
     }
 
-    public function duration(){
+    public function duration()
+    {
         $different = $this->from()->diff($this->to());
         $minutesInHours = 100 / 60 * $different->i;
         return $different->h . "." . number_format((float)$minutesInHours, 0, '.', '');
