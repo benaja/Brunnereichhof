@@ -37,8 +37,6 @@ class WorkerController extends Controller
             $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
         }
         return $workers;
-
-        return view('pages.admin.worker.index', compact('workers'));
     }
 
     // POST worker

@@ -4,7 +4,7 @@ namespace App\Enums;
 
 use BenSampo\Enum\Enum;
 
-final class WorkType extends Enum
+final class WorkTypeEnum extends Enum
 {
     const ProductiveHours = 1;
     const Holydays = 2;

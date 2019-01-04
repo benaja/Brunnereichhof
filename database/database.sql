@@ -21,7 +21,7 @@ create table workplace(id int primary key auto_increment, name text, updated_at 
 create table workplace_personal(workplace_id int, employee_id int, updated_at datetime, created_at datetime, primary key(workplace_id, employee_id), foreign key(workplace_id) references workplace(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
 
 
-create table settings(id int primary key auto_increment, hoursPerDay double, updated_at datetime, created_at datetime);
+create table settings(id int primary key auto_increment, `key` text, value text, type text, updated_at datetime, created_at datetime);
 
 create table timerecord(id int primary key auto_increment, user_id int, date date, lunch boolean, comment text, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
 
@@ -45,6 +45,8 @@ insert into foodtype(foodname) VALUE('eichhof'),('customer'),('none');
 
 insert into worktype(name, name_de) VALUE('productiveHours', 'Produktivstunden'), ('holidays', 'Ferien'), ('sick', 'Krank'), ('accident', 'Unfall');
 
-insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten')
+insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten');
+
+insert into settings(`key`, value, type) value('fullDayShortStart', '08:00', 'string'), ('fullDayShortEnd', '16:00', 'string'), ('fullDayLongStart', '07:00', 'string'), ('fullDayLongEnd', '16:00', 'string');
 
 $2y$10$MJV/WP5/RAc41AbD/kg/xeOvmxixCHfh5B/MReXJu8HMecKEv2CeS

@@ -10,6 +10,7 @@ use App\Worktype;
 use App\Settings;
 use App\Timerecord;
 use App\Rules\ValidTime;
+use App\Enums\WorkTypeEnum;
 use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -158,6 +159,43 @@ class TimeController extends Controller
         }
 
         return $timerecord->hours;
+    }
+
+    public function stats($date)
+    {
+        auth()->user()->authorizeRoles(['worker', 'admin']);
+
+        $firstDay = new \DateTime($date);
+        $lastDay = new \DateTime($date);
+        if (request('type') == 'month') {
+            $firstDay->modify('first day of this month');
+            $lastDay->modify('last day of this month');
+        } else {
+            $firstDay->modify('last monday');
+            $lastDay->modify('next sunday');
+        }
+
+        $today = new \DateTime();
+        if ($lastDay > $today) {
+            $lastDay = $today;
+        }
+        $timerecords = Timerecord::where('date', '>=', $firstDay->format('Y-m-d'))
+            ->where('date', '<=', $lastDay->format('Y-m-d'))->get();
+
+        $totalHours = 0;
+        $holidayHours = 0;
+        foreach ($timerecords as $timerecord) {
+            $totalHours += $timerecord->totalHours();
+            $hours = $timerecord->hours->where('worktype_id', WorkTypeEnum::Holydays);
+            foreach ($hours as $hour) {
+                $holidayHours += $hour->duration();
+            }
+        }
+        $response = [
+            'totalHours' => $totalHours,
+            'holidayHours' => $holidayHours
+        ];
+        return $response;
     }
 
     //-- helpers --//
