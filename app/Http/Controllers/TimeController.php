@@ -32,10 +32,8 @@ class TimeController extends Controller
 
         $currentDate = new \DateTime($date);
 
-        $settings = Settings::first();
         $timerecord = Timerecord::firstOrNew(
-            ['date' => $currentDate->format('Y-m-d')],
-            ['user_id' => auth()->user()->id]
+            ['date' => $currentDate->format('Y-m-d'), 'user_id' => auth()->user()->id]
         );
 
         $isMealDefault = auth()->user()->ismealdefault;
@@ -109,7 +107,7 @@ class TimeController extends Controller
         auth()->user()->authorizeRoles(['worker', 'admin']);
 
         $hour = Hour::find($id);
-        if ($hour->timerecord->user == $request->user()) {
+        if ($hour->timerecord->user->id == auth()->user()->id) {
             $request->validate([
                 'workType' => 'required|integer',
                 'from' => 'required|before:to',
@@ -138,6 +136,8 @@ class TimeController extends Controller
             }
 
             return $timerecord->hours;
+        } else {
+            return response('access denied', 401);
         }
     }
 
@@ -149,16 +149,18 @@ class TimeController extends Controller
         $hour = Hour::find($id);
         $timerecordId = $hour->timerecord->id;
 
-        if ($hour->timerecord->user == $request->user()) {
+        if ($hour->timerecord->user->id == auth()->user()->id) {
             Hour::destroy($id);
-        }
 
-        $timerecord = Timerecord::find($timerecordId);
-        foreach ($timerecord->hours as $hour) {
-            $hour->lunch = $timerecord->lunch;
-        }
+            $timerecord = Timerecord::find($timerecordId);
+            foreach ($timerecord->hours as $hour) {
+                $hour->lunch = $timerecord->lunch;
+            }
 
-        return $timerecord->hours;
+            return $timerecord->hours;
+        } else {
+            return response('access denied', 401);
+        }
     }
 
     public function stats($date)
