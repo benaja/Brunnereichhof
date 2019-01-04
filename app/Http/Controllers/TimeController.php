@@ -53,8 +53,7 @@ class TimeController extends Controller
 
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
-            ['date' => $date->format('Y-m-d')],
-            ['user_id' => auth()->user()->id]
+            ['date' => $date->format('Y-m-d'), 'user_id' => auth()->user()->id]
         );
 
         $request->validate([
