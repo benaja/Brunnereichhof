@@ -22,10 +22,11 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        
-        $workers = User::where('authorization_id', AuthorizationType::Worker)->get();
 
-        foreach($workers as $worker){
+        $workers = User::where('authorization_id', AuthorizationType::Worker)
+            ->orWhere('authorization_id', AuthorizationType::Admin)->get();
+
+        foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
             $worker->lunchThisMonth = $worker->getNumberOfLunches(new \DateTime('first day of this month'));
 
@@ -40,27 +41,10 @@ class WorkerController extends Controller
         return view('pages.admin.worker.index', compact('workers'));
     }
 
-    // GET worker/all
-    public function all(Request $request){
-        $request->user()->authorizeRoles(['admin']);
-
-        $workers = User::where('authorization_id', AuthorizationType::Worker)->get();
-
-        return $workers;
-    }
-
-    // GET worker/create
-    public function create(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        return view('pages.admin.worker.create');
-    }
-
     // POST worker
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorizeRoles(['superadmin']);
 
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
@@ -70,15 +54,15 @@ class WorkerController extends Controller
 
         $username = strtolower($request->firstname) . "." . strtolower($request->lastname);
 
-        if($this->checkIfUsernameExist($username)){
+        if ($this->checkIfUsernameExist($username)) {
             $usernameIsUnique = false;
             $counter = 1;
-            
-            while(!$usernameIsUnique){
-                if($this->checkIfUsernameExist($username.$counter)){
+
+            while (!$usernameIsUnique) {
+                if ($this->checkIfUsernameExist($username . $counter)) {
                     $counter++;
-                }else{
-                    $username = $username .$counter;
+                } else {
+                    $username = $username . $counter;
                     $usernameIsUnique = true;
                 }
             }
@@ -107,26 +91,34 @@ class WorkerController extends Controller
     // GET worker/{id}
     public function show(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorizeRoles(['superadmin']);
 
         $worker = User::find($id);
-        
-        return $worker;
 
-        return view('pages.admin.worker.show', compact('worker'));
+        return $worker;
     }
 
     // PATCH worker/{id}
     public function update(Request $request, $id)
     {
-        //
+        auth()->user()->authorizeRoles(['superadmin']);
+
+        $user = User::find($id);
+
+        $updatetKey = key($request->except('_token'));
+        $updatedValue = $request->$updatetKey;
+
+        $user->$updatetKey = $updatedValue;
+        $user->save();
+
+        return $user;
     }
 
     // DELETE worker/{id}
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        
+        auth()->user()->authorizeRoles(['superadmin']);
+
         $worker = User::find($id);
 
         $worker->delete();
@@ -134,8 +126,9 @@ class WorkerController extends Controller
 
     
     //-- helpers --//
-    private function checkIfUsernameExist($username){
-        if(User::where('username', '=', $username)->count() > 0){
+    private function checkIfUsernameExist($username)
+    {
+        if (User::where('username', '=', $username)->count() > 0) {
             return true;
         }
         return false;

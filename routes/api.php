@@ -54,3 +54,6 @@ Route::post('/resetpassword/{user}', 'UserController@resetPassword');
 
 Route::get('/time/{date}', 'TimeController@index');
 Route::resource('/time', 'TimeController');
+
+Route::get('/stats/monthtotal', 'DashboardController@totalHoursByMonth');
+Route::get('/stats/totalnumbers', 'DashboardController@totalNumbers');

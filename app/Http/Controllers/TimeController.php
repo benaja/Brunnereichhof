@@ -27,7 +27,7 @@ class TimeController extends Controller
     // GET time
     public function index($date)
     {
-        auth()->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker', 'admin']);
 
         $currentDate = new \DateTime($date);
 
@@ -50,7 +50,7 @@ class TimeController extends Controller
     // POST time
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker', 'admin']);
 
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
@@ -105,7 +105,7 @@ class TimeController extends Controller
     // PATCH time/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker', 'admin']);
 
         $hour = Hour::find($id);
         if ($hour->timerecord->user == $request->user()) {
@@ -143,7 +143,7 @@ class TimeController extends Controller
     // DELETE time/{id}
     public function destroy(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['worker']);
+        auth()->user()->authorizeRoles(['worker', 'admin']);
 
         $hour = Hour::find($id);
         $timerecordId = $hour->timerecord->id;

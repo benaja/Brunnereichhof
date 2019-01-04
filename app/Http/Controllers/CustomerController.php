@@ -98,6 +98,10 @@ class CustomerController extends Controller
             'needs_payment_order' => request('needs_payment_order')
         ]);
 
+        $defaultProject = Project::where('name', 'Allgemein')->first();
+        $customer->projects()->save($defaultProject);
+        $customer->save();
+
         if ($user->email != null) {
             $data['mail'] = $user->email;
             $data['password'] = $password;
@@ -105,7 +109,7 @@ class CustomerController extends Controller
             \Mail::to($user->email)->send(new CustomerCreated($data));
         }
 
-        return redirect('/customer/');
+        return $customer;
     }
 
     // GET customer/{id}
