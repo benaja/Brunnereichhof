@@ -179,8 +179,8 @@ class TimeController extends Controller
         if ($lastDay > $today) {
             $lastDay = $today;
         }
-        $timerecords = Timerecord::where('date', '>=', $firstDay->format('Y-m-d'))
-            ->where('date', '<=', $lastDay->format('Y-m-d'))->get();
+        $timerecords = auth()->user()->timerecords->where('date', '>=', $firstDay->format('Y-m-d'))
+            ->where('date', '<=', $lastDay->format('Y-m-d'));
 
         $totalHours = 0;
         $holidayHours = 0;
