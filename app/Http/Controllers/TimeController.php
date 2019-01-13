@@ -40,7 +40,9 @@ class TimeController extends Controller
         $totalHours = $timerecord->totalHours();
 
         foreach ($timerecord->hours as $hour) {
+            $hour->breakfast = $timerecord->breakfast;
             $hour->lunch = $timerecord->lunch;
+            $hour->dinner = $timerecord->dinner;
         }
 
         return $timerecord->hours;
@@ -61,7 +63,9 @@ class TimeController extends Controller
             'from' => 'required|before:to',
             'to' => ['required', new ValidTime($request->from, $timerecord)],
             'hasBreak' => 'nullable|boolean',
-            'lunch' => 'nullable|boolean',
+            'breakfast' => 'boolean',
+            'lunch' => 'boolean',
+            'dinner' => 'boolean',
             'date' => 'required|date',
             'comment' => 'nullable|string'
         ]);
@@ -73,7 +77,9 @@ class TimeController extends Controller
             ]);
         }
 
+        $timerecord->breakfast = $request->breakfast;
         $timerecord->lunch = $request->lunch;
+        $timerecord->dinner = $request->dinner;
         $timerecord->save();
 
         if ($request->hasBreak) {
@@ -92,12 +98,7 @@ class TimeController extends Controller
         auth()->user()->save();
         auth()->user()->timerecords()->save($timerecord);
 
-        $timerecord = Timerecord::find($timerecord->id);
-        foreach ($timerecord->hours as $hour) {
-            $hour->lunch = $timerecord->lunch;
-        }
-
-        return $timerecord->hours;
+        return $this->getHoursWidthLunch($timerecord->id);
     }
 
     // PATCH time/{id}
@@ -126,15 +127,12 @@ class TimeController extends Controller
 
             $hour->save();
 
+            $hour->timerecord->breakfast = $request->breakfast;
             $hour->timerecord->lunch = $request->lunch;
+            $hour->timerecord->dinner = $request->dinner;
             $hour->timerecord->save();
 
-            $timerecord = Timerecord::find($hour->timerecord->id);
-            foreach ($timerecord->hours as $hour) {
-                $hour->lunch = $timerecord->lunch;
-            }
-
-            return $timerecord->hours;
+            return $this->getHoursWidthLunch($hour->timerecord->id);
         } else {
             return response('access denied', 401);
         }
@@ -151,12 +149,7 @@ class TimeController extends Controller
         if ($hour->timerecord->user->id == auth()->user()->id) {
             Hour::destroy($id);
 
-            $timerecord = Timerecord::find($timerecordId);
-            foreach ($timerecord->hours as $hour) {
-                $hour->lunch = $timerecord->lunch;
-            }
-
-            return $timerecord->hours;
+            return $this->getHoursWidthLunch($timerecordId);
         } else {
             return response('access denied', 401);
         }
@@ -172,8 +165,8 @@ class TimeController extends Controller
             $firstDay->modify('first day of this month');
             $lastDay->modify('last day of this month');
         } else {
-            $firstDay->modify('last monday');
-            $lastDay->modify('next sunday');
+            $firstDay->modify('monday this week');
+            $lastDay->modify('sunday this week');
         }
 
         $today = new \DateTime();
@@ -212,6 +205,17 @@ class TimeController extends Controller
         $timerecord->hours()->save($hour);
         $worktype->hours()->save($hour);
         return true;
+    }
+
+    private function getHoursWidthLunch($id)
+    {
+        $timerecord = Timerecord::find($id);
+        foreach ($timerecord->hours as $hour) {
+            $hour->breakfast = $timerecord->breakfast;
+            $hour->lunch = $timerecord->lunch;
+            $hour->dinner = $timerecord->dinner;
+        }
+        return $timerecord->hours;
     }
 
     private $dayNamesGerman = [

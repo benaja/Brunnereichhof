@@ -23,7 +23,7 @@ create table workplace_personal(workplace_id int, employee_id int, updated_at da
 
 create table settings(id int primary key auto_increment, `key` text, value text, type text, updated_at datetime, created_at datetime);
 
-create table timerecord(id int primary key auto_increment, user_id int, date date, lunch boolean, comment text, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
+create table timerecord(id int primary key auto_increment, user_id int, date date, lunch boolean, breakfast boolean, dinner boolean , comment text, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
 
 create table worktype(id int primary key auto_increment, name varchar(100), name_de varchar(100));
 

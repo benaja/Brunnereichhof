@@ -8,7 +8,7 @@ class Timerecord extends Model
 {
     public $table = "timerecord";
 
-    protected $fillable = ['date', 'lunch', 'comment'];
+    protected $fillable = ['date', 'lunch', 'comment', 'breakfast', 'dinner'];
 
     public function date()
     {
