@@ -48,6 +48,31 @@ class TimeController extends Controller
         return $timerecord->hours;
     }
 
+    public function week($date)
+    {
+        auth()->user()->authorizeRoles(['worker', 'admin']);
+
+        $date = new \DateTime($date);
+        $date->modify('monday this week');
+
+        $timerecords = [];
+        for ($i = 0; $i < 7; $i++) {
+            $timerecord = Timerecord::firstOrNew(
+                ['date' => $date->format('Y-m-d'), 'user_id' => auth()->user()->id]
+            );
+            foreach ($timerecord->hours as $hour) {
+                $hour->breakfast = $timerecord->breakfast;
+                $hour->lunch = $timerecord->lunch;
+                $hour->dinner = $timerecord->dinner;
+            }
+
+            array_push($timerecords, $timerecord);
+            $date->modify('+1 day');
+        }
+
+        return $timerecords;
+    }
+
     // POST time
     public function store(Request $request)
     {
