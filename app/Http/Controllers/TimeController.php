@@ -184,37 +184,16 @@ class TimeController extends Controller
     {
         auth()->user()->authorizeRoles(['worker', 'admin']);
 
-        $firstDay = new \DateTime($date);
-        $lastDay = new \DateTime($date);
-        if (request('type') == 'month') {
-            $firstDay->modify('first day of this month');
-            $lastDay->modify('last day of this month');
+        if(strlen($date) == 7){
+            return [
+                'week' => $this->getMonthStats($date)
+            ];
         } else {
-            $firstDay->modify('monday this week');
-            $lastDay->modify('sunday this week');
+            return [
+                'month' => $this->getMonthStats($date),
+                'week' => $this->getWeekStats($date)
+            ];
         }
-
-        $today = new \DateTime();
-        if ($lastDay > $today) {
-            $lastDay = $today;
-        }
-        $timerecords = auth()->user()->timerecords->where('date', '>=', $firstDay->format('Y-m-d'))
-            ->where('date', '<=', $lastDay->format('Y-m-d'));
-
-        $totalHours = 0;
-        $holidayHours = 0;
-        foreach ($timerecords as $timerecord) {
-            $totalHours += $timerecord->totalHours();
-            $hours = $timerecord->hours->where('worktype_id', WorkTypeEnum::Holydays);
-            foreach ($hours as $hour) {
-                $holidayHours += $hour->duration();
-            }
-        }
-        $response = [
-            'totalHours' => $totalHours,
-            'holidayHours' => $holidayHours
-        ];
-        return $response;
     }
 
     //-- helpers --//
@@ -241,6 +220,47 @@ class TimeController extends Controller
             $hour->dinner = $timerecord->dinner;
         }
         return $timerecord->hours;
+    }
+
+    private function getWeekStats($date){
+        $monday = new \DateTime($date);
+        $sunday = new \DateTime($date);
+        $monday->modify('monday this week');
+        $sunday->modify('sunday this week');
+
+        $timerecords = auth()->user()->timerecords->where('date', '>=', $monday->format('Y-m-d'))
+        ->where('date', '<=', $sunday->format('Y-m-d'));
+    
+        return $this->getTotalHours($timerecords);
+    }
+
+    private function getMonthStats($date){
+        $firstDayOfMonth = new \DateTime($date);
+        $lastDayOfMonth = new \DateTime($date);
+        $firstDayOfMonth->modify('first day of this month');
+        $lastDayOfMonth->modify('last day of this month');
+
+        $timerecords = auth()->user()->timerecords->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
+        ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'));
+        
+        return $this->getTotalHours($timerecords);
+    }
+
+    private function getTotalHours($timerecords){
+        $totalHours = 0;
+        $holidayHours = 0;
+        foreach ($timerecords as $timerecord) {
+            $totalHours += $timerecord->totalHours();
+            $hours = $timerecord->hours->where('worktype_id', WorkTypeEnum::Holydays);
+            foreach ($hours as $hour) {
+                $holidayHours += $hour->duration();
+            }
+        }
+
+        return [
+            'totalHours' => $totalHours,
+            'holidayHours' => $holidayHours
+        ];
     }
 
     private $dayNamesGerman = [
