@@ -45,7 +45,7 @@ class TimeController extends Controller
             $hour->dinner = $timerecord->dinner;
         }
 
-        return $timerecord->hours;
+        return [$timerecord];
     }
 
     public function week($date)
@@ -184,7 +184,7 @@ class TimeController extends Controller
     {
         auth()->user()->authorizeRoles(['worker', 'admin']);
 
-        if(strlen($date) == 7){
+        if (strlen($date) == 7) {
             return [
                 'week' => $this->getMonthStats($date)
             ];
@@ -222,31 +222,34 @@ class TimeController extends Controller
         return $timerecord->hours;
     }
 
-    private function getWeekStats($date){
+    private function getWeekStats($date)
+    {
         $monday = new \DateTime($date);
         $sunday = new \DateTime($date);
         $monday->modify('monday this week');
         $sunday->modify('sunday this week');
 
         $timerecords = auth()->user()->timerecords->where('date', '>=', $monday->format('Y-m-d'))
-        ->where('date', '<=', $sunday->format('Y-m-d'));
-    
+            ->where('date', '<=', $sunday->format('Y-m-d'));
+
         return $this->getTotalHours($timerecords);
     }
 
-    private function getMonthStats($date){
+    private function getMonthStats($date)
+    {
         $firstDayOfMonth = new \DateTime($date);
         $lastDayOfMonth = new \DateTime($date);
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth->modify('last day of this month');
 
         $timerecords = auth()->user()->timerecords->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
-        ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'));
-        
+            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'));
+
         return $this->getTotalHours($timerecords);
     }
 
-    private function getTotalHours($timerecords){
+    private function getTotalHours($timerecords)
+    {
         $totalHours = 0;
         $holidayHours = 0;
         foreach ($timerecords as $timerecord) {
