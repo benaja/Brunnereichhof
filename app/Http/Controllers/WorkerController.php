@@ -28,10 +28,10 @@ class WorkerController extends Controller
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
-            $worker->lunchThisMonth = $worker->getNumberOfLunches(new \DateTime('first day of this month'));
+            $worker->mealsThisMonth = $worker->getNumberOfMeals(new \DateTime('first day of this month'));
 
             $worker->workHoursLastMonth = $worker->totalHours(new \DateTime('first day of last month'));
-            $worker->luchLastMonth = $worker->getNumberOfLunches(new \DateTime('first day of last month'));
+            $worker->mealsLastMonth = $worker->getNumberOfMeals(new \DateTime('first day of last month'));
 
             $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
             $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
