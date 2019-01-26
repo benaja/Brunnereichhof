@@ -8,9 +8,11 @@ create table user(id int primary key auto_increment, email text, username text, 
 
 create table customer(id int primary key auto_increment, firstname text, lastname text, addition text, street text, place text, plz text, mobile text, phone text, hasCatering boolean, kitchen_infrastructure text, max_catering int, comment_catering text, driver_info text, comment text, maps text, secret text, customer_number int, needs_payment_order boolean, user_id int, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
 
-create table culture(id int primary key auto_increment, name text, updated_at datetime, created_at datetime);
+create table culture(id int primary key auto_increment, name text, isAutocomplete boolean, updated_at datetime, created_at datetime);
 
-create table hourrecords(id int primary key auto_increment, customer_id int, culture_id int, week int, year int, hours double, comment text, updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade, foreign key(culture_id) references culture(id) on delete set null);
+create table hourrecords(id int primary key auto_increment, customer_id int, week int, year int, hours double, comment text, updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade);
+
+create table hourrecords_culture(culture_id int, hourrecords_id int, primary key(culture_id, hourrecords_id), foreign key(culture_id) references culture(id) on delete cascade, foreign key(hourrecords_id) references hourrecords(id) on delete cascade);
 
 create table employee(id int primary key auto_increment, callname text, firstname text, lastname text, nationality text, isIntern boolean, isDriver boolean, german_knowledge boolean, english_knowledge boolean, sex text, comment text, experience text, isActive boolean, profileimage text, allergy text, updated_at datetime, created_at datetime);
 

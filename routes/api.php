@@ -61,3 +61,7 @@ Route::get('/stats/monthtotal', 'DashboardController@totalHoursByMonth');
 Route::get('/stats/totalnumbers', 'DashboardController@totalNumbers');
 
 Route::get('/settings/time', 'SettingsController@timeSettings');
+
+Route::resource('/culture', 'CultureController');
+
+Route::resource('/hourrecord', 'HourrecordController');
