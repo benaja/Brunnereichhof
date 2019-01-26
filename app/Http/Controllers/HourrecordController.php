@@ -6,6 +6,7 @@ use App\Hourrecord;
 use App\Customer;
 use App\Culture;
 use Illuminate\Http\Request;
+use App\Enums\AuthorizationType;
 
 class HourrecordController extends Controller
 {
@@ -16,12 +17,22 @@ class HourrecordController extends Controller
 
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
 
-        return Hourrecord::all();
+        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+            return Hourrecord::with('culture')->where([
+                'customer_id' => auth()->user()->customer->id,
+                'year' => (new \DateTime())->format('Y')
+            ])->get()->groupBy('week');
+        } else {
+            return Hourrecord::with('culture')
+                ->where('year', (new \DateTime())->format('Y'))
+                ->get()->groupBy('week');
+        }
     }
 
     // POST project
+    // create multiple at once
     public function store(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
@@ -32,31 +43,51 @@ class HourrecordController extends Controller
             $weeks = array_filter(
                 $request->weeks,
                 function ($week) use ($hourrecord) {
-                    // abort(400, json_encode($hourrecord));
+                        // abort(400, json_encode($hourrecord));
                     return $week['week'] == $hourrecord->week;
-                    // return true;
+                        // return true;
                 }
             );
             if (count($weeks) == 0) {
                 $hourrecord->delete();
-                array_splice($hourrecords, $index, 1);
             }
         }
 
         foreach ($request->weeks as $week) {
             if (count($hourrecords->where('week', $week['week'])) == 0) {
                 $hourrecord = Hourrecord::create([
-                    'hours' => 0,
+                    'hours' => null,
                     'comment' => null,
                     'week' => $week['week'],
                     'year' => (new \DateTime)->format('Y'),
                     'customer_id' => auth()->user()->customer->id
                 ]);
-                array_push($hourrecords, $hourrecord);
             }
         }
-        return $hourrecords;
 
+        return Hourrecord::with('culture')->where([
+            'customer_id' => auth()->user()->customer->id,
+            'year' => (new \DateTime())->format('Y')
+        ])->get()->groupBy('week');
+
+    }
+
+    public function createSingle(Request $request, $week)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+
+        if ($week > 52) {
+            abort(400, 'the week can not be greater than 52');
+        }
+
+        $hourrecord = Hourrecord::create([
+            'hours' => $request->hours,
+            'comment' => $request->comment,
+            'week' => $week,
+            'year' => (new \DateTime)->format('Y'),
+            'customer_id' => auth()->user()->customer->id
+        ]);
+        return $hourrecord;
     }
 
     // GET project/{id}
@@ -65,42 +96,41 @@ class HourrecordController extends Controller
         //
     }
 
-    // GET project/{id}/edit
-    public function edit($id)
+    // PATCH project/{id}
+    public function update(Request $request, $id)
     {
-        foreach ($request->weeks as $week) {
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+
+        $hourrecrod = Hourrecord::find($id);
+        $hourrecrod->hours = $request->hours;
+        $hourrecrod->comment = $request->comment;
+
+        if (is_array($request->culture)) {
+            $culture = Culture::find($request->culture['id']);
+        } else if ($request->culture) {
             $culture = Culture::firstOrCreate(
                 [
-                    'name' => $week['culture']
+                    'name' => $request->culture
                 ],
                 [
                     'isAutocomplete' => 0
                 ]
             );
-            $culture->save();
-
-            $year = new \DateTime();
-            $year = $year->format('Y');
-            $hourrecord = Hourrecord::create([
-                'hours' => $week['hours'],
-                'comment' => $week['comment'],
-                'week' => $week['week'],
-                'year' => $year,
-                'customer_id' => auth()->user()->customer->id,
-                'culture_id' => $culture->id
-            ]);
+        } else {
+            $culture = null;
         }
-    }
+        $hourrecrod->culture()->associate($culture);
+        $hourrecrod->save();
 
-    // PATCH project/{id}
-    public function update(Request $request, $id)
-    {
-        //
+        return $hourrecrod;
     }
 
     // DELETE project/{id}
     public function destroy($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+
+        $hourrecrod = Hourrecord::find($id);
+        $hourrecrod->delete();
     }
 }

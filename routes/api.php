@@ -64,4 +64,5 @@ Route::get('/settings/time', 'SettingsController@timeSettings');
 
 Route::resource('/culture', 'CultureController');
 
+Route::post('/hourrecord/week/{week}', 'HourrecordController@createSingle');
 Route::resource('/hourrecord', 'HourrecordController');

@@ -26,7 +26,12 @@ class CultureController extends Controller
     // POST project
     public function store(Request $request)
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
 
+        return $request;
+        $culture = Culture::find($request->culture->id);
+
+        return $culture;
     }
 
     // GET project/{id}
@@ -44,7 +49,7 @@ class CultureController extends Controller
     // PATCH project/{id}
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     // DELETE project/{id}
