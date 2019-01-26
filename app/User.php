@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Enums\WorkTypeEnum;
+use App\Enums\AuthorizationType;
 
 class User extends Authenticatable
 {
@@ -97,7 +98,7 @@ class User extends Authenticatable
         return $totalHours;
     }
 
-    public function getNumberOfLunches(\DateTime $firstDayOfMonth)
+    public function getNumberOfMeals(\DateTime $firstDayOfMonth)
     {
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
@@ -108,7 +109,13 @@ class User extends Authenticatable
             ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
             ->where('lunch', 1);
 
-        return (count($timerecords));
+        $meals = [
+            'breakfast' => count($timerecords->where('breakfast', 1)),
+            'lunch' => count($timerecords->where('lunch', 1)),
+            'dinner' => count($timerecords->where('dinner', 1))
+        ];
+
+        return $meals;
     }
 
     public function holydaysPlant(\DateTime $today)
@@ -145,5 +152,9 @@ class User extends Authenticatable
         }
 
         return $totalHolidays;
+    }
+
+    public static function workers(){
+        return User::where('authorization_id', AuthorizationType::Worker)->orWhere('authorization_id', AuthorizationType::Admin);
     }
 }
