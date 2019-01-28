@@ -60,9 +60,13 @@ Route::resource('/time', 'TimeController');
 Route::get('/stats/monthtotal', 'DashboardController@totalHoursByMonth');
 Route::get('/stats/totalnumbers', 'DashboardController@totalNumbers');
 
+Route::patch('/settings', 'SettingsController@update');
 Route::get('/settings/time', 'SettingsController@timeSettings');
+Route::get('/settings', 'SettingsController@index');
+Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
 
 Route::resource('/culture', 'CultureController');
 
+Route::get('hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
 Route::post('/hourrecord/week/{week}', 'HourrecordController@createSingle');
 Route::resource('/hourrecord', 'HourrecordController');

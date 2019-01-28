@@ -16,9 +16,9 @@ class SettingsController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $settings = Settings::all();
+        $settings = Settings::allSettings();
 
-        return $projects;
+        return $settings;
     }
 
     public function timeSettings()
@@ -35,52 +35,21 @@ class SettingsController extends Controller
         return $response;
     }
 
-    public function allByCustomer(Request $request, Customer $customer)
+    public function hourrecordSettings()
     {
+        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+
+        return [
+            'hourrecordStartDate' => Settings::value('hourrecordStartDate'),
+            'hourrecordEndDate' => Settings::value('hourrecordEndDate')
+        ];
+    }
+
+    public function update(Request $request){
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        return $customer->projects;
-    }
+        $updatetKey = key($request->except('_token'));
 
-    public function addToCustomer(Request $request)
-    {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        $project = Project::find($request->projectId);
-
-        if ($project == null) {
-            return response('project no exists', 400);
-        }
-
-        $customer = Customer::find($request->customerId);
-
-        $project->customer()->attach($customer);
-    }
-
-    public function store(Request $request)
-    {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        $project = Project::create([
-            'name' => $request->title,
-            'description' => $request->description
-        ]);
-
-        $customer = Customer::find($request->customerId);
-        $project->customer()->attach($customer);
-        return $project->id;
-    }
-
-    public function show($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
+        Settings::put($updatetKey, $request->$updatetKey);
     }
 }

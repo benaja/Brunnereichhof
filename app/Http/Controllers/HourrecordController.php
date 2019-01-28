@@ -7,6 +7,7 @@ use App\Customer;
 use App\Culture;
 use Illuminate\Http\Request;
 use App\Enums\AuthorizationType;
+use App\Settings;
 
 class HourrecordController extends Controller
 {
@@ -36,6 +37,7 @@ class HourrecordController extends Controller
     public function store(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        $this->validateEditeDate();
 
         $hourrecords = auth()->user()->customer->hourrecords->where('year', (new \DateTime)->format('Y'));
 
@@ -75,6 +77,7 @@ class HourrecordController extends Controller
     public function createSingle(Request $request, $week)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        $this->validateEditeDate();
 
         if ($week > 52) {
             abort(400, 'the week can not be greater than 52');
@@ -100,10 +103,11 @@ class HourrecordController extends Controller
     public function update(Request $request, $id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        $this->validateEditeDate();
 
-        $hourrecrod = Hourrecord::find($id);
-        $hourrecrod->hours = $request->hours;
-        $hourrecrod->comment = $request->comment;
+        $hourrecord = Hourrecord::find($id);
+        $hourrecord->hours = $request->hours;
+        $hourrecord->comment = $request->comment;
 
         if (is_array($request->culture)) {
             $culture = Culture::find($request->culture['id']);
@@ -119,18 +123,49 @@ class HourrecordController extends Controller
         } else {
             $culture = null;
         }
-        $hourrecrod->culture()->associate($culture);
-        $hourrecrod->save();
+        $hourrecord->culture()->associate($culture);
+        $hourrecord->save();
 
-        return $hourrecrod;
+        return $hourrecord;
+    }
+
+    public function getByWeek($year, $week){
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Hourrecord::with('culture')->with('customer')->where([
+            'year' => $year,
+            'week' => $week
+        ])->get()->groupBy('customer_id');
     }
 
     // DELETE project/{id}
     public function destroy($id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        $this->validateEditeDate();
 
         $hourrecrod = Hourrecord::find($id);
         $hourrecrod->delete();
+    }
+
+
+    // --helpers--
+    private function isEditDate(){
+        $startDate = new \DateTime(Settings::value('hourrecordStartDate'));
+        $endDate = new \DateTime(Settings::value('hourrecordEndDate'));
+        $today = new \DateTime();
+
+        if(auth()->user()->authorization_id == AuthorizationType::Customer) {
+            if($startDate > $today || $endDate < $today){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function validateEditeDate(){
+        if(!$this->isEditDate()){
+            abort(400, 'the edit duration is over');
+        }
     }
 }

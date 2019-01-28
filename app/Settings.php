@@ -28,4 +28,21 @@ class Settings extends Model
         $setting->value = $value;
         $setting->save();
     }
+
+    public static function allSettings()
+    {
+        $settings = Settings::all();
+
+        $response = [];
+        foreach ($settings as $setting) {
+            if ($setting->type == "int") {
+                $response[$setting->key] = intval($setting->value);
+            } else if($setting->tpye == "double") {
+                $response[$setting->key] = doubleval($setting->value);
+            } else {
+                $response[$setting->key] = $setting->value;
+            }
+        }
+        return $response;
+    }
 }
