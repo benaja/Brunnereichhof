@@ -89,9 +89,10 @@ class User extends Authenticatable
 
         foreach ($timerecords as $timerecord) {
             foreach ($timerecord->hours as $hour) {
-                if ($hour->worktype_id == WorkTypeEnum::ProductiveHours) {
-                    $totalHours += $hour->duration();
-                }
+                // if ($hour->worktype_id == WorkTypeEnum::ProductiveHours) {
+                //     $totalHours += $hour->duration();
+                // }
+                $totalHours += $hour->duration();
             }
         }
 

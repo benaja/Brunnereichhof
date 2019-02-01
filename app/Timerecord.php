@@ -37,4 +37,9 @@ class Timerecord extends Model
         }
         return $total;
     }
+
+    public function worktype() {
+        $hour = $this->hours->first();
+        return $hour->worktype;
+    }
 }

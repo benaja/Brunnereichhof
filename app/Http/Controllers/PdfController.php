@@ -8,6 +8,7 @@ use App\Rapport;
 use App\Employee;
 use App\Customer;
 use App\Rapportdetail;
+use App\Enums\WorkTypeEnum;
 use Illuminate\Http\Request;
 use App\Enums\AuthorizationType;
 use Illuminate\Support\Facades\DB;
@@ -30,10 +31,7 @@ class PdfController extends Controller
     {
         $this->validateToken($request->token);
 
-        $pdf = new Fpdf('P', 'mm', 'A4');
-        $pdf::SetFont('Arial', 'B', 16);
-        Fpdf::AddPage('L');
-        Fpdf::SetFont('Arial', 'B', 18);
+        $this->getPdfDefault();
 
         $header = [
             'Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
@@ -51,74 +49,39 @@ class PdfController extends Controller
             }
         }
 
-        $cellHeight = 8;
-
-        Fpdf::SetFillColor(38, 166, 154);
-        Fpdf::SetDrawColor(255);
-        Fpdf::SetLineWidth(.3);
-        Fpdf::AddFont('Raleway', '', 'Raleway-Regular.php');
-        Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
-        // Fpdf::AddFont('Raleway','I', 'Raleway-Italic.php');
-
-        Fpdf::SetFont('Raleway', 'B', 20);
-        Fpdf::Cell(0, 15, utf8_decode("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}"), 0, 2);
-        Fpdf::SetFont('Raleway', '', 18);
         $startdate = new \DateTime($rapport->startdate);
-        Fpdf::Cell(0, 12, "Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})", 0, 2);
-        Fpdf::Cell(0, 12, "Totale Arbeitsstunden: {$totalTime}");
-        Fpdf::Ln();
 
+        $this->addDocumentTitle("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}");
+        $this->addDocumentTitle("Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})");
+        $this->addDocumentTitle("Totale Arbeitsstunden: {$totalTime}");
 
-        Fpdf::SetFont('Raleway', 'B', 12);
-        Fpdf::SetTextColor(255);
-        // Header
-        $cellWidth = 40;
-        for ($i = 0; $i < count($header); $i++) {
-            Fpdf::Cell($cellWidth, $cellHeight, $header[$i], 0, 0, 'L', true);
-        }
-        Fpdf::Ln();
-        // Color and font restoration
-        Fpdf::SetFillColor(242, 242, 242);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', 10);
-        // Data
-        $fill = false;
-        $marginLeft = Fpdf::getX();
-        $marginTop = Fpdf::getY();
-        foreach ($comments as $comment) {
-            Fpdf::SetXY($marginLeft, $marginTop);
-            Fpdf::MultiCell(40, $cellHeight, utf8_decode($comment), 'L', $fill);
-            $marginLeft += 40;
-        }
-        Fpdf::Ln();
-        $fill = !$fill;
-
-
-        $timePerDay = [0, 0, 0, 0, 0, 0];
+        $timePerDay = ['Totale Stunden', 0, 0, 0, 0, 0, 0];
+        $lines = [
+            [
+                'isMulticell' => true,
+                'values' => $comments
+            ]
+        ];
         foreach ($rapportdetailsGruped as $rapportdetails) {
-            Fpdf::cell(40, $cellHeight, utf8_decode("{$rapportdetails[0]->employee->firstname} {$rapportdetails[0]->employee->lastname}"), 0, 'R', 'L', $fill);
+            $cells = ["{$rapportdetails[0]->employee->firstname} {$rapportdetails[0]->employee->lastname}"];
 
-            $counter = 0;
+            $counter = 1;
             foreach ($rapportdetails as $rapportdetail) {
+                $cell = $rapportdetail->hours;
+                // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
+                if($rapportdetail->project && $rapportdetail->project->name != "Allgemein"){
+                    $cell = "{$cell} ({$rapportdetail->project->name})";
+                }
+                array_push($cells, $cell);
                 $timePerDay[$counter] += $rapportdetail->hours;
                 $counter++;
-                Fpdf::cell(40, $cellHeight, $rapportdetail->hours != null ? $rapportdetail->hours . " h" : "0" . " h", 0, 'R', 'L', $fill);
             }
-            Fpdf::Ln();
-
-
-            Fpdf::cell(40, $cellHeight, "", 0, 'R', 'L', $fill);
-            foreach ($rapportdetails as $rapportdetail) {
-                Fpdf::cell(40, $cellHeight, utf8_decode($rapportdetail->project != null ? $rapportdetail->project->name : "keine Angabe"), 0, 'R', 'L', $fill);
-            }
-            Fpdf::Ln();
-            $fill = !$fill;
+            array_push($lines, $cells);
         }
-        // Closing line
-        Fpdf::cell(40, $cellHeight, "Total Zeit", 0, 'R', 'L', $fill);
-        foreach ($timePerDay as $time) {
-            Fpdf::cell(40, $cellHeight, $time . " h", 0, 'R', 'L', $fill);
-        }
+
+        array_push($lines, $timePerDay);        
+
+        $this->generateTable($header, $lines);
 
         $filename = "pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf";
         Fpdf::Output('D', $filename);
@@ -163,30 +126,46 @@ class PdfController extends Controller
             $this->addDocumentTitle("Mitarbeiter: $worker->firstname $worker->lastname");
             $this->addDocumentTitle("Monat: $monthName");
             $this->addDocumentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
+            $meals = $worker->getNumberOfMeals($firstDayOfMonth);
+            $this->addDocumentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}");
 
             $lines = [];
             $currentDay = clone $firstDayOfMonth;
             $currentDay->modify('monday this week');
             $firstCellWidth = 3;
-            for($i = 0; $i < 5; $i++){
+            for($i = 0; $i < 6; $i++){
                 $line = [];
+                $totalHoursOfWeek = 0;
                 for($j = 0; $j < 7; $j++){
                     if($currentDay < $firstDayOfMonth || $currentDay > $lastDayOfMonth) {
-                        array_push($line, 0);
+                        array_push($line, null);
                     } else {
                         $timerecord = $worker->timerecords->where('date', $currentDay->format('Y-m-d'))->first();
                         if($timerecord == null){
                             array_push($line, 0);
                         } else {
-                            array_push($line, $timerecord->totalHours());
+                            $hours = $timerecord->totalHours();
+                            $totalHoursOfWeek += $hours;
+                            $worktypeId = $timerecord->worktype()->id;
+                            $worktype = "";
+                            if ($worktypeId == WorkTypeEnum::Accident) {
+                                $worktype = "(U)";
+                            } else if ($worktypeId == WorkTypeEnum::Sick) {
+                                $worktype = "(K)";
+                            } else if ($worktypeId == WorkTypeEnum::Holydays) {
+                                $worktype = "(F)";
+                            }
+                            array_push($line, "{$hours} {$worktype}" );
                         }
                     }
                     $currentDay->modify('+1 day');
                 }
-                if(array_sum($line) > 0){
+                if($totalHoursOfWeek > 0){
                     $lastDayOfWeek = clone $currentDay;
-                    $lastDayOfWeek->modify("+6 days");
-                    array_unshift($line, "KW {$currentDay->format('W')} ({$currentDay->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})");
+                    $lastDayOfWeek->modify("-1 day");
+                    $firstDayOfWeek = clone $lastDayOfWeek;
+                    $firstDayOfWeek->modify("-6 days");
+                    array_unshift($line, "KW {$firstDayOfWeek->format('W')} ({$firstDayOfWeek->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})");
                     array_push($lines, $line);
                 }
             }
@@ -424,16 +403,35 @@ class PdfController extends Controller
     }
 
     private function addLine($cells, $doFill, $firstCellWidth = 1){
-        $counter = 0;
-        foreach ($cells as $cell) {
-            $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth - 1);
-            if($counter == 0){
-                $cellWidth = $cellWidth * $firstCellWidth;
+        if (isset($cells['isMulticell'])) {
+            $counter = 0;
+            $marginLeft = Fpdf::GetX();
+            $X = Fpdf::GetX();
+            $marginTop = Fpdf::GetY();
+            $maxHeight = 0;
+            foreach ($cells['values'] as $cell) {
+                $cellWidth = $this->documentWidth / (count($cells['values']) + $firstCellWidth - 1);
+                if($counter == 0){
+                    $cellWidth = $cellWidth * $firstCellWidth;
+                }
+                Fpdf::SetXY($marginLeft, $marginTop);
+                Fpdf::MultiCell($cellWidth, 8, utf8_decode($cell), 1, 'L', $doFill);
+                $maxHeight = Fpdf::GetY() > $maxHeight ? Fpdf::GetY() : $maxHeight;
+                $marginLeft += $cellWidth;
             }
-            Fpdf::Cell($cellWidth, 8, utf8_decode($cell), 0, 0, 'L', $doFill);
-            $counter++;
+            Fpdf::SetXY($X, $maxHeight);
+        } else {
+            $counter = 0;
+            foreach ($cells as $cell) {
+                $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth - 1);
+                if($counter == 0){
+                    $cellWidth = $cellWidth * $firstCellWidth;
+                }
+                Fpdf::Cell($cellWidth, 8, utf8_decode($cell), 0, 0, 'L', $doFill);
+                $counter++;
+            }
+            Fpdf::Ln();
         }
-        Fpdf::Ln();
     }
 
     private function getHoursOfEmployeeByYear($employee, $year)
