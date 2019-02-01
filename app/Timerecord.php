@@ -40,6 +40,6 @@ class Timerecord extends Model
 
     public function worktype() {
         $hour = $this->hours->first();
-        return $hour->worktype;
+        return $hour ? $hour->worktype : null;
     }
 }

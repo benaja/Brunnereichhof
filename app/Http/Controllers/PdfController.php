@@ -146,7 +146,7 @@ class PdfController extends Controller
                         } else {
                             $hours = $timerecord->totalHours();
                             $totalHoursOfWeek += $hours;
-                            $worktypeId = $timerecord->worktype()->id;
+                            $worktypeId = $timerecord->worktype() ? $timerecord->worktype()->id : null;
                             $worktype = "";
                             if ($worktypeId == WorkTypeEnum::Accident) {
                                 $worktype = "(U)";
