@@ -97,35 +97,48 @@ class PdfController extends Controller
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
         $workers = [];
+        $workerId = $request->workerId;
 
-        foreach(User::workers()->get() as $worker){   
-            if($worker->totalHours($firstDayOfMonth) > 0){
-                array_push($workers, $worker);
+        if(isset($request->workerId)){
+            array_push($workers, User::find($request->workerId));
+        } else {
+            foreach(User::workers()->get() as $worker){   
+                if($worker->totalHours($firstDayOfMonth) > 0){
+                    array_push($workers, $worker);
+                }
             }
         }
 
         $this->getPdfDefault();
         $monthName = $this->monthNames[intval($firstDayOfMonth->format('m')) - 1];
-        $this->addDocumentTitle("Hofmitarbeiter Monatsrapport: $monthName");
-
-        // FrontPage
-        $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen'];
-        $lines = [];
-        foreach($workers as $worker){
-            $line = [
-                $worker->firstname . " " . $worker->lastname,
-                $worker->totalHours($firstDayOfMonth),
-                array_sum($worker->getNumberOfMeals($firstDayOfMonth))
-            ];
-            array_push($lines, $line);
+        if(!isset($request->workerId)){
+            $this->addDocumentTitle("Hofmitarbeiter Monatsrapport: $monthName");
+    
+            // FrontPage
+            $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen (Total)'];
+            $lines = [];
+            foreach($workers as $worker){
+                $line = [
+                    $worker->lastname . " " . $worker->firstname,
+                    $worker->totalHours($firstDayOfMonth),
+                    array_sum($worker->getNumberOfMeals($firstDayOfMonth))
+                ];
+                array_push($lines, $line);
+            }
+            $this->generateTable($titles, $lines);
         }
-        $this->generateTable($titles, $lines);
 
         foreach($workers as $worker){
-            Fpdf::addPage('F');
-            $this->addDocumentTitle("Mitarbeiter: $worker->firstname $worker->lastname");
+            if(!isset($request->workerId)){
+                Fpdf::addPage('F');
+            }
+            $this->addDocumentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
             $this->addDocumentTitle("Monat: $monthName");
             $this->addDocumentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
+            $this->addDocumentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h");
+            $this->addDocumentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h");
+            $this->addDocumentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h");
+            $this->addDocumentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h");
             $meals = $worker->getNumberOfMeals($firstDayOfMonth);
             $this->addDocumentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}");
 
@@ -172,9 +185,16 @@ class PdfController extends Controller
             $titles = $this->dayNames;
             array_unshift($titles, "Zeitraum");
             $this->generateTable($titles, $lines, 3);
+            Fpdf::SetXY(110, 185);
+            Fpdf::Cell(100, 4, utf8_decode('Datum:______________________________Unterschrift:_______________________________'), 0, 0, 'L', false);
         }
       
-        Fpdf::Output('D', "Monatsrapport Hofmitarbeiter $monthName.pdf");
+        if(isset($request->workerId)){
+            $filename = "Monatrapport {$workers[0]->lastname} {$workers[0]->firstname} $monthName.pdf";
+        } else {
+            $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
+        }
+        Fpdf::Output('D', $filename);
     }
 
     // GET pdf/employee/year/{year}

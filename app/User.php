@@ -76,7 +76,7 @@ class User extends Authenticatable
         return $this->totalHours($currentDate);
     }
 
-    public function totalHours($dateOfMonth)
+    public function totalHours($dateOfMonth, $worktype = null)
     {
         $totalHours = 0;
         $firstDayOfMonth = $dateOfMonth;
@@ -89,10 +89,11 @@ class User extends Authenticatable
 
         foreach ($timerecords as $timerecord) {
             foreach ($timerecord->hours as $hour) {
-                // if ($hour->worktype_id == WorkTypeEnum::ProductiveHours) {
-                //     $totalHours += $hour->duration();
-                // }
-                $totalHours += $hour->duration();
+                if (isset($worktype) && $hour->worktype_id == $worktype) {
+                    $totalHours += $hour->duration();
+                } else if(!isset($worktype)) {
+                    $totalHours += $hour->duration();
+                }
             }
         }
 
