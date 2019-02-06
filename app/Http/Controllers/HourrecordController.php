@@ -83,23 +83,42 @@ class HourrecordController extends Controller
             abort(400, 'the week can not be greater than 52');
         }
 
+        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+            $customer = auth()->user()->customer;
+        } else {
+            $customer = Customer::find($request->customer);
+        }
+
+        if (is_array($request->culture)) {
+            $culture = Culture::find($request->culture['id']);
+        } else if ($request->culture) {
+            $culture = Culture::firstOrCreate(
+                [
+                    'name' => $request->culture
+                ],
+                [
+                    'isAutocomplete' => 0
+                ]
+            );
+        } else {
+            $culture = null;
+        }
+
         $hourrecord = Hourrecord::create([
             'hours' => $request->hours,
             'comment' => $request->comment,
             'week' => $week,
             'year' => (new \DateTime)->format('Y'),
-            'customer_id' => auth()->user()->customer->id
+            'customer_id' => $customer->id
         ]);
+        $hourrecord->culture()->associate($culture);
+        $hourrecord->save();
+        $hourrecord->customer = $hourrecord->customer;
+
         return $hourrecord;
     }
 
-    // GET project/{id}
-    public function show($id)
-    {
-        //
-    }
-
-    // PATCH project/{id}
+    // PATCH hourrecord/{id}
     public function update(Request $request, $id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
@@ -138,7 +157,7 @@ class HourrecordController extends Controller
         ])->get()->groupBy('customer_id');
     }
 
-    // DELETE project/{id}
+    // DELETE hourrecord/{id}
     public function destroy($id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
