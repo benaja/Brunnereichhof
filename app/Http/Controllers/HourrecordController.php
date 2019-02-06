@@ -142,7 +142,9 @@ class HourrecordController extends Controller
     public function destroy($id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
-        $this->validateEditeDate();
+        if(auth()->user()->authorization_id == AuthorizationType::Customer){
+            $this->validateEditeDate();
+        }
 
         $hourrecrod = Hourrecord::find($id);
         $hourrecrod->delete();
