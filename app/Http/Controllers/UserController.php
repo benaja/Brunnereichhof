@@ -24,7 +24,8 @@ class UserController extends Controller
     {
         $this->validate(request(), [
             'passwordOld' => 'required|string',
-            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed', 'regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.,]).{8,}$/']
+            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed'],
+            'email' => 'nullable|email|unique:user'
         ]);
 
         if (Hash::check(request('passwordOld'), Auth::user()->password)) {
@@ -34,6 +35,9 @@ class UserController extends Controller
             if ($user->authorization_id == AuthorizationType::Customer) {
                 $user->customer->secret = null;
                 $user->customer->save();
+            }
+            if ($request->email) {
+                $user->email = $request->email;
             }
             $user->save();
             return response('success');

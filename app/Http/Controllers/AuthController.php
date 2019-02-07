@@ -28,16 +28,22 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response([
-                'status' => 'error',
-                'error' => 'invalid.credentials',
-                'msg' => 'Invalid Credentials.'
-            ], 400);
+            $credentials = [
+                'username' => $credentials['email'],
+                'password' => $credentials['password']
+            ];
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response([
+                    'status' => 'error',
+                    'error' => 'invalid.credentials',
+                    'msg' => 'Invalid Credentials.'
+                ], 400);
+
+            }
         }
         return response([
             'status' => 'success'
-        ])
-            ->header('Authorization', $token);
+        ])->header('Authorization', $token);
     }
 
     public function user(Request $request)
@@ -65,7 +71,8 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function generatePdfToken() {
+    public function generatePdfToken()
+    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $token = str_random(32);

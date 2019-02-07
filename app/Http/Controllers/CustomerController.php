@@ -43,35 +43,19 @@ class CustomerController extends Controller
 
         $this->validate($request, $this->validateArray);
         $this->validate($request, [
-            'email' => 'nullable|email|unique:user'
+            'email' => 'nullable|email|unique:user',
+            'customer_number' => 'nullable|unique:customer'
         ]);
 
         $password = str_random(8);
-
         $secret = encrypt($password);
-
-        $username = strtolower($request->firstname . "." . $request->lastname);
-
-        if ($this->checkIfUsernameExist($username)) {
-            $usernameIsUnique = false;
-            $counter = 1;
-
-            while (!$usernameIsUnique) {
-                if ($this->checkIfUsernameExist($username . $counter)) {
-                    $counter++;
-                } else {
-                    $username = $username . $counter;
-                    $usernameIsUnique = true;
-                }
-            }
-        }
 
         $authorization = Authorization::where('name', 'customer')->first();
         $user = User::create([
             'firstname' => request('firstname'),
             'lastname' => request('lastname'),
             'email' => request('email'),
-            'username' => $username,
+            'username' => $request->customer_number,
             'password' => Hash::make($password)
         ]);
         $authorization->users()->save($user);
@@ -99,7 +83,7 @@ class CustomerController extends Controller
         ]);
 
         $defaultProject = Project::where('name', 'Allgemein')->first();
-        if($defaultProject == null){
+        if ($defaultProject == null) {
             $customer->delete();
             return response('unknown error', 404);
         }
@@ -157,6 +141,8 @@ class CustomerController extends Controller
             'customer_number' => $request->customer_number,
             'needs_payment_order' => $request->needs_payment_order
         ]);
+        $customer->user->username = $request->customer_number;
+        $customer->user->save();
 
         if ($request->email != $customer->user->email) {
             $this->validate($request, [
@@ -229,7 +215,7 @@ class CustomerController extends Controller
         'driver_info' => 'nullable|string|max:500',
         'comment' => 'nullable|string|max:1000',
         'maps' => 'nullable|string|max:1000',
-        'customer_number' => 'nullable|integer',
+        'customer_number' => 'nullable|string',
         'needs_payment_order' => 'nullable|boolean'
     ];
 }
