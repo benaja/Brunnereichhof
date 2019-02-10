@@ -38,6 +38,7 @@ class TimeController extends Controller
 
         $isMealDefault = auth()->user()->ismealdefault;
         $totalHours = $timerecord->totalHours();
+        $timerecord->horus = $timerecord->hours->load('worktype');
 
         foreach ($timerecord->hours as $hour) {
             $hour->breakfast = $timerecord->breakfast;
@@ -48,6 +49,7 @@ class TimeController extends Controller
         return [$timerecord];
     }
 
+    // GET time/week
     public function week($date)
     {
         auth()->user()->authorizeRoles(['worker', 'admin']);
@@ -61,6 +63,7 @@ class TimeController extends Controller
                 ['date' => $date->format('Y-m-d'), 'user_id' => auth()->user()->id]
             );
             foreach ($timerecord->hours as $hour) {
+                $hour = $hour->load('worktype');
                 $hour->breakfast = $timerecord->breakfast;
                 $hour->lunch = $timerecord->lunch;
                 $hour->dinner = $timerecord->dinner;
@@ -84,7 +87,7 @@ class TimeController extends Controller
         );
 
         $request->validate([
-            'workType' => 'required|string',
+            'worktype' => 'required|string',
             'from' => 'required|before:to',
             'to' => ['required', new ValidTime($request->from, $timerecord)],
             'hasBreak' => 'nullable|boolean',
@@ -108,15 +111,15 @@ class TimeController extends Controller
         $timerecord->save();
 
         if ($request->hasBreak) {
-            if (!$this->createHour($timerecord, $request->from, $request->breakFrom, $request->comment, $request->workType)) {
+            if (!$this->createHour($timerecord, $request->from, $request->breakFrom, $request->comment, $request->worktype)) {
                 return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
             }
-            if (!$this->createHour($timerecord, $request->breakTo, $request->to, $request->comment, $request->workType)) {
+            if (!$this->createHour($timerecord, $request->breakTo, $request->to, $request->comment, $request->worktype)) {
                 return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
             }
         } else {
-            if (!$this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->workType)) {
-                return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
+            if (!$this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->worktype)) {
+                abort(500, 'could not create hourrecord');
             }
         }
         auth()->user()->ismealdefault = $request->lunch;
@@ -134,7 +137,7 @@ class TimeController extends Controller
         $hour = Hour::find($id);
         if ($hour->timerecord->user->id == auth()->user()->id) {
             $request->validate([
-                'workType' => 'required|integer',
+                'worktype' => 'required|string',
                 'from' => 'required|before:to',
                 'to' => ['required', new ValidTime($request->from, $hour->timerecord, $hour->id)],
                 'lunch' => 'nullable|boolean',
@@ -147,7 +150,7 @@ class TimeController extends Controller
             $hour->to = $request->to;
             $hour->comment = $request->comment;
 
-            $worktype = Worktype::find($request->workType);
+            $worktype = Worktype::where('name', $request->worktype)->first();
             $worktype->hours()->save($hour);
 
             $hour->save();
@@ -214,6 +217,7 @@ class TimeController extends Controller
     private function getHoursWidthLunch($id)
     {
         $timerecord = Timerecord::find($id);
+        $timerecord->hours = $timerecord->hours->load('worktype');
         foreach ($timerecord->hours as $hour) {
             $hour->breakfast = $timerecord->breakfast;
             $hour->lunch = $timerecord->lunch;

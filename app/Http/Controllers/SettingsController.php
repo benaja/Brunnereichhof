@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Settings;
 use Illuminate\Http\Request;
+use App\Worktype;
 
 class SettingsController extends Controller
 {
@@ -29,7 +30,8 @@ class SettingsController extends Controller
             'fullDayShortStart' => Settings::value('fullDayShortStart'),
             'fullDayShortEnd' => Settings::value('fullDayShortEnd'),
             'fullDayLongStart' => Settings::value('fullDayLongStart'),
-            'fullDayLongEnd' => Settings::value('fullDayLongEnd')
+            'fullDayLongEnd' => Settings::value('fullDayLongEnd'),
+            'worktypes' => Worktype::all()
         ];
 
         return $response;
@@ -45,7 +47,8 @@ class SettingsController extends Controller
         ];
     }
 
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $updatetKey = key($request->except('_token'));
