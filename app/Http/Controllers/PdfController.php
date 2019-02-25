@@ -69,7 +69,7 @@ class PdfController extends Controller
             foreach ($rapportdetails as $rapportdetail) {
                 $cell = $rapportdetail->hours;
                 // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
-                if($rapportdetail->project && $rapportdetail->project->name != "Allgemein"){
+                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein") {
                     $cell = "{$cell} ({$rapportdetail->project->name})";
                 }
                 array_push($cells, $cell);
@@ -79,7 +79,7 @@ class PdfController extends Controller
             array_push($lines, $cells);
         }
 
-        array_push($lines, $timePerDay);        
+        array_push($lines, $timePerDay);
 
         $this->generateTable($header, $lines);
 
@@ -99,11 +99,11 @@ class PdfController extends Controller
         $workers = [];
         $workerId = $request->workerId;
 
-        if(isset($request->workerId)){
+        if (isset($request->workerId)) {
             array_push($workers, User::find($request->workerId));
         } else {
-            foreach(User::workers()->get() as $worker){   
-                if($worker->totalHours($firstDayOfMonth) > 0){
+            foreach (User::workers()->get()->sortBy('lastname') as $worker) {
+                if ($worker->totalHours($firstDayOfMonth) > 0) {
                     array_push($workers, $worker);
                 }
             }
@@ -111,13 +111,13 @@ class PdfController extends Controller
 
         $this->getPdfDefault();
         $monthName = $this->monthNames[intval($firstDayOfMonth->format('m')) - 1];
-        if(!isset($request->workerId)){
+        if (!isset($request->workerId)) {
             $this->addDocumentTitle("Hofmitarbeiter Monatsrapport: $monthName");
-    
+
             // FrontPage
             $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen (Total)'];
             $lines = [];
-            foreach($workers as $worker){
+            foreach ($workers as $worker) {
                 $line = [
                     $worker->lastname . " " . $worker->firstname,
                     $worker->totalHours($firstDayOfMonth),
@@ -128,8 +128,8 @@ class PdfController extends Controller
             $this->generateTable($titles, $lines);
         }
 
-        foreach($workers as $worker){
-            if(!isset($request->workerId)){
+        foreach ($workers as $worker) {
+            if (!isset($request->workerId)) {
                 Fpdf::addPage('F');
             }
             $this->addDocumentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
@@ -146,15 +146,15 @@ class PdfController extends Controller
             $currentDay = clone $firstDayOfMonth;
             $currentDay->modify('monday this week');
             $firstCellWidth = 3;
-            for($i = 0; $i < 6; $i++){
+            for ($i = 0; $i < 6; $i++) {
                 $line = [];
                 $totalHoursOfWeek = 0;
-                for($j = 0; $j < 7; $j++){
-                    if($currentDay < $firstDayOfMonth || $currentDay > $lastDayOfMonth) {
+                for ($j = 0; $j < 7; $j++) {
+                    if ($currentDay < $firstDayOfMonth || $currentDay > $lastDayOfMonth) {
                         array_push($line, null);
                     } else {
                         $timerecord = $worker->timerecords->where('date', $currentDay->format('Y-m-d'))->first();
-                        if($timerecord == null){
+                        if ($timerecord == null) {
                             array_push($line, 0);
                         } else {
                             $hours = $timerecord->totalHours();
@@ -168,12 +168,12 @@ class PdfController extends Controller
                             } else if ($worktypeId == WorkTypeEnum::Holydays) {
                                 $worktype = "(F)";
                             }
-                            array_push($line, "{$hours} {$worktype}" );
+                            array_push($line, "{$hours} {$worktype}");
                         }
                     }
                     $currentDay->modify('+1 day');
                 }
-                if($totalHoursOfWeek > 0){
+                if ($totalHoursOfWeek > 0) {
                     $lastDayOfWeek = clone $currentDay;
                     $lastDayOfWeek->modify("-1 day");
                     $firstDayOfWeek = clone $lastDayOfWeek;
@@ -188,8 +188,8 @@ class PdfController extends Controller
             Fpdf::SetXY(110, 185);
             Fpdf::Cell(100, 4, utf8_decode('Datum:______________________________Unterschrift:_______________________________'), 0, 0, 'L', false);
         }
-      
-        if(isset($request->workerId)){
+
+        if (isset($request->workerId)) {
             $filename = "Monatrapport {$workers[0]->lastname} {$workers[0]->firstname} $monthName.pdf";
         } else {
             $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
@@ -209,7 +209,7 @@ class PdfController extends Controller
 
         $pdf = $this->getPdfDefault();
 
-        
+
         $this->addDocumentTitle("Mitarbeiter: $employee->firstname $employee->lastname");
         $this->addDocumentTitle("Jahr: $year");
         $this->addDocumentTitle("Totale Arbeitsstunden: " . array_sum($totalHoursOfMonths) . "h");
@@ -370,8 +370,7 @@ class PdfController extends Controller
         Fpdf::SetFont('Raleway', '', 12);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
-        foreach($lines as $line)
-        {
+        foreach ($lines as $line) {
             $this->addLine($line, $doFill, $firstCellWidth);
             $doFill = !$doFill;
         }
@@ -413,8 +412,8 @@ class PdfController extends Controller
         Fpdf::SetFillColor(38, 166, 154);
 
         for ($i = 0; $i < count($titles); $i++) {
-            $cellWidth = $this->documentWidth / ( count($titles) + $firstCellWidth - 1);
-            if($i == 0){
+            $cellWidth = $this->documentWidth / (count($titles) + $firstCellWidth - 1);
+            if ($i == 0) {
                 $cellWidth = $cellWidth * $firstCellWidth;
             }
             Fpdf::Cell($cellWidth, 8, utf8_decode($titles[$i]), 0, 0, 'L', true);
@@ -422,7 +421,8 @@ class PdfController extends Controller
         Fpdf::Ln();
     }
 
-    private function addLine($cells, $doFill, $firstCellWidth = 1){
+    private function addLine($cells, $doFill, $firstCellWidth = 1)
+    {
         if (isset($cells['isMulticell'])) {
             $counter = 0;
             $marginLeft = Fpdf::GetX();
@@ -431,7 +431,7 @@ class PdfController extends Controller
             $maxHeight = 0;
             foreach ($cells['values'] as $cell) {
                 $cellWidth = $this->documentWidth / (count($cells['values']) + $firstCellWidth - 1);
-                if($counter == 0){
+                if ($counter == 0) {
                     $cellWidth = $cellWidth * $firstCellWidth;
                 }
                 Fpdf::SetXY($marginLeft, $marginTop);
@@ -444,7 +444,7 @@ class PdfController extends Controller
             $counter = 0;
             foreach ($cells as $cell) {
                 $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth - 1);
-                if($counter == 0){
+                if ($counter == 0) {
                     $cellWidth = $cellWidth * $firstCellWidth;
                 }
                 Fpdf::Cell($cellWidth, 8, utf8_decode($cell), 0, 0, 'L', $doFill);

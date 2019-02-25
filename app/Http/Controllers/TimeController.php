@@ -88,7 +88,7 @@ class TimeController extends Controller
 
         $request->validate([
             'worktype' => 'required|string',
-            'from' => 'required|before:to',
+            'from' => 'required|before_or_equal:to',
             'to' => ['required', new ValidTime($request->from, $timerecord)],
             'hasBreak' => 'nullable|boolean',
             'breakfast' => 'boolean',
@@ -138,7 +138,7 @@ class TimeController extends Controller
         if ($hour->timerecord->user->id == auth()->user()->id) {
             $request->validate([
                 'worktype' => 'required|string',
-                'from' => 'required|before:to',
+                'from' => 'required|before_or_equal:to',
                 'to' => ['required', new ValidTime($request->from, $hour->timerecord, $hour->id)],
                 'lunch' => 'nullable|boolean',
                 'commnet' => 'nullable|string'

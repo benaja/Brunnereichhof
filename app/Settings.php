@@ -8,11 +8,15 @@ class Settings extends Model
 {
     public $table = "settings";
 
-    protected $fillable = ["value"];
+    protected $fillable = ["value", "key"];
 
     public static function value($key)
     {
-        $setting = Settings::where('key', $key)->first();
+        $setting = Settings::firstOrCreate([
+            'key' => $key
+        ], [
+            'key' => $key
+        ]);
         if ($setting->type == "int") {
             return intval($setting->value);
         } else if ($setting->typ == "double") {
@@ -24,7 +28,11 @@ class Settings extends Model
 
     public static function put($key, $value)
     {
-        $setting = Settings::where('key', $key)->first();
+        $setting = Settings::firstOrCreate([
+            'key' => $key
+        ], [
+            'key' => $key
+        ]);
         $setting->value = $value;
         $setting->save();
     }
@@ -37,7 +45,7 @@ class Settings extends Model
         foreach ($settings as $setting) {
             if ($setting->type == "int") {
                 $response[$setting->key] = intval($setting->value);
-            } else if($setting->tpye == "double") {
+            } else if ($setting->tpye == "double") {
                 $response[$setting->key] = doubleval($setting->value);
             } else {
                 $response[$setting->key] = $setting->value;
