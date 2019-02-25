@@ -50,3 +50,18 @@ insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten'
 insert into settings(`key`, value, type) value('fullDayShortStart', '08:00', 'string'), ('fullDayShortEnd', '16:00', 'string'), ('fullDayLongStart', '07:00', 'string'), ('fullDayLongEnd', '16:00', 'string');
 
 $2y$10$MJV/WP5/RAc41AbD/kg/xeOvmxixCHfh5B/MReXJu8HMecKEv2CeS
+
+/-- Room dispositioner
+create table room(id int primary key auto_increment, name nvarchar(100), location nvarchar(100), comment nvarchar(500));
+
+create table bed(id int primary key auto_increment, width nvarchar(100), places int, comment nvarchar(500));
+
+create table size(id int primary key auto_increment, value nvarchar(100));
+
+create table inventar(id int primary key auto_increment, name nvarchar(100), price double, size_id int, foreign key(size_id) references size(id) on delete cascade);
+
+create table bed_inventar(id int primary key auto_increment, bed_id int, inventar_id int, amount int, foreign key(bed_id) references bed(id) on delete cascade, foreign key(inventar_id) references inventar(id) on delete cascade);
+
+create table room_bed(id int primary key, room_id int, bed_id int, foreign key(room_id) references room(id) on delete cascade, foreign key(bed_id) references bed(id) on delete cascade);
+
+create table reservation(room_bed_id int, employee_id int, enty date, extry date, primary key(room_bed_id, employee_id), foreign key(room_bed_id) references room_bed(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
