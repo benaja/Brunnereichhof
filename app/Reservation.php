@@ -12,8 +12,8 @@ class Reservation extends Model
 
     public function bed()
     {
-        return $this->belongsToMany(Bed::class, 'room_bed', '')
-            ->withPivot('amount');
+        return $this->join('room_bed', 'room_bed.id', '=', 'reservation.room_bed_id')
+            ->join('bed', 'beed.id', '=', 'room_bed.bed_id');
     }
 
     protected $dates = [

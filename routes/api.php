@@ -6,7 +6,6 @@ Route::post('auth/login', 'AuthController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
     Route::get('/pdftoken', 'AuthController@generatePdfToken');
-
 });
 Route::group(['middleware' => 'jwt.refresh'], function () {
     Route::get('auth/refresh', 'AuthController@refresh');
@@ -67,6 +66,16 @@ Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
 
 Route::resource('/culture', 'CultureController');
 
-Route::get('hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
+Route::get('/hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
 Route::post('/hourrecord/week/{week}', 'HourrecordController@createSingle');
 Route::resource('/hourrecord', 'HourrecordController');
+
+
+// roomdispositioner
+Route::resource('/rooms', 'RoomController');
+
+Route::resource('/beds', 'BedController');
+
+Route::resource('/reservations', 'ReservationController');
+
+Route::resource('/inventars', 'InventarController');
