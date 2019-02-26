@@ -24,7 +24,7 @@ class WorkerController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $workers = User::where('authorization_id', AuthorizationType::Worker)
-            ->orWhere('authorization_id', AuthorizationType::Admin)->get();
+            ->orWhere('authorization_id', AuthorizationType::Admin)->orderBy('lastname')->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
@@ -122,7 +122,7 @@ class WorkerController extends Controller
         $worker->delete();
     }
 
-    
+
     //-- helpers --//
     private function checkIfUsernameExist($username)
     {

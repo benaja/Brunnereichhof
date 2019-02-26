@@ -43,7 +43,14 @@ class SettingsController extends Controller
 
         return [
             'hourrecordStartDate' => Settings::value('hourrecordStartDate'),
-            'hourrecordEndDate' => Settings::value('hourrecordEndDate')
+            'hourrecordEndDate' => Settings::value('hourrecordEndDate'),
+            'welcomeText' => Settings::value('welcomeText'),
+            'hourrecordTitle' => Settings::value('hourrecordTitle'),
+            'hourrecordValid' => Settings::value('hourrecordValid'),
+            'hourrecordInvalid' => Settings::value('hourrecordInvalid'),
+            'surveyTitle' => Settings::value('surveyTitle'),
+            'surveyText' => Settings::value('surveyText'),
+            'subtitle' => Settings::value('subtitle')
         ];
     }
 
