@@ -10,7 +10,7 @@ class BedController extends Controller
 {
     public function index()
     {
-        return Bed::all()->get();
+        return Bed::all();
     }
 
     public function store(Request $request)
