@@ -25,6 +25,8 @@ class PdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
     private $documentWidth = 270;
+    private $textSize = 11;
+    private $titleSize = 15;
 
     // GET rapport/{id}/pdf
     public function rapportWeek(Request $request, Rapport $rapport)
@@ -135,14 +137,16 @@ class PdfController extends Controller
             $this->addDocumentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
             $this->addDocumentTitle("Monat: $monthName");
             $this->addDocumentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
-            $this->addDocumentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h");
-            $this->addDocumentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h");
-            $this->addDocumentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h");
-            $this->addDocumentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h");
+            $this->addDocumentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h", $this->textSize);
+            $this->addDocumentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h", $this->textSize);
+            $this->addDocumentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h", $this->textSize);
+            $this->addDocumentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h", $this->textSize);
             $meals = $worker->getNumberOfMeals($firstDayOfMonth);
-            $this->addDocumentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}");
+            $this->addDocumentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}", $this->textSize);
+            Fpdf::ln();
 
             $lines = [];
+            $comments = [];
             $currentDay = clone $firstDayOfMonth;
             $currentDay->modify('monday this week');
             $firstCellWidth = 3;
@@ -157,6 +161,14 @@ class PdfController extends Controller
                         if ($timerecord == null) {
                             array_push($line, 0);
                         } else {
+                            foreach($timerecord->hours as $hour) {
+                                if ($hour->comment) {
+                                    array_push($comments, [
+                                        'text' => $hour->comment,
+                                        'date' => $timerecord->date
+                                    ]);
+                                }
+                            }
                             $hours = $timerecord->totalHours();
                             $totalHoursOfWeek += $hours;
                             $worktypeId = $timerecord->worktype() ? $timerecord->worktype()->id : null;
@@ -185,8 +197,28 @@ class PdfController extends Controller
             $titles = $this->dayNames;
             array_unshift($titles, "Zeitraum");
             $this->generateTable($titles, $lines, 3);
+            if (count($comments) > 0) {
+                Fpdf::ln();
+                $this->addDocumentTitle('Kommentare');
+                $textSize = $this->textSize;
+                if(count($comments) > 6) {
+                    $textSize -= 2;
+                }
+                
+                foreach ($comments as $comment) {
+                    $date = new \DateTime($comment['date']);
+                    
+                    Fpdf::SetFont('Raleway', 'B', $textSize);
+                    Fpdf::Cell(35, 6, utf8_decode($date->format('d.m.Y')), 0, 0, 'L', false);
+
+
+                    Fpdf::SetFont('Raleway', '', $textSize);
+                    Fpdf::MultiCell($this->documentWidth - 50, 6, utf8_decode($comment['text']), 1, 'L', false);
+                }
+            }
+            Fpdf::SetFont('Raleway', '', $this->textSize);
             Fpdf::SetXY(110, 185);
-            Fpdf::Cell(100, 4, utf8_decode('Datum:______________________________Unterschrift:_______________________________'), 0, 0, 'L', false);
+            Fpdf::Cell(100, 4, utf8_decode('Datum:_________________________________Unterschrift:__________________________________'), 0, 0, 'L', false);
         }
 
         if (isset($request->workerId)) {
@@ -263,7 +295,7 @@ class PdfController extends Controller
         $titles = ['Vorname', 'Nachname', 'Ruffname', 'Nationalität', 'Fahrer', 'Deutschkenntnis...', 'Geschlecht'];
         $this->addTableHeader($titles);
 
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         $doFill = false;
@@ -294,11 +326,6 @@ class PdfController extends Controller
 
         $customer = Customer::find($request->customer_id);
 
-        $weeks = $customer->rapports
-            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
-            ->where('startdate', '<=', $lastDate->format('Y-m-d'))
-            ->sortBy('startdate');
-
         $totalHours = DB::table('rapportdetail')
             ->leftJoin('rapport', 'rapportdetail.rapport_id', '=', 'rapport.id')
             ->leftJoin('customer', 'rapport.customer_id', '=', 'customer.id')
@@ -307,15 +334,22 @@ class PdfController extends Controller
             ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
             ->sum('rapportdetail.hours');
 
+        $firstDate->modify("first day of this week");
+        $weeks = $customer->rapports
+            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
+            ->where('startdate', '<=', $lastDate->format('Y-m-d'))
+            ->sortBy('startdate');
+
         $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
         $this->getPdfDefault('P');
 
         $this->addDocumentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
+        $this->addDocumentTitle("Jahr: $year");
         $this->addDocumentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
         Fpdf::Ln();
         $this->documentWidth = 190;
         $this->addTableHeader($titles);
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         $doFill = false;
@@ -324,7 +358,16 @@ class PdfController extends Controller
             $startDate = new \DateTime($week->startdate);
             $endDate = clone $startDate;
             $endDate->modify('+6 days');
-            $hours = $week->rapportdetails->sum('hours');
+            if ($startDate->format("Y") != $year) {
+                $startDate->modify("first day of january");
+                $startDate->modify("+1 year");
+            }
+            if ($endDate->format("Y") != $year) {
+                $endDate->modify("last day of december");
+                $endDate->modify("-1 year");    
+            }
+            $hours = $week->rapportdetails->where('date', '>=', $startDate->format('Y-m-d'))
+                ->where('date', '<=', $endDate->format('Y-m-d'))->sum('hours');
             Fpdf::Cell($cellWidht, 8, "KW {$startDate->format('W')} ({$startDate->format('d.m.Y')}-{$endDate->format('d.m.Y')})", 0, 0, 'L', $doFill);
             Fpdf::Cell($cellWidht, 8, $hours . "h", 0, 0, 'L', $doFill);
             Fpdf::Ln();
@@ -339,10 +382,8 @@ class PdfController extends Controller
     private function getPdfDefault($landscape = "L")
     {
         $pdf = new Fpdf('P', 'mm', 'A4');
-        $pdf::SetFont('Arial', 'B', 16);
 
         Fpdf::AddPage($landscape);
-        Fpdf::SetFont('Arial', 'B', 18);
         Fpdf::SetFillColor(38, 166, 154);
         Fpdf::SetDrawColor(255);
         Fpdf::SetLineWidth(.3);
@@ -350,16 +391,19 @@ class PdfController extends Controller
         Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
         // Fpdf::AddFont('Raleway','I', 'Raleway-Italic.php');
 
-        Fpdf::SetFont('Raleway', '', 20);
+        Fpdf::SetFont('Raleway', '', $this->titleSize);
         return $pdf;
     }
 
-    private function addDocumentTitle($text)
+    private function addDocumentTitle($text, $textSize = 0)
     {
+        if ($textSize == 0) {
+            $textSize = $this->titleSize;
+        }
         Fpdf::SetDrawColor(255);
         Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', 20);
-        Fpdf::Cell(0, 10, utf8_decode($text), 0, 2);
+        Fpdf::SetFont('Raleway', '', $textSize);
+        Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
     }
 
     private function generateTable($titles, $lines, $firstCellWidth = 1)
@@ -367,7 +411,7 @@ class PdfController extends Controller
         $this->addTableHeader($titles, $firstCellWidth);
 
         $doFill = false;
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         foreach ($lines as $line) {
@@ -388,7 +432,7 @@ class PdfController extends Controller
         $header = ['Monat', 'Arbeitszeit Total', 'Verpflegungen'];
         $this->addTableHeader($header);
         $currentMonth = 0;
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         $doFill = false;
@@ -407,7 +451,7 @@ class PdfController extends Controller
 
     private function addTableHeader($titles, $firstCellWidth = 1)
     {
-        Fpdf::SetFont('Raleway', 'B', 12);
+        Fpdf::SetFont('Raleway', 'B', $this->textSize);
         Fpdf::SetTextColor(255);
         Fpdf::SetFillColor(38, 166, 154);
 
@@ -520,7 +564,7 @@ class PdfController extends Controller
         $this->addTableHeader($titles);
         $employees = $rapportdetails->groupBy('employee_id');
         $doFill = false;
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         foreach ($employees as $rapportdetaisByEmployee) {
@@ -564,7 +608,7 @@ class PdfController extends Controller
         $this->addTableHeader($titles);
         $employees = $rapportdetails->groupBy('employee_id');
         $doFill = false;
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         foreach ($employees as $rapportdetaisByEmployee) {
@@ -602,7 +646,7 @@ class PdfController extends Controller
 
         Fpdf::SetDrawColor(255);
         Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', 20);
+        Fpdf::SetFont('Raleway', '', $this->titleSize);
         Fpdf::Cell(0, 10, "Monat: " . $montName, 0, 2);
         Fpdf::Cell(0, 10, "Totale Arbeitsstunden: " . $totalHours . "h", 0, 2);
         Fpdf::Cell(0, 10);
@@ -622,7 +666,7 @@ class PdfController extends Controller
             $lastDayOfWeek->modify("+1 week");
         }
         $doFill = false;
-        Fpdf::SetFont('Raleway', '', 12);
+        Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
         Fpdf::SetFillColor(242, 242, 242);
         while ($firstDayOfWeek <= $lastOfMonth) {
