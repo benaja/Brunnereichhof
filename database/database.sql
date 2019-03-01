@@ -54,7 +54,7 @@ $2y$10$MJV/WP5/RAc41AbD/kg/xeOvmxixCHfh5B/MReXJu8HMecKEv2CeS
 /-- Room dispositioner
 create table room(id int primary key auto_increment, name nvarchar(100), location nvarchar(100), comment nvarchar(500), updated_at datetime, created_at datetime);
 
-create table bed(id int primary key auto_increment, width nvarchar(100), places int, comment nvarchar(500), updated_at datetime, created_at datetime);
+create table bed(id int primary key auto_increment, name nvarchar(100), width nvarchar(100), places int, comment nvarchar(500), updated_at datetime, created_at datetime);
 
 create table size(id int primary key auto_increment, value nvarchar(100), updated_at datetime, created_at datetime);
 
