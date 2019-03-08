@@ -37,10 +37,25 @@ class BedController extends Controller
             'places' => $request->places
         ]);
 
-        return $request->inventars;
+        $inventarIds = array_map(function ($inventar) {
+            return $inventar['id'];
+        }, $request->inventars);
 
-        $inventars = Inventar::findMany($request->inventars);
+        $inventars = Inventar::findMany($inventarIds);
 
+        $attachInentars = [];
+        foreach ($inventars as $inventar) {
+            $attachInentars[$inventar['id']] = [];
+        }
+
+        $count = 0;
+        foreach ($attachInentars as $key => $attachInventar) {
+            $attachInentars[$key]['amount'] = $request->inventars[$count]['amount'];
+            $count++;
+        }
+
+        $bed->inventars()->attach($attachInentars);
+        return Bed::with('inventars')->find($bed->id);
     }
 
     public function show($id)
