@@ -4,9 +4,9 @@ namespace App\Pivots;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class RoomBedPivot extends Pivot
+class BedRoomPivot extends Pivot
 {
-    public $table = "room_bed";
+    public $table = "bed_room";
 
     public function bed()
     {

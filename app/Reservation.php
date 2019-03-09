@@ -8,12 +8,17 @@ class Reservation extends Model
 {
     public $table = "reservation";
 
-    protected $fillable = ['entry', 'exit'];
+    protected $fillable = ['entry', 'exit', 'bed_room_id'];
 
-    public function bed()
+    public function beds()
     {
         return $this->join('room_bed', 'room_bed.id', '=', 'reservation.room_bed_id')
             ->join('bed', 'beed.id', '=', 'room_bed.bed_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
     }
 
     protected $dates = [

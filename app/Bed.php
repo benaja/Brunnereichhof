@@ -12,7 +12,7 @@ class Bed extends Model
 
     public function room()
     {
-        return $this->belongsToMany(Room::class);
+        return $this->belongsToMany(Room::class)->withPivot('id');;
     }
 
     public function inventars()

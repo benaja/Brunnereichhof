@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Room;
 use App\Bed;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -50,16 +51,50 @@ class RoomController extends Controller
 
     public function show($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Room::with('beds.inventars')->find($id);
     }
 
     public function update(Request $request, $id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $room = Room::find($id);
+        $updatetKey = key($request->except('_token'));
+        $updatedValue = $request->$updatetKey;
+
+        $room->$updatetKey = $updatedValue;
+        $room->save();
+
+        return $room;
+    }
+
+    public function addBed($roomId, $bedId)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $room = Room::find($roomId);
+        $room->beds()->attach($bedId);
+    }
+
+    public function removeBed($roomId, $pivotId)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        DB::table('bed_room')->where('id', $pivotId)->delete();
+    }
+
+    public function beds($id)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Room::find($id)->beds;
     }
 
     public function destroy($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        Room::destroy($id);
     }
 }

@@ -72,6 +72,9 @@ Route::resource('/hourrecord', 'HourrecordController');
 
 
 // roomdispositioner
+Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
+Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
+Route::get('/rooms/{id}/beds', 'RoomController@beds');
 Route::resource('/rooms', 'RoomController');
 
 Route::resource('/beds', 'BedController');

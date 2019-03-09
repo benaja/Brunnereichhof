@@ -64,4 +64,4 @@ create table bed_inventar(id int primary key auto_increment, bed_id int, inventa
 
 create table bed_room(id int primary key auto_increment, room_id int, bed_id int, foreign key(room_id) references room(id) on delete cascade, foreign key(bed_id) references bed(id) on delete cascade);
 
-create table reservation(bed_room_id int, employee_id int, enty date, extry date, updated_at datetime, created_at datetime, primary key(bed_room_id, employee_id), foreign key(bed_room_id) references bed_room(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
+create table reservation(id int primary key auto_increment, bed_room_id int, employee_id int, `entry` date, `exit` date, updated_at datetime, created_at datetime, foreign key(bed_room_id) references bed_room(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);

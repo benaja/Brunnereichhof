@@ -10,8 +10,13 @@ class Employee extends Model
 
     protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'profileimage', 'allergy'];
 
-    public function Rapportdetails(){
+    public function Rapportdetails()
+    {
         return $this->hasMany(Rapportdetail::class);
     }
 
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
 }
