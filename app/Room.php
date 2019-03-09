@@ -10,7 +10,7 @@ class Room extends Model
 
     protected $fillable = ['name', 'location', 'comment'];
 
-    public function bed()
+    public function beds()
     {
         return $this->belongsToMany(Bed::class);
     }

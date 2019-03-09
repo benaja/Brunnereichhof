@@ -62,6 +62,6 @@ create table inventar(id int primary key auto_increment, name nvarchar(100), pri
 
 create table bed_inventar(id int primary key auto_increment, bed_id int, inventar_id int, amount int, foreign key(bed_id) references bed(id) on delete cascade, foreign key(inventar_id) references inventar(id) on delete cascade);
 
-create table room_bed(id int primary key, room_id int, bed_id int, foreign key(room_id) references room(id) on delete cascade, foreign key(bed_id) references bed(id) on delete cascade);
+create table bed_room(id int primary key auto_increment, room_id int, bed_id int, foreign key(room_id) references room(id) on delete cascade, foreign key(bed_id) references bed(id) on delete cascade);
 
-create table reservation(room_bed_id int, employee_id int, enty date, extry date, updated_at datetime, created_at datetime, primary key(room_bed_id, employee_id), foreign key(room_bed_id) references room_bed(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
+create table reservation(bed_room_id int, employee_id int, enty date, extry date, updated_at datetime, created_at datetime, primary key(bed_room_id, employee_id), foreign key(bed_room_id) references bed_room(id) on delete cascade, foreign key(employee_id) references employee(id) on delete cascade);
