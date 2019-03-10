@@ -3,6 +3,7 @@
 namespace App\Pivots;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use App\Bed;
 
 class BedRoomPivot extends Pivot
 {
@@ -16,5 +17,10 @@ class BedRoomPivot extends Pivot
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 }

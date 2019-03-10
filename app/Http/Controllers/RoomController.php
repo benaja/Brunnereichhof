@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Room;
 use App\Bed;
 use Illuminate\Support\Facades\DB;
+use App\Pivots\BedRoomPivot;
+use App\Reservation;
 
 class RoomController extends Controller
 {
@@ -84,9 +86,49 @@ class RoomController extends Controller
         DB::table('bed_room')->where('id', $pivotId)->delete();
     }
 
-    public function beds($id)
+    public function beds(Request $request, $id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        if (isset($request->from)) {
+            $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($id) {
+                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                    ->where('bed_room.room_id', $id);
+            })->where('entry', '>=', $request->from)
+                ->where('entry', '<=', $request->to)
+                ->get();
+
+            $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($id) {
+                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                    ->where('bed_room.room_id', $id);
+            })->where('exit', '>=', $request->from)
+                ->where('exit', '<=', $request->to)
+                ->get();
+
+            $notAllowedReservations = [];
+            foreach ($notAllowedReservations1 as $pivot) {
+                array_push($notAllowedReservations, $pivot);
+            }
+
+            foreach ($notAllowedReservations2 as $pivot) {
+                array_push($notAllowedReservations, $pivot);
+            }
+
+            $beds = Room::find($id)->beds;
+            $availableBeds = [];
+            foreach ($beds as $key => $bed) {
+                $bedsUsed = 0;
+                foreach ($notAllowedReservations as $reservation) {
+                    if ($bed->pivot->id == $reservation->bed_room_id) {
+                        $bedsUsed++;
+                    }
+                }
+                if ($bedsUsed < $bed->places) {
+                    array_push($availableBeds, $bed);
+                }
+            }
+            return $availableBeds;
+        }
 
         return Room::find($id)->beds;
     }

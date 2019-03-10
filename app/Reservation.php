@@ -21,6 +21,11 @@ class Reservation extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function bedRoomPivot()
+    {
+        return $this->belognsTo(BedRoomPivot::class);
+    }
+
     protected $dates = [
         'entry',
         'exit'

@@ -18,6 +18,8 @@ class ReservationController extends Controller
     public function index()
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Reservation::all();
     }
 
     public function store(Request $request)
@@ -32,13 +34,18 @@ class ReservationController extends Controller
             'employee' => 'required'
         ]);
 
+        // BedRoomPivot::where('entry', '>=', $request->from)->where('entry', '<=', $re)
+        $bedRoomPivot = BedRoomPivot::find($request->bed);
+        $employee = Employee::find($request->employee);
+
+        $this->validateDate($bedRoomPivot, $employee, $request->from, $request->to);
+
         $reservation = Reservation::create([
             'entry' => $request->from,
             'exit' => $request->to,
             'bed_room_id' => $request->bed
         ]);
 
-        $employee = Employee::find($request->employee);
         // $bedRoom = BedRoomPivot::find($request->bed);
 
         $reservation->employee()->associate($employee);
@@ -60,5 +67,45 @@ class ReservationController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function validateDate($bedRoomPivot, $employee, $from, $to)
+    {
+        $reservation = Reservation::where('bed_room_id', $bedRoomPivot->id)
+            ->where('entry', '>=', $from)
+            ->where('entry', '<=', $to)
+            ->get();
+
+        if (count($reservation) >= $bedRoomPivot->bed->places) {
+            abort(400, 'Bed is already booked at this time');
+        }
+
+        $reservation = Reservation::where('bed_room_id', $bedRoomPivot->id)
+            ->where('exit', '>=', $from)
+            ->where('exit', '<=', $to)
+            ->get();
+
+        if (count($reservation) >= $bedRoomPivot->bed->places) {
+            abort(400, 'Bed is already booked at this time');
+        }
+
+        $reservation = Reservation::where('employee_id', $employee->id)
+            ->where('entry', '>=', $from)
+            ->where('entry', '<=', $to)
+            ->first();
+
+        if ($reservation) {
+            abort(400, 'Employee is already in an other bed at this time');
+        }
+
+        $reservation = Reservation::where('employee_id', $employee->id)
+            ->where('exit', '>=', $from)
+            ->where('exit', '<=', $to)
+            ->first();
+
+        if ($reservation) {
+            abort(400, 'Employee is already in an other bed at this time');
+        }
+        // $reservation = Reservation::where('employee_id', $employee->id)
     }
 }
