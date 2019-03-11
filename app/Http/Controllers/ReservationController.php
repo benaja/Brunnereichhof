@@ -65,7 +65,40 @@ class ReservationController extends Controller
 
     public function update(Request $request, $id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $this->validate($request, [
+            'entry' => 'required|date',
+            'exit' => 'required|date|after_or_equal:entry',
+            'room' => 'required',
+            'bed' => 'required',
+            'employee' => 'required'
+        ]);
+
+        // BedRoomPivot::where('entry', '>=', $request->from)->where('entry', '<=', $re)
+        $bedRoomPivot = BedRoomPivot::find($request->bed);
+        $employee = Employee::find($request->employee);
+
+        $reservation = Reservation::find($id);
+        $reservation->delete();
+
+        if ($this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false)) {
+
+            $reservation = Reservation::create([
+                'entry' => $request->entry,
+                'exit' => $request->exit,
+                'bed_room_id' => $request->bed
+            ]);
+
+            // $bedRoom = BedRoomPivot::find($request->bed);
+
+            $reservation->employee()->associate($employee);
+            $reservation->save();
+            return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+        } else {
+            $reservation->save();
+            return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+        }
     }
 
     public function destroy($id)
@@ -73,7 +106,7 @@ class ReservationController extends Controller
         //
     }
 
-    private function validateDate($bedRoomPivot, $employee, $from, $to)
+    private function validateDate($bedRoomPivot, $employee, $from, $to, $abort = true)
     {
         $reservation = Reservation::where('bed_room_id', $bedRoomPivot->id)
             ->where('entry', '>=', $from)
@@ -81,7 +114,11 @@ class ReservationController extends Controller
             ->get();
 
         if (count($reservation) >= $bedRoomPivot->bed->places) {
-            abort(400, 'Bed is already booked at this time');
+            if ($abort) {
+                abort(400, 'Bed is already booked at this time');
+            } else {
+                return 'Bed is already booked at this time';
+            }
         }
 
         $reservation = Reservation::where('bed_room_id', $bedRoomPivot->id)
@@ -90,7 +127,11 @@ class ReservationController extends Controller
             ->get();
 
         if (count($reservation) >= $bedRoomPivot->bed->places) {
-            abort(400, 'Bed is already booked at this time');
+            if ($abort) {
+                abort(400, 'Bed is already booked at this time');
+            } else {
+                return 'Bed is already booked at this time';
+            }
         }
 
         $reservation = Reservation::where('employee_id', $employee->id)
@@ -99,7 +140,11 @@ class ReservationController extends Controller
             ->first();
 
         if ($reservation) {
-            abort(400, 'Employee is already in an other bed at this time');
+            if ($abort) {
+                abort(400, 'Employee is already in an other bed at this time');
+            } else {
+                return 'Employee is already in an other bed at this time';
+            }
         }
 
         $reservation = Reservation::where('employee_id', $employee->id)
@@ -108,8 +153,13 @@ class ReservationController extends Controller
             ->first();
 
         if ($reservation) {
-            abort(400, 'Employee is already in an other bed at this time');
+            if ($abort) {
+                abort(400, 'Employee is already in an other bed at this time');
+            } else {
+                return 'Employee is already in an other bed at this time';
+            }
         }
+        return true;
         // $reservation = Reservation::where('employee_id', $employee->id)
     }
 }
