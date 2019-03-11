@@ -4,6 +4,7 @@ namespace App\Pivots;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Bed;
+use App\Room;
 
 class BedRoomPivot extends Pivot
 {

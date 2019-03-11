@@ -19,7 +19,11 @@ class ReservationController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        return Reservation::all();
+        // if (isset(request('all'))) {
+        //     $reservation::with('employee')->get();
+        // }
+
+        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
     }
 
     public function store(Request $request)
@@ -51,7 +55,7 @@ class ReservationController extends Controller
         $reservation->employee()->associate($employee);
         $reservation->save();
 
-        return $reservation;
+        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
     }
 
     public function show($id)

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Pivots\BedRoomPivot;
 
 class Reservation extends Model
 {
@@ -12,18 +13,18 @@ class Reservation extends Model
 
     public function beds()
     {
-        return $this->join('room_bed', 'room_bed.id', '=', 'reservation.room_bed_id')
-            ->join('bed', 'beed.id', '=', 'room_bed.bed_id');
+        return $this->join('bed_room', 'bed_room.id', '=', 'reservation.bed_room_id')
+            ->join('bed', 'beed.id', '=', 'bed_room.bed_id');
+    }
+
+    public function bedRoomPivot()
+    {
+        return $this->belongsTo(BedRoomPivot::class, 'bed_room_id');
     }
 
     public function employee()
     {
         return $this->belongsTo(Employee::class);
-    }
-
-    public function bedRoomPivot()
-    {
-        return $this->belognsTo(BedRoomPivot::class);
     }
 
     protected $dates = [
