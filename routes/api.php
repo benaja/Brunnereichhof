@@ -47,6 +47,7 @@ Route::get('/pdf/employee/year/{year}', 'PdfController@employeeYearRapport');
 Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
 Route::get('/pdf/employees', 'PdfController@employeeList');
 Route::get('/pdf/customer/year/{year}', 'PdfController@customerYearRapport');
+Route::get('/pdf/reservation/employee/{id}', 'PdfController@reservation');
 
 Route::post('/password/change', 'UserController@changePassword');
 Route::post('/resetpassword/{user}', 'UserController@resetPassword');

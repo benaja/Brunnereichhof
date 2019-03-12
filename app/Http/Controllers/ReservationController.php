@@ -107,7 +107,8 @@ class ReservationController extends Controller
 
         Reservation::find($id)->delete();
     }
-
+    
+    // --helpers--
     private function validateDate($bedRoomPivot, $employee, $from, $to, $abort = true)
     {
         $reservation = Reservation::where('bed_room_id', $bedRoomPivot->id)

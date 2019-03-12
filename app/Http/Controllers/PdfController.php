@@ -335,6 +335,12 @@ class PdfController extends Controller
         $this->exportPage($filename);
     }
 
+    public function reservation(Request $request) {
+        $this->validateToken($request->token);
+
+        $this->getPdfDefault();
+    }
+
     // --helpers--
     private function getPdfDefault($landscape = "L")
     {
