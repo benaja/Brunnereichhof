@@ -103,7 +103,9 @@ class ReservationController extends Controller
 
     public function destroy($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        Reservation::find($id)->delete();
     }
 
     private function validateDate($bedRoomPivot, $employee, $from, $to, $abort = true)
