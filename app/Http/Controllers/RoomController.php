@@ -77,7 +77,14 @@ class RoomController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $room = Room::find($roomId);
-        $room->beds()->attach($bedId);
+        // $test = $room->beds()->attach($bedId);
+
+        $pivot = BedRoomPivot::create();
+        $pivot->room()->associate($roomId);
+        $pivot->bed()->associate($bedId);
+        $pivot->save();
+
+        return $pivot;
     }
 
     public function removeBed($roomId, $pivotId)

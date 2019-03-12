@@ -60,7 +60,7 @@ create table size(id int primary key auto_increment, value nvarchar(100), update
 
 create table inventar(id int primary key auto_increment, name nvarchar(100), price double, size_id int, updated_at datetime, created_at datetime, foreign key(size_id) references size(id) on delete cascade);
 
-create table bed_inventar(id int primary key auto_increment, bed_id int, inventar_id int, amount int, foreign key(bed_id) references bed(id) on delete cascade, foreign key(inventar_id) references inventar(id) on delete cascade);
+create table bed_inventar(id int primary key auto_increment, bed_id int, inventar_id int, amount int, amount_2 int, foreign key(bed_id) references bed(id) on delete cascade, foreign key(inventar_id) references inventar(id) on delete cascade);
 
 create table bed_room(id int primary key auto_increment, room_id int, bed_id int, foreign key(room_id) references room(id) on delete cascade, foreign key(bed_id) references bed(id) on delete cascade);
 

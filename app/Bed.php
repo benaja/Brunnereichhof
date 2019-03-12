@@ -18,6 +18,6 @@ class Bed extends Model
     public function inventars()
     {
         return $this->belongsToMany(Inventar::class)
-            ->withPivot('amount');
+            ->withPivot('amount', 'amount_2');
     }
 }

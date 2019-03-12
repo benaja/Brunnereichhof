@@ -9,6 +9,7 @@ use App\Room;
 class BedRoomPivot extends Pivot
 {
     public $table = "bed_room";
+    public $timestamps = false;
 
     public function bed()
     {
