@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Rapportdetail;
 use App\Employee;
+use App\Reservation;
+use App\Pivots\BedRoomPivot;
 
 class DashboardController extends Controller
 {
@@ -66,5 +68,27 @@ class DashboardController extends Controller
             'acitveEmployees' => $employeesAmount
         ];
         return $response;
+    }
+
+    public function roomdispositioner() {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $beds = BedRoomPivot::join('reservation', function($join) {
+            $join->on('reservation.bed_room_id', '=', 'bed_room.id');
+        })->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
+            ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))->get();;
+
+        $allBeds = BedRoomPivot::with('bed')->get()->toArray();
+        $amountOfAllBeds = array_sum(array_map(function($bedRoomPivot) {
+            return $bedRoomPivot['bed']['places'];
+        }, $allBeds));
+
+        $stats = [
+            'freePlaces' => $amountOfAllBeds - count($beds),
+            'usedPlaces' => count($beds),
+            'totalPlaces' => $amountOfAllBeds
+        ];
+
+        return $stats;
     }
 }

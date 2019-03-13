@@ -59,6 +59,7 @@ Route::resource('/time', 'TimeController');
 
 Route::get('/stats/monthtotal', 'DashboardController@totalHoursByMonth');
 Route::get('/stats/totalnumbers', 'DashboardController@totalNumbers');
+Route::get('/stats/roomdispositioner', 'DashboardController@roomdispositioner');
 
 Route::patch('/settings', 'SettingsController@update');
 Route::get('/settings/time', 'SettingsController@timeSettings');

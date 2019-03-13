@@ -38,7 +38,6 @@ class ReservationController extends Controller
             'employee' => 'required'
         ]);
 
-        // BedRoomPivot::where('entry', '>=', $request->from)->where('entry', '<=', $re)
         $bedRoomPivot = BedRoomPivot::find($request->bed);
         $employee = Employee::find($request->employee);
 

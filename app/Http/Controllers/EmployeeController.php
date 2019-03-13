@@ -17,10 +17,8 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        $employees = Employee::all();
-        return $employees;
-
-        // return view('pages.admin.employee.index', compact('employees'));
+        $employees = Employee::all()->sortBy('lastname')->toArray();
+        return array_values($employees);
     }
 
     // GET employee/create
