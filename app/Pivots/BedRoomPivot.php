@@ -5,6 +5,7 @@ namespace App\Pivots;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Bed;
 use App\Room;
+use App\Reservation;
 
 class BedRoomPivot extends Pivot
 {
@@ -23,6 +24,6 @@ class BedRoomPivot extends Pivot
 
     public function reservations()
     {
-        return $this->hasMany(Reservation::class);
+        return $this->hasMany(Reservation::class, 'bed_room_id', 'id');
     }
 }

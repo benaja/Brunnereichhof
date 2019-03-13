@@ -7,6 +7,7 @@ use App\Employee;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use App\Bed;
 
 class ReservationPdfController extends Controller
 {
@@ -22,7 +23,27 @@ class ReservationPdfController extends Controller
         $reservation = $employee->reservations->where('entry', '<=', $request->date)->where('exit', '>=', $request->date)->first();
         $bed = $reservation->bedRoomPivot->bed;
 
-        dd($bed);
+        $otherReservations = $reservation->bedRoomPivot->reservations->where('entry', '<=', $request->date)->where('exit', '>=', $request->date);
+
+        $inventars = [];
+        $invs = Bed::find($bed->id)->inventars;
+        foreach($invs as $inventar) {
+            if (count($otherReservations) == 1) {
+                array_push($inventars, [
+                    'name' => $inventar->name,
+                    'amount' => $inventar->pivot->amount
+                ]);
+            } else {
+                array_push($inventars, [
+                    'name' => $inventar->name,
+                    'amount' => $inventar->pivot->amount_2
+                ]);
+            }
+        }
+
+        
+
+        dd($inventars);
         return $reservation;
     }
 
