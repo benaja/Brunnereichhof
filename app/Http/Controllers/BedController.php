@@ -61,16 +61,29 @@ class BedController extends Controller
 
     public function show($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Bed::find($id);
     }
 
     public function update(Request $request, $id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $bed = Bed::find($id);
+        $updatetKey = key($request->except('_token'));
+        $updatedValue = $request->$updatetKey;
+
+        $bed->$updatetKey = $updatedValue;
+        $bed->save();
+
+        return $bed;
     }
 
     public function destroy($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Bed::destroy($id);
     }
 }

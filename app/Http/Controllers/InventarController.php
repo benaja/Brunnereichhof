@@ -40,18 +40,31 @@ class InventarController extends Controller
     // GET /inventars/$id
     public function show($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        return Inventar::find($id);
     }
 
     // PATCH /inventars/$id
     public function update(Request $request, $id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $inventar = Inventar::find($id);
+        $updatetKey = key($request->except('_token'));
+        $updatedValue = $request->$updatetKey;
+
+        $inventar->$updatetKey = $updatedValue;
+        $inventar->save();
+
+        return $inventar;
     }
 
     // DELETE /inventars/$id
     public function destroy($id)
     {
-        //
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        Inventar::destroy($id);
     }
 }
