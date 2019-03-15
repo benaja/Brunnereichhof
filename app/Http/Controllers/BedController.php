@@ -63,7 +63,7 @@ class BedController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        return Bed::find($id);
+        return Bed::with('inventars')->find($id);
     }
 
     public function update(Request $request, $id)
@@ -78,6 +78,22 @@ class BedController extends Controller
         $bed->save();
 
         return $bed;
+    }
+
+    public function addInventar(Request $request, $bedId, $inventarId)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $bed = Bed::find($bedId);
+        if ($bed->inventars->where('id', $inventarId)) {
+            $bed->inventars->pivot->amount++;
+            $bed->inventars->pivot->save();
+        } else {
+            $bed->inventars()->attach($inventarId);
+            $bed->save();
+        }
+
+        return Bed::with('inventars')->find($bedId);
     }
 
     public function destroy($id)
