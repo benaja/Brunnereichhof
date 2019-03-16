@@ -79,6 +79,8 @@ Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
 Route::get('/rooms/{id}/beds', 'RoomController@beds');
 Route::resource('/rooms', 'RoomController');
 
+Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
+Route::delete('/beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');
 Route::resource('/beds', 'BedController');
 
 Route::resource('/reservations', 'ReservationController');

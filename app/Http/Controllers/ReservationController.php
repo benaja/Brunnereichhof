@@ -35,26 +35,71 @@ class ReservationController extends Controller
             'to' => 'required|date|after_or_equal:from',
             'room' => 'required',
             'bed' => 'required',
-            'employee' => 'required'
+            'employee' => 'required',
+            'force' => 'nullable|boolean'
         ]);
 
         $bedRoomPivot = BedRoomPivot::find($request->bed);
         $employee = Employee::find($request->employee);
 
-        $this->validateDate($bedRoomPivot, $employee, $request->from, $request->to);
+        $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->from, $request->to, false);
 
-        $reservation = Reservation::create([
-            'entry' => $request->from,
-            'exit' => $request->to,
-            'bed_room_id' => $request->bed
-        ]);
+        if ($validationResult == 'Employee is already in an other bed at this time' && $request->force) {
+            $reservation = Reservation::where('employee_id', $employee->id)
+                ->where('entry', '<=', $request->from)
+                ->where('exit', '>=', $request->from)
+                ->first();
+            if ($reservation) {
+                $newExitDate = (new \DateTime($request->from))->modify('-1 day');
+                if ($newExitDate < $reservation->entry) {
+                    Reservation::destroy($reservation->id);
+                } else {
+                    $reservation->exit = $newExitDate;
+                    $reservation->save();
+                }
+                $reservation = null;
+            }
 
-        // $bedRoom = BedRoomPivot::find($request->bed);
+            $reservation = Reservation::where('employee_id', $employee->id)
+                ->where('entry', '<=', $request->to)
+                ->where('exit', '>=', $request->to)
+                ->first();
+            if ($reservation) {
+                $newEntryDate = (new \DateTime($request->to))->modify('+1 day');
+                if ($newEntryDate < $request->exit) {
+                    Reservation::destroy($reservation->id);
+                } else {
+                    $reservation->entry = $newEntryDate;
+                    $reservation->save();
+                }
+                $reservation = null;
+            }
 
-        $reservation->employee()->associate($employee);
-        $reservation->save();
+            $reservation = Reservation::where('employee_id', $employee->id)
+                ->where('entry', '>=', $request->from)
+                ->where('exit', '<=', $request->to)
+                ->first();
+            if ($reservation) {
+                Reservation::destroy($reservation->id);
+            }
+        }
+        if ($validationResult === true || $request->force) {
+            $reservation = Reservation::create([
+                'entry' => $request->from,
+                'exit' => $request->to,
+                'bed_room_id' => $request->bed
+            ]);
 
-        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+            $reservation->employee()->associate($employee);
+            $reservation->save();
+
+            if ($request->force) {
+                return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+            }
+            return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+        } else {
+            return response($validationResult, 400);
+        }
     }
 
     public function show($id)
@@ -81,7 +126,7 @@ class ReservationController extends Controller
         $reservation = Reservation::find($id);
         $reservation->delete();
 
-        if ($this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false)) {
+        if ($this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false) === true) {
 
             $reservation = Reservation::create([
                 'entry' => $request->entry,
@@ -106,7 +151,7 @@ class ReservationController extends Controller
 
         Reservation::find($id)->delete();
     }
-    
+
     // --helpers--
     private function validateDate($bedRoomPivot, $employee, $from, $to, $abort = true)
     {
@@ -137,8 +182,8 @@ class ReservationController extends Controller
         }
 
         $reservation = Reservation::where('employee_id', $employee->id)
-            ->where('entry', '>=', $from)
             ->where('entry', '<=', $to)
+            ->where('exit', '>=', $from)
             ->first();
 
         if ($reservation) {
@@ -150,8 +195,8 @@ class ReservationController extends Controller
         }
 
         $reservation = Reservation::where('employee_id', $employee->id)
-            ->where('exit', '>=', $from)
-            ->where('exit', '<=', $to)
+            ->where('entry', '<=', $to)
+            ->where('exit', '>=', $to)
             ->first();
 
         if ($reservation) {

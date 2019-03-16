@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Bed;
 use App\Inventar;
+use App\Pivots\BedRoomPivot;
 
 class BedController extends Controller
 {
@@ -85,12 +86,44 @@ class BedController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $bed = Bed::find($bedId);
-        if ($bed->inventars->where('id', $inventarId)) {
-            $bed->inventars->pivot->amount++;
-            $bed->inventars->pivot->save();
+        $inventar = $bed->inventars->where('id', $inventarId)->first();
+        if ($inventar) {
+            if ($request->addAmount2) {
+                $inventar->pivot->amount_2++;
+            } else {
+                $inventar->pivot->amount++;
+                $inventar->pivot->amount_2 = $inventar->pivot->amount;
+            }
+            $inventar->pivot->save();
         } else {
-            $bed->inventars()->attach($inventarId);
+            $bed->inventars()->attach([
+                $inventarId => ['amount' => 1, 'amount_2' => 1]
+            ]);
             $bed->save();
+        }
+
+        return Bed::with('inventars')->find($bedId);
+    }
+
+    public function removeInventar(Request $request, $bedId, $inventarId)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $bed = Bed::find($bedId);
+        $inventar = $bed->inventars->where('id', $inventarId)->first();
+        if ($request->removeAmount2 == 'true') {
+            if ($inventar->pivot->amount_2 > 0) {
+                $inventar->pivot->amount_2--;
+                $inventar->pivot->save();
+            }
+        } else {
+            if ($inventar->pivot->amount_2 == 1) {
+                $bed->inventars()->detach($inventarId);
+            } else {
+                $inventar->pivot->amount--;
+                $inventar->pivot->amount_2 = $inventar->pivot->amount;
+                $inventar->pivot->save();
+            }
         }
 
         return Bed::with('inventars')->find($bedId);
