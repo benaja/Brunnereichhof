@@ -51,8 +51,8 @@ class BedController extends Controller
 
         $count = 0;
         foreach ($attachInentars as $key => $attachInventar) {
-            $attachInentars[$key]['amount'] = $request->inventars[$count]['amount'];
-            $attachInentars[$key]['amount_2'] = $request->inventars[$count]['amount_2'];
+            $attachInentars[$key]['amount'] = $request->inventars[$count]['pivot']['amount'];
+            $attachInentars[$key]['amount_2'] = $request->inventars[$count]['pivot']['amount_2'];
             $count++;
         }
 
