@@ -101,24 +101,41 @@ class RoomController extends Controller
             $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($id) {
                 $join->on('reservation.bed_room_id', '=', 'bed_room.id')
                     ->where('bed_room.room_id', $id);
-            })->where('entry', '>=', $request->from)
-                ->where('entry', '<=', $request->to)
+            })->where('entry', '<=', $request->from)
+                ->where('exit', '>=', $request->from)
                 ->get();
 
             $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($id) {
                 $join->on('reservation.bed_room_id', '=', 'bed_room.id')
                     ->where('bed_room.room_id', $id);
-            })->where('exit', '>=', $request->from)
+            })->where('entry', '<=', $request->to)
+                ->where('exit', '>=', $request->to)
+                ->get();
+
+            $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($id) {
+                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                    ->where('bed_room.room_id', $id);
+            })->where('entry', '>=', $request->from)
                 ->where('exit', '<=', $request->to)
                 ->get();
 
             $notAllowedReservations = [];
             foreach ($notAllowedReservations1 as $pivot) {
-                array_push($notAllowedReservations, $pivot);
+                if (!in_array($pivot, $notAllowedReservations)) {
+                    array_push($notAllowedReservations, $pivot);
+                }
             }
 
             foreach ($notAllowedReservations2 as $pivot) {
-                array_push($notAllowedReservations, $pivot);
+                if (!in_array($pivot, $notAllowedReservations)) {
+                    array_push($notAllowedReservations, $pivot);
+                }
+            }
+
+            foreach ($notAllowedReservations3 as $pivot) {
+                if (!in_array($pivot, $notAllowedReservations)) {
+                    array_push($notAllowedReservations, $pivot);
+                }
             }
 
             $beds = Room::find($id)->beds;
