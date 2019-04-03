@@ -29,7 +29,7 @@ create table worktype(id int primary key auto_increment, name varchar(100), name
 
 create table hours(id int primary key auto_increment, timerecord_id int, `from` time, `to` time, worktype_id int, comment text, updated_at datetime, created_at datetime, foreign key(timerecord_id) references timerecord(id) on delete set null, foreign key(worktype_id) references worktype(id) on delete set null);
 
-create table rapport(id int primary key auto_increment, customer_id int, isFinished boolean, startdate date, rapporttype varchar(10), comment_mo text, comment_tu text, comment_we text, comment_th text, comment_fr text, comment_sa text,updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade);
+create table rapport(id int primary key auto_increment, customer_id int, isFinished boolean, startdate date, rapporttype varchar(10), comment_mo text, comment_tu text, comment_we text, comment_th text, comment_fr text, default_project int, comment_sa text,updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade, foreign key(default_project) references project(id) on delete set null);
 
 create table project(id int primary key auto_increment, name text, description text, updated_at datetime, created_at datetime);
 

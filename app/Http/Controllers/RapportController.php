@@ -18,7 +18,7 @@ class RapportController extends Controller
     {
         $this->middleware('jwt.auth');
     }
-    
+
     // GET rapport
     public function index(Request $request)
     {
@@ -123,11 +123,7 @@ class RapportController extends Controller
 
         $customer = Customer::find($request->customer);
 
-        if ($request->type == "year") {
-
-        } else if ($request->type == "month") {
-
-        } else {
+        if ($request->type == "year") { } else if ($request->type == "month") { } else {
             $lastRapport = $customer->rapports->where('rapporttype', 'week')->sortByDesc('startdate')->first();
 
             if ($lastRapport == null) {
@@ -210,7 +206,7 @@ class RapportController extends Controller
 
         $date = new \DateTime($rapport->startdate);
         $employee = Employee::find($request->employee_id);
-        $commonProject = Project::where('name', 'Allgemein')->first();
+        $defaultProject = Project::find($request->default_project);
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
 
         $rapportdetails = $rapport->rapportdetails->where('employee_id', $employee->id);
@@ -223,7 +219,7 @@ class RapportController extends Controller
                 ]);
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
-                $rapportdetail->project()->associate($commonProject);
+                $rapportdetail->project()->associate($defaultProject);
                 $rapportdetail->foodtype()->associate($defaultFoodType);
 
                 $rapportdetail->save();
@@ -277,6 +273,7 @@ class RapportController extends Controller
         }
         $rapport->$updatetKey = $updatedValue;
         $rapport->save();
+        return Rapport::with('customer')->find($rapport->id);
     }
 
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
