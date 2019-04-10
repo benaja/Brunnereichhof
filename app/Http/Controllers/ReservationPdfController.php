@@ -62,7 +62,7 @@ class ReservationPdfController extends Controller
                 $this->addDocumentTitle('Bettwäsche und Bettinhalt', $this->titleSize, 'B');
 
                 $tableHeaders = ['Anzahl', 'Was', 'Preis pro Stk.', 'Abgegeben am', 'Visiert', 'Eingezogen am'];
-                $this->generateTable($tableHeaders, $lines, 0.5);
+                $this->generateTable($tableHeaders, $lines, 0.5, 2.5, 0.7);
                 $counter++;
             }
         }
@@ -98,40 +98,48 @@ class ReservationPdfController extends Controller
         Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
     }
 
-    private function generateTable($titles, $lines, $firstCellWidth = 1) {
+    private function generateTable($titles, $lines, $firstCellWidth = 1, $secondCellWidth = 1, $thirdCellWidth = 1) {
         Fpdf::SetDrawColor(173, 173, 173);
         Fpdf::SetLineWidth(.0001);
-        $this->addTableHeader($titles, $firstCellWidth);
+        $this->addTableHeader($titles, $firstCellWidth, $secondCellWidth, $thirdCellWidth);
 
         Fpdf::SetFont('Raleway', '', $this->textSize);
         Fpdf::SetTextColor(0);
 
         foreach ($lines as $line) {
-            $this->addLine($line, $firstCellWidth);
+            $this->addLine($line, $firstCellWidth, $secondCellWidth, $thirdCellWidth);
         }
     }
 
-    private function addTableHeader($titles, $firstCellWidth = 1)
+    private function addTableHeader($titles, $firstCellWidth = 1, $secondCellWidth = 1, $thirdCellWidth = 1)
     {
         Fpdf::SetFont('Raleway', 'B', $this->textSize);
 
         for ($i = 0; $i < count($titles); $i++) {
-            $cellWidth = $this->documentWidth / (count($titles) + $firstCellWidth - 1);
+            $cellWidth = $this->documentWidth / (count($titles) + $firstCellWidth + $secondCellWidth + $thirdCellWidth - 3);
             if ($i == 0) {
                 $cellWidth = $cellWidth * $firstCellWidth;
+            } else if ($i == 1) {
+                $cellWidth = $cellWidth * $secondCellWidth;
+            } else if ($i == 2) {
+                $cellWidth = $cellWidth * $thirdCellWidth;
             }
             Fpdf::Cell($cellWidth, 8, utf8_decode($titles[$i]), 1, 0, 'L');
         }
         Fpdf::Ln();
     }
 
-    private function addLine($cells, $firstCellWidth = 1)
+    private function addLine($cells, $firstCellWidth = 1, $secondCellWidth = 1, $thirdCellWidth = 1)
     {
         $counter = 0;
         foreach ($cells as $cell) {
-            $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth - 1);
+            $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth + $secondCellWidth + $thirdCellWidth - 3);
             if ($counter == 0) {
                 $cellWidth = $cellWidth * $firstCellWidth;
+            } else if ($counter == 1) {
+                $cellWidth = $cellWidth * $secondCellWidth;
+            } else if ($counter == 2) {
+                $cellWidth = $cellWidth * $thirdCellWidth;
             }
             Fpdf::Cell($cellWidth, 8, utf8_decode($cell), 1, 0, 'L');
             $counter++;

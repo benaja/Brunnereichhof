@@ -97,26 +97,26 @@ class RoomController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        if (isset($request->from)) {
+        if (isset($request->entry)) {
             $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($id) {
                 $join->on('reservation.bed_room_id', '=', 'bed_room.id')
                     ->where('bed_room.room_id', $id);
-            })->where('entry', '<=', $request->from)
-                ->where('exit', '>=', $request->from)
+            })->where('entry', '<=', $request->entry)
+                ->where('exit', '>=', $request->entry)
                 ->get();
 
             $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($id) {
                 $join->on('reservation.bed_room_id', '=', 'bed_room.id')
                     ->where('bed_room.room_id', $id);
-            })->where('entry', '<=', $request->to)
-                ->where('exit', '>=', $request->to)
+            })->where('entry', '<=', $request->exit)
+                ->where('exit', '>=', $request->exit)
                 ->get();
 
             $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($id) {
                 $join->on('reservation.bed_room_id', '=', 'bed_room.id')
                     ->where('bed_room.room_id', $id);
-            })->where('entry', '>=', $request->from)
-                ->where('exit', '<=', $request->to)
+            })->where('entry', '>=', $request->entry)
+                ->where('exit', '<=', $request->exit)
                 ->get();
 
             $notAllowedReservations = [];
