@@ -8,7 +8,7 @@ class Employee extends Model
 {
     public $table = "employee";
 
-    protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'profileimage', 'allergy'];
+    protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
 
     public function Rapportdetails()
     {
@@ -18,5 +18,10 @@ class Employee extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    public function name()
+    {
+        return "$this->lastname $this->firstname";
     }
 }

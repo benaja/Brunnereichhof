@@ -7,13 +7,12 @@ use App\User;
 use App\Rapport;
 use App\Employee;
 use App\Customer;
+use App\Helpers\Pdf;
 use App\Rapportdetail;
 use App\Enums\WorkTypeEnum;
 use Illuminate\Http\Request;
-use App\Enums\AuthorizationType;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 
 class PdfController extends Controller
 {
@@ -25,20 +24,15 @@ class PdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
     private $documentWidth = 270;
-    private $textSize = 11;
-    private $titleSize = 15;
+    private $pdf;
 
     // GET rapport/{id}/pdf
     public function rapportWeek(Request $request, Rapport $rapport)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
 
-        $this->getPdfDefault();
-
-        $header = [
-            'Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
-        ];
-
+        $header = ['Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
         $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
         $rapportdetailsGruped = $rapport->rapportdetails->groupBy('employee_id');
 
@@ -53,23 +47,19 @@ class PdfController extends Controller
 
         $startdate = new \DateTime($rapport->startdate);
 
-        $this->addDocumentTitle("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}");
-        $this->addDocumentTitle("Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})");
-        $this->addDocumentTitle("Totale Arbeitsstunden: {$totalTime}");
+        $this->pdf->documentTitle("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}");
+        $this->pdf->documentTitle("Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})");
+        $this->pdf->documentTitle("Totale Arbeitsstunden: {$totalTime}");
+        $this->pdf->newLine();
 
         $timePerDay = ['Totale Stunden', 0, 0, 0, 0, 0, 0];
-        $lines = [
-            [
-                'isMulticell' => true,
-                'values' => $comments
-            ]
-        ];
+        $lines = [$comments];
         foreach ($rapportdetailsGruped as $rapportdetails) {
-            $cells = ["{$rapportdetails[0]->employee->firstname} {$rapportdetails[0]->employee->lastname}"];
+            $cells = [$rapportdetails[0]->employee->name()];
 
             $counter = 1;
             foreach ($rapportdetails as $rapportdetail) {
-                $cell = $rapportdetail->hours;
+                $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
                 // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
                 if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein") {
                     $cell = "{$cell} ({$rapportdetail->project->name})";
@@ -83,16 +73,15 @@ class PdfController extends Controller
 
         array_push($lines, $timePerDay);
 
-        $this->generateTable($header, $lines);
+        $this->pdf->table($header, $lines, [], ['lastLineBold' => true]);
 
-        $filename = "pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf";
-        Fpdf::Output('D', $filename);
+        $this->pdf->export("pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf");
     }
 
     // GET pdf/worker/month/{month}
     public function workerMonthRapport(Request $request, $month)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
 
         $firstDayOfMonth = new \Datetime($month);
         $firstDayOfMonth->modify('first day of this month');
@@ -111,10 +100,10 @@ class PdfController extends Controller
             }
         }
 
-        $this->getPdfDefault();
+        $this->pdf = new Pdf();
         $monthName = $this->monthNames[intval($firstDayOfMonth->format('m')) - 1];
         if (!isset($request->workerId)) {
-            $this->addDocumentTitle("Hofmitarbeiter Monatsrapport: $monthName");
+            $this->pdf->documentTitle("Hofmitarbeiter Monatsrapport: $monthName");
 
             // FrontPage
             $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen (Total)'];
@@ -127,23 +116,24 @@ class PdfController extends Controller
                 ];
                 array_push($lines, $line);
             }
-            $this->generateTable($titles, $lines);
+            $this->pdf->table($titles, $lines);
+            // $this->generateTable($titles, $lines);
         }
 
         foreach ($workers as $worker) {
             if (!isset($request->workerId)) {
                 Fpdf::addPage('F');
             }
-            $this->addDocumentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
-            $this->addDocumentTitle("Monat: $monthName");
-            $this->addDocumentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
-            $this->addDocumentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h", $this->textSize);
-            $this->addDocumentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h", $this->textSize);
-            $this->addDocumentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h", $this->textSize);
-            $this->addDocumentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h", $this->textSize);
+            $this->pdf->documentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
+            $this->pdf->documentTitle("Monat: $monthName");
+            $this->pdf->documentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
+            $this->pdf->documentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h", $this->pdf->textSize);
+            $this->pdf->documentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h", $this->pdf->textSize);
+            $this->pdf->documentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h", $this->pdf->textSize);
+            $this->pdf->documentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h", $this->pdf->textSize);
             $meals = $worker->getNumberOfMeals($firstDayOfMonth);
-            $this->addDocumentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}", $this->textSize);
-            Fpdf::ln();
+            $this->pdf->documentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}", $this->pdf->textSize);
+            $this->pdf->newLine();
 
             $lines = [];
             $comments = [];
@@ -161,7 +151,7 @@ class PdfController extends Controller
                         if ($timerecord == null) {
                             array_push($line, 0);
                         } else {
-                            foreach($timerecord->hours as $hour) {
+                            foreach ($timerecord->hours as $hour) {
                                 if ($hour->comment) {
                                     array_push($comments, [
                                         'text' => $hour->comment,
@@ -196,18 +186,19 @@ class PdfController extends Controller
             }
             $titles = $this->dayNames;
             array_unshift($titles, "Zeitraum");
-            $this->generateTable($titles, $lines, 3);
+            // $this->generateTable($titles, $lines, 3);
+            $this->pdf->table($titles, $lines, [3]);
             if (count($comments) > 0) {
-                Fpdf::ln();
-                $this->addDocumentTitle('Kommentare');
-                $textSize = $this->textSize;
-                if(count($comments) > 6) {
+                $this->pdf->newLine();
+                $this->pdf->documentTitle('Kommentare');
+                $textSize = $this->pdf->textSize;
+                if (count($comments) > 6) {
                     $textSize -= 2;
                 }
-                
+
                 foreach ($comments as $comment) {
                     $date = new \DateTime($comment['date']);
-                    
+
                     Fpdf::SetFont('Raleway', 'B', $textSize);
                     Fpdf::Cell(35, 6, utf8_decode($date->format('d.m.Y')), 0, 0, 'L', false);
 
@@ -216,9 +207,7 @@ class PdfController extends Controller
                     Fpdf::MultiCell($this->documentWidth - 50, 6, utf8_decode($comment['text']), 1, 'L', false);
                 }
             }
-            Fpdf::SetFont('Raleway', '', $this->textSize);
-            Fpdf::SetXY(110, 185);
-            Fpdf::Cell(100, 4, utf8_decode('Datum:_________________________________Unterschrift:__________________________________'), 0, 0, 'L', false);
+            $this->pdf->signaturePlaceHolder();
         }
 
         if (isset($request->workerId)) {
@@ -226,39 +215,36 @@ class PdfController extends Controller
         } else {
             $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
         }
-        Fpdf::Output('D', $filename);
+        $this->pdf->export($filename);
     }
 
     // GET pdf/employee/year/{year}
     public function employeeYearRapport(Request $request, $year)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
 
         $employee = Employee::find($request->employee_id);
 
         $totalHoursOfMonths = $this->getHoursOfEmployeeByYear($employee, $year);
         $totalFoodOfMonths = $this->getFoodOfEmployeeByYear($employee, $year);
 
-        $pdf = $this->getPdfDefault();
+        $this->pdf = new Pdf();
 
-
-        $this->addDocumentTitle("Mitarbeiter: $employee->firstname $employee->lastname");
-        $this->addDocumentTitle("Jahr: $year");
-        $this->addDocumentTitle("Totale Arbeitsstunden: " . array_sum($totalHoursOfMonths) . "h");
-        Fpdf::Ln();
+        $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
+        $this->pdf->documentTitle("Jahr: $year");
+        $this->pdf->documentTitle("Totale Arbeitsstunden: " . array_sum($totalHoursOfMonths) . "h");
+        $this->pdf->newLine();
 
         $this->addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year);
         $this->addDetailsForAllMonths($employee, $year, $totalHoursOfMonths);
 
-
-        $filename = "Jahresrapport $year {$request->name}.pdf";
-        $this->exportPage($filename);
+        $this->pdf->export("Jahresrapport $year {$request->name}.pdf");
     }
 
     // GET overview/employee/month/{month}
     public function employeeMonthRapport(Request $request, $month)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
 
         $firstdate = new \Datetime($month);
 
@@ -270,56 +256,49 @@ class PdfController extends Controller
         $rapportdetails = Rapportdetail::where('date', '>=', $firstdate->format('Y-m-d'))
             ->where('date', '<=', $lastdate->format('Y-m-d'))->get();
 
-        $this->getPdfDefault();
+        $this->pdf = new Pdf();
         $monthName = $this->monthNames[intval($firstdate->format('m')) - 1];
-        $this->addDocumentTitle("Monatsrapport: $monthName {$firstdate->format('Y')}");
+        $this->pdf->documentTitle("Monatsrapport: $monthName {$firstdate->format('Y')}");
         $this->addMonthOverviewForAllEmployees($rapportdetails);
         $this->addDetailsForAllEmployees($rapportdetails, $monthName);
 
         $filename = "Monatsrapport $monthName {$firstdate->format('Y')}.pdf";
-        $this->exportPage($filename);
+        $this->pdf->export($filename);
     }
 
     // GET pdf/employees
     public function employeeList(Request $request)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
 
-        $this->getPdfDefault();
-        $employees = Employee::where('isActive', true)->get();
+        $this->pdf = new Pdf();
+        $employees = Employee::where('isActive', true)->get()->sortBy('lastname');
         $numberOfEmployee = count($employees);
 
-        $this->addDocumentTitle("Mitarbeiterliste");
-        $this->addDocumentTitle("Anzahl aktive Mitarbeiter: $numberOfEmployee");
+        $this->pdf->documentTitle("Mitarbeiterliste");
+        $this->pdf->documentTitle("Anzahl aktive Mitarbeiter: $numberOfEmployee");
 
-        $titles = ['Vorname', 'Nachname', 'Ruffname', 'Nationalität', 'Fahrer', 'Deutschkenntnis...', 'Geschlecht'];
-        $this->addTableHeader($titles);
-
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
-        $doFill = false;
-        $cellWidht = 270 / count($titles);
+        $titles = ['Nachname', 'Vorname', 'Ruffname', 'Nationalität', 'Fahrer', 'Deutschkenntnis...', 'Geschlecht'];
+        $lines = [];
         foreach ($employees as $employee) {
-            Fpdf::Cell($cellWidht, 8, utf8_decode($employee->firstname), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, utf8_decode($employee->lastname), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, utf8_decode($employee->callname), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, utf8_decode($employee->nationality), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, $employee->isDriver == 1 ? "Ja" : "Nein", 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, $employee->german_knowledge == 1 ? "Ja" : "Nein", 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, utf8_decode($employee->sex), 0, 0, 'L', $doFill);
-            Fpdf::Ln();
-            $doFill = !$doFill;
+            array_push($lines, [
+                $employee->lastname,
+                $employee->firstname,
+                $employee->callname,
+                $employee->nationality,
+                $employee->isDriver == 1 ? "Ja" : "Nein",
+                $employee->german_knowledge == 1 ? "Ja" : "Nein",
+                $employee->sex
+            ]);
         }
-
-        $fileName = "Mitarbeiterliste.pdf";
-        $this->exportPage($fileName);
+        $this->pdf->table($titles, $lines);
+        $this->pdf->export("Mitarbeiterliste.pdf");
     }
 
     // GET overview/customer/year/{year}
     public function customerYearRapport(Request $request, $year)
     {
-        $this->validateToken($request->token);
+        Pdf::validateToken($request->token);
 
         $firstDate = new \DateTime("1.1.$year");
         $lastDate = new \DateTime("31.12.$year");
@@ -340,20 +319,15 @@ class PdfController extends Controller
             ->where('startdate', '<=', $lastDate->format('Y-m-d'))
             ->sortBy('startdate');
 
-        $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
-        $this->getPdfDefault('P');
+        $this->pdf = new Pdf('P');
 
-        $this->addDocumentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
-        $this->addDocumentTitle("Jahr: $year");
-        $this->addDocumentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
-        Fpdf::Ln();
-        $this->documentWidth = 190;
-        $this->addTableHeader($titles);
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
-        $doFill = false;
-        $cellWidht = 190 / count($titles);
+        $this->pdf->documentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
+        $this->pdf->documentTitle("Jahr: $year");
+        $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
+        $this->pdf->newLine();
+
+        $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
+        $lines = [];
         foreach ($weeks as $week) {
             $startDate = new \DateTime($week->startdate);
             $endDate = clone $startDate;
@@ -364,138 +338,36 @@ class PdfController extends Controller
             }
             if ($endDate->format("Y") != $year) {
                 $endDate->modify("last day of december");
-                $endDate->modify("-1 year");    
+                $endDate->modify("-1 year");
             }
             $hours = $week->rapportdetails->where('date', '>=', $startDate->format('Y-m-d'))
                 ->where('date', '<=', $endDate->format('Y-m-d'))->sum('hours');
-            Fpdf::Cell($cellWidht, 8, "KW {$startDate->format('W')} ({$startDate->format('d.m.Y')}-{$endDate->format('d.m.Y')})", 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidht, 8, $hours . "h", 0, 0, 'L', $doFill);
-            Fpdf::Ln();
-            $doFill = !$doFill;
+            array_push($lines, [
+                "KW {$startDate->format('W')} ({$startDate->format('d.m.Y')}-{$endDate->format('d.m.Y')})",
+                $hours . "h"
+            ]);
         }
-
-        $filename = "Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf";
-        $this->exportPage($filename);
+        $this->pdf->table($titles, $lines);
+        $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
     }
 
     // --helpers--
-    private function getPdfDefault($landscape = "L")
-    {
-        $pdf = new Fpdf('P', 'mm', 'A4');
-
-        Fpdf::AddPage($landscape);
-        Fpdf::SetFillColor(38, 166, 154);
-        Fpdf::SetDrawColor(255);
-        Fpdf::SetLineWidth(.3);
-        Fpdf::AddFont('Raleway', '', 'Raleway-Regular.php');
-        Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
-        // Fpdf::AddFont('Raleway','I', 'Raleway-Italic.php');
-
-        Fpdf::SetFont('Raleway', '', $this->titleSize);
-        return $pdf;
-    }
-
-    private function addDocumentTitle($text, $textSize = 0)
-    {
-        if ($textSize == 0) {
-            $textSize = $this->titleSize;
-        }
-        Fpdf::SetDrawColor(255);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', $textSize);
-        Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
-    }
-
-    private function generateTable($titles, $lines, $firstCellWidth = 1)
-    {
-        $this->addTableHeader($titles, $firstCellWidth);
-
-        $doFill = false;
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
-        foreach ($lines as $line) {
-            $this->addLine($line, $doFill, $firstCellWidth);
-            $doFill = !$doFill;
-        }
-    }
-
-    private function validateToken($token)
-    {
-        if ($token != Cache::pull('pdfToken')) {
-            abort(401, 'This action is unauthorized.');
-        }
-    }
-
     private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year)
     {
         $header = ['Monat', 'Arbeitszeit Total', 'Verpflegungen'];
-        $this->addTableHeader($header);
         $currentMonth = 0;
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
-        $doFill = false;
-        $cellWidth = 270 / count($header);
+        $lines = [];
         foreach ($totalHoursOfMonths as $hours) {
             if ($hours > 0) {
-                Fpdf::Cell($cellWidth, 8, $this->monthNames[$currentMonth] . " " . $year, 0, 0, 'L', $doFill);
-                Fpdf::Cell($cellWidth, 8, $totalHoursOfMonths[$currentMonth] . "h", 0, 0, 'L', $doFill);
-                Fpdf::Cell($cellWidth, 8, $totalFoodOfMonths[$currentMonth], 0, 0, 'L', $doFill);
-                Fpdf::Ln();
+                array_push($lines, [
+                    $this->monthNames[$currentMonth] . " " . $year,
+                    $totalHoursOfMonths[$currentMonth] . "h",
+                    $totalFoodOfMonths[$currentMonth]
+                ]);
             }
-            $doFill = !$doFill;
             $currentMonth++;
         }
-    }
-
-    private function addTableHeader($titles, $firstCellWidth = 1)
-    {
-        Fpdf::SetFont('Raleway', 'B', $this->textSize);
-        Fpdf::SetTextColor(255);
-        Fpdf::SetFillColor(38, 166, 154);
-
-        for ($i = 0; $i < count($titles); $i++) {
-            $cellWidth = $this->documentWidth / (count($titles) + $firstCellWidth - 1);
-            if ($i == 0) {
-                $cellWidth = $cellWidth * $firstCellWidth;
-            }
-            Fpdf::Cell($cellWidth, 8, utf8_decode($titles[$i]), 0, 0, 'L', true);
-        }
-        Fpdf::Ln();
-    }
-
-    private function addLine($cells, $doFill, $firstCellWidth = 1)
-    {
-        if (isset($cells['isMulticell'])) {
-            $counter = 0;
-            $marginLeft = Fpdf::GetX();
-            $X = Fpdf::GetX();
-            $marginTop = Fpdf::GetY();
-            $maxHeight = 0;
-            foreach ($cells['values'] as $cell) {
-                $cellWidth = $this->documentWidth / (count($cells['values']) + $firstCellWidth - 1);
-                if ($counter == 0) {
-                    $cellWidth = $cellWidth * $firstCellWidth;
-                }
-                Fpdf::SetXY($marginLeft, $marginTop);
-                Fpdf::MultiCell($cellWidth, 8, utf8_decode($cell), 1, 'L', $doFill);
-                $maxHeight = Fpdf::GetY() > $maxHeight ? Fpdf::GetY() : $maxHeight;
-                $marginLeft += $cellWidth;
-            }
-            Fpdf::SetXY($X, $maxHeight);
-        } else {
-            $counter = 0;
-            foreach ($cells as $cell) {
-                $cellWidth = $this->documentWidth / (count($cells) + $firstCellWidth - 1);
-                if ($counter == 0) {
-                    $cellWidth = $cellWidth * $firstCellWidth;
-                }
-                Fpdf::Cell($cellWidth, 8, utf8_decode($cell), 0, 0, 'L', $doFill);
-                $counter++;
-            }
-            Fpdf::Ln();
-        }
+        $this->pdf->table($header, $lines);
     }
 
     private function getHoursOfEmployeeByYear($employee, $year)
@@ -544,55 +416,12 @@ class PdfController extends Controller
         return $totalFood;
     }
 
-    private function getTotalHoursOfTimerecords($timerecords)
-    {
-        $totalHours = 0;
-        foreach ($timerecords as $timerecord) {
-            foreach ($timerecord->hours as $hour) {
-                $totalHours += $hour->duration();
-            }
-        }
-
-        return $totalHours;
-    }
-
-    private function generateWorkerMonthDocument($worker, $timerecords)
-    {
-        Fpdf::Cell(0, 15);
-        Fpdf::Ln();
-        $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen'];
-        $this->addTableHeader($titles);
-        $employees = $rapportdetails->groupBy('employee_id');
-        $doFill = false;
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
-        foreach ($employees as $rapportdetaisByEmployee) {
-            $cellWidth = 270 / count($titles);
-            $totalHours = $rapportdetaisByEmployee->sum('hours');
-            $totalFood = $rapportdetaisByEmployee->where('foodtype_id', 1)->count();
-            $fullName = $rapportdetaisByEmployee[0]->employee->firstname . " " . $rapportdetaisByEmployee[0]->employee->lastname;
-            Fpdf::Cell($cellWidth, 8, utf8_decode($fullName), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidth, 8, utf8_decode($totalHours . "h"), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidth, 8, utf8_decode($totalFood), 0, 0, 'L', $doFill);
-            Fpdf::Ln();
-            $doFill = !$doFill;
-        }
-    }
-
-    private function exportPage($filename)
-    {
-        Fpdf::Output('D', $filename);
-    }
-
     private function addDetailsForAllEmployees($rapportdetails, $monthName)
     {
         $rapportdetailsByEmployee = $rapportdetails->groupBy('employee_id');
-        $titles = ['Zeitraum', '', '', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-        $cellWidth = 270 / count($titles);
         foreach ($rapportdetailsByEmployee as $details) {
             Fpdf::AddPage('L');
-            $this->addDocumentTitle("Mitarbeiter: {$details[0]->employee->firstname} {$details[0]->employee->lastname}");
+            $this->pdf->documentTitle("Mitarbeiter: {$details[0]->employee->name()}");
             $totalHours = $details->sum('hours');
             $firstOfMonth = new \DateTime($rapportdetails[0]->date);
             $firstOfMonth->modify("first day of this month");
@@ -602,26 +431,21 @@ class PdfController extends Controller
 
     private function addMonthOverviewForAllEmployees($rapportdetails)
     {
-        Fpdf::Cell(0, 15);
-        Fpdf::Ln();
+        $this->pdf->newLine();
         $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen'];
-        $this->addTableHeader($titles);
         $employees = $rapportdetails->groupBy('employee_id');
-        $doFill = false;
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
+        $lines = [];
         foreach ($employees as $rapportdetaisByEmployee) {
             $cellWidth = 270 / count($titles);
             $totalHours = $rapportdetaisByEmployee->sum('hours');
             $totalFood = $rapportdetaisByEmployee->where('foodtype_id', 1)->count();
-            $fullName = $rapportdetaisByEmployee[0]->employee->firstname . " " . $rapportdetaisByEmployee[0]->employee->lastname;
-            Fpdf::Cell($cellWidth, 8, utf8_decode($fullName), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidth, 8, utf8_decode($totalHours . "h"), 0, 0, 'L', $doFill);
-            Fpdf::Cell($cellWidth, 8, utf8_decode($totalFood), 0, 0, 'L', $doFill);
-            Fpdf::Ln();
-            $doFill = !$doFill;
+            array_push($lines, [
+                $rapportdetaisByEmployee[0]->employee->name(),
+                $totalHours . 'h',
+                $totalFood
+            ]);
         }
+        $this->pdf->table($titles, $lines);
     }
 
     private function addDetailsForAllMonths($employee, $year, $totalHoursOfMonths)
@@ -641,21 +465,16 @@ class PdfController extends Controller
         $lastOfMonth = clone $firstOfMonth;
         $lastOfMonth->modify("last day of this month");
 
-        $rapportdetails = $employee->rapportdetails->where('date', '>=', $firstOfMonth->format('Y-m-d'))->where('date', '<=', $lastOfMonth->format('Y-m-d'))->sortBy('date');
-        $titles = ['Zeitraum', '', '', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        // $rapportdetails = $employee->rapportdetails->where('date', '>=', $firstOfMonth->format('Y-m-d'))->where('date', '<=', $lastOfMonth->format('Y-m-d'))->sortBy('date');
+        $titles = ['Zeitraum', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-        Fpdf::SetDrawColor(255);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFont('Raleway', '', $this->titleSize);
-        Fpdf::Cell(0, 10, "Monat: " . $montName, 0, 2);
-        Fpdf::Cell(0, 10, "Totale Arbeitsstunden: " . $totalHours . "h", 0, 2);
-        Fpdf::Cell(0, 10);
-        Fpdf::Ln();
-        $this->addTableHeader($titles);
-        $this->addAllWeeks($firstOfMonth, $lastOfMonth, $employee);
+        $this->pdf->documentTitle("Monat: " . $montName);
+        $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
+        $this->pdf->newLine();
+        $this->addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee);
     }
 
-    private function addAllWeeks($firstOfMonth, $lastOfMonth, $employee)
+    private function addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee)
     {
         $firstDayOfWeek = clone $firstOfMonth;
         $firstDayOfWeek->modify("Monday this week");
@@ -665,70 +484,69 @@ class PdfController extends Controller
             $firstDayOfWeek->modify("+1 week");
             $lastDayOfWeek->modify("+1 week");
         }
-        $doFill = false;
-        Fpdf::SetFont('Raleway', '', $this->textSize);
-        Fpdf::SetTextColor(0);
-        Fpdf::SetFillColor(242, 242, 242);
+        $lines = [];
         while ($firstDayOfWeek <= $lastOfMonth) {
             $rapportdetailsOfWeek = $employee->rapportdetails->where('date', '>=', $firstDayOfWeek->format('Y-m-d'))->where('date', '<=', $lastDayOfWeek->format('Y-m-d'))->sortBy('date');
             if (count($rapportdetailsOfWeek) > 0) {
-                $this->addWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth, $doFill);
-                $this->addProjectsToWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
-                $doFill = !$doFill;
+                $weeks = $this->getWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
+                $projects = $this->getProjectsToWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
+                array_push($lines, $weeks);
+                array_push($lines, $projects);
             }
             $firstDayOfWeek->modify("+7 days");
             $lastDayOfWeek->modify("+7 days");
         }
+        $this->pdf->table($titles, $lines, [3]);
+        $this->pdf->signaturePlaceHolder();
     }
 
-    private function addProjectsToWeek($rapportdetails, $firstDayOfWeek, $lastDayOfWeek, $lastDayOfMonth, $firstdayOfMonth)
+    private function getProjectsToWeek($rapportdetails, $firstDayOfWeek, $lastDayOfWeek, $lastDayOfMonth, $firstdayOfMonth)
     {
-        $cellWidth = 270 / 9;
-        Fpdf::Cell($cellWidth * 3, 8, "", 0, 0, 'L', true);
+        $cells = [''];
         $currentDay = clone $firstDayOfWeek;
         $currentDayNumber = 0;
         $rapportdetails = $this->normalizeArray($rapportdetails);
         for ($i = 0; $i < 6; $i++) {
             if ($currentDay->format('Y-m-d') == $rapportdetails[$currentDayNumber]->date && $currentDay <= $lastDayOfMonth && $currentDay >= $firstdayOfMonth) {
                 if ($rapportdetails[$currentDayNumber]->project != null) {
-                    $project = utf8_decode($rapportdetails[$currentDayNumber]->project->name);
-                    Fpdf::Cell($cellWidth, 8, $project, 0, 0, 'L', true);
+                    $project = $rapportdetails[$currentDayNumber]->project->name;
+                    array_push($cells, $project);
                 } else {
-                    Fpdf::Cell($cellWidth, 8, "", 0, 0, 'L', true);
+                    array_push($cells, '');
                 }
                 $currentDayNumber++;
             } else {
                 if ($currentDay >= $firstdayOfMonth || $currentDay <= $lastDayOfMonth) {
                     $currentDayNumber++;
                 }
-                Fpdf::Cell($cellWidth, 8, "", 0, 0, 'L', true);
+                array_push($cells, '0');
             }
             $currentDay->modify("+1 day");
         }
-        Fpdf::Ln();
+        return $cells;
     }
 
-    private function addWeek($rapportdetails, $firstDayOfWeek, $lastDayOfWeek, $lastDayOfMonth, $firstdayOfMonth, $doFill)
+    private function getWeek($rapportdetails, $firstDayOfWeek, $lastDayOfWeek, $lastDayOfMonth, $firstdayOfMonth)
     {
-        $cellWidth = 270 / 9;
-        Fpdf::Cell($cellWidth * 3, 8, "KW {$firstDayOfWeek->format('W')} ({$firstDayOfWeek->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})", 0, 0, 'L', false);
+        $cells = ["KW {$firstDayOfWeek->format('W')} ({$firstDayOfWeek->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})"];
+
         $currentDay = clone $firstDayOfWeek;
         $currentDayNumber = 0;
         $rapportdetails = $this->normalizeArray($rapportdetails);
         for ($i = 0; $i < 6; $i++) {
             if ($currentDay->format('Y-m-d') == $rapportdetails[$currentDayNumber]->date && $currentDay <= $lastDayOfMonth && $currentDay >= $firstdayOfMonth) {
                 $hours = $rapportdetails[$currentDayNumber]->hours == null ? 0 : $rapportdetails[$currentDayNumber]->hours;
-                Fpdf::Cell($cellWidth, 8, $hours . "h", 0, 0, 'L', false);
+                array_push($cells, $hours . "h");
                 $currentDayNumber++;
             } else {
                 if ($currentDay >= $firstdayOfMonth || $currentDay <= $lastDayOfMonth) {
                     $currentDayNumber++;
                 }
-                Fpdf::Cell($cellWidth, 8, "", 0, 0, 'L', false);
+                array_push($cells, '');
             }
             $currentDay->modify("+1 day");
         }
-        Fpdf::Ln();
+        return $cells;
     }
 
     private function normalizeArray($array)

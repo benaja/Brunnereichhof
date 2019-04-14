@@ -17,7 +17,14 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        $employees = Employee::all()->sortBy('lastname')->toArray();
+        $employees = [];
+        if (isset($request->guests)) {
+            $employees = Employee::where('isGuest', 1)->get()->sortBy('lastname')->toArray();
+        } else if (isset($request->all)) {
+            $employees = Employee::all()->sortBy('lastname')->toArray();
+        } else {
+            $employees = Employee::where('isGuest', 0)->get()->sortBy('lastname')->toArray();
+        }
         return array_values($employees);
     }
 
@@ -47,6 +54,7 @@ class EmployeeController extends Controller
             'comment' => $request->comment,
             'experience' => $request->experience,
             'isActive' => 1,
+            'isGuest' => $request->isGuest,
             'allergy' => $request->allergy
         ]);
 
@@ -64,53 +72,6 @@ class EmployeeController extends Controller
     // PATCH employee/{id}
     public function update(Request $request, $id)
     {
-        // if($request->profileimage != null){
-        //     if($request->profileimage == "delete"){
-        //         $imagePath = public_path('profileimages/') . $employee->profileimage;
-        //         $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
-        //         if(file_exists($imagePath)) {
-        //             unlink($imagePath);
-        //         }
-        //         if(file_exists($smallImagePath)){
-        //             unlink($smallImagePath);
-        //         }
-        //     }else{
-        //         $photoName = uniqid().'.'.$request->profileimage->getClientOriginalExtension();
-        //         $request->profileimage->move(public_path('profileimages'), $photoName);
-
-        //         $img = Image::make(public_path('profileimages/'). $photoName);
-        //         $width = $img->width();
-        //         $height = $img->height();
-
-        //         $factor = $width / $height;
-
-        //         $img->resize(150 * $factor, 150);
-
-        //         $img->save(public_path('profileimages/'). "small-$photoName");
-
-        //         $request->element = "profileimage";
-        //         $request->data = $photoName;
-        //         if($employee->profileimage != null){
-        //             $imagePath = public_path('profileimages/') . $employee->profileimage;
-        //             $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
-        //             if(file_exists($imagePath)) {
-        //                 unlink($imagePath);
-        //             }
-        //             if(file_exists($smallImagePath)){
-        //                 unlink($smallImagePath);
-        //             }
-        //         }
-        //     }
-                
-        // }else if($request->profileimage == ""){
-        // }
-        // $element = $request->element;
-
-        // $employee->$element = $request->data;
-        // $employee->save();
-
-        // return $request->data;
-
         $this->validate($request, $this->validateArray);
 
         $employe = Employee::find($id);
@@ -128,11 +89,12 @@ class EmployeeController extends Controller
             'comment' => $request->comment,
             'experience' => $request->experience,
             'isActive' => $request->isActive,
+            'isGuest' => $request->isGuest,
             'allergy' => $request->allergy
         ]);
         $employe->save();
     }
-    
+
     // POST employee/{id}/editimage
     public function uploadImage(Request $request, $id)
     {
@@ -166,12 +128,13 @@ class EmployeeController extends Controller
             $employee->profileimage = $photoName;
             $employee->save();
             return response($photoName);
-        }else {
+        } else {
             return response('no image', 404);
         }
     }
 
-    public function deleteImage(Request $request, $id){
+    public function deleteImage(Request $request, $id)
+    {
         $employee = Employee::find($id);
 
         $imagePath = public_path('profileimages/') . $employee->profileimage;
@@ -223,5 +186,6 @@ class EmployeeController extends Controller
         'experience' => 'nullable|string|max:100',
         'allergy' => 'nullable|string|max:100',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'isGuest' => 'boolean'
     ];
 }

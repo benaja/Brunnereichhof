@@ -98,53 +98,60 @@ class RoomController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         if (isset($request->entry)) {
-            $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($id) {
-                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                    ->where('bed_room.room_id', $id);
-            })->where('entry', '<=', $request->entry)
-                ->where('exit', '>=', $request->entry)
-                ->get();
-
-            $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($id) {
-                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                    ->where('bed_room.room_id', $id);
-            })->where('entry', '<=', $request->exit)
-                ->where('exit', '>=', $request->exit)
-                ->get();
-
-            $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($id) {
-                $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                    ->where('bed_room.room_id', $id);
-            })->where('entry', '>=', $request->entry)
-                ->where('exit', '<=', $request->exit)
-                ->get();
-
-            $notAllowedReservations = [];
-            foreach ($notAllowedReservations1 as $pivot) {
-                if (!in_array($pivot, $notAllowedReservations)) {
-                    array_push($notAllowedReservations, $pivot);
-                }
-            }
-
-            foreach ($notAllowedReservations2 as $pivot) {
-                if (!in_array($pivot, $notAllowedReservations)) {
-                    array_push($notAllowedReservations, $pivot);
-                }
-            }
-
-            foreach ($notAllowedReservations3 as $pivot) {
-                if (!in_array($pivot, $notAllowedReservations)) {
-                    array_push($notAllowedReservations, $pivot);
-                }
-            }
-
             $beds = Room::find($id)->beds;
             $availableBeds = [];
-            foreach ($beds as $key => $bed) {
+            foreach ($beds as $bed) {
+                $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($bed) {
+                    $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                        ->where('bed_room.bed_id', $bed->id);
+                })->where('entry', '<=', $request->entry)
+                    ->where('exit', '>=', $request->entry)
+                    ->get();
+
+                $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($bed) {
+                    $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                        ->where('bed_room.bed_id', $bed->id);
+                })->where('entry', '<=', $request->exit)
+                    ->where('exit', '>=', $request->exit)
+                    ->get();
+
+                $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($bed) {
+                    $join->on('reservation.bed_room_id', '=', 'bed_room.id')
+                        ->where('bed_room.bed_id', $bed->id);
+                })->where('entry', '>=', $request->entry)
+                    ->where('exit', '<=', $request->exit)
+                    ->get();
+
+                $notAllowedReservations = [];
+                foreach ($notAllowedReservations1 as $pivot) {
+                    if (!in_array($pivot, $notAllowedReservations)) {
+                        array_push($notAllowedReservations, $pivot);
+                    }
+                }
+
+                foreach ($notAllowedReservations2 as $pivot) {
+                    if (!in_array($pivot, $notAllowedReservations)) {
+                        array_push($notAllowedReservations, $pivot);
+                    }
+                }
+
+                foreach ($notAllowedReservations3 as $pivot) {
+                    if (!in_array($pivot, $notAllowedReservations)) {
+                        array_push($notAllowedReservations, $pivot);
+                    }
+                }
                 $bedsUsed = 0;
-                foreach ($notAllowedReservations as $reservation) {
-                    if ($bed->pivot->id == $reservation->bed_room_id) {
-                        $bedsUsed++;
+                if (count($notAllowedReservations) > 0) {
+                    $bedsUsed++;
+                }
+                for ($i = 0; $i < count($notAllowedReservations); $i++) {
+                    for ($j = 0; $j < count($notAllowedReservations); $j++) {
+                        if (
+                            $notAllowedReservations[$i]->exit >= $notAllowedReservations[$j]->entry
+                            && $notAllowedReservations[$i]->entry < $notAllowedReservations[$j]->entry
+                        ) {
+                            $bedsUsed++;
+                        }
                     }
                 }
                 if ($bedsUsed < $bed->places) {

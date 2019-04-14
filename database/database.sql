@@ -12,7 +12,7 @@ create table culture(id int primary key auto_increment, name text, isAutocomplet
 
 create table hourrecords(id int primary key auto_increment, customer_id int, culture_id int, week int, year int, hours double, comment text, updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade, foreign key(culture_id) references culture(id) on delete cascade);
 
-create table employee(id int primary key auto_increment, callname text, firstname text, lastname text, nationality text, isIntern boolean, isDriver boolean, german_knowledge boolean, english_knowledge boolean, sex text, comment text, experience text, isActive boolean, profileimage text, allergy text, updated_at datetime, created_at datetime);
+create table employee(id int primary key auto_increment, callname text, firstname text, lastname text, nationality text, isIntern boolean, isDriver boolean, german_knowledge boolean, english_knowledge boolean, sex text, comment text, experience text, isActive boolean, isGuest boolean, profileimage text, allergy text, updated_at datetime, created_at datetime);
 
 create table entry_exit(id int primary key auto_increment, employee_id int, date datetime, isEntry boolean, updated_at datetime, created_at datetime, foreign key(employee_id) references employee(id) on delete cascade);
 

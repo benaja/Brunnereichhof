@@ -96,7 +96,7 @@ class ReservationController extends Controller
         if ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
             $reservations = Reservation::where('employee_id', $employee->id)->get();
             $this->clearOverlappingReservations($request, $reservations);
-        } else if($validationResult === 'Bed is already booked at this time' && $request->force) {
+        } else if ($validationResult === 'Bed is already booked at this time' && $request->force) {
             $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id)->get();
             $this->clearOverlappingReservations($request, $reservations);
         }
@@ -155,7 +155,20 @@ class ReservationController extends Controller
         }
 
         if (count($allReservations) >= $bedRoomPivot->bed->places) {
-            return $this->rejectValidation('Bed is already booked at this time', $abort);
+            $bedsUsed = 1;
+            for ($i = 0; $i < count($allReservations); $i++) {
+                for ($j = 0; $j < count($allReservations); $j++) {
+                    if (
+                        $allReservations[$i]->exit >= $allReservations[$j]->entry
+                        && $allReservations[$i]->entry < $allReservations[$j]->entry
+                    ) {
+                        $bedsUsed++;
+                    }
+                }
+            }
+            if ($bedsUsed >= $bedRoomPivot->bed->places) {
+                return $this->rejectValidation('Bed is already booked at this time', $abort);
+            }
         }
 
         $reservation = Reservation::where('employee_id', $employee->id)
