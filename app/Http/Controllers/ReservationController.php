@@ -19,10 +19,6 @@ class ReservationController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        // if (isset(request('all'))) {
-        //     $reservation::with('employee')->get();
-        // }
-
         return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
     }
 
