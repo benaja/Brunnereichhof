@@ -101,23 +101,26 @@ class RoomController extends Controller
             $beds = Room::find($id)->beds;
             $availableBeds = [];
             foreach ($beds as $bed) {
-                $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($bed) {
+                $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($bed, $id) {
                     $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                        ->where('bed_room.bed_id', $bed->id);
+                        ->where('bed_room.bed_id', $bed->id)
+                        ->where('bed_room.room_id', $id);
                 })->where('entry', '<=', $request->entry)
                     ->where('exit', '>=', $request->entry)
                     ->get();
 
-                $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($bed) {
+                $notAllowedReservations2 = Reservation::join('bed_room', function ($join) use ($bed, $id) {
                     $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                        ->where('bed_room.bed_id', $bed->id);
+                        ->where('bed_room.bed_id', $bed->id)
+                        ->where('bed_room.room_id', $id);
                 })->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->exit)
                     ->get();
 
-                $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($bed) {
+                $notAllowedReservations3 = Reservation::join('bed_room', function ($join) use ($bed, $id) {
                     $join->on('reservation.bed_room_id', '=', 'bed_room.id')
-                        ->where('bed_room.bed_id', $bed->id);
+                        ->where('bed_room.bed_id', $bed->id)
+                        ->where('bed_room.room_id', $id);
                 })->where('entry', '>=', $request->entry)
                     ->where('exit', '<=', $request->exit)
                     ->get();
