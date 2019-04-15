@@ -100,6 +100,7 @@ class RoomController extends Controller
         if (isset($request->entry)) {
             $beds = Room::find($id)->beds;
             $availableBeds = [];
+            $usedReservatins = [];
             foreach ($beds as $bed) {
                 $notAllowedReservations1 = Reservation::join('bed_room', function ($join) use ($bed, $id) {
                     $join->on('reservation.bed_room_id', '=', 'bed_room.id')
@@ -127,22 +128,26 @@ class RoomController extends Controller
 
                 $notAllowedReservations = [];
                 foreach ($notAllowedReservations1 as $pivot) {
-                    if (!in_array($pivot, $notAllowedReservations)) {
+                    if (!in_array($pivot, $notAllowedReservations) && !in_array($pivot, $usedReservatins)) {
                         array_push($notAllowedReservations, $pivot);
+                        array_push($usedReservatins, $pivot);
                     }
                 }
 
                 foreach ($notAllowedReservations2 as $pivot) {
-                    if (!in_array($pivot, $notAllowedReservations)) {
+                    if (!in_array($pivot, $notAllowedReservations) && !in_array($pivot, $usedReservatins)) {
                         array_push($notAllowedReservations, $pivot);
+                        array_push($usedReservatins, $pivot);
                     }
                 }
 
                 foreach ($notAllowedReservations3 as $pivot) {
-                    if (!in_array($pivot, $notAllowedReservations)) {
+                    if (!in_array($pivot, $notAllowedReservations) && !in_array($pivot, $usedReservatins)) {
                         array_push($notAllowedReservations, $pivot);
+                        array_push($usedReservatins, $pivot);
                     }
                 }
+
                 $bedsUsed = 0;
                 if (count($notAllowedReservations) > 0) {
                     $bedsUsed++;
