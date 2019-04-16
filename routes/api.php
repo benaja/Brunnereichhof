@@ -40,6 +40,7 @@ Route::get('/rapport/{rapport}/pdf', 'PdfController@rapportWeek');
 Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
 Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
 Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');
+Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails');
 Route::resource('/rapport', 'RapportController');
 
 Route::get('/pdf/worker/month/{month}', 'PdfController@workerMonthRapport');

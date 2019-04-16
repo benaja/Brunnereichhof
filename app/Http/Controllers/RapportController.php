@@ -298,6 +298,18 @@ class RapportController extends Controller
         $rapportdetail->save();
     }
 
+    public function updateMultibleRapportdetails(Request $request){
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        foreach($request->rapportdetails as $newRapportdetail) {
+            $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
+            $rapportdetail->project_id = $newRapportdetail['project_id'];
+            $rapportdetail->foodtype_id = $newRapportdetail['foodtype_id'];
+            $rapportdetail->save();
+        }
+        return;
+    }
+
     // DELETE /rapport/{id}
     public function destroy(Request $request, Rapport $rapport)
     {
