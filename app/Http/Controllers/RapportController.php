@@ -153,7 +153,8 @@ class RapportController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $rapport->customer = $rapport->customer;
-        $rapport->rapportdetails = $rapport->rapportdetails->groupBy('employee_id');
+        $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+        $rapport->rapportdetails = array_values($rapport->rapportdetails);
 
         $employees = Employee::all()->sortBy('lastname')->toArray();
         $employees = array_values($employees);
@@ -248,18 +249,6 @@ class RapportController extends Controller
         return 'success';
     }
 
-    public function updateComments(Request $request, Rapport $rapport)
-    {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-
-        $rapport->comment_mo = $request->comment_mo;
-        $rapport->comment_tu = $request->comment_tu;
-        $rapport->comment_we = $request->comment_we;
-        $rapport->comment_th = $request->comment_th;
-        $rapport->comment_fr = $request->comment_fr;
-        $rapport->comment_sa = $request->comment_sa;
-    }
-
     // PATCH rapport/{id}
     public function update(Request $request, Rapport $rapport)
     {
@@ -298,10 +287,11 @@ class RapportController extends Controller
         $rapportdetail->save();
     }
 
-    public function updateMultibleRapportdetails(Request $request){
+    public function updateMultibleRapportdetails(Request $request)
+    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        foreach($request->rapportdetails as $newRapportdetail) {
+        foreach ($request->rapportdetails as $newRapportdetail) {
             $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
             $rapportdetail->project_id = $newRapportdetail['project_id'];
             $rapportdetail->foodtype_id = $newRapportdetail['foodtype_id'];

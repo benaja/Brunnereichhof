@@ -156,7 +156,8 @@ class ReservationController extends Controller
                 for ($j = 0; $j < count($allReservations); $j++) {
                     if (
                         $allReservations[$i]->exit >= $allReservations[$j]->entry
-                        && $allReservations[$i]->entry < $allReservations[$j]->entry
+                        && $allReservations[$i]->entry <= $allReservations[$j]->entry
+                        && $i != $j
                     ) {
                         $bedsUsed++;
                     }
