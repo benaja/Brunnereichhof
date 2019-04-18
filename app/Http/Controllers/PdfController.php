@@ -13,6 +13,7 @@ use App\Enums\WorkTypeEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Enums\FoodTypeEnum;
 
 class PdfController extends Controller
 {
@@ -411,7 +412,12 @@ class PdfController extends Controller
         $lastDayOfMonth = clone $fristDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
 
-        $totalFood = $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))->where('foodtype_id', 1)->count();
+        $totalFood = $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))
+            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
+            ->where('foodtype_id', FoodTypeEnum::Eichhof)
+            ->where('hours', '>', 0)
+            ->groupBy('date')
+            ->count();
 
         return $totalFood;
     }
@@ -435,12 +441,12 @@ class PdfController extends Controller
         $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen'];
         $employees = $rapportdetails->groupBy('employee_id');
         $lines = [];
-        foreach ($employees as $rapportdetaisByEmployee) {
-            $cellWidth = 270 / count($titles);
-            $totalHours = $rapportdetaisByEmployee->sum('hours');
-            $totalFood = $rapportdetaisByEmployee->where('foodtype_id', 1)->count();
+        foreach ($employees as $rapportdetailsByEmployee) {
+            $totalHours = $rapportdetailsByEmployee->sum('hours');
+            $totalFood = $rapportdetailsByEmployee->where('foodtype_id', FoodTypeEnum::Eichhof)
+                ->where('hours', '>', 0)->groupBy('date')->count();
             array_push($lines, [
-                $rapportdetaisByEmployee[0]->employee->name(),
+                $rapportdetailsByEmployee[0]->employee->name(),
                 $totalHours . 'h',
                 $totalFood
             ]);
@@ -465,11 +471,12 @@ class PdfController extends Controller
         $lastOfMonth = clone $firstOfMonth;
         $lastOfMonth->modify("last day of this month");
 
-        // $rapportdetails = $employee->rapportdetails->where('date', '>=', $firstOfMonth->format('Y-m-d'))->where('date', '<=', $lastOfMonth->format('Y-m-d'))->sortBy('date');
         $titles = ['Zeitraum', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
         $this->pdf->documentTitle("Monat: " . $montName);
         $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
+        $totalFood = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee);
+        $this->pdf->documentTitle("Verpflegungen auf dem Eichhof: $totalFood");
         $this->pdf->newLine();
         $this->addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee);
     }
@@ -486,12 +493,15 @@ class PdfController extends Controller
         }
         $lines = [];
         while ($firstDayOfWeek <= $lastOfMonth) {
-            $rapportdetailsOfWeek = $employee->rapportdetails->where('date', '>=', $firstDayOfWeek->format('Y-m-d'))->where('date', '<=', $lastDayOfWeek->format('Y-m-d'))->sortBy('date');
+            // $firstDayOfWeek
+            $firstDay = $firstDayOfWeek >= $firstOfMonth ? $firstDayOfWeek : $firstOfMonth;
+            $lastday = $lastDayOfWeek <= $lastOfMonth ? $lastDayOfWeek : $lastOfMonth;
+            $rapportdetailsOfWeek = $employee->rapportdetails->where('date', '>=', $firstDay->format('Y-m-d'))->where('date', '<=', $lastday->format('Y-m-d'))->sortBy('date');
             if (count($rapportdetailsOfWeek) > 0) {
                 $weeks = $this->getWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
-                $projects = $this->getProjectsToWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
+                // $projects = $this->getProjectsToWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek, $lastOfMonth, $firstOfMonth);
                 array_push($lines, $weeks);
-                array_push($lines, $projects);
+                // array_push($lines, $projects);
             }
             $firstDayOfWeek->modify("+7 days");
             $lastDayOfWeek->modify("+7 days");
@@ -531,17 +541,16 @@ class PdfController extends Controller
         $cells = ["KW {$firstDayOfWeek->format('W')} ({$firstDayOfWeek->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})"];
 
         $currentDay = clone $firstDayOfWeek;
-        $currentDayNumber = 0;
-        $rapportdetails = $this->normalizeArray($rapportdetails);
+        $rapportdetails = $rapportdetails->groupBy('date');
         for ($i = 0; $i < 6; $i++) {
-            if ($currentDay->format('Y-m-d') == $rapportdetails[$currentDayNumber]->date && $currentDay <= $lastDayOfMonth && $currentDay >= $firstdayOfMonth) {
-                $hours = $rapportdetails[$currentDayNumber]->hours == null ? 0 : $rapportdetails[$currentDayNumber]->hours;
-                array_push($cells, $hours . "h");
-                $currentDayNumber++;
-            } else {
-                if ($currentDay >= $firstdayOfMonth || $currentDay <= $lastDayOfMonth) {
-                    $currentDayNumber++;
+            if (isset($rapportdetails[$currentDay->format('Y-m-d')])) {
+                $rapportdetailsThisDay = $rapportdetails[$currentDay->format('Y-m-d')];
+                $hours = 0;
+                foreach ($rapportdetailsThisDay as $rapportdetail) {
+                    $hours += $rapportdetail->hours;
                 }
+                array_push($cells, $hours);
+            } else {
                 array_push($cells, '');
             }
             $currentDay->modify("+1 day");
