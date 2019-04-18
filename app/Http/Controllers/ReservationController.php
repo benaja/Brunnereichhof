@@ -40,9 +40,10 @@ class ReservationController extends Controller
 
         $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
 
-        if ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
+        while ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
             $reservations = Reservation::where('employee_id', $employee->id)->get();
             $this->clearOverlappingReservations($request, $reservations);
+            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
         }
         if ($validationResult === true || $request->force) {
             $reservation = Reservation::create([
@@ -89,13 +90,17 @@ class ReservationController extends Controller
 
         $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
 
-        if ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
+        while ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
             $reservations = Reservation::where('employee_id', $employee->id)->get();
             $this->clearOverlappingReservations($request, $reservations);
-        } else if ($validationResult === 'Bed is already booked at this time' && $request->force) {
+            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
+        }
+        while ($validationResult === 'Bed is already booked at this time' && $request->force) {
             $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id)->get();
             $this->clearOverlappingReservations($request, $reservations);
+            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
         }
+
         if ($validationResult === true || $request->force) {
 
             $reservation = Reservation::create([

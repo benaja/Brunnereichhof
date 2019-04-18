@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Bed;
 use App\Employee;
+use App\Reservation;
 use App\Helpers\Pdf;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -27,15 +28,20 @@ class ReservationPdfController extends Controller
         $usedEmployees = [];
         $counter = 0;
         foreach ($employees as $employee) {
-            $reservation = $employee->reservations->where('entry', '<=', (new \DateTime($request->date))->modify('+1 day')->format('Y-m-d'))->where('exit', '>=', $request->date)->first();
+            $date = (new \DateTime($request->date))->format('Y-m-d');
+            $reservation = Reservation::where('employee_id', '=', $employee->id)
+                ->where('entry', '<=', $date)
+                ->where('exit', '>=', $date)->first();
             if (!in_array($employee->id, $usedEmployees) && $reservation) {
                 if ($counter != 0) {
                     $this->pdf->addPage();
                 }
                 $bed = $reservation->bedRoomPivot->bed;
 
-                $date = (new \DateTime($request->date))->format('Y-m-d');
-                $otherReservations = $reservation->bedRoomPivot->reservations->where('entry', '<=', $date)->where('exit', '>=', $date);
+                $otherReservations = Reservation::where('bed_room_id', '=', $reservation->bed_room_id)
+                    ->where('entry', '<=', $date)
+                    ->where('exit', '>=', $date)
+                    ->get();
 
                 $lines = [];
                 $inventars = Bed::find($bed->id)->inventars;

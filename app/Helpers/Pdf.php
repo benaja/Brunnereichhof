@@ -92,7 +92,7 @@ class Pdf extends Fpdf
 
   public function export($fileName)
   {
-    Fpdf::Output('D', $fileName);
+    Fpdf::Output('D', utf8_decode($fileName));
   }
 
   private function tableHeader($titles, $cellsWidth)
