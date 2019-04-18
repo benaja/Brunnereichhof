@@ -289,7 +289,7 @@ class PdfController extends Controller
                 $employee->nationality,
                 $employee->isDriver == 1 ? "Ja" : "Nein",
                 $employee->german_knowledge == 1 ? "Ja" : "Nein",
-                $employee->sex
+                $employee->sex == "man" ? "Mann" : "Frau"
             ]);
         }
         $this->pdf->table($titles, $lines);

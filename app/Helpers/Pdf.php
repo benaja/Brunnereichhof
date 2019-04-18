@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Cache;
 class Pdf extends Fpdf
 {
   private $documentWidth = 270;
+  private $pageBreakeWidth = 180;
+  private $landscape = 'L';
   public $textSize = 11;
   public $titleSize = 15;
   private $topOfTable = 0;
@@ -14,7 +16,8 @@ class Pdf extends Fpdf
   public function __construct($landscape = 'L')
   {
     new Fpdf('P', 'mm', 'A4');
-    $this->addPage($landscape);
+    $this->landscape = $landscape;
+    $this->addPage();
     Fpdf::SetFillColor(38, 166, 154);
     Fpdf::SetDrawColor(255);
     Fpdf::SetLineWidth(.3);
@@ -59,13 +62,14 @@ class Pdf extends Fpdf
         Fpdf::SetFont('Raleway', 'B', $this->textSize);
       }
       $this->tableLine($line, $cellsWidth);
+      if (Fpdf::GetY() >= $this->pageBreakeWidth) {
+        $this->verticalLines($cellsWidth);
+        $this->addPage();
+        $this->topOfTable = Fpdf::GetY();
+        Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
+      }
     }
-    foreach ($cellsWidth as $cellWidth) {
-      $cellWidth = ($this->documentWidth / array_sum($cellsWidth)) * $cellWidth;
-      Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX(), Fpdf::GetY());
-      Fpdf::SetX(Fpdf::GetX() + $cellWidth);
-    }
-    Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX(), Fpdf::GetY());
+    $this->verticalLines($cellsWidth);
   }
 
   public function signaturePlaceHolder()
@@ -80,13 +84,15 @@ class Pdf extends Fpdf
     Fpdf::Ln();
   }
 
-  public function addPage($landscape = 'L')
+  public function addPage()
   {
-    Fpdf::AddPage($landscape);
-    if ($landscape == 'P') {
+    Fpdf::AddPage($this->landscape);
+    if ($this->landscape == 'P') {
       $this->documentWidth = 190;
+      $this->pageBreakeWidth = 260;
     } else {
       $this->documentWidth = 270;
+      $this->pageBreakeWidth = 180;
     }
   }
 
@@ -128,5 +134,15 @@ class Pdf extends Fpdf
     }
     Fpdf::Line($X, $maxHeight, $X + $this->documentWidth, $maxHeight);
     Fpdf::SetXY($X, $maxHeight);
+  }
+
+  private function verticalLines($cellsWidth)
+  {
+    foreach ($cellsWidth as $cellWidth) {
+      $cellWidth = ($this->documentWidth / array_sum($cellsWidth)) * $cellWidth;
+      Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX(), Fpdf::GetY());
+      Fpdf::SetX(Fpdf::GetX() + $cellWidth);
+    }
+    Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX(), Fpdf::GetY());
   }
 }
