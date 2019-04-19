@@ -116,37 +116,6 @@ class RapportController extends Controller
         return $rapport;
     }
 
-    // POST rapport
-    public function create(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $customer = Customer::find($request->customer);
-
-        if ($request->type == "year") { } else if ($request->type == "month") { } else {
-            $lastRapport = $customer->rapports->where('rapporttype', 'week')->sortByDesc('startdate')->first();
-
-            if ($lastRapport == null) {
-                $newRapportDate = new \DateTime('last monday');
-            } else {
-                $lastRapportDate = new \DateTime($lastRapport->startdate);
-
-                // Modify the date it contains
-                $newRapportDate = $lastRapportDate->modify('next monday');
-            }
-
-            $rapport = Rapport::create([
-                'isFinished' => 0,
-                'startdate' => $newRapportDate,
-                'rapporttype' => 'week'
-            ]);
-
-            $customer->rapports()->save($rapport);
-
-            return redirect('/rapport/' . $rapport->id);
-        }
-    }
-
     // GET rapport/{id}
     public function show(Request $request, Rapport $rapport)
     {
@@ -163,42 +132,6 @@ class RapportController extends Controller
             'rapport' => $rapport,
             'employees' => $employees
         ];
-    }
-
-    // GET rapport/show
-    public function showAll(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $rapports = Rapport::take(100)->get()->sortBy('startdate')->groupBy('startdate');
-
-        $rapportWeeks = array();
-        foreach ($rapports as $rapportGroup) {
-            $date = new \DateTime($rapportGroup[0]->startdate);
-            $isFinished = true;
-            foreach ($rapportGroup as $rapport) {
-                if ($rapport->isFinished == 0) {
-                    $isFinished = false;
-                }
-            }
-            $week = [
-                'date' => $date,
-                'isFinished' => $isFinished
-            ];
-            array_push($rapportWeeks, $week);
-        }
-
-        $rapportWeeks = array_reverse($rapportWeeks);
-
-        if (count($rapportWeeks) > 0) {
-            $newWeek = new \DateTime($rapportWeeks[0]['date']->format('d.m.Y'));
-            $newWeek->modify("+7 days");
-        } else {
-            $newWeek = new \DateTime("now");
-            $newWeek->modify("last monday");
-        }
-
-        return view('pages.admin.rapport.show-all', compact('rapportWeeks', 'newWeek'));
     }
 
     public function addEmployee(Request $request, Rapport $rapport)
@@ -298,6 +231,25 @@ class RapportController extends Controller
             $rapportdetail->save();
         }
         return;
+    }
+
+    public function daytotal($date)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $rapportdetailsByEmployee = Rapportdetail::with('employee')->where('date', '=', $date)->get()->groupBy('employee_id')->sortBy(function ($rapportdetails) {
+            return $rapportdetails[0]->employee->lastname;
+        }, SORT_NATURAL | SORT_FLAG_CASE);
+        $dayTotals = [];
+        foreach ($rapportdetailsByEmployee as $rapportdetails) {
+            if ($rapportdetails->sum('hours') > 0) {
+                array_push($dayTotals, [
+                    'employee' => $rapportdetails[0]->employee,
+                    'hours' => $rapportdetails->sum('hours')
+                ]);
+            }
+        }
+        return $dayTotals;
     }
 
     // DELETE /rapport/{id}
