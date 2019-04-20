@@ -218,19 +218,25 @@ class RapportController extends Controller
             $rapportdetail->$updatetKey = $updatedValue;
         }
         $rapportdetail->save();
+
+        return [
+            'foodtype_ok' => $rapportdetail->foodtype_ok
+        ];
     }
 
     public function updateMultibleRapportdetails(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
+        $rapportdetails = [];
         foreach ($request->rapportdetails as $newRapportdetail) {
             $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
             $rapportdetail->project_id = $newRapportdetail['project_id'];
             $rapportdetail->foodtype_id = $newRapportdetail['foodtype_id'];
             $rapportdetail->save();
+            array_push($rapportdetails, $rapportdetail);
         }
-        return;
+        return $rapportdetails;
     }
 
     public function daytotal($date)

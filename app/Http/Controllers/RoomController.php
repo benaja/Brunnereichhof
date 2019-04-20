@@ -31,12 +31,15 @@ class RoomController extends Controller
         $this->validate($request, [
             'name' => 'required|max:100',
             'location' => 'required|max:100',
+            'number' => 'required|integer',
+            'comment' => 'nullable|string|max:1000'
         ]);
 
         $room = Room::create([
             'name' => $request->name,
             'location' => $request->location,
-            'comment' => $request->comment
+            'comment' => $request->comment,
+            'number' => $request->number
         ]);
 
         $bedIds = array_map(function ($bed) {

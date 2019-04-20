@@ -10,6 +10,8 @@ class Rapportdetail extends Model
 
     protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date'];
 
+    protected $appends = ['foodtype_ok'];
+
     public function rapport()
     {
         return $this->belongsTo(Rapport::class);
@@ -28,5 +30,22 @@ class Rapportdetail extends Model
     public function foodtype()
     {
         return $this->belongsTo(Foodtype::class);
+    }
+
+    public function getFoodtypeOkAttribute()
+    {
+        if ($this->hours > 0) {
+            $otherRapportdetailsForThisEmployee =  Rapportdetail::where([
+                'date' => $this->date,
+                'employee_id' => $this->employee_id
+            ])->where('id', '!=', $this->id)->get();
+
+            foreach ($otherRapportdetailsForThisEmployee as $rapportdetail) {
+                if ($rapportdetail->foodtype_id != $this->foodtype_id) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

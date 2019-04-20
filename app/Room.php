@@ -8,7 +8,7 @@ class Room extends Model
 {
     public $table = "room";
 
-    protected $fillable = ['name', 'location', 'comment'];
+    protected $fillable = ['name', 'location', 'comment', 'number'];
 
     public function beds()
     {
