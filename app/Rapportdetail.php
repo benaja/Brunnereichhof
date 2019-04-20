@@ -38,7 +38,7 @@ class Rapportdetail extends Model
             $otherRapportdetailsForThisEmployee =  Rapportdetail::where([
                 'date' => $this->date,
                 'employee_id' => $this->employee_id
-            ])->where('id', '!=', $this->id)->get();
+            ])->where('id', '!=', $this->id)->where('hours', '>', 0)->get();
 
             foreach ($otherRapportdetailsForThisEmployee as $rapportdetail) {
                 if ($rapportdetail->foodtype_id != $this->foodtype_id) {
