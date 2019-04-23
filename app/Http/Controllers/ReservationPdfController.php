@@ -38,27 +38,14 @@ class ReservationPdfController extends Controller
                 }
                 $bed = $reservation->bedRoomPivot->bed;
 
-                $otherReservations = Reservation::where('bed_room_id', '=', $reservation->bed_room_id)
-                    ->where('entry', '<=', $date)
-                    ->where('exit', '>=', $date)
-                    ->get();
-
                 $lines = [];
                 $inventars = Bed::find($bed->id)->inventars;
                 foreach ($inventars as $inventar) {
                     $amount = $inventar->pivot->amount;
-                    if (count($otherReservations) == 2) {
-                        $amount = $inventar->pivot->amount_2;
-                    }
                     array_push($lines, [$amount, $inventar->name, 'CHF ' . number_format($inventar->price, 2), '', '', '']);
                 }
 
-                $names = [];
-                foreach ($otherReservations as $reservation) {
-                    array_push($names, $reservation->employee->lastname . ' ' . $reservation->employee->firstname);
-                    array_push($usedEmployees, $reservation->employee->id);
-                }
-                $this->pdf->documentTitle(implode(", ", $names));
+                $this->pdf->documentTitle($reservation->employee->lastname . ' ' . $reservation->employee->firstname);
 
                 $this->pdf->documentTitle('Raum: ' . $reservation->bedRoomPivot->room->name);
                 $this->pdf->documentTitle('Bett: ' . $bed->name);

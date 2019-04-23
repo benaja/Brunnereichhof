@@ -352,6 +352,30 @@ class PdfController extends Controller
         $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
     }
 
+    public function customerMonthRapport(Request $request, $date)
+    {
+        Pdf::validateToken($request->token);
+
+        $firstDate = (new \DateTime($date))->modify('+1 day')->modify('last monday');
+        $lastDate = (new \DateTime($date))->modify('-1 day')->modify('next sunday');
+
+        $customer = Customer::find($request->customer_id);
+
+        $totalHours = DB::table('rapportdetail')
+            ->leftJoin('rapport', 'rapportdetail.rapport_id', '=', 'rapport.id')
+            ->leftJoin('customer', 'rapport.customer_id', '=', 'customer.id')
+            ->where('customer.id', $customer->id)
+            ->where('rapportdetail.date', '>=', $firstDate->format('Y-m-d'))
+            ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
+            ->sum('rapportdetail.hours');
+
+        $firstDate->modify("first day of this week");
+        $weeks = $customer->rapports
+            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
+            ->where('startdate', '<=', $lastDate->format('Y-m-d'))
+            ->sortBy('startdate');
+    }
+
     // --helpers--
     private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year)
     {

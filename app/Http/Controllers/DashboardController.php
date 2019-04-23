@@ -55,8 +55,8 @@ class DashboardController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $firstOfThisYear = new \DateTime('first day of this year');
-        $lastOfThisYear = new \DateTime('last day of this year');
+        $firstOfThisYear = new \DateTime('first day of January this year');
+        $lastOfThisYear = new \DateTime('last day of December this year');
 
         $totalHours = Rapportdetail::where('date', '>=', $firstOfThisYear->format('Y-m-d'))
             ->where('date', '<=', $lastOfThisYear->format('Y-m-d'))->sum('hours');
@@ -70,16 +70,17 @@ class DashboardController extends Controller
         return $response;
     }
 
-    public function roomdispositioner() {
+    public function roomdispositioner()
+    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $beds = BedRoomPivot::join('reservation', function($join) {
+        $beds = BedRoomPivot::join('reservation', function ($join) {
             $join->on('reservation.bed_room_id', '=', 'bed_room.id');
         })->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))->get();;
 
         $allBeds = BedRoomPivot::with('bed')->get()->toArray();
-        $amountOfAllBeds = array_sum(array_map(function($bedRoomPivot) {
+        $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
             return $bedRoomPivot['bed']['places'];
         }, $allBeds));
 
