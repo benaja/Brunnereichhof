@@ -70,6 +70,7 @@ class Pdf extends Fpdf
       }
     }
     $this->verticalLines($cellsWidth);
+    Fpdf::Ln();
   }
 
   public function signaturePlaceHolder()
