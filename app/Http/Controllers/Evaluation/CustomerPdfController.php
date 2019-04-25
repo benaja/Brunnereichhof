@@ -29,13 +29,23 @@ class CustomerPdfController extends Controller
 
         if ($request->customer_id == 0) {
             $customers = Customer::all();
-            $counter = 1;
+            $customersAdded = 0;
             foreach ($customers as $customer) {
-                $this->weekRapportForSingleCustomer($customer, $date);
-                if ($counter < count($customers)) {
-                    $this->pdf->addPage();
+                $monday = $date->modify('+1 day')->modify('last monday');
+                $sunday = clone $monday;
+                $sunday = $sunday->modify('next sunday');
+                $hours = Rapportdetail::join('rapport', function ($join) use ($customer) {
+                    $join->on('rapport.id', '=', 'rapportdetail.rapport_id')
+                        ->where('rapport.customer_id', '=', $customer->id);
+                })->where('date', '>=', $monday->format('Y-m-d'))
+                    ->where('date', '<=', $sunday->format('Y-m-d'))->sum('hours');
+                if ($hours > 0) {
+                    if ($customersAdded > 0) {
+                        $this->pdf->addPage();
+                    }
+                    $this->weekRapportForSingleCustomer($customer, $date);
+                    $customersAdded++;
                 }
-                $counter++;
             }
             $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
