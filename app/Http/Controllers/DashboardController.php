@@ -105,7 +105,7 @@ class DashboardController extends Controller
         $employeesAmount = Employee::where('isActive', 1)->count();
 
         $response = [
-            'hours' => round($totalHours),
+            'hours' => round($totalHours, 2),
             'activeEmployees' => $employeesAmount
         ];
         return $response;
@@ -125,7 +125,7 @@ class DashboardController extends Controller
         }
 
         $response = [
-            'hours' => round($hours, 2)
+            'hours' => round($hours)
         ];
         return $response;
     }
