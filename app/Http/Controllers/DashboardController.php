@@ -46,7 +46,7 @@ class DashboardController extends Controller
             $monthName = $this->monthNames[intval($monthName) - 1];
 
             $month = [
-                'hours' => $totalHours,
+                'hours' => round($totalHours),
                 'name' => $monthName
             ];
 
@@ -80,7 +80,7 @@ class DashboardController extends Controller
             $monthName = $this->monthNames[intval($monthName) - 1];
 
             $month = [
-                'hours' => $hours,
+                'hours' => round($hours, 2),
                 'name' => $monthName
             ];
 
@@ -105,7 +105,7 @@ class DashboardController extends Controller
         $employeesAmount = Employee::where('isActive', 1)->count();
 
         $response = [
-            'hours' => $totalHours,
+            'hours' => round($totalHours),
             'activeEmployees' => $employeesAmount
         ];
         return $response;
@@ -124,10 +124,8 @@ class DashboardController extends Controller
             $hours += $timerecord->totalHours();
         }
 
-        $employeesAmount = Employee::where('isActive', 1)->count();
-
         $response = [
-            'hours' => $hours
+            'hours' => round($hours, 2)
         ];
         return $response;
     }
