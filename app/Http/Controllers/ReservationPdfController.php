@@ -21,7 +21,7 @@ class ReservationPdfController extends Controller
 
         $employees = Employee::find($id);
         if (!$employees) {
-            $employees = Employee::all()->sortBy('lastname');
+            $employees = Employee::orderBy('lastname')->get();
         } else {
             $employees = [$employees];
         }

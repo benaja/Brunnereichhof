@@ -125,8 +125,7 @@ class RapportController extends Controller
         $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
         $rapport->rapportdetails = array_values($rapport->rapportdetails);
 
-        $employees = Employee::all()->sortBy('lastname')->toArray();
-        $employees = array_values($employees);
+        $employees = Employee::orderBy('lastname')->get();
 
         return [
             'rapport' => $rapport,

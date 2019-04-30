@@ -94,7 +94,7 @@ class PdfController extends Controller
         if (isset($request->workerId)) {
             array_push($workers, User::find($request->workerId));
         } else {
-            foreach (User::workers()->get()->sortBy('lastname') as $worker) {
+            foreach (User::workers()->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE) as $worker) {
                 if ($worker->totalHours($firstDayOfMonth) > 0) {
                     array_push($workers, $worker);
                 }
@@ -273,7 +273,7 @@ class PdfController extends Controller
         Pdf::validateToken($request->token);
 
         $this->pdf = new Pdf();
-        $employees = Employee::where('isActive', true)->get()->sortBy('lastname');
+        $employees = Employee::where('isActive', true)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
         $numberOfEmployee = count($employees);
 
         $this->pdf->documentTitle("Mitarbeiterliste");

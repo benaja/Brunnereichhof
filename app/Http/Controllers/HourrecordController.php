@@ -182,6 +182,7 @@ class HourrecordController extends Controller
         $startDate = new \DateTime(Settings::value('hourrecordStartDate'));
         $endDate = new \DateTime(Settings::value('hourrecordEndDate'));
         $today = new \DateTime();
+        $today->setTime(0, 0, 0);
 
         if (auth()->user()->authorization_id == AuthorizationType::Customer) {
             if ($startDate > $today || $endDate < $today) {

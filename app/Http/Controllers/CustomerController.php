@@ -25,15 +25,15 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        $customers = Customer::all();
+        $customers = Customer::orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user->username;
             $customer->email = $customer->user->email;
         }
-        //return view('pages.admin.customer.index', compact('customers'));
+        $customers = $customers->toArray();
 
-        return response($customers);
+        return array_values($customers);
     }
 
     // POST customer

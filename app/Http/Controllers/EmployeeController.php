@@ -19,13 +19,13 @@ class EmployeeController extends Controller
     {
         $employees = [];
         if (isset($request->guests)) {
-            $employees = Employee::where('isGuest', 1)->get()->sortBy('lastname')->toArray();
+            $employees = Employee::where('isGuest', 1)->orderBy('lastname')->get();
         } else if (isset($request->all)) {
-            $employees = Employee::all()->sortBy('lastname')->toArray();
+            $employees = Employee::orderBy('lastname')->get();
         } else {
-            $employees = Employee::where('isGuest', 0)->get()->sortBy('lastname')->toArray();
+            $employees = Employee::where('isGuest', 0)->orderBy('lastname')->get();
         }
-        return array_values($employees);
+        return $employees;
     }
 
     // GET employee/create
