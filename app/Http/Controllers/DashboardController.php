@@ -80,7 +80,7 @@ class DashboardController extends Controller
             $monthName = $this->monthNames[intval($monthName) - 1];
 
             $month = [
-                'hours' => round($hours, 2),
+                'hours' => round($hours),
                 'name' => $monthName
             ];
 
@@ -125,7 +125,7 @@ class DashboardController extends Controller
         }
 
         $response = [
-            'hours' => round($hours)
+            'hours' => round($hours, 2)
         ];
         return $response;
     }
