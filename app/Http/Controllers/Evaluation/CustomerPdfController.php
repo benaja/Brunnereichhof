@@ -74,10 +74,10 @@ class CustomerPdfController extends Controller
         $this->pdf->documentTitle("Stunden: $totalHours");
 
         $meals = (clone $rappordetails)->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
-        $this->pdf->documentTitle("Mittagessen: $meals");
+        $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
         $this->pdf->newLine();
 
-        $lines = [['Stunden'], ['Mittagessen']];
+        $lines = [['Stunden'], ['Verpflegungen']];
         $currentDay = clone $monday;
         for ($i = 0; $i < 7; $i++) {
             $hours = (clone $rappordetails)->where('date', '=', $currentDay->format('Y-m-d'))->sum('hours');
