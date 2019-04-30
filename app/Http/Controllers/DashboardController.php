@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Rapportdetail;
 use App\Employee;
-use App\Reservation;
 use App\Pivots\BedRoomPivot;
+use App\Timerecord;
 
 class DashboardController extends Controller
 {
@@ -20,10 +19,20 @@ class DashboardController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function totalHoursByMonth()
+    public function allStats()
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
+        return [
+            'employeeHoursByMonth' => $this->employeeHoursByMonth(),
+            'employeeTotalNumbers' => $this->employeeTotalNumbers(),
+            'workerHoursByMonth' => $this->workerHoursByMonth(),
+            'workerTotalNumbers' => $this->workerTotalNumbers()
+        ];
+    }
+
+    private function employeeHoursByMonth()
+    {
         $firstOfThisMonth = new \DateTime('first day of this month');
         $lastOfThisMonth = new \DateTime('last day of this month');
 
@@ -51,10 +60,42 @@ class DashboardController extends Controller
         return $totalHoursOfYear;
     }
 
-    public function totalNumbers()
+    private function workerHoursByMonth()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        $firstOfThisMonth = new \DateTime('first day of this month');
+        $lastOfThisMonth = new \DateTime('last day of this month');
 
+        $monthValues = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $timerecords = Timerecord::where('date', '>=', $firstOfThisMonth->format('Y-m-d'))
+                ->where('date', '<=', $lastOfThisMonth->format('Y-m-d'))->get();
+
+            $hours = 0;
+            foreach ($timerecords as $timerecord) {
+                $hours += $timerecord->totalHours();
+            }
+
+            $monthName = $firstOfThisMonth->format('m');
+            $monthName = $this->monthNames[intval($monthName) - 1];
+
+            $month = [
+                'hours' => $hours,
+                'name' => $monthName
+            ];
+
+            array_push($monthValues, $month);
+            $firstOfThisMonth->modify('-1 day')->modify('first day of this month');
+            $lastOfThisMonth->modify('-31 days')->modify('last day of this month');
+        }
+
+        $monthValues = array_reverse($monthValues);
+
+        return $monthValues;
+    }
+
+    private function employeeTotalNumbers()
+    {
         $firstOfThisYear = new \DateTime('first day of January this year');
         $lastOfThisYear = new \DateTime('last day of December this year');
 
@@ -65,7 +106,28 @@ class DashboardController extends Controller
 
         $response = [
             'hours' => $totalHours,
-            'acitveEmployees' => $employeesAmount
+            'activeEmployees' => $employeesAmount
+        ];
+        return $response;
+    }
+
+    private function workerTotalNumbers()
+    {
+        $firstOfThisYear = new \DateTime('first day of January this year');
+        $lastOfThisYear = new \DateTime('last day of December this year');
+
+        $timerecords = Timerecord::where('date', '>=', $firstOfThisYear->format('Y-m-d'))
+            ->where('date', '<=', $lastOfThisYear->format('Y-m-d'))->get();
+
+        $hours = 0;
+        foreach ($timerecords as $timerecord) {
+            $hours += $timerecord->totalHours();
+        }
+
+        $employeesAmount = Employee::where('isActive', 1)->count();
+
+        $response = [
+            'hours' => $hours
         ];
         return $response;
     }

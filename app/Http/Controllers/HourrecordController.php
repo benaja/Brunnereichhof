@@ -8,6 +8,7 @@ use App\Culture;
 use Illuminate\Http\Request;
 use App\Enums\AuthorizationType;
 use App\Settings;
+use App\Project;
 
 class HourrecordController extends Controller
 {
@@ -45,9 +46,9 @@ class HourrecordController extends Controller
             $weeks = array_filter(
                 $request->weeks,
                 function ($week) use ($hourrecord) {
-                        // abort(400, json_encode($hourrecord));
+                    // abort(400, json_encode($hourrecord));
                     return $week['week'] == $hourrecord->week;
-                        // return true;
+                    // return true;
                 }
             );
             if (count($weeks) == 0) {
@@ -71,7 +72,6 @@ class HourrecordController extends Controller
             'customer_id' => auth()->user()->customer->id,
             'year' => (new \DateTime())->format('Y')
         ])->get()->groupBy('week');
-
     }
 
     public function createSingle(Request $request, $week)
@@ -111,6 +111,8 @@ class HourrecordController extends Controller
             'year' => (new \DateTime)->format('Y'),
             'customer_id' => $customer->id
         ]);
+
+        $this->addProjectToCustomer($culture, $hourrecord);
         $hourrecord->culture()->associate($culture);
         $hourrecord->save();
         $hourrecord->customer = $hourrecord->customer;
@@ -142,13 +144,17 @@ class HourrecordController extends Controller
         } else {
             $culture = null;
         }
+
+        $this->addProjectToCustomer($culture, $hourrecord);
+
         $hourrecord->culture()->associate($culture);
         $hourrecord->save();
 
         return $hourrecord;
     }
 
-    public function getByWeek($year, $week){
+    public function getByWeek($year, $week)
+    {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         return Hourrecord::with('culture')->with('customer')->where([
@@ -161,7 +167,7 @@ class HourrecordController extends Controller
     public function destroy($id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
-        if(auth()->user()->authorization_id == AuthorizationType::Customer){
+        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
             $this->validateEditeDate();
         }
 
@@ -171,22 +177,36 @@ class HourrecordController extends Controller
 
 
     // --helpers--
-    private function isEditDate(){
+    private function isEditDate()
+    {
         $startDate = new \DateTime(Settings::value('hourrecordStartDate'));
         $endDate = new \DateTime(Settings::value('hourrecordEndDate'));
         $today = new \DateTime();
 
-        if(auth()->user()->authorization_id == AuthorizationType::Customer) {
-            if($startDate > $today || $endDate < $today){
+        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+            if ($startDate > $today || $endDate < $today) {
                 return false;
             }
         }
         return true;
     }
 
-    private function validateEditeDate(){
-        if(!$this->isEditDate()){
+    private function validateEditeDate()
+    {
+        if (!$this->isEditDate()) {
             abort(400, 'the edit duration is over');
+        }
+    }
+
+    private function addProjectToCustomer($culture, $hourrecord)
+    {
+        if ($culture != null) {
+            $project = Project::firstOrCreate([
+                'name' => $culture->name
+            ]);
+            if (!$hourrecord->customer->projects->find($project->id)) {
+                $hourrecord->customer->projects()->save($project);
+            }
         }
     }
 }
