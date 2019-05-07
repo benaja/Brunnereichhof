@@ -101,7 +101,7 @@ class CustomerPdfController extends Controller
         $projects = [];
         foreach ($rappordetailsByProjects as $projectId) {
             $project = Project::find($projectId);
-            if (!in_array($project->name, $projects)) {
+            if ($project && !in_array($project->name, $projects)) {
                 array_push($projects, $project->name);
             }
         }
