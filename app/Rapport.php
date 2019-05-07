@@ -8,7 +8,7 @@ class Rapport extends Model
 {
     public $table = "rapport";
 
-    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment', 'default_project'];
+    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment', 'default_project_id'];
 
     public function customer()
     {
@@ -22,6 +22,6 @@ class Rapport extends Model
 
     public function defaultProject()
     {
-        return $this->belongsTo(Project::class, 'default_project');
+        return $this->belongsTo(Project::class, 'default_project_id');
     }
 }

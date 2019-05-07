@@ -58,27 +58,6 @@ class RapportController extends Controller
         return view('pages.admin.rapport.choose-customer', compact('customers', 'date'));
     }
 
-    // GET rapport/addcustomer/{customrId}
-    public function addCustomer(Request $request, Customer $customer)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $startdate = new \DateTime($request->date);
-        $startdate->modify("Monday this week");
-        $rapport = Rapport::firstOrCreate(['startdate' => $startdate->format('Y-m-d'), 'customer_id' => $customer->id]);
-
-        if ($rapport->isFinished == null) {
-            $rapport->isFinished = 0;
-            $rapport->startdate = $startdate->format('Y-m-d');
-            $rapport->rapporttype = 'week';
-            $rapport->save();
-        }
-
-        $customer->rapports()->save($rapport);
-
-        return redirect('/rapport/' . $rapport->id);
-    }
-
     // GET rapport/week/{week}
     public function showWeek(Request $request, $week)
     {
@@ -110,6 +89,9 @@ class RapportController extends Controller
             $rapport->customer_id = $request->customer_id;
             $rapport->startdate = $week->format('Y-m-d');
             $rapport->isFinished = false;
+
+            // $defaultProject = Project::where('name', 'Allgemein')->first();
+            // $rapport->defaultProject()->associate($defaultProject);
             $rapport->save();
         }
 
@@ -139,7 +121,10 @@ class RapportController extends Controller
 
         $date = new \DateTime($rapport->startdate);
         $employee = Employee::find($request->employee_id);
-        $defaultProject = Project::find($request->default_project);
+        $defaultProject = Project::find($request->default_project_id);
+        if (!$defaultProject) {
+            $$defaultProject = Project::where('name', 'Allgemein')->first();
+        }
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
 
         $rapportdetails = $rapport->rapportdetails->where('employee_id', $employee->id);
