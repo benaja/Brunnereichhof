@@ -6,10 +6,11 @@ use App\Project;
 use App\Rapport;
 use App\Customer;
 use App\Employee;
+use App\Foodtype;
 use App\Rapportdetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Foodtype;
+use Illuminate\Support\Facades\Log;
 
 class RapportController extends Controller
 {
@@ -178,6 +179,7 @@ class RapportController extends Controller
                 }
             }
         } else {
+            Log::info("start to update Rapport $rapport->id");
             $updatetKey = key($request->except('_token'));
 
             $updatedValue = (string)$request->$updatetKey;
@@ -186,6 +188,7 @@ class RapportController extends Controller
             }
             $rapport->$updatetKey = $updatedValue;
             $rapport->save();
+            Log::info("Updated Rapport $rapport->id with the key $updatetKey");
         }
 
         return $this->rapportWithDetails(Rapport::find($rapport->id));
@@ -194,6 +197,7 @@ class RapportController extends Controller
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        Log::info("start to update Rapportdetail $rapportdetail->id");
 
         $updatetKey = key($request->except('_token'));
 
@@ -212,6 +216,7 @@ class RapportController extends Controller
         }
         $rapportdetail->save();
 
+        Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
         return [
             'foodtype_ok' => $rapportdetail->foodtype_ok
         ];
