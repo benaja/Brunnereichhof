@@ -23,8 +23,8 @@ class WorkerController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $workers = User::where('authorization_id', AuthorizationType::Worker)
-            ->orWhere('authorization_id', AuthorizationType::Admin)->orderBy('lastname')->get();
+        $workers = User::where('isDeleted', false)->where('authorization_id', AuthorizationType::Worker)
+            ->orWhere('authorization_id', AuthorizationType::Admin)->where('isDeleted', false)->orderBy('lastname')->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
@@ -119,7 +119,10 @@ class WorkerController extends Controller
 
         $worker = User::find($id);
 
-        $worker->delete();
+        $worker->update([
+            'isDeleted' => true,
+            'password' => null
+        ]);
     }
 
 

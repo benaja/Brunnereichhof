@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'isDeleted', 'authorization_id'
     ];
 
 
@@ -49,6 +49,9 @@ class User extends Authenticatable
 
     public function authorizeRoles($roles)
     {
+        if ($this->isDeleted == 1) {
+            return abort(401, 'This action is unauthorized.');
+        }
         if (is_array($roles)) {
             //$role = $roles[0];
             //var_dump($this->authorization()->where('name',$roles)->first());
@@ -91,7 +94,7 @@ class User extends Authenticatable
             foreach ($timerecord->hours as $hour) {
                 if (isset($worktype) && $hour->worktype_id == $worktype) {
                     $totalHours += $hour->duration();
-                } else if(!isset($worktype)) {
+                } else if (!isset($worktype)) {
                     $totalHours += $hour->duration();
                 }
             }
@@ -156,7 +159,8 @@ class User extends Authenticatable
         return $totalHolidays;
     }
 
-    public static function workers(){
+    public static function workers()
+    {
         return User::where('authorization_id', AuthorizationType::Worker)->orWhere('authorization_id', AuthorizationType::Admin);
     }
 }

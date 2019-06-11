@@ -25,7 +25,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        $customers = Customer::orderBy('lastname')->get();
+        $customers = Customer::orderBy('lastname')->where('isDeleted', 0)->get();
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user->username;
@@ -187,7 +187,13 @@ class CustomerController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $customer = Customer::find($id);
-        $customer->user->delete();
+        $customer->user->update([
+            'isDeleted' => true,
+            'password' => null
+        ]);
+        $customer->update([
+            'isDeleted' => true
+        ]);
     }
 
     //-- helpers --//

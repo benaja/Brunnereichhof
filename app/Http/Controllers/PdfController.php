@@ -27,58 +27,6 @@ class PdfController extends Controller
     private $documentWidth = 270;
     private $pdf;
 
-    // GET rapport/{id}/pdf
-    public function rapportWeek(Request $request, Rapport $rapport)
-    {
-        Pdf::validateToken($request->token);
-        $this->pdf = new Pdf();
-
-        $header = ['Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-        $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
-        $rapportdetailsGruped = $rapport->rapportdetails->groupBy('employee_id');
-
-        $totalTime = 0;
-        foreach ($rapportdetailsGruped as $rapportdetails) {
-            $counter = 0;
-            foreach ($rapportdetails as $rapportdetail) {
-                $totalTime += $rapportdetail->hours;
-                $counter++;
-            }
-        }
-
-        $startdate = new \DateTime($rapport->startdate);
-
-        $this->pdf->documentTitle("Kunde: {$rapport->customer->customer_number} {$rapport->customer->firstname} {$rapport->customer->lastname}");
-        $this->pdf->documentTitle("Zeitraum: {$startdate->format('Y')} / KW {$startdate->format('W')} ({$startdate->format('d.m.Y')} - {$startdate->modify('+6 day')->format('d.m.Y')})");
-        $this->pdf->documentTitle("Totale Arbeitsstunden: {$totalTime}");
-        $this->pdf->newLine();
-
-        $timePerDay = ['Totale Stunden', 0, 0, 0, 0, 0, 0];
-        $lines = [$comments];
-        foreach ($rapportdetailsGruped as $rapportdetails) {
-            $cells = [$rapportdetails[0]->employee->name()];
-
-            $counter = 1;
-            foreach ($rapportdetails as $rapportdetail) {
-                $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
-                // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
-                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein") {
-                    $cell = "{$cell} ({$rapportdetail->project->name})";
-                }
-                array_push($cells, $cell);
-                $timePerDay[$counter] += $rapportdetail->hours;
-                $counter++;
-            }
-            array_push($lines, $cells);
-        }
-
-        array_push($lines, $timePerDay);
-
-        $this->pdf->table($header, $lines, [], ['lastLineBold' => true]);
-
-        $this->pdf->export("pdf/{$rapport->customer->firstname}_{$rapport->customer->lastname}_{$startdate->modify('-6 day')->format('d-m-Y')}.pdf");
-    }
-
     // GET pdf/worker/month/{month}
     public function workerMonthRapport(Request $request, $month)
     {

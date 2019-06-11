@@ -33,7 +33,7 @@ Route::resource('/project', 'ProjectController');
 // Route::get('/rapport/show', 'RapportController@showAll');
 // Route::post('/rapport/convertdate', 'RapportController@convertDate');
 Route::get('/rapport/week/{week}', 'RapportController@showWeek');
-Route::get('/rapport/{rapport}/pdf', 'PdfController@rapportWeek');
+Route::get('/rapport/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
 Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
 Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
 Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');

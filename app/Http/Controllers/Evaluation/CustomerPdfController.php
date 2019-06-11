@@ -9,6 +9,7 @@ use App\Customer;
 use App\Rapportdetail;
 use App\Project;
 use App\Enums\FoodTypeEnum;
+use App\Rapport;
 
 class CustomerPdfController extends Controller
 {
@@ -21,82 +22,105 @@ class CustomerPdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
 
-    public function weekRapport(Request $request, $week)
+    // GET /rapport/{id}/pdf
+    public function weekRapportByRapportId(Request $request, Rapport $rapport)
     {
         Pdf::validateToken($request->token);
-        $date = new \DateTime($week);
+        $this->pdf = new Pdf();
+        $this->weekRapportForSingleCustomer($rapport);
+        $date = new \DateTime($rapport->startdate);
+        $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
+    }
+
+    // GET /pdf/customer/week/{date}
+    public function weekRapport(Request $request, $date)
+    {
+        Pdf::validateToken($request->token);
+        $date = new \DateTime($date);
+        $monday = $date->modify('+1 day')->modify('last monday');
         $this->pdf = new Pdf();
 
         if ($request->customer_id == 0) {
             $customers = Customer::all();
             $customersAdded = 0;
             foreach ($customers as $customer) {
-                $monday = $date->modify('+1 day')->modify('last monday');
-                $sunday = clone $monday;
-                $sunday = $sunday->modify('next sunday');
-                $hours = Rapportdetail::join('rapport', function ($join) use ($customer) {
-                    $join->on('rapport.id', '=', 'rapportdetail.rapport_id')
-                        ->where('rapport.customer_id', '=', $customer->id);
-                })->where('date', '>=', $monday->format('Y-m-d'))
-                    ->where('date', '<=', $sunday->format('Y-m-d'))->sum('hours');
-                if ($hours > 0) {
-                    if ($customersAdded > 0) {
-                        $this->pdf->addPage();
+                $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
+                if ($rapport) {
+                    $hours = $rapport->rapportdetails->sum('hours');
+                    if ($hours > 0) {
+                        if ($customersAdded > 0) {
+                            $this->pdf->addPage();
+                        }
+                        $this->weekRapportForSingleCustomer($rapport);
+                        $customersAdded++;
                     }
-                    $this->weekRapportForSingleCustomer($customer, $date);
-                    $customersAdded++;
                 }
             }
             $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
             $customer = Customer::find($request->customer_id);
-            $this->weekRapportForSingleCustomer($customer, $date);
+            $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
+            $this->weekRapportForSingleCustomer($rapport);
             $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
-        $this->pdf->export('test.pdf');
     }
 
-    private function weekRapportForSingleCustomer($customer, $date)
+    private function weekRapportForSingleCustomer($rapport)
     {
-        $monday = $date->modify('+1 day')->modify('last monday');
+        $monday = new \DateTime($rapport->startdate);
         $sunday = clone $monday;
         $sunday = $sunday->modify('next sunday');
-        $this->pdf->documentTitle("KW: {$date->format('W')} / {$monday->format('d.m.Y')} - {$sunday->format('d.m.Y')}");
-        $this->pdf->documentTitle("$customer->customer_number $customer->lastname $customer->firstname");
+        $this->pdf->documentTitle("KW: {$monday->format('W')} / {$monday->format('d.m.Y')} - {$sunday->format('d.m.Y')}");
+        $this->pdf->documentTitle("{$rapport->customer->customer_number} {$rapport->customer->lastname} {$rapport->customer->firstname}");
+        $header = ['Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
 
-        $rappordetails = Rapportdetail::join('rapport', function ($join) use ($customer) {
-            $join->on('rapport.id', '=', 'rapportdetail.rapport_id')
-                ->where('rapport.customer_id', '=', $customer->id);
-        })->where('date', '>=', $monday->format('Y-m-d'))
-            ->where('date', '<=', $sunday->format('Y-m-d'));
-
-        $totalHours = (clone $rappordetails)->sum('hours');
+        $totalHours = (clone $rapport->rapportdetails)->sum('hours');
         $this->pdf->documentTitle("Stunden: $totalHours");
 
-        $meals = (clone $rappordetails)->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
+        $meals = (clone $rapport->rapportdetails)->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
         $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
+        if ($rapport->customer->needs_payment_order) {
+            $this->pdf->documentTitle("Einzahlungsschein erwünscht");
+        }
         $this->pdf->newLine();
 
-        $lines = [['Stunden'], ['Verpflegungen']];
-        $currentDay = clone $monday;
-        for ($i = 0; $i < 7; $i++) {
-            $hours = (clone $rappordetails)->where('date', '=', $currentDay->format('Y-m-d'))->sum('hours');
-            array_push($lines[0], $hours);
-            $currentDay->modify('+1 day');
-        }
+        $timePerDay = ['Totale Stunden', 0, 0, 0, 0, 0, 0];
+        $lines = [$comments];
+        $rapportdetailsGruped = $rapport->rapportdetails->groupBy('employee_id');
 
         $currentDay = clone $monday;
-        for ($i = 0; $i < 7; $i++) {
-            $meals = (clone $rappordetails)->where('date', '=', $currentDay->format('Y-m-d'))
+        $mealsPerDay = ['Verpflegungen'];
+        for ($i = 0; $i < 6; $i++) {
+            $meals = (clone $rapport->rapportdetails)->where('date', '=', $currentDay->format('Y-m-d'))
                 ->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
-            array_push($lines[1], $meals);
+            array_push($mealsPerDay, $meals);
             $currentDay->modify('+1 day');
         }
+        array_push($lines, $mealsPerDay);
 
-        $titles = $this->dayNames;
-        array_unshift($titles, 'Wochentag');
-        $this->pdf->table($titles, $lines);
-        $rappordetailsByProjects = (clone $rappordetails)->get()->groupBy('project_id')->toArray();
+        foreach ($rapportdetailsGruped as $rapportdetails) {
+            $cells = [$rapportdetails[0]->employee->name()];
+
+            $counter = 1;
+            foreach ($rapportdetails as $rapportdetail) {
+                $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
+                // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
+                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein") {
+                    $cell = "{$cell} ({$rapportdetail->project->name})";
+                }
+                array_push($cells, $cell);
+                $timePerDay[$counter] += $rapportdetail->hours;
+                $counter++;
+            }
+            array_push($lines, $cells);
+        }
+
+        array_push($lines, $timePerDay);
+
+        $this->pdf->table($header, $lines, [], ['lastLineBold' => true]);
+
+        $rappordetailsByProjects = (clone $rapport->rapportdetails)->groupBy('project_id')->toArray();
         $rappordetailsByProjects = array_keys($rappordetailsByProjects);
         $projects = [];
         foreach ($rappordetailsByProjects as $projectId) {

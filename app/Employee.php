@@ -8,7 +8,7 @@ class Employee extends Model
 {
     public $table = "employee";
 
-    protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
+    protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy', 'isDeleted'];
 
     public function Rapportdetails()
     {

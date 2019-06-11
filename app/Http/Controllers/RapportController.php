@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Fpdf;
 use App\Project;
 use App\Rapport;
 use App\Customer;
@@ -45,17 +44,6 @@ class RapportController extends Controller
         $rapportWeeks = array_reverse($rapportWeeks);
 
         return $rapportWeeks;
-    }
-
-    // GET rapport/choosecustomer
-    public function chooseCustomer(Request $request)
-    {
-        $request->user()->authorizeRoles(['admin']);
-
-        $customers = Customer::all();
-        $date = $request->date;
-
-        return view('pages.admin.rapport.choose-customer', compact('customers', 'date'));
     }
 
     // GET rapport/week/{week}
@@ -103,9 +91,7 @@ class RapportController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $rapport->customer = $rapport->customer;
-        $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
-        $rapport->rapportdetails = array_values($rapport->rapportdetails);
+        $rapport = $this->rapportWithDetails($rapport);
 
         $employees = Employee::orderBy('lastname')->get();
 
@@ -171,15 +157,38 @@ class RapportController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $updatetKey = key($request->except('_token'));
+        if ($request->id) {
+            $rapport->update([
+                'comment_mo' => $request->comment_mo,
+                'comment_tu' => $request->comment_tu,
+                'comment_we' => $request->comment_we,
+                'comment_th' => $request->comment_th,
+                'comment_fr' => $request->comment_fr,
+                'comment_sa' => $request->comment_sa,
+                'isFinished' => $request->isFinished
+            ]);
+            foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
+                foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
+                    $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
+                    $rapportdetail->update([
+                        'hours' => $newRapportdetail['hours'],
+                        'foodtype_id' => $newRapportdetail['foodtype_id'],
+                        'project_id' => $newRapportdetail['project_id']
+                    ]);
+                }
+            }
+        } else {
+            $updatetKey = key($request->except('_token'));
 
-        $updatedValue = (string)$request->$updatetKey;
-        if ($updatedValue == '') {
-            $updatedValue = null;
+            $updatedValue = (string)$request->$updatetKey;
+            if ($updatedValue == '') {
+                $updatedValue = null;
+            }
+            $rapport->$updatetKey = $updatedValue;
+            $rapport->save();
         }
-        $rapport->$updatetKey = $updatedValue;
-        $rapport->save();
-        return Rapport::with('customer')->find($rapport->id);
+
+        return $this->rapportWithDetails(Rapport::find($rapport->id));
     }
 
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
@@ -248,5 +257,13 @@ class RapportController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $rapport->delete();
+    }
+
+    private function rapportWithDetails($rapport)
+    {
+        $rapport->customer = $rapport->customer;
+        $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+        $rapport->rapportdetails = array_values($rapport->rapportdetails);
+        return $rapport;
     }
 }

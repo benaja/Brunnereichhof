@@ -8,7 +8,7 @@ class Rapport extends Model
 {
     public $table = "rapport";
 
-    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment', 'default_project_id'];
+    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment_mo', 'default_project_id', 'comment_tu', 'comment_we', 'comment_th', 'comment_fr', 'comment_sa'];
 
     public function customer()
     {

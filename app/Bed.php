@@ -8,7 +8,7 @@ class Bed extends Model
 {
     public $table = "bed";
 
-    protected $fillable = ['name', 'width', 'places', 'comment'];
+    protected $fillable = ['name', 'width', 'places', 'comment', 'isDeleted'];
 
     public function room()
     {
