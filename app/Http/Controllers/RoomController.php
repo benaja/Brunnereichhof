@@ -162,4 +162,26 @@ class RoomController extends Controller
 
         Room::destroy($id);
     }
+
+    public function getRoomsWithBooking($date)
+    {
+        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+
+        $date = new \DateTime($date);
+
+        $reservations = Reservation::with('Employee')
+            ->with('BedRoomPivot.Bed')
+            ->with('BedRoomPivot.Room')
+            ->where('entry', '<=', $date->format('Y-m-d'))
+            ->where('exit', '>=', $date->format('Y-m-d'))
+            ->get()
+            ->groupBy('BedRoomPivot.room_id')
+            ->toArray();
+
+        usort($reservations, function ($a, $b) {
+            return $a[0]['bed_room_pivot']['room']['number'] <=> $b[0]['bed_room_pivot']['room']['number'];
+        });
+
+        return $reservations;
+    }
 }

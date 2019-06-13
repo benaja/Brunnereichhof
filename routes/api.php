@@ -76,6 +76,7 @@ Route::resource('/hourrecord', 'HourrecordController');
 Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
 Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
 Route::get('/rooms/{id}/beds', 'RoomController@beds');
+Route::get('/rooms/reservations/{date}', 'RoomController@getRoomsWithBooking');
 Route::resource('/rooms', 'RoomController');
 
 Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');

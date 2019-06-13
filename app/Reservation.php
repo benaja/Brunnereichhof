@@ -14,7 +14,7 @@ class Reservation extends Model
     public function beds()
     {
         return $this->join('bed_room', 'bed_room.id', '=', 'reservation.bed_room_id')
-            ->join('bed', 'beed.id', '=', 'bed_room.bed_id');
+            ->join('bed', 'bed.id', '=', 'bed_room.bed_id');
     }
 
     public function bedRoomPivot()
