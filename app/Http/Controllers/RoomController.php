@@ -80,7 +80,6 @@ class RoomController extends Controller
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $room = Room::find($roomId);
-        // $test = $room->beds()->attach($bedId);
 
         $pivot = BedRoomPivot::create();
         $pivot->room()->associate($roomId);
@@ -169,19 +168,58 @@ class RoomController extends Controller
 
         $date = new \DateTime($date);
 
-        $reservations = Reservation::with('Employee')
-            ->with('BedRoomPivot.Bed')
-            ->with('BedRoomPivot.Room')
-            ->where('entry', '<=', $date->format('Y-m-d'))
-            ->where('exit', '>=', $date->format('Y-m-d'))
+        $rooms = Room::with(array('BedRoomPivot.Reservations' => function ($query) use ($date) {
+            $query->with('Employee');
+            // $query->join('reservation', 'reservation.bed_room_id', '=', 'bed_room.id');
+            $query->where('reservation.entry', '<=', $date->format('Y-m-d'));
+            $query->where('reservation.exit', '>=', $date->format('Y-m-d'));
+        }))->with('BedRoomPivot.Bed')
+            ->orderBy('number')
             ->get()
-            ->groupBy('BedRoomPivot.room_id')
             ->toArray();
 
-        usort($reservations, function ($a, $b) {
-            return $a[0]['bed_room_pivot']['room']['number'] <=> $b[0]['bed_room_pivot']['room']['number'];
-        });
+        foreach ($rooms as &$room) {
+            $room['bedsWithReservation'] = [];
+            foreach ($room["bed_room_pivot"] as &$bedRoomPivot) {
+                $freePlacesInBed = $bedRoomPivot["bed"]["places"] - count($bedRoomPivot["reservations"]);
+                if ($freePlacesInBed > 0) {
+                    $empyReservation = [
+                        'freePlaces' => $freePlacesInBed,
+                        'bedName' => $bedRoomPivot["bed"]["name"]
+                    ];
+                    array_push($room['bedsWithReservation'], $empyReservation);
+                }
+                foreach ($bedRoomPivot["reservations"] as $reservation) {
+                    $reservation['bed'] = $bedRoomPivot['bed'];
+                    array_push($room['bedsWithReservation'], $reservation);
+                }
+            }
+            usort($room['bedsWithReservation'], function ($a, $b) {
+                if (isset($a['employee']) && isset($b['employee'])) {
+                    $comparison = strcasecmp($a['employee']['lastname'], $b['employee']['lastname']);
+                    return $comparison;
+                } else if (isset($a['employee'])) return -1;
+                else if (isset($b['employee'])) return 1;
+                else return 0;
+            });
+        }
 
-        return $reservations;
+        return $rooms;
+
+
+        // $reservations = Reservation::with('Employee')
+        //     ->with('BedRoomPivot.Bed')
+        //     ->with('BedRoomPivot.Room')
+        //     ->where('entry', '<=', $date->format('Y-m-d'))
+        //     ->where('exit', '>=', $date->format('Y-m-d'))
+        //     ->get()
+        //     ->groupBy('BedRoomPivot.room_id')
+        //     ->toArray();
+
+        // usort($reservations, function ($a, $b) {
+        //     return $a[0]['bed_room_pivot']['room']['number'] <=> $b[0]['bed_room_pivot']['room']['number'];
+        // });
+
+        // return $reservations;
     }
 }

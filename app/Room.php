@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Pivots\BedRoomPivot;
 
 class Room extends Model
 {
@@ -13,5 +14,10 @@ class Room extends Model
     public function beds()
     {
         return $this->belongsToMany(Bed::class)->withPivot('id');;
+    }
+
+    public function bedRoomPivot()
+    {
+        return $this->hasMany(BedRoomPivot::class);
     }
 }
