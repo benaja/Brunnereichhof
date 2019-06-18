@@ -9,9 +9,10 @@ class Pdf extends Fpdf
   private $documentWidth = 270;
   private $pageBreakeWidth = 180;
   private $landscape = 'L';
+  private $topOfTable = 0;
   public $textSize = 11;
   public $titleSize = 15;
-  private $topOfTable = 0;
+  public $textToInsertOnPageBreak = "";
 
   public function __construct($landscape = 'L')
   {
@@ -67,7 +68,7 @@ class Pdf extends Fpdf
     Fpdf::SetDrawColor(200);
     $this->tableHeader($titles, $cellsWidth);
 
-    Fpdf::SetFont('Raleway', '', $this->textSize);
+    $this->setTableDefaultStyle();
     foreach ($lines as $index => $line) {
       if ($index == count($lines) - 1 && isset($options['lastLineBold'])) {
         Fpdf::SetFont('Raleway', 'B', $this->textSize);
@@ -76,6 +77,7 @@ class Pdf extends Fpdf
       if (Fpdf::GetY() >= $this->pageBreakeWidth) {
         $this->verticalLines($cellsWidth);
         $this->addPage();
+        $this->insertPageBreakTextIfNeeded();
         $this->topOfTable = Fpdf::GetY();
         Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
       }
@@ -156,5 +158,22 @@ class Pdf extends Fpdf
       Fpdf::SetX(Fpdf::GetX() + $cellWidth);
     }
     Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX(), Fpdf::GetY());
+  }
+
+  private function insertPageBreakTextIfNeeded()
+  {
+    if ($this->textToInsertOnPageBreak !== "") {
+      $this->documentTitle($this->textToInsertOnPageBreak);
+      $this->newLine();
+      $this->setTableDefaultStyle();
+    }
+  }
+
+  private function setTableDefaultStyle()
+  {
+    Fpdf::SetTextColor(0);
+    Fpdf::SetDrawColor(200);
+
+    Fpdf::SetFont('Raleway', '', $this->textSize);
   }
 }

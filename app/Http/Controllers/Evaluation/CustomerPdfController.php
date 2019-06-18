@@ -67,6 +67,7 @@ class CustomerPdfController extends Controller
 
     private function weekRapportForSingleCustomer($rapport)
     {
+        $this->pdf->textToInsertOnPageBreak = "{$rapport->customer->customer_number} {$rapport->customer->lastname} {$rapport->customer->firstname}";
         $monday = new \DateTime($rapport->startdate);
         $sunday = clone $monday;
         $sunday = $sunday->modify('next sunday');

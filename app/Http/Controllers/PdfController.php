@@ -42,7 +42,7 @@ class PdfController extends Controller
         if (isset($request->workerId)) {
             array_push($workers, User::find($request->workerId));
         } else {
-            foreach (User::workers()->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE) as $worker) {
+            foreach (User::workers()->orderby('lastname')->get() as $worker) {
                 if ($worker->totalHours($firstDayOfMonth) > 0) {
                     array_push($workers, $worker);
                 }
@@ -203,7 +203,10 @@ class PdfController extends Controller
         $lastdate->modify('last day of this month');
 
         $rapportdetails = Rapportdetail::where('date', '>=', $firstdate->format('Y-m-d'))
-            ->where('date', '<=', $lastdate->format('Y-m-d'))->get();
+            ->where('date', '<=', $lastdate->format('Y-m-d'))
+            ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
+            ->orderBy('lastname')
+            ->get();
 
         $this->pdf = new Pdf();
         $monthName = $this->monthNames[intval($firstdate->format('m')) - 1];
@@ -412,6 +415,7 @@ class PdfController extends Controller
         $this->pdf->newLine();
         $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen'];
         $employees = $rapportdetails->groupBy('employee_id');
+
         $lines = [];
         foreach ($employees as $rapportdetailsByEmployee) {
             $totalHours = $rapportdetailsByEmployee->sum('hours');

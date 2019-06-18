@@ -30,13 +30,16 @@ class RapportController extends Controller
         foreach ($rapports as $rapportGroup) {
             $date = new \DateTime($rapportGroup[0]->startdate);
             $isFinished = true;
+            $hours = 0;
             foreach ($rapportGroup as $rapport) {
                 if ($rapport->isFinished == 0) {
                     $isFinished = false;
                 }
+                $hours += $rapport->hours();
             }
             $week = [
                 'date' => $date,
+                'hours' => $hours,
                 'isFinished' => $isFinished
             ];
             array_push($rapportWeeks, $week);

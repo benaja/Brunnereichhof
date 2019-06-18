@@ -24,4 +24,9 @@ class Rapport extends Model
     {
         return $this->belongsTo(Project::class, 'default_project_id');
     }
+
+    public function hours()
+    {
+        return $this->rapportdetails->sum('hours');
+    }
 }
