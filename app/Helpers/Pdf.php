@@ -23,7 +23,7 @@ class Pdf extends Fpdf
     Fpdf::SetLineWidth(.3);
     Fpdf::AddFont('Raleway', '', 'Raleway-Regular.php');
     Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
-    // Fpdf::AddFont('Raleway','I', 'Raleway-Italic.php');
+    Fpdf::AddFont('Raleway', 'I', 'Raleway-Italic.php');
 
     Fpdf::SetFont('Raleway', '', $this->titleSize);
   }
@@ -44,6 +44,17 @@ class Pdf extends Fpdf
     Fpdf::SetTextColor(0);
     Fpdf::SetFont('Raleway', $fontStile, $textSize);
     Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
+  }
+
+  public function paragraph($text, $textSize = 0, $fontStile = '')
+  {
+    if ($textSize == 0) {
+      $textSize = $this->textSize;
+    }
+    Fpdf::SetDrawColor(255);
+    Fpdf::SetTextColor(0);
+    Fpdf::SetFont('Raleway', $fontStile, $textSize);
+    Fpdf::MultiCell($this->documentWidth, $textSize / 1.8, utf8_decode($text), 0, 'L', false);
   }
 
   public function table($titles, $lines, $cellsWidth = [], $options = [])

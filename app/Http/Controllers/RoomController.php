@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Bed;
+use App\Room;
+use App\Helpers\Pdf;
+use App\Reservation;
+use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Room;
-use App\Bed;
 use Illuminate\Support\Facades\DB;
-use App\Pivots\BedRoomPivot;
-use App\Reservation;
 
 class RoomController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('jwt.auth');
-    }
-
     public function index()
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
@@ -162,12 +158,44 @@ class RoomController extends Controller
         Room::destroy($id);
     }
 
-    public function getRoomsWithBooking($date)
+    // GET /rooms/reservation/{date}
+    public function evaluation($date)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
         $date = new \DateTime($date);
 
+        return $this->getRoomsforEvaluation($date);
+    }
+
+    // GET /rooms/evaluation/{date}/pdf
+    public function evaluationPdf(Request $request, $date)
+    {
+        Pdf::validateToken($request->token);
+
+        $date = new \DateTime($date);
+        $rooms = $this->getRoomsforEvaluation($date);
+        $pdf = new Pdf('P');
+
+        $pdf->documentTitle('Raum-Auswertung');
+        $pdf->documentTitle("Datum: {$date->format('d.m.Y')}");
+
+        foreach ($rooms as $room) {
+            $pdf->newLine();
+            $pdf->paragraph("{$room['number']} / {$room['name']} ({$room['location']})", 0, 'B');
+            foreach ($room['bedsWithReservation'] as $reservation) {
+                if (isset($reservation['employee'])) {
+                    $pdf->paragraph("{$reservation['employee']['lastname']} {$reservation['employee']['firstname']} ({$reservation['bed']['name']}");
+                } else if ($request->showFreeBeds === "true") {
+                    $pdf->paragraph("{$reservation['bedName']} (Freie Plätze: {$reservation['freePlaces']})", 0, 'I');
+                }
+            }
+        }
+        $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
+    }
+
+    private function getRoomsforEvaluation(\DateTime $date)
+    {
         $rooms = Room::with(array('BedRoomPivot.Reservations' => function ($query) use ($date) {
             $query->with('Employee');
             // $query->join('reservation', 'reservation.bed_room_id', '=', 'bed_room.id');
@@ -178,6 +206,11 @@ class RoomController extends Controller
             ->get()
             ->toArray();
 
+        return $this->sortAndFormatRoomsForEvaluation($rooms);
+    }
+
+    private function sortAndFormatRoomsForEvaluation($rooms)
+    {
         foreach ($rooms as &$room) {
             $room['bedsWithReservation'] = [];
             foreach ($room["bed_room_pivot"] as &$bedRoomPivot) {
@@ -205,21 +238,5 @@ class RoomController extends Controller
         }
 
         return $rooms;
-
-
-        // $reservations = Reservation::with('Employee')
-        //     ->with('BedRoomPivot.Bed')
-        //     ->with('BedRoomPivot.Room')
-        //     ->where('entry', '<=', $date->format('Y-m-d'))
-        //     ->where('exit', '>=', $date->format('Y-m-d'))
-        //     ->get()
-        //     ->groupBy('BedRoomPivot.room_id')
-        //     ->toArray();
-
-        // usort($reservations, function ($a, $b) {
-        //     return $a[0]['bed_room_pivot']['room']['number'] <=> $b[0]['bed_room_pivot']['room']['number'];
-        // });
-
-        // return $reservations;
     }
 }
