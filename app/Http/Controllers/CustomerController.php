@@ -221,7 +221,7 @@ class CustomerController extends Controller
         'driver_info' => 'nullable|string|max:500',
         'comment' => 'nullable|string|max:1000',
         'maps' => 'nullable|string|max:1000',
-        'customer_number' => 'nullable|string',
+        'customer_number' => 'nullable|numeric',
         'needs_payment_order' => 'nullable|boolean'
     ];
 }

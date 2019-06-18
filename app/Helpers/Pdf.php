@@ -79,7 +79,6 @@ class Pdf extends Fpdf
       } else {
         Fpdf::SetAutopageBreak(false);
       }
-      $this->tableLine($line, $cellsWidth);
       if (Fpdf::GetY() >= $this->pageBreakeWidth) {
         $this->verticalLines($cellsWidth);
         $this->addPage();
@@ -87,6 +86,7 @@ class Pdf extends Fpdf
         $this->topOfTable = Fpdf::GetY();
         Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
       }
+      $this->tableLine($line, $cellsWidth);
     }
     $this->verticalLines($cellsWidth);
     Fpdf::Ln();
