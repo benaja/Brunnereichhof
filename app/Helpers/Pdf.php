@@ -71,6 +71,13 @@ class Pdf extends Fpdf
 
     $this->setTableDefaultStyle();
     foreach ($lines as $index => $line) {
+      if (Fpdf::GetY() >= $this->pageBreakeWidth) {
+        $this->verticalLines($cellsWidth);
+        $this->addPage();
+        $this->insertPageBreakTextIfNeeded();
+        $this->topOfTable = Fpdf::GetY();
+        Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
+      }
       if ($index == count($lines) - 1 && isset($options['lastLineBold'])) {
         Fpdf::SetFont('Raleway', 'B', $this->textSize);
       }
@@ -78,13 +85,6 @@ class Pdf extends Fpdf
         Fpdf::SetAutopageBreak(true);
       } else {
         Fpdf::SetAutopageBreak(false);
-      }
-      if (Fpdf::GetY() >= $this->pageBreakeWidth) {
-        $this->verticalLines($cellsWidth);
-        $this->addPage();
-        $this->insertPageBreakTextIfNeeded();
-        $this->topOfTable = Fpdf::GetY();
-        Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
       }
       $this->tableLine($line, $cellsWidth);
     }
