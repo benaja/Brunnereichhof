@@ -119,7 +119,7 @@ class CustomerPdfController extends Controller
 
         array_push($lines, $timePerDay);
 
-        $this->pdf->table($header, $lines, [], ['lastLineBold' => true]);
+        $this->pdf->table($header, $lines, [], ['lastLineBold' => true, 'lineBreakEnabledOnLines' => [0]]);
 
         $rappordetailsByProjects = (clone $rapport->rapportdetails)->groupBy('project_id')->toArray();
         $rappordetailsByProjects = array_keys($rappordetailsByProjects);

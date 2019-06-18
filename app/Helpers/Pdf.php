@@ -27,6 +27,7 @@ class Pdf extends Fpdf
     Fpdf::AddFont('Raleway', 'I', 'Raleway-Italic.php');
 
     Fpdf::SetFont('Raleway', '', $this->titleSize);
+    Fpdf::SetAutopageBreak(false);
   }
 
   public static function validateToken($token)
@@ -72,6 +73,11 @@ class Pdf extends Fpdf
     foreach ($lines as $index => $line) {
       if ($index == count($lines) - 1 && isset($options['lastLineBold'])) {
         Fpdf::SetFont('Raleway', 'B', $this->textSize);
+      }
+      if (isset($options['lineBreakEnabledOnLines']) && in_array($index + 1, $options['lineBreakEnabledOnLines'])) {
+        Fpdf::SetAutopageBreak(true);
+      } else {
+        Fpdf::SetAutopageBreak(false);
       }
       $this->tableLine($line, $cellsWidth);
       if (Fpdf::GetY() >= $this->pageBreakeWidth) {
