@@ -55,7 +55,6 @@ class Pdf extends Fpdf
   public function paragraph($text, $textSize = 0, $fontStile = '', $options = [])
   {
     if (isset($options['rows']) && $this->topRowPosition === 0) $this->topRowPosition = Fpdf::GetY();
-
     Fpdf::SetAutopageBreak(false);
     if ($textSize == 0) {
       $textSize = $this->textSize;
@@ -69,6 +68,7 @@ class Pdf extends Fpdf
       if (isset($options['rows']) && $this->currentRow < $options['rows'] - 1) {
         $this->currentRow++;
         Fpdf::SetY($this->topRowPosition);
+        Fpdf::SetX($this->pagePaddingLeft + $this->documentWidth / $options['rows'] * $this->currentRow);
       } else {
         $this->currentRow = 0;
         Fpdf::SetX($this->pagePaddingLeft);
