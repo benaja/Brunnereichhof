@@ -48,12 +48,16 @@ class Pdf extends Fpdf
     Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
   }
 
-  public function paragraph($text, $textSize = 0, $fontStile = '')
+  public function paragraph($text, $textSize = 0, $fontStile = '', $linesOnSamePage = 0)
   {
-    Fpdf::SetAutopageBreak(true);
+    Fpdf::SetAutopageBreak(false);
     if ($textSize == 0) {
       $textSize = $this->textSize;
     }
+    if (Fpdf::GetY() >= $this->pageBreakeWidth + $textSize - $linesOnSamePage * $textSize) {
+      $this->addPage();
+    }
+
     Fpdf::SetDrawColor(255);
     Fpdf::SetTextColor(0);
     Fpdf::SetFont('Raleway', $fontStile, $textSize);

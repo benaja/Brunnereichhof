@@ -182,10 +182,10 @@ class RoomController extends Controller
 
         foreach ($rooms as $room) {
             $pdf->newLine();
-            $pdf->paragraph("{$room['number']} / {$room['name']} ({$room['location']})", 0, 'B');
+            $pdf->paragraph("{$room['number']} / {$room['name']} ({$room['location']})", 0, 'B', count($room['bedsWithReservation']) - 1);
             foreach ($room['bedsWithReservation'] as $reservation) {
                 if (isset($reservation['employee'])) {
-                    $pdf->paragraph("{$reservation['employee']['lastname']} {$reservation['employee']['firstname']} ({$reservation['bed']['name']}");
+                    $pdf->paragraph("{$reservation['employee']['lastname']} {$reservation['employee']['firstname']} ({$reservation['bed']['name']})");
                 } else if ($request->showFreeBeds === "true") {
                     $pdf->paragraph("{$reservation['bedName']} (Freie Plätze: {$reservation['freePlaces']})", 0, 'I');
                 }
