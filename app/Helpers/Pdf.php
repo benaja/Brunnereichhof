@@ -27,7 +27,7 @@ class Pdf extends Fpdf
     Fpdf::AddFont('Raleway', 'I', 'Raleway-Italic.php');
 
     Fpdf::SetFont('Raleway', '', $this->titleSize);
-    Fpdf::SetAutopageBreak(false);
+    Fpdf::SetAutopageBreak(true);
   }
 
   public static function validateToken($token)
@@ -50,6 +50,7 @@ class Pdf extends Fpdf
 
   public function paragraph($text, $textSize = 0, $fontStile = '')
   {
+    Fpdf::SetAutopageBreak(true);
     if ($textSize == 0) {
       $textSize = $this->textSize;
     }
