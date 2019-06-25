@@ -10,6 +10,9 @@ class Pdf extends Fpdf
   private $pageBreakeWidth = 180;
   private $landscape = 'L';
   private $topOfTable = 0;
+  private $pagePaddingLeft = 0;
+  private $currentRow = 0;
+  private $topRowPosition = 0;
   public $textSize = 11;
   public $titleSize = 15;
   public $textToInsertOnPageBreak = "";
@@ -19,6 +22,7 @@ class Pdf extends Fpdf
     new Fpdf('P', 'mm', 'A4');
     $this->landscape = $landscape;
     $this->addPage();
+    $this->pagePaddingLeft = Fpdf::getX();
     Fpdf::SetFillColor(38, 166, 154);
     Fpdf::SetDrawColor(255);
     Fpdf::SetLineWidth(.3);
@@ -48,14 +52,28 @@ class Pdf extends Fpdf
     Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
   }
 
-  public function paragraph($text, $textSize = 0, $fontStile = '', $linesOnSamePage = 0)
+  public function paragraph($text, $textSize = 0, $fontStile = '', $options = [])
   {
+    if (isset($options['rows']) && $this->topRowPosition === 0) $this->topRowPosition = Fpdf::GetY();
+
     Fpdf::SetAutopageBreak(false);
     if ($textSize == 0) {
       $textSize = $this->textSize;
     }
-    if (Fpdf::GetY() >= $this->pageBreakeWidth + $textSize - $linesOnSamePage * $textSize) {
-      $this->addPage();
+
+    Fpdf::SetX($this->pagePaddingLeft + $this->documentWidth / $options['rows'] * $this->currentRow);
+    if (
+      isset($options['linesOnSamePage']) &&
+      Fpdf::GetY() >= $this->pageBreakeWidth + $textSize - $options['linesOnSamePage'] * $textSize
+    ) {
+      if (isset($options['rows']) && $this->currentRow < $options['rows'] - 1) {
+        $this->currentRow++;
+        Fpdf::SetY($this->topRowPosition);
+      } else {
+        $this->currentRow = 0;
+        Fpdf::SetX($this->pagePaddingLeft);
+        $this->addPage();
+      }
     }
 
     Fpdf::SetDrawColor(255);
