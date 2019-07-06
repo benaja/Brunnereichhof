@@ -17,7 +17,7 @@ class HourrecordController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
 
@@ -27,6 +27,15 @@ class HourrecordController extends Controller
                 'year' => (new \DateTime())->format('Y')
             ])->get()->groupBy('week');
         } else {
+            if (isset($request->sortBy) && $request->sortBy === 'customer') {
+                return Customer::with(array('Hourrecords' => function ($query) {
+                    $query->where('year', (new \DateTime())->format('Y'));
+                }))->where('isDeleted', false)->orderBy('lastname')->get();
+            } else if (isset($request->sortBy) && $request->sortBy === 'project') {
+                return Culture::with(['hourrecords' => function ($query) {
+                    $query->where('year', (new \DateTime())->format('Y'));
+                }])->orderBy('name')->get();
+            }
             return Hourrecord::with('culture')
                 ->where('year', (new \DateTime())->format('Y'))
                 ->get()->groupBy('week');
@@ -63,6 +72,7 @@ class HourrecordController extends Controller
                     'comment' => null,
                     'week' => $week['week'],
                     'year' => (new \DateTime)->format('Y'),
+                    'createdByAdmin' => false,
                     'customer_id' => auth()->user()->customer->id
                 ]);
             }
@@ -109,6 +119,7 @@ class HourrecordController extends Controller
             'comment' => $request->comment,
             'week' => $week,
             'year' => (new \DateTime)->format('Y'),
+            'createdByAdmin' => !(auth()->user()->authorization_id == AuthorizationType::Customer),
             'customer_id' => $customer->id
         ]);
 
@@ -117,7 +128,7 @@ class HourrecordController extends Controller
         $hourrecord->save();
         $hourrecord->customer = $hourrecord->customer;
 
-        return $hourrecord;
+        return Hourrecord::with('customer')->with('culture')->find($hourrecord->id);
     }
 
     // PATCH hourrecord/{id}
@@ -157,10 +168,12 @@ class HourrecordController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        return Hourrecord::with('culture')->with('customer')->where([
-            'year' => $year,
-            'week' => $week
-        ])->get()->groupBy('customer_id');
+        return Customer::with(['hourrecords' => function ($query) use ($year, $week) {
+            $query->with('culture')->where([
+                'year' => $year,
+                'week' => $week
+            ]);
+        }])->where('isDeleted', false)->get();
     }
 
     // DELETE hourrecord/{id}

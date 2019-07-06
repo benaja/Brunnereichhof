@@ -10,9 +10,8 @@ class Culture extends Model
 
     protected $fillable = ['name', 'isAutocomplete'];
 
-    public function hourrecord()
+    public function hourrecords()
     {
         return $this->hasMany(Hourrecord::class);
     }
-
 }
