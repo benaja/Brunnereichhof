@@ -56,11 +56,18 @@ class CustomerPdfController extends Controller
                     }
                 }
             }
+            if ($customersAdded == 0) {
+                $this->pdf->documentTitle("Keine Einträge vorhanden in dieser Woche.");
+            }
             $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
             $customer = Customer::find($request->customer_id);
             $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
-            $this->weekRapportForSingleCustomer($rapport);
+            if ($rapport) {
+                $this->weekRapportForSingleCustomer($rapport);
+            } else {
+                $this->pdf->documentTitle("Keine Enträge vorhanden für {$customer->lastname} {$customer->firstname} in der Woche {$date->format('W')}.");
+            }
             $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
     }

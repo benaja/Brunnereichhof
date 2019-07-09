@@ -187,7 +187,7 @@ class PdfController extends Controller
         $this->addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year);
         $this->addDetailsForAllMonths($employee, $year, $totalHoursOfMonths);
 
-        $this->pdf->export("Jahresrapport $year {$request->name}.pdf");
+        $this->pdf->export("Jahresrapport $year {$employee->lastname} {$employee->firstname}.pdf");
     }
 
     // GET overview/employee/month/{month}
@@ -224,7 +224,7 @@ class PdfController extends Controller
         Pdf::validateToken($request->token);
 
         $this->pdf = new Pdf();
-        $employees = Employee::where('isActive', true)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
+        $employees = Employee::where('isActive', true)->where('isDeleted', false)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
         $numberOfEmployee = count($employees);
 
         $this->pdf->documentTitle("Mitarbeiterliste");

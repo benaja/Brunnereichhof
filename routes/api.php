@@ -13,9 +13,13 @@ Route::patch('customer/{id}/resetpassword', 'CustomerController@resetPassword');
 Route::resource('customer', 'CustomerController');
 
 // Employee
-Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
-Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
-Route::resource('employee', 'EmployeeController');
+Route::get('/employee/{employeeId}/evaluation/year/{year}', 'EmployeeController@employeeDayTotalsByYear');
+Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeController@employeeDayTotalsByMonth');
+Route::middleware(['jwt.auth'])->group(function () {
+    Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
+    Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
+    Route::resource('employee', 'EmployeeController');
+});
 
 // Worker
 Route::resource('/worker', 'WorkerController');
