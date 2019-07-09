@@ -288,7 +288,7 @@ class EmployeeController extends Controller
         $this->pdf->documentTitle("{$monthName} {$date->format('Y')}");
 
         $this->pdf->newLine();
-        $this->pdf->table($titles, $lines);
+        $this->pdf->table($titles, $lines, [0.7, 1.5, 1, 1, 0.8]);
         return true;
     }
 
