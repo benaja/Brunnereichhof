@@ -248,28 +248,30 @@ class EmployeeController extends Controller
             $cells = [$date->format('d.m.Y')];
             $totalHours = 0;
             foreach ($rapportdetails as $rapportdetail) {
-                $customer = $rapportdetail->rapport->customer;
-                array_push($cells, "{$customer->lastname} {$customer->firstname}");
-
-                $projectName = $rapportdetail->project ? $rapportdetail->project->name : "";
-                array_push($cells, $projectName);
-
-                $footType = "Eichhof";
-                if ($rapportdetail->foodtype_id === FoodTypeEnum::Customer) $footType = "Kunde";
-                if ($rapportdetail->foodtype_id === FoodTypeEnum::None) $footType = "Keine Angabe";
-                array_push($cells, $footType);
-
                 $hours = $rapportdetail->hours ? $rapportdetail->hours : 0;
-                if (count($rapportdetails) > 1) {
-                    array_push($cells, $hours);
-                } else {
-                    array_push($cells, "Total: $hours");
+                if ($hours > 0) {
+                    $customer = $rapportdetail->rapport->customer;
+                    array_push($cells, "{$customer->lastname} {$customer->firstname}");
+
+                    $projectName = $rapportdetail->project ? $rapportdetail->project->name : "";
+                    array_push($cells, $projectName);
+
+                    $footType = "Eichhof";
+                    if ($rapportdetail->foodtype_id === FoodTypeEnum::Customer) $footType = "Kunde";
+                    if ($rapportdetail->foodtype_id === FoodTypeEnum::None) $footType = "Keine Angabe";
+                    array_push($cells, $footType);
+
+                    if (count($rapportdetails) > 1) {
+                        array_push($cells, $hours);
+                    } else {
+                        array_push($cells, "Total: $hours");
+                    }
+                    array_push($lines, $cells);
+                    $cells = [""];
+                    $totalHours += $rapportdetail->hours;
                 }
-                array_push($lines, $cells);
-                $cells = [""];
-                $totalHours += $rapportdetail->hours;
             }
-            if (count($rapportdetails) > 1) {
+            if (count($rapportdetails) > 1 && $totalHours > 0) {
                 array_push($lines, ['', '', '', '', "Total: $totalHours"]);
             }
         }
