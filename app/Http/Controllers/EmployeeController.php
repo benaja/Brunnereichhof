@@ -182,23 +182,31 @@ class EmployeeController extends Controller
         $this->pdf = new Pdf('P');
         $employee = Employee::find($employeeId);
 
+        if (!$employee) {
+            $this->pdf->error("Mitarbeiter konne nicht gefunden werden");
+            return;
+        }
+
         $year = new \DateTime($year);
         $firstDayOfMonth = clone $year;
         $firstDayOfMonth = $firstDayOfMonth->modify('first day of January this year');
 
-        $isFirstPage = true;
+        $monthsAdded = 0;
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
 
             $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
             if (count($lines) > 0) {
-                if (!$isFirstPage) $this->pdf->addPage();
-                else $isFirstPage = false;
+                if ($monthsAdded > 0) $this->pdf->addPage();
+                $monthsAdded++;
 
                 $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
             }
             $firstDayOfMonth->modify('first day of next month');
+        }
+        if ($monthsAdded == 0) {
+            $this->pdf->documentTitle("Keine Daten gefunden für dieses Jahr und diesen Mitarbeiter.");
         }
 
         $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$year->format('Y')}.pdf");
@@ -209,6 +217,10 @@ class EmployeeController extends Controller
         Pdf::validateToken($request->token);
         $this->pdf = new Pdf('P');
         $employee = Employee::find($employeeId);
+        if (!$employee) {
+            $this->pdf->error("Mitarbeiter konne nicht gefunden werden");
+            return;
+        }
 
         $month = new \DateTime($month);
         $firstDayOfMonth = $month->modify('first day of this month');
@@ -238,7 +250,10 @@ class EmployeeController extends Controller
             foreach ($rapportdetails as $rapportdetail) {
                 $customer = $rapportdetail->rapport->customer;
                 array_push($cells, "{$customer->lastname} {$customer->firstname}");
-                array_push($cells, $rapportdetail->project->name);
+
+                $projectName = $rapportdetail->project ? $rapportdetail->project->name : "";
+                array_push($cells, $projectName);
+
                 $footType = "Eichhof";
                 if ($rapportdetail->foodtype_id === FoodTypeEnum::Customer) $footType = "Kunde";
                 if ($rapportdetail->foodtype_id === FoodTypeEnum::None) $footType = "Keine Angabe";

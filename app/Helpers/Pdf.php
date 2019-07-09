@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 use Fpdf;
@@ -142,6 +143,12 @@ class Pdf extends Fpdf
   public function export($fileName)
   {
     Fpdf::Output('D', utf8_decode($fileName));
+  }
+
+  public function error($errorMessage)
+  {
+    $this->documentTitle($errorMessage);
+    $this->export('fehler.pdf');
   }
 
   private function tableHeader($titles, $cellsWidth)
