@@ -10,4 +10,5 @@ final class WorkTypeEnum extends Enum
     const Holydays = 2;
     const Sick = 3;
     const Accident = 4;
+    const Schoool = 5;
 }

@@ -9,11 +9,11 @@ use App\Employee;
 use App\Customer;
 use App\Helpers\Pdf;
 use App\Rapportdetail;
-use App\Enums\WorkTypeEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Enums\FoodTypeEnum;
+use App\Worktype;
 
 class PdfController extends Controller
 {
@@ -76,10 +76,11 @@ class PdfController extends Controller
             $this->pdf->documentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
             $this->pdf->documentTitle("Monat: $monthName");
             $this->pdf->documentTitle("Totale Arbeitsstunden: {$worker->totalHours($firstDayOfMonth)}h");
-            $this->pdf->documentTitle("Produktiv: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::ProductiveHours)}h", $this->pdf->textSize);
-            $this->pdf->documentTitle("Ferien: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Holydays)}h", $this->pdf->textSize);
-            $this->pdf->documentTitle("Krank: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Sick)}h", $this->pdf->textSize);
-            $this->pdf->documentTitle("Unfall: {$worker->totalHours($firstDayOfMonth, WorkTypeEnum::Accident)}h", $this->pdf->textSize);
+
+            $worktpyes = Worktype::all();
+            foreach ($worktpyes as $worktype) {
+                $this->pdf->documentTitle("{$worktype->name_de}: {$worker->totalHours($firstDayOfMonth,$worktype->id)}h", $this->pdf->textSize);
+            }
             $meals = $worker->getNumberOfMeals($firstDayOfMonth);
             $this->pdf->documentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}", $this->pdf->textSize);
             $this->pdf->newLine();
@@ -110,16 +111,11 @@ class PdfController extends Controller
                             }
                             $hours = $timerecord->totalHours();
                             $totalHoursOfWeek += $hours;
-                            $worktypeId = $timerecord->worktype() ? $timerecord->worktype()->id : null;
-                            $worktype = "";
-                            if ($worktypeId == WorkTypeEnum::Accident) {
-                                $worktype = "(U)";
-                            } else if ($worktypeId == WorkTypeEnum::Sick) {
-                                $worktype = "(K)";
-                            } else if ($worktypeId == WorkTypeEnum::Holydays) {
-                                $worktype = "(F)";
+                            $worktypeShortName = "";
+                            if ($timerecord->worktype() && $timerecord->worktype()->short_name) {
+                                $worktypeShortName = "({$timerecord->worktype()->short_name})";
                             }
-                            array_push($line, "{$hours} {$worktype}");
+                            array_push($line, "{$hours} {$worktypeShortName}");
                         }
                     }
                     $currentDay->modify('+1 day');

@@ -2,21 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Session;
-use App\User;
 use App\Hour;
 use App\Worktype;
-use App\Settings;
 use App\Timerecord;
 use App\Rules\ValidTime;
 use App\Enums\WorkTypeEnum;
-use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Validation\Validator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class TimeController extends Controller
 {
@@ -36,8 +27,6 @@ class TimeController extends Controller
             ['date' => $currentDate->format('Y-m-d'), 'user_id' => auth()->user()->id]
         );
 
-        $isMealDefault = auth()->user()->ismealdefault;
-        $totalHours = $timerecord->totalHours();
         $timerecord->horus = $timerecord->hours->load('worktype');
 
         foreach ($timerecord->hours as $hour) {

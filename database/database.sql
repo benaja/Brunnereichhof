@@ -25,7 +25,7 @@ create table settings(id int primary key auto_increment, `key` text, value text,
 
 create table timerecord(id int primary key auto_increment, user_id int, date date, lunch boolean, breakfast boolean, dinner boolean , comment text, updated_at datetime, created_at datetime, foreign key(user_id) references user(id) on delete cascade);
 
-create table worktype(id int primary key auto_increment, name varchar(100), name_de varchar(100));
+create table worktype(id int primary key auto_increment, name varchar(100), name_de varchar(100), color nvarchar(100), short_name nvarchar(10));
 
 create table hours(id int primary key auto_increment, timerecord_id int, `from` time, `to` time, worktype_id int, comment text, updated_at datetime, created_at datetime, foreign key(timerecord_id) references timerecord(id) on delete set null, foreign key(worktype_id) references worktype(id) on delete set null);
 
@@ -43,7 +43,7 @@ insert into authorization(name) values('customer'),('admin'),('worker'),('supera
 
 insert into foodtype(foodname) VALUE('eichhof'),('customer'),('none');
 
-insert into worktype(name, name_de) VALUE('productiveHours', 'Produktivstunden'), ('holidays', 'Ferien'), ('sick', 'Krank'), ('accident', 'Unfall');
+insert into worktype(name, name_de) VALUE('productiveHours', 'Produktivstunden'), ('holidays', 'Ferien'), ('sick', 'Krank'), ('accident', 'Unfall'), ('school' 'Schule');
 
 insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten');
 
