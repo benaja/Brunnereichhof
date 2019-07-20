@@ -6,7 +6,7 @@ use App\Hourrecord;
 use App\Customer;
 use App\Culture;
 use Illuminate\Http\Request;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 use App\Settings;
 use App\Project;
 
@@ -21,7 +21,7 @@ class HourrecordController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             return Hourrecord::with('culture')->where([
                 'customer_id' => auth()->user()->customer->id,
                 'year' => (new \DateTime())->format('Y')
@@ -93,7 +93,7 @@ class HourrecordController extends Controller
             abort(400, 'the week can not be greater than 52');
         }
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $customer = auth()->user()->customer;
         } else {
             $customer = Customer::find($request->customer);
@@ -119,7 +119,7 @@ class HourrecordController extends Controller
             'comment' => $request->comment,
             'week' => $week,
             'year' => (new \DateTime)->format('Y'),
-            'createdByAdmin' => !(auth()->user()->authorization_id == AuthorizationType::Customer),
+            'createdByAdmin' => !(auth()->user()->type_id == UserTypeEnum::Customer),
             'customer_id' => $customer->id
         ]);
 
@@ -180,7 +180,7 @@ class HourrecordController extends Controller
     public function destroy($id)
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $this->validateEditeDate();
         }
 
@@ -197,7 +197,7 @@ class HourrecordController extends Controller
         $today = new \DateTime();
         $today->setTime(0, 0, 0);
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             if ($startDate > $today || $endDate < $today) {
                 return false;
             }

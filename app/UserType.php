@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Authorization extends Model
+class UserType extends Model
 {
-    public $table = "authorization";
+    public $table = "usertype";
 
     public function users()
     {

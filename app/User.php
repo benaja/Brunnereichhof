@@ -5,36 +5,31 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Enums\WorkTypeEnum;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 
 class User extends Authenticatable
 {
     use Notifiable;
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
     public $table = "user";
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'isDeleted', 'authorization_id'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'isDeleted', 'type_id', 'role_id'
     ];
 
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password', 'remember_token',
     ];
 
-    public function authorization()
+    public function type()
     {
-        return $this->belongsTo(Authorization::class);
+        return $this->belongsTo(UserType::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 
     public function customer()
@@ -47,29 +42,37 @@ class User extends Authenticatable
         return $this->hasMany(Timerecord::class);
     }
 
-    public function authorizeRoles($roles)
+    public function authorizeRoles($userTypes, $rules = [])
     {
         if ($this->isDeleted == 1) {
             return abort(401, 'This action is unauthorized.');
         }
-        if (is_array($roles)) {
+
+        if (count($rules) > 0 && $this->hasRule($rules)) return true;
+
+        if (is_array($userTypes)) {
             //$role = $roles[0];
             //var_dump($this->authorization()->where('name',$roles)->first());
-            return $this->hasAnyRole($roles) ||
+            return $this->isAnyType($userTypes) ||
                 abort(401, 'This action is unauthorized.');
         }
-        return $this->hasRole($roles) ||
+        return $this->isType($userTypes) ||
             abort(401, 'This action is unauthorized.');
     }
 
-    public function hasAnyRole($roles)
+    public function hasRule($rules)
     {
-        return null !== $this->authorization()->whereIn('name', $roles)->first();
+        return null !== $this->authorizationRules()->whereIn('name', $rules)->first();
     }
 
-    public function hasRole($role)
+    public function isAnyType($roles)
     {
-        return null !== $this->authorization()->where('name', $role)->first();
+        return null !== $this->type()->whereIn('name', $roles)->first();
+    }
+
+    public function isType($role)
+    {
+        return null !== $this->type()->where('name', $role)->first();
     }
 
     public function totalHoursOfThisMonth()
@@ -161,6 +164,6 @@ class User extends Authenticatable
 
     public static function workers()
     {
-        return User::where('authorization_id', AuthorizationType::Worker)->orWhere('authorization_id', AuthorizationType::Admin);
+        return User::where('type_id', UserTypeEnum::Worker);
     }
 }

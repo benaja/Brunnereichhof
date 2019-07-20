@@ -6,7 +6,7 @@ use App\User;
 use App\Authorization;
 use App\Mail\WorkerCreated;
 use Illuminate\Http\Request;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
@@ -23,8 +23,10 @@ class WorkerController extends Controller
     {
         auth()->user()->authorizeRoles(['admin', 'superadmin']);
 
-        $workers = User::where('isDeleted', false)->where('authorization_id', AuthorizationType::Worker)
-            ->orWhere('authorization_id', AuthorizationType::Admin)->where('isDeleted', false)->orderBy('lastname')->get();
+        $workers = User::where('isDeleted', false)
+            ->where('type_id', UserTypeEnum::Worker)
+            ->orderBy('lastname')
+            ->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();

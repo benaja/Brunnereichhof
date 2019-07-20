@@ -75,6 +75,9 @@ Route::get('/hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
 Route::post('/hourrecord/week/{week}', 'HourrecordController@createSingle');
 Route::resource('/hourrecord', 'HourrecordController');
 
+Route::get('rules', 'RoleController@getRules');
+Route::resource('roles', 'RoleController');
+
 
 // roomdispositioner
 Route::get('/rooms/evaluation/{date}/pdf', 'RoomController@evaluationPdf');
