@@ -102,7 +102,7 @@ class CustomerPdfController extends Controller
         for ($i = 0; $i < 6; $i++) {
             $meals = (clone $rapport->rapportdetails)->where('date', '=', $currentDay->format('Y-m-d'))
                 ->where('foodtype_id', '=', FoodTypeEnum::Customer)
-                ->where('hours', '>=', 0)
+                ->where('hours', '>', 0)
                 ->count();
 
             array_push($mealsPerDay, $meals);
