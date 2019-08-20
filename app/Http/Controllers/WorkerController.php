@@ -21,7 +21,7 @@ class WorkerController extends Controller
     // GET worker
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['worker_read']);
 
         $workers = User::where('isDeleted', false)
             ->where('type_id', UserTypeEnum::Worker)
@@ -44,7 +44,7 @@ class WorkerController extends Controller
     // POST worker
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
@@ -91,7 +91,7 @@ class WorkerController extends Controller
     // GET worker/{id}
     public function show(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_read']);
 
         $worker = User::find($id);
 
@@ -101,7 +101,7 @@ class WorkerController extends Controller
     // PATCH worker/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $user = User::find($id);
 
@@ -117,7 +117,7 @@ class WorkerController extends Controller
     // DELETE worker/{id}
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $worker = User::find($id);
 
@@ -126,7 +126,6 @@ class WorkerController extends Controller
             'password' => null
         ]);
     }
-
 
     //-- helpers --//
     private function checkIfUsernameExist($username)

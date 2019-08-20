@@ -21,7 +21,7 @@ class DashboardController extends Controller
 
     public function allStats()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin']);
 
         return [
             'employeeHoursByMonth' => $this->employeeHoursByMonth(),

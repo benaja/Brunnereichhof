@@ -19,7 +19,7 @@ class TimeController extends Controller
     // GET time
     public function index($date)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_read_write']);
 
         $currentDate = new \DateTime($date);
 
@@ -41,7 +41,7 @@ class TimeController extends Controller
     // GET time/week
     public function week($date)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_read_write']);
 
         $date = new \DateTime($date);
         $date->modify('monday this week');
@@ -68,7 +68,7 @@ class TimeController extends Controller
     // POST time
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_read_write']);
 
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
@@ -121,7 +121,7 @@ class TimeController extends Controller
     // PATCH time/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_read_write']);
 
         $hour = Hour::find($id);
         if ($hour->timerecord->user->id == auth()->user()->id) {
@@ -158,7 +158,7 @@ class TimeController extends Controller
     // DELETE time/{id}
     public function destroy(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_read_write']);
 
         $hour = Hour::find($id);
         $timerecordId = $hour->timerecord->id;
@@ -174,7 +174,7 @@ class TimeController extends Controller
 
     public function stats($date)
     {
-        auth()->user()->authorizeRoles(['worker', 'admin']);
+        auth()->user()->authorize(['worker', 'admin'], ['timerecord_stats']);
 
         if (strlen($date) == 7) {
             return [

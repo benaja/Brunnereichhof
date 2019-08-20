@@ -22,7 +22,7 @@ class RapportController extends Controller
     // GET rapport
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_read']);
 
         $rapports = Rapport::get()->sortBy('startdate')->groupBy('startdate');
 
@@ -53,7 +53,7 @@ class RapportController extends Controller
     // GET rapport/week/{week}
     public function showWeek(Request $request, $week)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_read']);
 
         $week = new \DateTime($week);
         $week->modify('monday this week');
@@ -68,7 +68,7 @@ class RapportController extends Controller
 
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         $week = new \DateTime($request->week);
         $week->modify('monday this week');
@@ -93,7 +93,7 @@ class RapportController extends Controller
     // GET rapport/{id}
     public function show(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_show']);
 
         $rapport = $this->rapportWithDetails($rapport);
 
@@ -107,7 +107,7 @@ class RapportController extends Controller
 
     public function addEmployee(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         $date = new \DateTime($rapport->startdate);
         $employee = Employee::find($request->employee_id);
@@ -146,7 +146,7 @@ class RapportController extends Controller
 
     public function removeEmployee(Rapport $rapport, Employee $employee)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         Rapportdetail::where([
             'rapport_id' => $rapport->id,
@@ -159,7 +159,7 @@ class RapportController extends Controller
     // PATCH rapport/{id}
     public function update(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         if ($request->id) {
             $rapport->update([
@@ -185,7 +185,7 @@ class RapportController extends Controller
             Log::info("start to update Rapport $rapport->id");
             $updatetKey = key($request->except('_token'));
 
-            $updatedValue = (string)$request->$updatetKey;
+            $updatedValue = (string) $request->$updatetKey;
             if ($updatedValue == '') {
                 $updatedValue = null;
             }
@@ -199,12 +199,13 @@ class RapportController extends Controller
 
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
+
         Log::info("start to update Rapportdetail $rapportdetail->id");
 
         $updatetKey = key($request->except('_token'));
 
-        $updatedValue = (string)$request->$updatetKey;
+        $updatedValue = (string) $request->$updatetKey;
         if ($updatedValue == '') {
             $updatedValue = null;
         }
@@ -227,7 +228,7 @@ class RapportController extends Controller
 
     public function updateMultibleRapportdetails(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         $rapportdetails = [];
         foreach ($request->rapportdetails as $newRapportdetail) {
@@ -242,7 +243,7 @@ class RapportController extends Controller
 
     public function daytotal($date)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_read']);
 
         $rapportdetailsByEmployee = Rapportdetail::with('employee')->where('date', '=', $date)->get()->groupBy('employee_id')->sortBy(function ($rapportdetails) {
             return $rapportdetails[0]->employee->lastname;
@@ -262,7 +263,7 @@ class RapportController extends Controller
     // DELETE /rapport/{id}
     public function destroy(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
 
         $rapport->delete();
     }

@@ -15,14 +15,14 @@ class RoomController extends Controller
 {
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_read']);
 
         return Room::with('beds')->get();
     }
 
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_write']);
 
         $this->validate($request, [
             'name' => 'required|max:100',
@@ -52,14 +52,14 @@ class RoomController extends Controller
 
     public function show($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_read']);
 
         return Room::with('beds.inventars')->find($id);
     }
 
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_write']);
 
         $room = Room::find($id);
         $updatetKey = key($request->except('_token'));
@@ -73,9 +73,7 @@ class RoomController extends Controller
 
     public function addBed($roomId, $bedId)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-
-        $room = Room::find($roomId);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_write']);
 
         $pivot = BedRoomPivot::create();
         $pivot->room()->associate($roomId);
@@ -87,13 +85,14 @@ class RoomController extends Controller
 
     public function removeBed($roomId, $pivotId)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_write']);
+
         DB::table('bed_room')->where('id', $pivotId)->delete();
     }
 
-    public function beds(Request $request, $id)
+    public function getBeds(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_read']);
 
         if (isset($request->entry)) {
             $beds = Room::find($id)->beds;
@@ -153,7 +152,7 @@ class RoomController extends Controller
 
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_write']);
 
         Room::destroy($id);
     }
@@ -161,7 +160,7 @@ class RoomController extends Controller
     // GET /rooms/reservation/{date}
     public function evaluation($date)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['roomdispositioner_read']);
 
         $date = new \DateTime($date);
 

@@ -84,7 +84,7 @@ Route::get('/rooms/evaluation/{date}/pdf', 'RoomController@evaluationPdf');
 Route::middleware(['jwt.auth'])->group(function () {
     Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
     Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
-    Route::get('/rooms/{id}/beds', 'RoomController@beds');
+    Route::get('/rooms/{id}/beds', 'RoomController@getBeds');
     Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
     Route::resource('/rooms', 'RoomController');
 });

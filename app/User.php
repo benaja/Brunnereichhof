@@ -42,7 +42,7 @@ class User extends Authenticatable
         return $this->hasMany(Timerecord::class);
     }
 
-    public function authorizeRoles($userTypes, $rules = [])
+    public function authorize($userTypes, $rules = [])
     {
         if ($this->isDeleted == 1) {
             return abort(401, 'This action is unauthorized.');
@@ -62,7 +62,7 @@ class User extends Authenticatable
 
     public function hasRule($rules)
     {
-        return null !== $this->authorizationRules()->whereIn('name', $rules)->first();
+        return $this->role && null !== $this->role->authorizationRules->whereIn('name', $rules)->first();
     }
 
     public function isAnyType($roles)

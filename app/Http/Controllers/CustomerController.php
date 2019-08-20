@@ -24,7 +24,8 @@ class CustomerController extends Controller
     // GET customer
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_read']);
+
         $customers = Customer::orderBy('lastname')->where('isDeleted', 0)->get();
 
         foreach ($customers as $customer) {
@@ -39,7 +40,7 @@ class CustomerController extends Controller
     // POST customer
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
 
         $this->validate($request, $this->validateArray);
         $this->validate($request, [
@@ -103,7 +104,7 @@ class CustomerController extends Controller
     // GET customer/{id}
     public function show(Request $request, Customer $customer)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_read']);
 
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
@@ -116,7 +117,7 @@ class CustomerController extends Controller
     //PATCH customer/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
 
         $this->validate($request, $this->validateArray);
 
@@ -164,7 +165,7 @@ class CustomerController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
 
         $customer = Customer::find($id);
 
@@ -184,7 +185,7 @@ class CustomerController extends Controller
     // DELETE customer/{id}
     public function destroy(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
 
         $customer = Customer::find($id);
         $customer->user->update([
@@ -197,14 +198,6 @@ class CustomerController extends Controller
     }
 
     //-- helpers --//
-    private function checkIfUsernameExist($username)
-    {
-        if (User::where('username', '=', $username)->count() > 0) {
-            return true;
-        }
-        return false;
-    }
-
     private $validateArray = [
         'firstname' => 'required|string|max:100',
         'lastname' => 'required|string|max:100',

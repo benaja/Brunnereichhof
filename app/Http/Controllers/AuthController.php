@@ -47,7 +47,7 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = User::with('role.authorizationRules')->find(Auth::user()->id);
+        $user = User::with('role.authorizationRules')->with('type')->find(Auth::user()->id);
         return response([
             'status' => 'success',
             'data' => $user

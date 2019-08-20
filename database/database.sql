@@ -135,5 +135,5 @@ insert into authorizationrule(name, name_de) value
   ('worker_write', 'Hofmitarbeiter schreiben'),
   ('settings_read', 'Einstellungen einsehen'),
   ('settings_write', 'Einstellungen schreiben'),
-  ('timerecord', 'Zeiterfassung'),
-  ('timerecord_read', 'Zeiterfassung Auswertung');
+  ('timerecord_read_write', 'Zeiterfassung'),
+  ('timerecord_stats', 'Zeiterfassung Auswertung');
