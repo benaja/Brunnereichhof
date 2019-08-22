@@ -19,7 +19,7 @@ class HourrecordController extends Controller
 
     public function index(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_read']);
 
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
             return Hourrecord::with('culture')->where([
@@ -46,7 +46,7 @@ class HourrecordController extends Controller
     // create multiple at once
     public function store(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_write']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         $hourrecords = auth()->user()->customer->hourrecords->where('year', (new \DateTime)->format('Y'));
@@ -86,7 +86,7 @@ class HourrecordController extends Controller
 
     public function createSingle(Request $request, $week)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_write']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         if ($week > 52) {
@@ -134,7 +134,7 @@ class HourrecordController extends Controller
     // PATCH hourrecord/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_write']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         $hourrecord = Hourrecord::find($id);
@@ -166,7 +166,7 @@ class HourrecordController extends Controller
 
     public function getByWeek($year, $week)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['hourrecord_read']);
+        auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
 
         return Customer::with(['hourrecords' => function ($query) use ($year, $week) {
             $query->with('culture')->where([
@@ -179,7 +179,7 @@ class HourrecordController extends Controller
     // DELETE hourrecord/{id}
     public function destroy($id)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_write']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $this->validateEditeDate();
         }

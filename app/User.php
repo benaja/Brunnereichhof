@@ -24,7 +24,7 @@ class User extends Authenticatable
 
     public function type()
     {
-        return $this->belongsTo(UserType::class);
+        return $this->belongsTo(UserType::class, 'type_id');
     }
 
     public function role()
@@ -54,10 +54,10 @@ class User extends Authenticatable
             //$role = $roles[0];
             //var_dump($this->authorization()->where('name',$roles)->first());
             return $this->isAnyType($userTypes) ||
-                abort(401, 'This action is unauthorized.');
+                abort(403, 'This action is forbidden.');
         }
         return $this->isType($userTypes) ||
-            abort(401, 'This action is unauthorized.');
+            abort(403, 'This action is forbidden.');
     }
 
     public function hasRule($rules)

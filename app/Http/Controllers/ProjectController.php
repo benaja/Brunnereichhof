@@ -15,7 +15,7 @@ class ProjectController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_read']);
+        auth()->user()->authorize(['superadmin'], ['rapport_read', 'customer_read']);
 
         $projects = Project::all();
 
@@ -25,7 +25,7 @@ class ProjectController extends Controller
     // GET project/customer/{customer}
     public function allByCustomer(Request $request, Customer $customer)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_read']);
+        auth()->user()->authorize(['superadmin'], ['rapport_read', 'customer_read']);
 
         return $customer->projects;
     }
@@ -33,7 +33,7 @@ class ProjectController extends Controller
     // POST project/add
     public function addToCustomer(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
+        auth()->user()->authorize(['superadmin'], ['rapport_write', 'customer_write']);
         $project = Project::find($request->projectId);
 
         if ($project == null) {
@@ -48,7 +48,7 @@ class ProjectController extends Controller
     // POST project
     public function store(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
+        auth()->user()->authorize(['superadmin'], ['rapport_write']);
         $project = Project::create([
             'name' => $request->title,
             'description' => $request->description
@@ -80,7 +80,7 @@ class ProjectController extends Controller
     // DELETE project/{projectName}/customer/{customerId}
     public function removeFromCustomer(Request $request, $projectId, Customer $customer)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['rapport_write']);
+        auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
         $project = Project::find($projectId);
 

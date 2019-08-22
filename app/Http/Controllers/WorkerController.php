@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
-use App\Authorization;
+use App\UserType;
 use App\Mail\WorkerCreated;
 use Illuminate\Http\Request;
 use App\Enums\UserTypeEnum;
@@ -21,7 +21,7 @@ class WorkerController extends Controller
     // GET worker
     public function index(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['worker_read']);
+        auth()->user()->authorize(['superadmin'], ['worker_read']);
 
         $workers = User::where('isDeleted', false)
             ->where('type_id', UserTypeEnum::Worker)
@@ -69,7 +69,7 @@ class WorkerController extends Controller
         }
 
         $password = str_random(8);
-        $authorization = Authorization::where('name', 'worker')->first();
+        $usertype = UserType::where('name', 'worker')->first();
         $user = User::create([
             'firstname' => request('firstname'),
             'lastname' => request('lastname'),
@@ -79,7 +79,7 @@ class WorkerController extends Controller
             'isPasswordChanged' => 0
         ]);
 
-        $authorization->users()->save($user);
+        $usertype->users()->save($user);
 
         $data['mail'] = $user->email;
         $data['password'] = $password;

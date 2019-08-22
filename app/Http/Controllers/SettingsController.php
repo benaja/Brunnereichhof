@@ -15,7 +15,7 @@ class SettingsController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['settings_read']);
+        auth()->user()->authorize(['superadmin'], ['settings_read']);
 
         $settings = Settings::allSettings();
 
@@ -24,7 +24,7 @@ class SettingsController extends Controller
 
     public function timeSettings()
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'worker'], ['settings_read']);
+        auth()->user()->authorize(['superadmin', 'worker'], ['settings_read']);
 
         $response = [
             'fullDayShortStart' => Settings::value('fullDayShortStart'),
@@ -39,7 +39,7 @@ class SettingsController extends Controller
 
     public function hourrecordSettings()
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['settings_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['settings_read']);
 
         return [
             'hourrecordStartDate' => Settings::value('hourrecordStartDate'),
@@ -56,7 +56,7 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['settings_write']);
+        auth()->user()->authorize(['superadmin'], ['settings_write']);
 
         $updatetKey = key($request->except('_token'));
 

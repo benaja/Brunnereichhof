@@ -51,7 +51,11 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
-        auth()->user()->authorize(['superadmin']);
+        if ($user->type->name == 'worker') {
+            auth()->user()->authorize(['superadmin'], ['worker_write']);
+        } else {
+            auth()->user()->authorize(['superadmin']);
+        }
 
         $password = str_random(8);
         $secret = encrypt($password);

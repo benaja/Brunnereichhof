@@ -14,7 +14,7 @@ class CultureController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_read']);
 
         $cultures = Culture::where('isAutocomplete', 1)->get();
 
@@ -24,7 +24,7 @@ class CultureController extends Controller
     // POST project
     public function store(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin', 'customer'], ['hourrecord_write']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
 
         return $request;
         $culture = Culture::find($request->culture->id);

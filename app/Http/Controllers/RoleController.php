@@ -16,7 +16,7 @@ class RoleController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_read']);
 
         return Role::all();
     }
@@ -84,8 +84,8 @@ class RoleController extends Controller
 
     public function getRules()
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin']);
 
-        return AuthorizationRule::all();
+        return AuthorizationRule::orderBy('name_de')->get();
     }
 }

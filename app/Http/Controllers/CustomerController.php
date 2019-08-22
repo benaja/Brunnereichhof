@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Project;
 use App\Customer;
-use App\Authorization;
+use App\UserType;
 use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use App\Mail\CustomerCreated;
@@ -24,7 +24,7 @@ class CustomerController extends Controller
     // GET customer
     public function index(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_read']);
+        auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read']);
 
         $customers = Customer::orderBy('lastname')->where('isDeleted', 0)->get();
 
@@ -40,7 +40,7 @@ class CustomerController extends Controller
     // POST customer
     public function store(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
+        auth()->user()->authorize(['superadmin'], ['customer_write']);
 
         $this->validate($request, $this->validateArray);
         $this->validate($request, [
@@ -51,7 +51,7 @@ class CustomerController extends Controller
         $password = str_random(8);
         $secret = encrypt($password);
 
-        $authorization = Authorization::where('name', 'customer')->first();
+        $usertype = UserType::where('name', 'customer')->first();
         $user = User::create([
             'firstname' => request('firstname'),
             'lastname' => request('lastname'),
@@ -59,7 +59,7 @@ class CustomerController extends Controller
             'username' => $request->customer_number,
             'password' => Hash::make($password)
         ]);
-        $authorization->users()->save($user);
+        $usertype->users()->save($user);
 
         $customer = Customer::create([
             'firstname' => request('firstname'),
@@ -104,7 +104,7 @@ class CustomerController extends Controller
     // GET customer/{id}
     public function show(Request $request, Customer $customer)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_read']);
+        auth()->user()->authorize(['superadmin'], ['customer_read']);
 
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
@@ -117,7 +117,7 @@ class CustomerController extends Controller
     //PATCH customer/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
+        auth()->user()->authorize(['superadmin'], ['customer_write']);
 
         $this->validate($request, $this->validateArray);
 
@@ -165,7 +165,7 @@ class CustomerController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
+        auth()->user()->authorize(['superadmin'], ['customer_write']);
 
         $customer = Customer::find($id);
 
@@ -185,7 +185,7 @@ class CustomerController extends Controller
     // DELETE customer/{id}
     public function destroy(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['customer_write']);
+        auth()->user()->authorize(['superadmin'], ['customer_write']);
 
         $customer = Customer::find($id);
         $customer->user->update([

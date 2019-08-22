@@ -21,7 +21,7 @@ class DashboardController extends Controller
 
     public function allStats()
     {
-        auth()->user()->authorize(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin']);
 
         return [
             'employeeHoursByMonth' => $this->employeeHoursByMonth(),
@@ -29,6 +29,29 @@ class DashboardController extends Controller
             'workerHoursByMonth' => $this->workerHoursByMonth(),
             'workerTotalNumbers' => $this->workerTotalNumbers()
         ];
+    }
+
+    public function roomdispositioner()
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $beds = BedRoomPivot::join('reservation', function ($join) {
+            $join->on('reservation.bed_room_id', '=', 'bed_room.id');
+        })->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
+            ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))->get();;
+
+        $allBeds = BedRoomPivot::with('bed')->get()->toArray();
+        $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
+            return $bedRoomPivot['bed']['places'];
+        }, $allBeds));
+
+        $stats = [
+            'freePlaces' => $amountOfAllBeds - count($beds),
+            'usedPlaces' => count($beds),
+            'totalPlaces' => $amountOfAllBeds
+        ];
+
+        return $stats;
     }
 
     private function employeeHoursByMonth()
@@ -128,28 +151,5 @@ class DashboardController extends Controller
             'hours' => round($hours, 2)
         ];
         return $response;
-    }
-
-    public function roomdispositioner()
-    {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-
-        $beds = BedRoomPivot::join('reservation', function ($join) {
-            $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-        })->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
-            ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))->get();;
-
-        $allBeds = BedRoomPivot::with('bed')->get()->toArray();
-        $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
-            return $bedRoomPivot['bed']['places'];
-        }, $allBeds));
-
-        $stats = [
-            'freePlaces' => $amountOfAllBeds - count($beds),
-            'usedPlaces' => count($beds),
-            'totalPlaces' => $amountOfAllBeds
-        ];
-
-        return $stats;
     }
 }

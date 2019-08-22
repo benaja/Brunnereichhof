@@ -16,7 +16,7 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_preview_read']);
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read']);
 
         $employees = [];
         if (isset($request->guests)) {
@@ -32,7 +32,7 @@ class EmployeeController extends Controller
     // POST employee
     public function store(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_write']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
         $this->validate(request(), $this->validateArray);
 
         $employee = Employee::create([
@@ -58,14 +58,14 @@ class EmployeeController extends Controller
     // GET employee/{id}
     public function show(Request $request, Employee $employee)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_read']);
+        auth()->user()->authorize(['superadmin'], ['employee_read']);
         return $employee;
     }
 
     // PATCH employee/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_write']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         $this->validate($request, $this->validateArray);
 
@@ -93,7 +93,7 @@ class EmployeeController extends Controller
     // POST employee/{id}/editimage
     public function uploadImage(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_write']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         if ($request->profileimage != null) {
             $employee = Employee::find($id);
@@ -132,7 +132,7 @@ class EmployeeController extends Controller
 
     public function deleteImage(Request $request, $id)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_write']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         $employee = Employee::find($id);
 
@@ -151,7 +151,7 @@ class EmployeeController extends Controller
     // DELETE employee/{id}
     public function destroy(Request $request, Employee $employee)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_write']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         if ($employee->profileimage != null) {
             $imagePath = public_path('profileimages/') . $employee->profileimage;
@@ -172,9 +172,8 @@ class EmployeeController extends Controller
     // GET employee/all
     public function all(Request $request)
     {
-        auth()->user()->authorize(['admin', 'superadmin'], ['employee_read']);
-        // todo: remove if everything works (20.08.2019)
-        // $request->user()->authorizeRoles(['admin']);
+        auth()->user()->authorize(['superadmin'], ['employee_read']);
+
 
         $employees = Employee::where('isActive', 1)->get();
 

@@ -17,14 +17,14 @@ class BedController extends Controller
 
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         return Bed::all();
     }
 
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $this->validate($request, [
             'name' => 'required|max:100',
@@ -62,14 +62,14 @@ class BedController extends Controller
 
     public function show($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         return Bed::with('inventars')->find($id);
     }
 
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $bed = Bed::find($id);
         $updatetKey = key($request->except('_token'));
@@ -83,7 +83,7 @@ class BedController extends Controller
 
     public function addInventar(Request $request, $bedId, $inventarId)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $bed = Bed::find($bedId);
         $inventar = $bed->inventars->where('id', $inventarId)->first();
@@ -107,7 +107,7 @@ class BedController extends Controller
 
     public function removeInventar(Request $request, $bedId, $inventarId)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $bed = Bed::find($bedId);
         $inventar = $bed->inventars->where('id', $inventarId)->first();
@@ -131,7 +131,7 @@ class BedController extends Controller
 
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         return Bed::destroy($id);
     }

@@ -72,8 +72,6 @@ class AuthController extends Controller
 
     public function generatePdfToken()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-
         $token = str_random(32);
         Cache::put('pdfToken', $token, 5);
 
