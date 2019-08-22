@@ -398,7 +398,6 @@ class PdfController extends Controller
         $rapportdetailsByEmployee = $rapportdetails->groupBy('employee_id');
         foreach ($rapportdetailsByEmployee as $details) {
             Fpdf::AddPage('L');
-            $this->pdf->documentTitle("Mitarbeiter: {$details[0]->employee->name()}");
             $totalHours = $details->sum('hours');
             $firstOfMonth = new \DateTime($rapportdetails[0]->date);
             $firstOfMonth->modify("first day of this month");
@@ -445,6 +444,7 @@ class PdfController extends Controller
 
         $titles = ['Zeitraum', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
+        $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
         $this->pdf->documentTitle("Monat: " . $montName);
         $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
         $totalFood = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee);
