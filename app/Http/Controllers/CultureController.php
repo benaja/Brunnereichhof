@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Culture;
-use App\Customer;
 use Illuminate\Http\Request;
-use App\Hourrecord;
 
 class CultureController extends Controller
 {
@@ -16,7 +14,7 @@ class CultureController extends Controller
 
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_read']);
 
         $cultures = Culture::where('isAutocomplete', 1)->get();
 
@@ -26,7 +24,7 @@ class CultureController extends Controller
     // POST project
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
 
         return $request;
         $culture = Culture::find($request->culture->id);
@@ -48,9 +46,7 @@ class CultureController extends Controller
 
     // PATCH project/{id}
     public function update(Request $request, $id)
-    {
-
-    }
+    { }
 
     // DELETE project/{id}
     public function destroy($id)

@@ -16,14 +16,14 @@ class InventarController extends Controller
     // GET /inventars
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
         return Inventar::all();
     }
 
     // POST /inventars
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
         $this->validate($request, [
             'name' => 'required|max:100',
             'price' => 'required|numeric'
@@ -40,7 +40,7 @@ class InventarController extends Controller
     // GET /inventars/$id
     public function show($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         return Inventar::find($id);
     }
@@ -48,7 +48,7 @@ class InventarController extends Controller
     // PATCH /inventars/$id
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $inventar = Inventar::find($id);
         $updatetKey = key($request->except('_token'));
@@ -63,7 +63,7 @@ class InventarController extends Controller
     // DELETE /inventars/$id
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         Inventar::destroy($id);
     }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\User;
-use App\Authorization;
+use App\UserType;
 use App\Mail\WorkerCreated;
 use Illuminate\Http\Request;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
@@ -21,10 +21,12 @@ class WorkerController extends Controller
     // GET worker
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
-        $workers = User::where('isDeleted', false)->where('authorization_id', AuthorizationType::Worker)
-            ->orWhere('authorization_id', AuthorizationType::Admin)->where('isDeleted', false)->orderBy('lastname')->get();
+        $workers = User::where('isDeleted', false)
+            ->where('type_id', UserTypeEnum::Worker)
+            ->orderBy('lastname')
+            ->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
@@ -42,7 +44,7 @@ class WorkerController extends Controller
     // POST worker
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
@@ -67,7 +69,7 @@ class WorkerController extends Controller
         }
 
         $password = str_random(8);
-        $authorization = Authorization::where('name', 'worker')->first();
+        $usertype = UserType::where('name', 'worker')->first();
         $user = User::create([
             'firstname' => request('firstname'),
             'lastname' => request('lastname'),
@@ -77,7 +79,7 @@ class WorkerController extends Controller
             'isPasswordChanged' => 0
         ]);
 
-        $authorization->users()->save($user);
+        $usertype->users()->save($user);
 
         $data['mail'] = $user->email;
         $data['password'] = $password;
@@ -89,7 +91,7 @@ class WorkerController extends Controller
     // GET worker/{id}
     public function show(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_read']);
 
         $worker = User::find($id);
 
@@ -99,7 +101,7 @@ class WorkerController extends Controller
     // PATCH worker/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $user = User::find($id);
 
@@ -115,7 +117,7 @@ class WorkerController extends Controller
     // DELETE worker/{id}
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['worker_write']);
 
         $worker = User::find($id);
 
@@ -124,7 +126,6 @@ class WorkerController extends Controller
             'password' => null
         ]);
     }
-
 
     //-- helpers --//
     private function checkIfUsernameExist($username)

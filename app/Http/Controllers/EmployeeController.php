@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Image;
 use App\Employee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Rapportdetail;
 use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
@@ -17,7 +16,8 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read']);
+
         $employees = [];
         if (isset($request->guests)) {
             $employees = Employee::where('isGuest', 1)->where('isDeleted', 0)->orderBy('lastname')->get();
@@ -32,7 +32,11 @@ class EmployeeController extends Controller
     // POST employee
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        if ($request->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_write', 'roomdispositioner_write']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_write']);
+        }
         $this->validate(request(), $this->validateArray);
 
         $employee = Employee::create([
@@ -58,14 +62,23 @@ class EmployeeController extends Controller
     // GET employee/{id}
     public function show(Request $request, Employee $employee)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        if ($employee->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_read', 'roomdispositioner_read']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_read']);
+        }
         return $employee;
     }
 
     // PATCH employee/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        if ($request->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_write', 'roomdispositioner_write']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_write']);
+        }
+
         $this->validate($request, $this->validateArray);
 
         $employe = Employee::find($id);
@@ -92,7 +105,8 @@ class EmployeeController extends Controller
     // POST employee/{id}/editimage
     public function uploadImage(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
+
         if ($request->profileimage != null) {
             $employee = Employee::find($id);
             $photoName = uniqid() . '.' . $request->profileimage->getClientOriginalExtension();
@@ -130,7 +144,8 @@ class EmployeeController extends Controller
 
     public function deleteImage(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
+
         $employee = Employee::find($id);
 
         $imagePath = public_path('profileimages/') . $employee->profileimage;
@@ -148,7 +163,8 @@ class EmployeeController extends Controller
     // DELETE employee/{id}
     public function destroy(Request $request, Employee $employee)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['employee_write']);
+
         if ($employee->profileimage != null) {
             $imagePath = public_path('profileimages/') . $employee->profileimage;
             $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
@@ -168,8 +184,8 @@ class EmployeeController extends Controller
     // GET employee/all
     public function all(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-        $request->user()->authorizeRoles(['admin']);
+        auth()->user()->authorize(['superadmin'], ['employee_read']);
+
 
         $employees = Employee::where('isActive', 1)->get();
 

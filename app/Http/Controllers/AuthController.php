@@ -38,7 +38,6 @@ class AuthController extends Controller
                     'error' => 'invalid.credentials',
                     'msg' => 'Invalid Credentials.'
                 ], 400);
-
             }
         }
         return response([
@@ -48,7 +47,7 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = User::find(Auth::user()->id);
+        $user = User::with('role.authorizationRules')->with('type')->find(Auth::user()->id);
         return response([
             'status' => 'success',
             'data' => $user
@@ -73,8 +72,6 @@ class AuthController extends Controller
 
     public function generatePdfToken()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
-
         $token = str_random(32);
         Cache::put('pdfToken', $token, 5);
 

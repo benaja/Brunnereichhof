@@ -7,7 +7,7 @@ use App\User;
 use App\Customer;
 use Illuminate\Http\Request;
 use App\Mail\CustomerCreated;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +32,7 @@ class UserController extends Controller
             $user = User::find(Auth::user()->id);
             $user->password = Hash::make(request('password'));
             $user->isPasswordChanged = 1;
-            if ($user->authorization_id == AuthorizationType::Customer) {
+            if ($user->type_id == UserTypeEnum::Customer) {
                 $user->customer->secret = null;
                 $user->customer->save();
             }
@@ -51,7 +51,11 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
-        auth()->user()->authorizeRoles(['superadmin']);
+        if ($user->type->name == 'worker') {
+            auth()->user()->authorize(['superadmin'], ['worker_write']);
+        } else {
+            auth()->user()->authorize(['superadmin']);
+        }
 
         $password = str_random(8);
         $secret = encrypt($password);

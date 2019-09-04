@@ -17,14 +17,14 @@ class ReservationController extends Controller
 
     public function index()
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
     }
 
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $this->validate($request, [
             'entry' => 'required|date',
@@ -71,7 +71,7 @@ class ReservationController extends Controller
 
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $this->validate($request, [
             'entry' => 'required|date',
@@ -124,7 +124,7 @@ class ReservationController extends Controller
 
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         Reservation::find($id)->delete();
     }

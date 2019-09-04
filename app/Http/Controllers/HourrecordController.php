@@ -6,7 +6,7 @@ use App\Hourrecord;
 use App\Customer;
 use App\Culture;
 use Illuminate\Http\Request;
-use App\Enums\AuthorizationType;
+use App\Enums\UserTypeEnum;
 use App\Settings;
 use App\Project;
 
@@ -19,9 +19,9 @@ class HourrecordController extends Controller
 
     public function index(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_read']);
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             return Hourrecord::with('culture')->where([
                 'customer_id' => auth()->user()->customer->id,
                 'year' => (new \DateTime())->format('Y')
@@ -46,7 +46,7 @@ class HourrecordController extends Controller
     // create multiple at once
     public function store(Request $request)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         $hourrecords = auth()->user()->customer->hourrecords->where('year', (new \DateTime)->format('Y'));
@@ -86,14 +86,14 @@ class HourrecordController extends Controller
 
     public function createSingle(Request $request, $week)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         if ($week > 52) {
             abort(400, 'the week can not be greater than 52');
         }
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $customer = auth()->user()->customer;
         } else {
             $customer = Customer::find($request->customer);
@@ -119,7 +119,7 @@ class HourrecordController extends Controller
             'comment' => $request->comment,
             'week' => $week,
             'year' => (new \DateTime)->format('Y'),
-            'createdByAdmin' => !(auth()->user()->authorization_id == AuthorizationType::Customer),
+            'createdByAdmin' => !(auth()->user()->type_id == UserTypeEnum::Customer),
             'customer_id' => $customer->id
         ]);
 
@@ -134,7 +134,7 @@ class HourrecordController extends Controller
     // PATCH hourrecord/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
         $hourrecord = Hourrecord::find($id);
@@ -166,7 +166,7 @@ class HourrecordController extends Controller
 
     public function getByWeek($year, $week)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin']);
+        auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
 
         return Customer::with(['hourrecords' => function ($query) use ($year, $week) {
             $query->with('culture')->where([
@@ -179,8 +179,8 @@ class HourrecordController extends Controller
     // DELETE hourrecord/{id}
     public function destroy($id)
     {
-        auth()->user()->authorizeRoles(['admin', 'superadmin', 'customer']);
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $this->validateEditeDate();
         }
 
@@ -197,7 +197,7 @@ class HourrecordController extends Controller
         $today = new \DateTime();
         $today->setTime(0, 0, 0);
 
-        if (auth()->user()->authorization_id == AuthorizationType::Customer) {
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
             if ($startDate > $today || $endDate < $today) {
                 return false;
             }

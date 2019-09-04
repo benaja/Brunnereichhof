@@ -1,6 +1,5 @@
 # Associate users with permissions and roles
 
-
 ### Sponsor
 
 <table>
@@ -10,24 +9,23 @@
    </tr>
 </table>
 
-
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-permission.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-permission)
 [![Build Status](https://img.shields.io/travis/spatie/laravel-permission/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-permission)
 [![StyleCI](https://styleci.io/repos/42480275/shield)](https://styleci.io/repos/42480275)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-permission.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-permission)
 
-* [Installation](#installation)
-* [Usage](#usage)
-  * [Using "direct" permissions](#using-direct-permissions-see-below-to-use-both-roles-and-permissions)
-  * [Using permissions via roles](#using-permissions-via-roles)
-  * [Using Blade directives](#using-blade-directives)
-  * [Using multiple guards](#using-multiple-guards)
-  * [Using a middleware](#using-a-middleware)
-  * [Using artisan commands](#using-artisan-commands)
-* [Unit Testing](#unit-testing)
-* [Database Seeding](#database-seeding)
-* [Extending](#extending)
-* [Cache](#cache)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Using "direct" permissions](#using-direct-permissions-see-below-to-use-both-roles-and-permissions)
+  - [Using permissions via roles](#using-permissions-via-roles)
+  - [Using Blade directives](#using-blade-directives)
+  - [Using multiple guards](#using-multiple-guards)
+  - [Using a middleware](#using-a-middleware)
+  - [Using artisan commands](#using-artisan-commands)
+- [Unit Testing](#unit-testing)
+- [Database Seeding](#database-seeding)
+- [Extending](#extending)
+- [Cache](#cache)
 
 This package allows you to manage user permissions and roles in a database.
 
@@ -65,7 +63,7 @@ This package can be used in Laravel 5.4 or higher. If you are using an older ver
 
 You can install the package via composer:
 
-``` bash
+```bash
 composer require spatie/laravel-permission
 ```
 
@@ -183,7 +181,7 @@ return [
      */
 
     'cache_expiration_time' => 60 * 24,
-    
+
     /*
      * When set to true, the required permission/role names are added to the exception
      * message. This could be considered an information leak in some contexts, so
@@ -198,7 +196,7 @@ return [
 
 You can install the package via Composer:
 
-``` bash
+```bash
 composer require spatie/laravel-permission
 ```
 
@@ -256,19 +254,19 @@ class User extends Authenticatable
 
 > - note that if you need to use `HasRoles` trait with another model ex.`Page` you will also need to add `protected $guard_name = 'web';` as well to that model or you would get an error
 >
->```php
->use Illuminate\Database\Eloquent\Model;
->use Spatie\Permission\Traits\HasRoles;
+> ```php
+> use Illuminate\Database\Eloquent\Model;
+> use Spatie\Permission\Traits\HasRoles;
 >
->class Page extends Model
->{
+> class Page extends Model
+> {
 >    use HasRoles;
 >
 >    protected $guard_name = 'web'; // or whatever guard you want to use
 >
 >    // ...
->}
->```
+> }
+> ```
 
 This package allows for users to be associated with permissions and roles. Every role is associated with multiple permissions.
 A `Role` and a `Permission` are regular Eloquent models. They require a `name` and can be created like this:
@@ -280,7 +278,6 @@ use Spatie\Permission\Models\Permission;
 $role = Role::create(['name' => 'writer']);
 $permission = Permission::create(['name' => 'edit articles']);
 ```
-
 
 A permission can be assigned to a role using 1 of these methods:
 
@@ -437,8 +434,8 @@ You can also determine if a user has all of a given list of roles:
 $user->hasAllRoles(Role::all());
 ```
 
-The `assignRole`, `hasRole`, `hasAnyRole`, `hasAllRoles`  and `removeRole` functions can accept a
- string, a `\Spatie\Permission\Models\Role` object or an `\Illuminate\Support\Collection` object.
+The `assignRole`, `hasRole`, `hasAnyRole`, `hasAllRoles` and `removeRole` functions can accept a
+string, a `\Spatie\Permission\Models\Role` object or an `\Illuminate\Support\Collection` object.
 
 A permission can be given to a role:
 
@@ -461,9 +458,8 @@ $role->revokePermissionTo('edit articles');
 The `givePermissionTo` and `revokePermissionTo` functions can accept a
 string or a `Spatie\Permission\Models\Permission` object.
 
-
-Permissions are inherited from roles automatically. 
-Additionally, individual permissions can be assigned to the user too. 
+Permissions are inherited from roles automatically.
+Additionally, individual permissions can be assigned to the user too.
 For instance:
 
 ```php
@@ -475,9 +471,9 @@ $user->assignRole('writer');
 $user->givePermissionTo('delete articles');
 ```
 
-In the above example, a role is given permission to edit articles and this role is assigned to a user. 
+In the above example, a role is given permission to edit articles and this role is assigned to a user.
 Now the user can edit articles and additionally delete articles. The permission of 'delete articles' is the user's direct permission because it is assigned directly to them.
-When we call `$user->hasDirectPermission('delete articles')` it returns `true`, 
+When we call `$user->hasDirectPermission('delete articles')` it returns `true`,
 but `false` for `$user->hasDirectPermission('edit articles')`.
 
 This method is useful if one builds a form for setting permissions for roles and users in an application and wants to restrict or change inherited permissions of roles of the user, i.e. allowing to change only direct permissions of the user.
@@ -497,16 +493,19 @@ $user->getAllPermissions();
 
 All these responses are collections of `Spatie\Permission\Models\Permission` objects.
 
-If we follow the previous example, the first response will be a collection with the `delete article` permission and 
+If we follow the previous example, the first response will be a collection with the `delete article` permission and
 the second will be a collection with the `edit article` permission and the third will contain both.
 
 ### Using Blade directives
-This package also adds Blade directives to verify whether the currently logged in user has all or any of a given list of roles. 
+
+This package also adds Blade directives to verify whether the currently logged in user has all or any of a given list of roles.
 
 Optionally you can pass in the `guard` that the check will be performed on as a second argument.
 
 #### Blade and Roles
+
 Test for a specific role:
+
 ```php
 @role('writer')
     I am a writer!
@@ -514,7 +513,9 @@ Test for a specific role:
     I am not a writer...
 @endrole
 ```
+
 is the same as
+
 ```php
 @hasrole('writer')
     I am a writer!
@@ -524,6 +525,7 @@ is the same as
 ```
 
 Test for any role in a list:
+
 ```php
 @hasanyrole($collectionOfRoles)
     I have one or more of these roles!
@@ -537,6 +539,7 @@ Test for any role in a list:
     I have none of these roles...
 @endhasanyrole
 ```
+
 Test for all roles:
 
 ```php
@@ -554,6 +557,7 @@ Test for all roles:
 ```
 
 #### Blade and Permissions
+
 This package doesn't add any permission-specific Blade directives. Instead, use Laravel's native `@can` directive to check if a user has a certain permission.
 
 ```php
@@ -561,7 +565,9 @@ This package doesn't add any permission-specific Blade directives. Instead, use 
   //
 @endcan
 ```
+
 or
+
 ```php
 @if(auth()->user()->can('edit articles') && $some_other_condition)
   //
@@ -580,10 +586,10 @@ By default the default guard (`config('auth.defaults.guard')`) will be used as t
 
 ```php
 // Create a superadmin role for the admin users
-$role = Role::create(['guard_name' => 'admin', 'name' => 'superadmin']);
+$role = Role::create(['guard_name' => 'name' => 'superadmin']);
 
 // Define a `publish articles` permission for the admin users belonging to the admin guard
-$permission = Permission::create(['guard_name' => 'admin', 'name' => 'publish articles']);
+$permission = Permission::create(['guard_name' => 'name' => 'publish articles']);
 
 // Define a *different* `publish articles` permission for the regular users belonging to the web guard
 $permission = Permission::create(['guard_name' => 'web', 'name' => 'publish articles']);
@@ -661,6 +667,7 @@ public function __construct()
 ```
 
 ### Catching role and permission failures
+
 If you want to override the default `403` response, you can catch the `UnauthorizedException` using your app's exception handler:
 
 ```php
@@ -720,34 +727,34 @@ Two notes about Database Seeding:
 
 2. Here's a sample seeder, which clears the cache, creates permissions and then assigns permissions to roles:
 
-	```php
-	use Illuminate\Database\Seeder;
-	use Spatie\Permission\Models\Role;
-	use Spatie\Permission\Models\Permission;
+   ```php
+   use Illuminate\Database\Seeder;
+   use Spatie\Permission\Models\Role;
+   use Spatie\Permission\Models\Permission;
 
-	class RolesAndPermissionsSeeder extends Seeder
-	{
-	    public function run()
-    	{
-        	// Reset cached roles and permissions
-	        app()['cache']->forget('spatie.permission.cache');
+   class RolesAndPermissionsSeeder extends Seeder
+   {
+       public function run()
+   	{
+       	// Reset cached roles and permissions
+           app()['cache']->forget('spatie.permission.cache');
 
-	        // create permissions
-	        Permission::create(['name' => 'edit articles']);
-	        Permission::create(['name' => 'delete articles']);
-	        Permission::create(['name' => 'publish articles']);
-	        Permission::create(['name' => 'unpublish articles']);
+           // create permissions
+           Permission::create(['name' => 'edit articles']);
+           Permission::create(['name' => 'delete articles']);
+           Permission::create(['name' => 'publish articles']);
+           Permission::create(['name' => 'unpublish articles']);
 
-	        // create roles and assign existing permissions
-	        $role = Role::create(['name' => 'writer']);
-	        $role->givePermissionTo('edit articles');
+           // create roles and assign existing permissions
+           $role = Role::create(['name' => 'writer']);
+           $role->givePermissionTo('edit articles');
 
-	        $role = Role::create(['name' => 'admin']);
-            $role->givePermissionTo(['publish articles', 'unpublish articles']);
-	    }
-	}
+           $role = Role::create(['name' => 'admin']);
+           $role->givePermissionTo(['publish articles', 'unpublish articles']);
+       }
+   }
 
-	```
+   ```
 
 ## Extending
 
@@ -767,7 +774,6 @@ In BOTH cases, whether extending or replacing, you will need to specify your new
 ```bash
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="config"
 ```
- 
 
 ## Cache
 
@@ -790,18 +796,19 @@ $permission->syncRoles(params);
 HOWEVER, if you manipulate permission/role data directly in the database instead of calling the supplied methods, then you will not see the changes reflected in the application unless you manually reset the cache.
 
 ### Manual cache reset
+
 To manually reset the cache for this package, run:
+
 ```bash
 php artisan cache:forget spatie.permission.cache
 ```
 
 ### Cache Identifier
 
-TIP: If you are leveraging a caching service such as `redis` or `memcached` and there are other sites 
-running on your server, you could run into cache clashes. It is prudent to set your own cache `prefix` 
-in `/config/cache.php` to something unique for each application. This will prevent other applications 
+TIP: If you are leveraging a caching service such as `redis` or `memcached` and there are other sites
+running on your server, you could run into cache clashes. It is prudent to set your own cache `prefix`
+in `/config/cache.php` to something unique for each application. This will prevent other applications
 from accidentally using/changing your cached data.
-
 
 ## Need a UI?
 
@@ -809,7 +816,7 @@ The package doesn't come with any screens out of the box, you should build that 
 
 ### Testing
 
-``` bash
+```bash
 composer test
 ```
 
@@ -842,7 +849,7 @@ This package is heavily based on [Jeffrey Way](https://twitter.com/jeffrey_way)'
 on [permissions and roles](https://laracasts.com/series/whats-new-in-laravel-5-1/episodes/16). His original code
 can be found [in this repo on GitHub](https://github.com/laracasts/laravel-5-roles-and-permissions-demo).
 
-Special thanks to [Alex Vanderbist](https://github.com/AlexVanderbist) who greatly helped with `v2`, and to [Chris Brown](https://github.com/drbyte) for his longtime support  helping us maintain the package.
+Special thanks to [Alex Vanderbist](https://github.com/AlexVanderbist) who greatly helped with `v2`, and to [Chris Brown](https://github.com/drbyte) for his longtime support helping us maintain the package.
 
 ## Resources
 
@@ -850,13 +857,13 @@ Special thanks to [Alex Vanderbist](https://github.com/AlexVanderbist) who great
 
 ## Alternatives
 
-[Povilas Korop](https://twitter.com/@povilaskorop) did an excellent job listing the alternatives [in an article on Laravel News](https://laravel-news.com/two-best-roles-permissions-packages). In that same article, he compares laravel-permission to [Joseph Silber](https://github.com/JosephSilber)'s [Bouncer]((https://github.com/JosephSilber/bouncer)), which in our book is also an excellent package.
+[Povilas Korop](https://twitter.com/@povilaskorop) did an excellent job listing the alternatives [in an article on Laravel News](https://laravel-news.com/two-best-roles-permissions-packages). In that same article, he compares laravel-permission to [Joseph Silber](https://github.com/JosephSilber)'s [Bouncer](<(https://github.com/JosephSilber/bouncer)>), which in our book is also an excellent package.
 
 ## Support us
 
 Spatie is a web design agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
-Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie). 
+Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie).
 All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
 
 ## License
