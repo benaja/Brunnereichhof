@@ -32,7 +32,11 @@ class EmployeeController extends Controller
     // POST employee
     public function store(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_write']);
+        if ($request->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_write', 'roomdispositioner_write']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_write']);
+        }
         $this->validate(request(), $this->validateArray);
 
         $employee = Employee::create([
@@ -58,14 +62,22 @@ class EmployeeController extends Controller
     // GET employee/{id}
     public function show(Request $request, Employee $employee)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_read']);
+        if ($employee->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_read', 'roomdispositioner_read']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_read']);
+        }
         return $employee;
     }
 
     // PATCH employee/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_write']);
+        if ($request->isGuest) {
+            auth()->user()->authorize(['superadmin'], ['employee_write', 'roomdispositioner_write']);
+        } else {
+            auth()->user()->authorize(['superadmin'], ['employee_write']);
+        }
 
         $this->validate($request, $this->validateArray);
 

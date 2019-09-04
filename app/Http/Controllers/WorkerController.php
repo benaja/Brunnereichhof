@@ -21,7 +21,7 @@ class WorkerController extends Controller
     // GET worker
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['worker_read']);
+        auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
         $workers = User::where('isDeleted', false)
             ->where('type_id', UserTypeEnum::Worker)
