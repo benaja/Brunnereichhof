@@ -50,7 +50,7 @@ class Pdf extends Fpdf
     Fpdf::SetDrawColor(255);
     Fpdf::SetTextColor(0);
     Fpdf::SetFont('Raleway', $fontStile, $textSize);
-    Fpdf::Cell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
+    Fpdf::MultiCell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
   }
 
   public function paragraph($text, $textSize = 0, $fontStile = '', $options = [])
@@ -149,6 +149,21 @@ class Pdf extends Fpdf
   {
     $this->documentTitle($errorMessage);
     $this->export('fehler.pdf');
+  }
+
+  public function comment($date, $comment)
+  {
+    Fpdf::SetLineWidth(0);
+    if (Fpdf::GetY() >= $this->pageBreakeWidth) {
+      $this->addPage();
+      $this->insertPageBreakTextIfNeeded();
+    }
+    Fpdf::SetFont('Raleway', 'B', $this->textSize);
+    Fpdf::Cell(35, 6, utf8_decode($date->format('d.m.Y')), 0, 0, 'L', false);
+
+
+    Fpdf::SetFont('Raleway', '', $this->textSize);
+    Fpdf::MultiCell($this->documentWidth - 50, 6, utf8_decode($comment['text']), 0, 'L', false);
   }
 
   private function tableHeader($titles, $cellsWidth)

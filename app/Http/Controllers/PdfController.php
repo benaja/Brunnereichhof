@@ -136,20 +136,12 @@ class PdfController extends Controller
             if (count($comments) > 0) {
                 $this->pdf->newLine();
                 $this->pdf->documentTitle('Kommentare');
-                $textSize = $this->pdf->textSize;
-                if (count($comments) > 6) {
-                    $textSize -= 2;
-                }
+                $this->pdf->textToInsertOnPageBreak = "Mitarbeiter: {$worker->lastname} {$worker->firstname} \nMonat: $monthName";
 
                 foreach ($comments as $comment) {
                     $date = new \DateTime($comment['date']);
 
-                    Fpdf::SetFont('Raleway', 'B', $textSize);
-                    Fpdf::Cell(35, 6, utf8_decode($date->format('d.m.Y')), 0, 0, 'L', false);
-
-
-                    Fpdf::SetFont('Raleway', '', $textSize);
-                    Fpdf::MultiCell($this->documentWidth - 50, 6, utf8_decode($comment['text']), 1, 'L', false);
+                    $this->pdf->comment($date, $comment);
                 }
             }
             $this->pdf->signaturePlaceHolder();
