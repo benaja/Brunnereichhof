@@ -1,4 +1,5 @@
 <?php
 
 $test = shell_exec('php artisan migrate');
-echo $test;
+
+throw new Exception($test);
