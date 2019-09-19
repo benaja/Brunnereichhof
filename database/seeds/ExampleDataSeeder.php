@@ -36,66 +36,67 @@ class ExampleDataSeeder extends Seeder
             [
                 'name' => 'rapport_read',
                 'name_de' => 'Wochenrapport einsehen'
-            ],[
+            ], [
                 'name' => 'rapport_write',
                 'name_de' => 'Wochenrapport schreiben'
-            ],[
+            ], [
                 'name' => 'employee_preview_read',
                 'name_de' => 'Mitarbeierverzeichnis einsehen (nur Vorschau)'
-            ],[
+            ], [
                 'name' => 'employee_read',
                 'name_de' => 'Mitarbeiterverzeichnis einsehen mit Details'
-            ],[
+            ], [
                 'name' => 'employee_write',
                 'name_de' => 'Mitarbeiterverzeuchnis schreiben'
-            ],[
+            ], [
                 'name' => 'customer_read',
                 'name_de' => 'Kundenverzeichnis einsehen'
-            ],[
+            ], [
                 'name' => 'customer_write',
                 'name_de' => 'Kundenverzeichnis schreiben'
-            ],[
+            ], [
                 'name' => 'roomdispositioner_read',
                 'name_de' => 'Raumplaner einsehen'
-            ],[
+            ], [
                 'name' => 'roomdispositioner_write',
                 'name_de' => 'Raumplaner schreiben'
-            ],[
+            ], [
                 'name' => 'hourrecord_read',
                 'name_de' => 'Sundenangaben einsehen'
-            ],[
+            ], [
                 'name' => 'hourrecord_write',
                 'name_de' => 'Sundenangaben schreiben'
             ], [
                 'name' => 'worker_read',
                 'name_de' => 'Hofmitarbeiter einsehen'
-            ],[
+            ], [
                 'name' => 'worker_write',
                 'name_de' => 'Hofmitarbeiter schreiben'
-            ],[
+            ], [
                 'name' => 'settings_read',
                 'name_de' => 'Einstellungen einsehen'
-            ],[
+            ], [
                 'name' => 'settings_write',
                 'name_de' => 'Einstellungen schreiben'
-            ],[
+            ], [
                 'name' => 'timerecord_read_write',
                 'name_de' => 'Zeiterfassung'
-            ],[
-                'name' => 'timereocrd_stats',
+            ], [
+                'name' => 'timerecord_stats',
                 'name_de' => 'Zeiterfassung Auswertung'
-            ],[
+            ], [
                 'name' => 'evaluation_customer',
                 'name_de' => 'Auswertungen Kunden'
-            ],[
+            ], [
                 'name' => 'evaluation_employee',
                 'name_de' => 'Mitarbeiter Auswertung'
-            ],]);
+            ],
+        ]);
 
         $authorizationrules = DB::table('authorizationrule')->get();
         $adminRole = DB::table('role')->where('name', 'Admin')->first();
 
-        foreach($authorizationrules as $authorizationrule) {
+        foreach ($authorizationrules as $authorizationrule) {
             DB::table('role_authorizationrule')->insert([
                 'authorizationrule_id' => $authorizationrule->id,
                 'role_id' => $adminRole->id
@@ -107,7 +108,7 @@ class ExampleDataSeeder extends Seeder
 
 
         User::firstOrCreate([
-             'email' => 'admin@outlook.com',
+            'email' => 'admin@outlook.com',
             'username' => 'admin',
             'firstname' => 'Admin',
             'lastname' => 'Muster',
@@ -194,15 +195,15 @@ class ExampleDataSeeder extends Seeder
             'key' => 'fullDayShortStart',
             'value' => '08:00',
             'type' => 'string'
-        ],[
+        ], [
             'key' => 'fullDayShortEnd',
             'value' => '16:00',
             'type' => 'string'
-        ],[
+        ], [
             'key' => 'fullDayLongStart',
             'value' => '07:00',
             'type' => 'string'
-        ],[
+        ], [
             'key' => 'fullDayLongEnd',
             'value' => '16:00',
             'type' => 'string'
