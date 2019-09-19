@@ -31,13 +31,13 @@ create table hours(id int primary key auto_increment, timerecord_id int, `from` 
 
 create table project(id int primary key auto_increment, name text, description text, isDeleted boolean, updated_at datetime, created_at datetime);
 
-create table rapport(id int primary key auto_increment, customer_id int, isFinished boolean, startdate date, rapporttype varchar(10), comment_mo text, comment_tu text, comment_we text, comment_th text, comment_fr text, comment_sa text,updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade, foreign key(default_project) references project(id) on delete set null);
+create table rapport(id int primary key auto_increment, customer_id int, isFinished boolean, startdate date, rapporttype varchar(10), comment_mo text, comment_tu text, comment_we text, comment_th text, comment_fr text, comment_sa text, default_project_id int,updated_at datetime, created_at datetime, foreign key(customer_id) references customer(id) on delete cascade, foreign key(default_project_id) references project(id) on delete set null);
 
 CREATE TABLE customer_project(project_id int, customer_id int, updated_at datetime, created_at datetime, primary key(project_id, customer_id), foreign key(project_id) references project(id) on delete cascade, foreign key(customer_id) references customer(id) on delete cascade);
 
 CREATE table foodtype(id int primary key auto_increment, foodname text, updated_at datetime, created_at datetime);
 
-CREATE table rapportdetail(id int primary key auto_increment, rapport_id int, project_id int, employee_id int, foodtype_id int, hours double, day int, comment text, date date, default_project_id int, updated_at datetime, created_at datetime, foreign key(rapport_id) references rapport(id) on delete cascade, foreign key(project_id) references project(id) on delete set null, foreign key(employee_id) REFERENCES employee(id) on delete cascade, foreign key(foodtype_id) references foodtype(id) on delete cascade);
+CREATE table rapportdetail(id int primary key auto_increment, rapport_id int, project_id int, employee_id int, foodtype_id int, hours double, day int, comment text, date date, updated_at datetime, created_at datetime, foreign key(rapport_id) references rapport(id) on delete cascade, foreign key(project_id) references project(id) on delete set null, foreign key(employee_id) REFERENCES employee(id) on delete cascade, foreign key(foodtype_id) references foodtype(id) on delete cascade);
 
 create table role(id int primary key auto_increment, name nvarchar(100), name_de nvarchar(200), updated_at datetime, created_at datetime);
 
