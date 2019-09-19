@@ -7,6 +7,10 @@
  * @author   Taylor Otwell <taylor@laravel.com>
  */
 
+$test = shell_exec('php artisan migrate');
+
+throw new Exception($test);
+
 define('LARAVEL_START', microtime(true));
 
 /*
