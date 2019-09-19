@@ -8,6 +8,8 @@ use App\Role;
 use App\Inventar;
 use App\Bed;
 use App\Room;
+use App\Worktype;
+use App\User;
 
 class ExampleDataSeeder extends Seeder
 {
@@ -18,6 +20,7 @@ class ExampleDataSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('reservation')->delete();
         DB::table('user')->delete();
         DB::table('role_authorizationrule')->delete();
         DB::table('authorizationrule')->delete();
@@ -81,6 +84,12 @@ class ExampleDataSeeder extends Seeder
             ],[
                 'name' => 'timereocrd_stats',
                 'name_de' => 'Zeiterfassung Auswertung'
+            ],[
+                'name' => 'evaluation_customer',
+                'name_de' => 'Auswertungen Kunden'
+            ],[
+                'name' => 'evaluation_employee',
+                'name_de' => 'Mitarbeiter Auswertung'
             ],]);
 
         $authorizationrules = DB::table('authorizationrule')->get();
@@ -96,27 +105,28 @@ class ExampleDataSeeder extends Seeder
         $userTypeAdmin = DB::table('usertype')->where('name', 'superadmin')->first();
         $userTypeWorker = DB::table('usertype')->where('name', 'worker')->first();
 
-        DB::table('user')->insert([
-            [
-                'email' => 'admin@outlook.com',
-                'username' => 'admin',
-                'firstname' => 'Admin',
-                'lastname' => 'Muster',
-                'isPasswordChanged' => true,
-                'password' => Hash::make('123abc123'),
-                'type_id' => $userTypeAdmin->id,
-                'role_id' => null
-            ],
-            [
-                'email' => 'benhu00@outlook.com',
-                'username' => 'benaja.hunzinger',
-                'firstname' => 'Benaja',
-                'lastname' => 'Hunzinger',
-                'isPasswordChanged' => true,
-                'password' => Hash::make('123abc123'),
-                'type_id' => $userTypeWorker->id,
-                'role_id' => $adminRole->id
-            ]
+
+        User::firstOrCreate([
+             'email' => 'admin@outlook.com',
+            'username' => 'admin',
+            'firstname' => 'Admin',
+            'lastname' => 'Muster',
+        ], [
+            'isPasswordChanged' => true,
+            'password' => Hash::make('123abc123'),
+            'type_id' => $userTypeAdmin->id,
+            'role_id' => null
+        ]);
+        User::firstOrCreate([
+            'email' => 'benhu00@outlook.com',
+            'username' => 'benaja.hunzinger',
+            'firstname' => 'Benaja',
+            'lastname' => 'Hunzinger'
+        ], [
+            'isPasswordChanged' => true,
+            'password' => Hash::make('123abc123'),
+            'type_id' => $userTypeWorker->id,
+            'role_id' => $adminRole->id
         ]);
 
         $kissen = Inventar::firstOrCreate([
@@ -178,5 +188,55 @@ class ExampleDataSeeder extends Seeder
             'isGuest' => false,
             'sex' => 'man'
         ]]);
+
+        DB::table('settings')->delete();
+        DB::table('settings')->insert([[
+            'key' => 'fullDayShortStart',
+            'value' => '08:00',
+            'type' => 'string'
+        ],[
+            'key' => 'fullDayShortEnd',
+            'value' => '16:00',
+            'type' => 'string'
+        ],[
+            'key' => 'fullDayLongStart',
+            'value' => '07:00',
+            'type' => 'string'
+        ],[
+            'key' => 'fullDayLongEnd',
+            'value' => '16:00',
+            'type' => 'string'
+        ]]);
+
+        Worktype::firstOrCreate([
+            'name' => 'productiveHours',
+            'name_de' => 'Produktivstunden',
+            'short_name' => '',
+            'color' => 'primary'
+        ]);
+        Worktype::firstOrCreate([
+            'name' => 'holidays',
+            'name_de' => 'Ferien',
+            'short_name' => 'F',
+            'color' => 'yellow darken-3'
+        ]);
+        Worktype::firstOrCreate([
+            'name' => 'sick',
+            'name_de' => 'Krank',
+            'short_name' => 'K',
+            'color' => 'red'
+        ]);
+        Worktype::firstOrCreate([
+            'name' => 'accident',
+            'name_de' => 'Unfall',
+            'short_name' => 'U',
+            'color' => 'red'
+        ]);
+        Worktype::firstOrCreate([
+            'name' => 'school',
+            'name_de' => 'Schule',
+            'short_name' => 'S',
+            'color' => 'blue'
+        ]);
     }
 }

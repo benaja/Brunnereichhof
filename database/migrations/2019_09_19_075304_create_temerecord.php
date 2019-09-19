@@ -15,11 +15,11 @@ class CreateTemerecord extends Migration
     {
         Schema::create('timerecord', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->date('date');
-            $table->boolean('lunch');
-            $table->boolean('breakfast');
-            $table->boolean('dinner');
+            $table->boolean('lunch')->default(false);
+            $table->boolean('breakfast')->default(false);
+            $table->boolean('dinner')->default(false);
             $table->string('comment')->nullable();
             $table->timestamps();
 
@@ -36,10 +36,10 @@ class CreateTemerecord extends Migration
 
         Schema::create('hours', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('timerecord_id');
+            $table->unsignedBigInteger('timerecord_id')->nullable();
             $table->time('from');
             $table->time('to');
-            $table->unsignedBigInteger('worktype_id');
+            $table->unsignedBigInteger('worktype_id')->nullable();
             $table->string('comment')->nullable();
             $table->timestamps();
 

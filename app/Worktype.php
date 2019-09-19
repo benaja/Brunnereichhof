@@ -8,6 +8,8 @@ class Worktype extends Model
 {
     public $table = "worktype";
 
+    public $timestamps = false;
+
     protected $fillable = ['name', 'name_de', 'color', 'short_name'];
 
     public function hours()

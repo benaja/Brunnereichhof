@@ -43,7 +43,7 @@ class CreateUser extends Migration
         Schema::create('user', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('email', 200);
-            $table->string('username', 200);
+            $table->string('username', 200)->nullable();
             $table->string('firstname', 200);
             $table->string('lastname', 200);
             $table->string('password');
@@ -52,6 +52,7 @@ class CreateUser extends Migration
             $table->unsignedBigInteger('role_id')->nullable();
             $table->boolean('isPasswordChanged')->default(false);
             $table->boolean('isDeleted')->default(false);
+            $table->boolean('ismealdefault')->default(false);
             $table->timestamps();
 
             $table->foreign('type_id')->references('id')->on('usertype');

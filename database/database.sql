@@ -55,23 +55,6 @@ insert into project(name, description) values('Allgemein', 'Allgemeine arbeiten'
 
 insert into settings(`key`, value, type) value('fullDayShortStart', '08:00', 'string'), ('fullDayShortEnd', '16:00', 'string'), ('fullDayLongStart', '07:00', 'string'), ('fullDayLongEnd', '16:00', 'string');
 
-insert into authorizationrule(name, name_de) value
-  ('rapport_read', 'Wochenrapport einsehen'),
-  ('rapport_write', 'Wochenrapport schreiben'),
-  ('employee_preview_read', 'Mitarbeierverzeichnis einsehen (nur Vorschau)'),
-  ('employee_read', 'Mitarbeiterverzeichnis einsehen mit Details'),
-  ('customer_read', 'Kundenverzeichnis einsehen'),
-  ('customer_write', 'Kundenverzeichnis schreiben'),
-  ('roomdispositioner_read', 'Raumplaner einsehen'),
-  ('roomdispositioner_write', 'Raumplaner schreiben'),
-  ('hourrecord_read', 'Sundenangaben einsehen'),
-  ('hourrecord_write', 'Sundenangaben schreiben'),
-  ('worker_read', 'Hofmitarbeiter einsehen'),
-  ('worker_write', 'Hofmitarbeiter schreiben'),
-  ('settings_read', 'Einstellungen einsehen'),
-  ('settings_write', 'Einstellungen schreiben'),
-  ('timerecord', 'Zeiterfassung')
-
 $2y$10$MJV/WP5/RAc41AbD/kg/xeOvmxixCHfh5B/MReXJu8HMecKEv2CeS
 
 /-- Room dispositioner
@@ -137,3 +120,8 @@ insert into authorizationrule(name, name_de) value
   ('settings_write', 'Einstellungen schreiben'),
   ('timerecord_read_write', 'Zeiterfassung'),
   ('timerecord_stats', 'Zeiterfassung Auswertung');
+
+  /* migration 19.09.2019 */
+insert into authorizationrule(name, name_de) value
+  ('evaluation_customer', 'Kunden Auswertung'),
+  ('evaluation_employee', 'Mitarbeiter Auswertung'); 

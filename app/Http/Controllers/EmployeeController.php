@@ -16,7 +16,7 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read']);
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
         if (isset($request->guests)) {

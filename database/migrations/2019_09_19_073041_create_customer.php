@@ -18,8 +18,9 @@ class CreateCustomer extends Migration
             $table->string('firstname');
             $table->string('lastname');
             $table->string('addition')->nullable();
-            $table->string('place')->nullable();
-            $table->string('plz')->nullable();
+            $table->string('place');
+            $table->string('street');
+            $table->string('plz');
             $table->string('mobile')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('hasCatering')->nullable();
