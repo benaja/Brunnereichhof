@@ -86,7 +86,7 @@ class CustomerController extends Controller
         $defaultProject = Project::where('name', 'Allgemein')->first();
         if ($defaultProject == null) {
             $customer->delete();
-            return response('unknown error', 404);
+            return response('no project called "Allgemein"', 404);
         }
         $customer->projects()->save($defaultProject);
         $customer->save();

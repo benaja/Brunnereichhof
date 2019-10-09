@@ -1,2 +1,4 @@
 public/profileimages/*
 .vscode/*
+
+.env

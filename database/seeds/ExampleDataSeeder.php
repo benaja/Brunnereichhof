@@ -10,6 +10,8 @@ use App\Bed;
 use App\Room;
 use App\Worktype;
 use App\User;
+use App\Customer;
+use App\Project;
 
 class ExampleDataSeeder extends Seeder
 {
@@ -21,6 +23,8 @@ class ExampleDataSeeder extends Seeder
     public function run()
     {
         DB::table('reservation')->delete();
+        DB::table('customer_project')->delete();
+        DB::table('customer')->delete();
         DB::table('user')->delete();
         DB::table('role_authorizationrule')->delete();
         DB::table('authorizationrule')->delete();
@@ -105,6 +109,7 @@ class ExampleDataSeeder extends Seeder
 
         $userTypeAdmin = DB::table('usertype')->where('name', 'superadmin')->first();
         $userTypeWorker = DB::table('usertype')->where('name', 'worker')->first();
+        $userTypeCustomer = DB::table('usertype')->where('name', 'customer')->first();
 
 
         User::firstOrCreate([
@@ -239,5 +244,38 @@ class ExampleDataSeeder extends Seeder
             'short_name' => 'S',
             'color' => 'blue'
         ]);
+
+        DB::table('project')->delete();
+        DB::table('project')->insert([[
+            'name' => 'Allgemein',
+            'description' => 'Standart Projekt'
+        ], [
+            'name' => 'Jätten',
+            'description' => 'Jätten auf den Feldern'
+        ]]);
+
+        $customerUser = User::firstOrCreate([
+            'email' => 'max.muster@test.com',
+            'username' => 'max.muster',
+            'firstname' => 'Max',
+            'lastname' => 'Muster'
+        ], [
+            'isPasswordChanged' => true,
+            'password' => Hash::make('123abc123'),
+            'type_id' => $userTypeCustomer->id,
+        ]);
+        $customer = Customer::firstOrCreate([
+            'firstname' => 'Max',
+            'lastname' => 'Muster',
+            'addition' => '',
+            'street' => 'Hauptstrasse 10',
+            'place' => 'Bern',
+            'plz' => 3000,
+            'secret' => encrypt('123abc123'),
+            'user_id' => $customerUser->id,
+        ]);
+        $defaultProject = Project::where('name', 'Allgemein')->first();
+        $customer->projects()->save($defaultProject);
+        $customer->save();
     }
 }

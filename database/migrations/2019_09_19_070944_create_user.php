@@ -42,7 +42,7 @@ class CreateUser extends Migration
 
         Schema::create('user', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('email', 200);
+            $table->string('email', 200)->nullable();
             $table->string('username', 200)->nullable();
             $table->string('firstname', 200);
             $table->string('lastname', 200);

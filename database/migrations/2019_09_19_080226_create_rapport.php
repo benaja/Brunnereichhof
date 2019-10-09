@@ -21,10 +21,18 @@ class CreateRapport extends Migration
             $table->timestamps();
         });
 
+        Schema::create('customer_project', function (Blueprint $table) {
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('project_id');
+            $table->primary(['customer_id', 'project_id']);
+            $table->foreign('customer_id')->references('id')->on('customer');
+            $table->foreign('project_id')->references('id')->on('project');
+        });
+
         Schema::create('rapport', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('customer_id');
-            $table->boolean('isFinished');
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->boolean('isFinished')->default(false);
             $table->date('startdate');
             $table->string('comment_mo')->nullable();
             $table->string('comment_tu')->nullable();
@@ -47,11 +55,11 @@ class CreateRapport extends Migration
 
         Schema::create('rapportdetail', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('rapport_id');
-            $table->unsignedBigInteger('project_id');
-            $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('foodtype_id');
-            $table->double('hours');
+            $table->unsignedBigInteger('rapport_id')->nullable();
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->unsignedBigInteger('foodtype_id')->nullable();
+            $table->double('hours')->nullable();
             $table->smallInteger('day');
             $table->string('comment')->nullable();
             $table->date('date');
@@ -74,6 +82,7 @@ class CreateRapport extends Migration
         Schema::dropIfExists('rapportdetail');
         Schema::dropIfExists('foodtype');
         Schema::dropIfExists('rapport');
+        Schema::dropIfExists('customer_project');
         Schema::dropIfExists('project');
     }
 }
