@@ -19,7 +19,9 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->guests)) {
+        if (isset($request->guests) && isset($request->employees)) {
+            $employees = Employee::where('isDeleted', 0)->orderBy('lastname')->get();
+        }else if (isset($request->guests)) {
             $employees = Employee::where('isGuest', 1)->where('isDeleted', 0)->orderBy('lastname')->get();
         } else if (isset($request->all)) {
             $employees = Employee::orderBy('lastname')->get();
