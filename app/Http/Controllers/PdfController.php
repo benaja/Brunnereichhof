@@ -240,10 +240,45 @@ class PdfController extends Controller
     {
         Pdf::validateToken($request->token);
 
+        
+
+        if ($request->customer_id == 0) {
+            $customers = Customer::all();
+            foreach($customers as $key => $customer) {
+                // if ($key > 0) $this->pdf->addPage();
+                $this->singleCustomerYearRapport($customer, $year, true);
+            }
+            $this->pdf->export("Jahresrapport $year.pdf");
+        } else {
+            $customer = Customer::find($request->customer_id);
+            $this->singleCustomerYearRapport($customer, $year);
+            $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
+        }
+        
+    }
+
+    // --helpers--
+    private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year)
+    {
+        $header = ['Monat', 'Arbeitszeit Total', 'Verpflegungen'];
+        $currentMonth = 0;
+        $lines = [];
+        foreach ($totalHoursOfMonths as $hours) {
+            if ($hours > 0) {
+                array_push($lines, [
+                    $this->monthNames[$currentMonth] . " " . $year,
+                    $totalHoursOfMonths[$currentMonth] . "h",
+                    $totalFoodOfMonths[$currentMonth]
+                ]);
+            }
+            $currentMonth++;
+        }
+        $this->pdf->table($header, $lines);
+    }
+
+    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false) {
         $firstDate = new \DateTime("1.1.$year");
         $lastDate = new \DateTime("31.12.$year");
-
-        $customer = Customer::find($request->customer_id);
 
         $totalHours = DB::table('rapportdetail')
             ->leftJoin('rapport', 'rapportdetail.rapport_id', '=', 'rapport.id')
@@ -252,6 +287,8 @@ class PdfController extends Controller
             ->where('rapportdetail.date', '>=', $firstDate->format('Y-m-d'))
             ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
             ->sum('rapportdetail.hours');
+        
+        if ($onlyWhenNotZeroHours && $totalHours === 0) return;
 
         $firstDate->modify("first day of this week");
         $weeks = $customer->rapports
@@ -288,50 +325,6 @@ class PdfController extends Controller
             ]);
         }
         $this->pdf->table($titles, $lines);
-        $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
-    }
-
-    public function customerMonthRapport(Request $request, $date)
-    {
-        Pdf::validateToken($request->token);
-
-        $firstDate = (new \DateTime($date))->modify('+1 day')->modify('last monday');
-        $lastDate = (new \DateTime($date))->modify('-1 day')->modify('next sunday');
-
-        $customer = Customer::find($request->customer_id);
-
-        $totalHours = DB::table('rapportdetail')
-            ->leftJoin('rapport', 'rapportdetail.rapport_id', '=', 'rapport.id')
-            ->leftJoin('customer', 'rapport.customer_id', '=', 'customer.id')
-            ->where('customer.id', $customer->id)
-            ->where('rapportdetail.date', '>=', $firstDate->format('Y-m-d'))
-            ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
-            ->sum('rapportdetail.hours');
-
-        $firstDate->modify("first day of this week");
-        $weeks = $customer->rapports
-            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
-            ->where('startdate', '<=', $lastDate->format('Y-m-d'))
-            ->sortBy('startdate');
-    }
-
-    // --helpers--
-    private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year)
-    {
-        $header = ['Monat', 'Arbeitszeit Total', 'Verpflegungen'];
-        $currentMonth = 0;
-        $lines = [];
-        foreach ($totalHoursOfMonths as $hours) {
-            if ($hours > 0) {
-                array_push($lines, [
-                    $this->monthNames[$currentMonth] . " " . $year,
-                    $totalHoursOfMonths[$currentMonth] . "h",
-                    $totalFoodOfMonths[$currentMonth]
-                ]);
-            }
-            $currentMonth++;
-        }
-        $this->pdf->table($header, $lines);
     }
 
     private function getHoursOfEmployeeByYear($employee, $year)
