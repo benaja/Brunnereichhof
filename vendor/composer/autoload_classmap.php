@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'AddSoftDelete' => $baseDir . '/database/migrations/2019_10_31_170309_add_soft_delete.php',
     'App\\AuthorizationRule' => $baseDir . '/app/AuthorizationRule.php',
     'App\\Bed' => $baseDir . '/app/Bed.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
@@ -145,7 +144,6 @@ return array(
     'Dotenv\\Exception\\ValidationException' => $vendorDir . '/vlucas/phpdotenv/src/Exception/ValidationException.php',
     'Dotenv\\Loader' => $vendorDir . '/vlucas/phpdotenv/src/Loader.php',
     'Dotenv\\Validator' => $vendorDir . '/vlucas/phpdotenv/src/Validator.php',
-    'DropIsDeletedColumn' => $baseDir . '/database/migrations/2019_11_01_063821_drop_is_deleted_column.php',
     'Egulias\\EmailValidator\\EmailLexer' => $vendorDir . '/egulias/email-validator/EmailValidator/EmailLexer.php',
     'Egulias\\EmailValidator\\EmailParser' => $vendorDir . '/egulias/email-validator/EmailValidator/EmailParser.php',
     'Egulias\\EmailValidator\\EmailValidator' => $vendorDir . '/egulias/email-validator/EmailValidator/EmailValidator.php',

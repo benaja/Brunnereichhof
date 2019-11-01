@@ -3,15 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bed extends Model
 {
-    use SoftDeletes;
-
     public $table = "bed";
 
-    protected $fillable = ['name', 'width', 'places', 'comment'];
+    protected $fillable = ['name', 'width', 'places', 'comment', 'isDeleted'];
 
     public function room()
     {

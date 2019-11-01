@@ -30,7 +30,7 @@ class HourrecordController extends Controller
             if (isset($request->sortBy) && $request->sortBy === 'customer') {
                 return Customer::with(array('Hourrecords' => function ($query) {
                     $query->where('year', (new \DateTime())->format('Y'));
-                }))->orderBy('lastname')->get();
+                }))->where('isDeleted', false)->orderBy('lastname')->get();
             } else if (isset($request->sortBy) && $request->sortBy === 'project') {
                 return Culture::with(['hourrecords' => function ($query) {
                     $query->where('year', (new \DateTime())->format('Y'));
@@ -173,7 +173,7 @@ class HourrecordController extends Controller
                 'year' => $year,
                 'week' => $week
             ]);
-        }])->get();
+        }])->where('isDeleted', false)->get();
     }
 
     // DELETE hourrecord/{id}

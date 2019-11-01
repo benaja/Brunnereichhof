@@ -405,7 +405,6 @@ class ComposerStaticInit3d63a6527b71271c0a200a7c8a5dd988
     );
 
     public static $classMap = array (
-        'AddSoftDelete' => __DIR__ . '/../..' . '/database/migrations/2019_10_31_170309_add_soft_delete.php',
         'App\\AuthorizationRule' => __DIR__ . '/../..' . '/app/AuthorizationRule.php',
         'App\\Bed' => __DIR__ . '/../..' . '/app/Bed.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
@@ -544,7 +543,6 @@ class ComposerStaticInit3d63a6527b71271c0a200a7c8a5dd988
         'Dotenv\\Exception\\ValidationException' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Exception/ValidationException.php',
         'Dotenv\\Loader' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Loader.php',
         'Dotenv\\Validator' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Validator.php',
-        'DropIsDeletedColumn' => __DIR__ . '/../..' . '/database/migrations/2019_11_01_063821_drop_is_deleted_column.php',
         'Egulias\\EmailValidator\\EmailLexer' => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator/EmailLexer.php',
         'Egulias\\EmailValidator\\EmailParser' => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator/EmailParser.php',
         'Egulias\\EmailValidator\\EmailValidator' => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator/EmailValidator.php',

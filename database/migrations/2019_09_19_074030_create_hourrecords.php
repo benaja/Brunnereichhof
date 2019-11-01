@@ -15,13 +15,13 @@ class CreateHourrecords extends Migration
     {
         Schema::create('hourrecords', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->unsignedBigInteger('culture_id')->nullable();
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('culture_id');
             $table->smallInteger('week');
             $table->smallInteger('year');
-            $table->double('hours')->nullable();
+            $table->double('hours');
             $table->string('comment')->nullable();
-            $table->boolean('createdByAdmin')->default(false);
+            $table->boolean('createdByAdmin');
             $table->timestamps();
 
             $table->foreign('customer_id')->references('id')->on('customer');

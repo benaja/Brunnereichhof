@@ -26,7 +26,7 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
 
-        $customers = Customer::orderBy('lastname')->get();
+        $customers = Customer::orderBy('lastname')->where('isDeleted', 0)->get();
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user->username;
@@ -188,8 +188,13 @@ class CustomerController extends Controller
         auth()->user()->authorize(['superadmin'], ['customer_write']);
 
         $customer = Customer::find($id);
-        $customer->user->delete();
-        $customer->delete();
+        $customer->user->update([
+            'isDeleted' => true,
+            'password' => null
+        ]);
+        $customer->update([
+            'isDeleted' => true
+        ]);
     }
 
     //-- helpers --//

@@ -23,7 +23,8 @@ class WorkerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
-        $workers = User::where('type_id', UserTypeEnum::Worker)
+        $workers = User::where('isDeleted', false)
+            ->where('type_id', UserTypeEnum::Worker)
             ->orderBy('lastname')
             ->get();
 
@@ -120,7 +121,10 @@ class WorkerController extends Controller
 
         $worker = User::find($id);
 
-        $worker->delete();
+        $worker->update([
+            'isDeleted' => true,
+            'password' => null
+        ]);
     }
 
     //-- helpers --//

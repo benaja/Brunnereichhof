@@ -3,12 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Rapportdetail extends Model
 {
-    use SoftDeletes;
-    
     public $table = "rapportdetail";
 
     protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date', 'project_id'];

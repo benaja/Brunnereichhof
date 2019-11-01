@@ -6,18 +6,16 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Enums\WorkTypeEnum;
 use App\Enums\UserTypeEnum;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use SoftDeletes;
     use Notifiable;
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
     public $table = "user";
 
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'isDeleted', 'type_id', 'role_id'
     ];
 
     protected $hidden = [
@@ -46,7 +44,7 @@ class User extends Authenticatable
 
     public function authorize($userTypes, $rules = [])
     {
-        if ($this->deleted_at !== null) {
+        if ($this->isDeleted == 1) {
             return abort(401, 'This action is unauthorized.');
         }
 
