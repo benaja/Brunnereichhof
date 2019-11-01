@@ -212,6 +212,42 @@ class ExampleDataSeeder extends Seeder
             'key' => 'fullDayLongEnd',
             'value' => '16:00',
             'type' => 'string'
+        ], [
+            'key' => 'hourrecordStartDate',
+            'value' => '2019-10-11',
+            'type' => 'date'
+        ], [
+            'key' => 'hourrecordEndDate',
+            'value' => '2019-11-14',
+            'type' => 'date'
+        ], [
+            'key' => 'welcomeText',
+            'value' => 'Herrzlich Willkommen {name} im Kundenportal',
+            'type' => 'string'
+        ], [
+            'key' => 'subtitle',
+            'value' => 'Hier haben Sie die Gelegenheit ihre vorgesehenen Arbeiten zu erfassen, damit wir besser planen können.',
+            'type' => 'string'
+        ], [
+            'key' => 'hourrecordTitle',
+            'value' => 'Arbeiten im 2019',
+            'type' => 'string'
+        ], [
+            'key' => 'hourrecordValid',
+            'value' => 'Tragen Sie bis am {datum} ihre vorgesehenen Arbeiten ein. Dies hilft uns ihre Bedürfnisse besser abzudecken.',
+            'type' => 'string'
+        ], [
+            'key' => 'hourrecordInvalid',
+            'value' => 'Die Zeit zum Arbeiten erfassen ist abgelaufen. Sie können ihre vorgesehenen Arbeiten anschauen, jedoch nicht mehr bearbeiten. Falls sich etwas bei ihren Arbeiten geändert hat, bitte wenden sie sich an info@brunnereichhof.ch.',
+            'type' => 'string'
+        ], [
+            'key' => 'surveyTitle',
+            'value' => 'Kunden Umfrage',
+            'type' => 'string'
+        ], [
+            'key' => 'surveyText',
+            'value' => 'Wir bitten Sie unsere Umfrage zur Kundenzufriedenheit auszufüllen.',
+            'type' => 'string'
         ]]);
 
         Worktype::firstOrCreate([

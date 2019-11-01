@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Pivots\BedRoomPivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reservation extends Model
 {
+    use SoftDeletes;
+    
     public $table = "reservation";
 
     protected $fillable = ['entry', 'exit', 'bed_room_id'];

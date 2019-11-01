@@ -154,6 +154,8 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
+        $room = Room::find($id);
+        $room->beds()->detach();
         Room::destroy($id);
     }
 

@@ -212,7 +212,7 @@ class PdfController extends Controller
         Pdf::validateToken($request->token);
 
         $this->pdf = new Pdf();
-        $employees = Employee::where('isActive', true)->where('isDeleted', false)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
+        $employees = Employee::where('isActive', true)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
         $numberOfEmployee = count($employees);
 
         $this->pdf->documentTitle("Mitarbeiterliste");

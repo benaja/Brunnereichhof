@@ -20,13 +20,13 @@ class EmployeeController extends Controller
 
         $employees = [];
         if (isset($request->guests) && isset($request->employees)) {
-            $employees = Employee::where('isDeleted', 0)->orderBy('lastname')->get();
-        }else if (isset($request->guests)) {
-            $employees = Employee::where('isGuest', 1)->where('isDeleted', 0)->orderBy('lastname')->get();
-        } else if (isset($request->all)) {
             $employees = Employee::orderBy('lastname')->get();
+        }else if (isset($request->guests)) {
+            $employees = Employee::where('isGuest', 1)->orderBy('lastname')->get();
+        } else if (isset($request->all)) {
+            $employees = Employee::withTrashed()->orderBy('lastname')->get();
         } else {
-            $employees = Employee::where('isGuest', 0)->where('isDeleted', 0)->orderBy('lastname')->get();
+            $employees = Employee::where('isGuest', 0)->orderBy('lastname')->get();
         }
         return $employees;
     }
@@ -178,9 +178,7 @@ class EmployeeController extends Controller
             }
         }
 
-        $employee->update([
-            'isDeleted' => true
-        ]);
+        $employee->delete();
     }
 
     // GET employee/all

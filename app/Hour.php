@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Hour extends Model
 {
+    use SoftDeletes;
+    
     public $table = "hours";
 
     protected $fillable = ['from', 'to', 'comment'];
