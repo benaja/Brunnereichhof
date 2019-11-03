@@ -11,6 +11,7 @@ use App\Room;
 use App\Worktype;
 use App\User;
 use App\Customer;
+use App\Foodtype;
 use App\Project;
 
 class ExampleDataSeeder extends Seeder
@@ -22,6 +23,8 @@ class ExampleDataSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('rapportdetail')->delete();
+        DB::table('rapport')->delete();
         DB::table('reservation')->delete();
         DB::table('customer_project')->delete();
         DB::table('customer')->delete();
@@ -194,6 +197,10 @@ class ExampleDataSeeder extends Seeder
             'isGuest' => false,
             'sex' => 'man'
         ]]);
+
+        Foodtype::firstOrCreate(['foodname' => 'eichhof']);
+        Foodtype::firstOrCreate(['foodname' => 'customer']);
+        Foodtype::firstOrCreate(['foodname' => 'mone']);
 
         DB::table('settings')->delete();
         DB::table('settings')->insert([[

@@ -58,11 +58,11 @@ class RapportController extends Controller
         $week = new \DateTime($week);
         $week->modify('monday this week');
 
-        $rapports = Rapport::where('startdate', $week->format('Y-m-d'))->get();
+        $rapports = Rapport::with('customer')->where('startdate', $week->format('Y-m-d'))->get();
 
-        foreach ($rapports as $rapport) {
-            $rapport->customer = $rapport->customer;
-        }
+        // foreach ($rapports as $rapport) {
+        //     $rapport->customer = $rapport->customer()->withTrashed()->first();
+        // }
         return $rapports;
     }
 

@@ -22,14 +22,6 @@ class ProjectController extends Controller
         return $projects;
     }
 
-    // GET project/customer/{customer}
-    public function allByCustomer(Request $request, Customer $customer)
-    {
-        auth()->user()->authorize(['superadmin'], ['rapport_read', 'customer_read']);
-
-        return $customer->projects;
-    }
-
     // POST project/add
     public function addToCustomer(Request $request)
     {
@@ -40,7 +32,7 @@ class ProjectController extends Controller
             return response('project no exists', 400);
         }
 
-        $customer = Customer::find($request->customerId);
+        $customer = Customer::withTrashed()->find($request->customerId);
 
         $project->customer()->attach($customer);
     }
@@ -78,10 +70,11 @@ class ProjectController extends Controller
     }
 
     // DELETE project/{projectName}/customer/{customerId}
-    public function removeFromCustomer(Request $request, $projectId, Customer $customer)
+    public function removeFromCustomer(Request $request, $projectId, $id)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
+        $customer = Customer::withTrashed()->find($id);
         $project = Project::find($projectId);
 
         $customer->projects()->detach($project);

@@ -200,6 +200,13 @@ class CustomerController extends Controller
         $customer->delete();
     }
 
+    // GET customer/{id}/projects
+    public function projects($id) {
+        auth()->user()->authorize(['superadmin'], ['customer_read']);
+
+        return Customer::withTrashed()->find($id)->projects;
+    }
+
     //-- helpers --//
     private $validateArray = [
         'firstname' => 'required|string|max:100',

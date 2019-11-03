@@ -19,15 +19,11 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->guests) && isset($request->employees)) {
-            $employees = Employee::orderBy('lastname')->get();
-        }else if (isset($request->guests)) {
-            $employees = Employee::where('isGuest', 1)->orderBy('lastname')->get();
-        } else if (isset($request->all)) {
-            $employees = Employee::withTrashed()->orderBy('lastname')->get();
-        } else {
-            $employees = Employee::where('isGuest', 0)->orderBy('lastname')->get();
-        }
+        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->orderBy('lastname')->get();
+        else if (isset($request->guests) && isset($request->employees)) $employees = Employee::orderBy('lastname')->get();
+        else if (isset($request->guests)) $employees = Employee::where('isGuest', 1)->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
+        else $employees = Employee::where('isGuest', 0)->orderBy('lastname')->get();
         return $employees;
     }
 
@@ -79,6 +75,11 @@ class EmployeeController extends Controller
             auth()->user()->authorize(['superadmin'], ['employee_write', 'roomdispositioner_write']);
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_write']);
+        }
+        if (isset($request->deleted_at)) {
+            $employe = Employee::withTrashed()->find($id);
+            $employe->restore();
+            return response('success');
         }
 
         $this->validate($request, $this->validateArray);

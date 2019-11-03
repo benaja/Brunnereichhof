@@ -10,6 +10,7 @@ Route::group(['middleware' => 'jwt.refresh'], function () {
 
 // Customer
 Route::patch('customer/{id}/resetpassword', 'CustomerController@resetPassword');
+Route::get('customer/{id}/projects', 'CustomerController@projects');
 Route::resource('customer', 'CustomerController');
 
 // Employee
@@ -25,9 +26,8 @@ Route::middleware(['jwt.auth'])->group(function () {
 Route::resource('/worker', 'WorkerController');
 
 //Project
-Route::get('/project/customer/{customer}', 'ProjectController@allByCustomer');
 Route::get('/project/exist/{name}', 'ProjectController@exist');
-Route::delete('/project/{projectId}/customer/{customer}', 'ProjectController@removeFromCustomer');
+Route::delete('/project/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
 Route::post('/project/add', 'ProjectController@addToCustomer');
 Route::resource('/project', 'ProjectController');
 
