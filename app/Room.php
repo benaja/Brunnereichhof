@@ -16,7 +16,7 @@ class Room extends Model
 
     public function beds()
     {
-        return $this->belongsToMany(Bed::class)->withPivot('id');;
+        return $this->belongsToMany(Bed::class)->withPivot('id')->withTrashed();
     }
 
     public function bedRoomPivot()
