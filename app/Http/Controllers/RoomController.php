@@ -95,7 +95,7 @@ class RoomController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         if (isset($request->entry)) {
-            $beds = Room::find($id)->beds;
+            $beds = Room::withTrashed()->find($id)->beds;
             $availableBeds = [];
 
             foreach ($beds as $bed) {
@@ -154,9 +154,17 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
+        $room = DB::table('room')
+            ->join('bed_room', 'room.id', 'bed_room.room_id')
+            ->join('reservation', 'reservation.bed_room_id', 'bed_room.id')
+            ->where('reservation.exit', '>=', (new \DateTime())->format('Y-M-D'))
+            ->get();
+
+        dd($room);
+
         $room = Room::find($id);
-        $room->beds()->detach();
-        Room::destroy($id);
+        $room->delete();
+        // Room::destroy($id);
     }
 
     // GET /rooms/reservation/{date}

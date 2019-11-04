@@ -14,12 +14,12 @@ class BedRoomPivot extends Pivot
 
     public function bed()
     {
-        return $this->belongsTo(Bed::class);
+        return $this->belongsTo(Bed::class)->withTrashed();
     }
 
     public function room()
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Room::class)->withTrashed();
     }
 
     public function reservations()
