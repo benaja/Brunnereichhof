@@ -17,6 +17,9 @@ Route::resource('customer', 'CustomerController');
 Route::get('/employee/{employeeId}/evaluation/year/{year}', 'EmployeeController@employeeDayTotalsByYear');
 Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeController@employeeDayTotalsByMonth');
 Route::middleware(['jwt.auth'])->group(function () {
+    Route::get('/guest', 'EmployeeController@guests');
+    Route::patch('/guest/{id}', 'EmployeeController@update');
+    Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
     Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
     Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
     Route::resource('employee', 'EmployeeController');

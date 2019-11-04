@@ -23,9 +23,9 @@ class WorkerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
-        $workers = User::where('type_id', UserTypeEnum::Worker)
-            ->orderBy('lastname')
-            ->get();
+        if (isset($request->deleted)) $workers = User::workers()->onlyTrashed()->orderBy('lastname')->get();
+        else if(isset($request->all)) $workers = User::workers()->withTrashed()->orderBy('lastname')->get();
+        else $workers = User::workers()->orderBy('lastname')->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
@@ -101,6 +101,12 @@ class WorkerController extends Controller
     public function update(Request $request, $id)
     {
         auth()->user()->authorize(['superadmin'], ['worker_write']);
+
+        if (isset($request->deleted_at)) {
+            $user = User::withTrashed()->find($id);
+            $user->restore();
+            return $user;
+        }
 
         $user = User::find($id);
 

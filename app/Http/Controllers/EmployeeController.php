@@ -19,11 +19,31 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
+        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', false)->orderBy('lastname')->get();
+        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
+        else $employees = Employee::where('isGuest', false)->orderBy('lastname')->get();
+        return $employees;
+    }
+
+    // GET guests
+    public function guests(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
+
+        $employees = [];
+        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', true)->orderBy('lastname')->get();
+        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
+        else $employees = Employee::where('isGuest', true)->orderBy('lastname')->get();
+        return $employees;
+    }
+
+    // GET employeeswithguests
+    public function employeesWithGuests(Request $request) {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read', 'evaluation_employee']);
+
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->orderBy('lastname')->get();
-        else if (isset($request->guests) && isset($request->employees)) $employees = Employee::orderBy('lastname')->get();
-        else if (isset($request->guests)) $employees = Employee::where('isGuest', 1)->orderBy('lastname')->get();
-        else if (isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
-        else $employees = Employee::where('isGuest', 0)->orderBy('lastname')->get();
+        else if(isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
+        else $employees = Employee::orderBy('lastname')->get();
         return $employees;
     }
 

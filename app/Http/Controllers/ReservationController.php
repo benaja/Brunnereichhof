@@ -83,7 +83,7 @@ class ReservationController extends Controller
 
         // BedRoomPivot::where('entry', '>=', $request->from)->where('entry', '<=', $re)
         $bedRoomPivot = BedRoomPivot::find($request->bed);
-        $employee = Employee::find($request->employee);
+        $employee = Employee::withTrashed()->find($request->employee);
 
         $reservation = Reservation::find($id);
         $reservation->delete();
