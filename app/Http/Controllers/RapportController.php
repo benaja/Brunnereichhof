@@ -58,11 +58,11 @@ class RapportController extends Controller
         $week = new \DateTime($week);
         $week->modify('monday this week');
 
-        $rapports = Rapport::where('startdate', $week->format('Y-m-d'))->get();
+        $rapports = Rapport::with('customer')->where('startdate', $week->format('Y-m-d'))->get();
 
-        foreach ($rapports as $rapport) {
-            $rapport->customer = $rapport->customer;
-        }
+        // foreach ($rapports as $rapport) {
+        //     $rapport->customer = $rapport->customer()->withTrashed()->first();
+        // }
         return $rapports;
     }
 
@@ -97,7 +97,7 @@ class RapportController extends Controller
 
         $rapport = $this->rapportWithDetails($rapport);
 
-        $employees = Employee::orderBy('lastname')->get();
+        $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
 
         return [
             'rapport' => $rapport,
@@ -144,13 +144,13 @@ class RapportController extends Controller
         return $rapportdetails;
     }
 
-    public function removeEmployee(Rapport $rapport, Employee $employee)
+    public function removeEmployee(Rapport $rapport, $employeeId)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
         Rapportdetail::where([
             'rapport_id' => $rapport->id,
-            'employee_id' => $employee->id
+            'employee_id' => $employeeId
         ])->delete();
 
         return 'success';

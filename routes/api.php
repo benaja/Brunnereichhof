@@ -10,12 +10,16 @@ Route::group(['middleware' => 'jwt.refresh'], function () {
 
 // Customer
 Route::patch('customer/{id}/resetpassword', 'CustomerController@resetPassword');
+Route::get('customer/{id}/projects', 'CustomerController@projects');
 Route::resource('customer', 'CustomerController');
 
 // Employee
 Route::get('/employee/{employeeId}/evaluation/year/{year}', 'EmployeeController@employeeDayTotalsByYear');
 Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeController@employeeDayTotalsByMonth');
 Route::middleware(['jwt.auth'])->group(function () {
+    Route::get('/guest', 'EmployeeController@guests');
+    Route::patch('/guest/{id}', 'EmployeeController@update');
+    Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
     Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
     Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
     Route::resource('employee', 'EmployeeController');
@@ -25,9 +29,8 @@ Route::middleware(['jwt.auth'])->group(function () {
 Route::resource('/worker', 'WorkerController');
 
 //Project
-Route::get('/project/customer/{customer}', 'ProjectController@allByCustomer');
 Route::get('/project/exist/{name}', 'ProjectController@exist');
-Route::delete('/project/{projectId}/customer/{customer}', 'ProjectController@removeFromCustomer');
+Route::delete('/project/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
 Route::post('/project/add', 'ProjectController@addToCustomer');
 Route::resource('/project', 'ProjectController');
 
@@ -39,7 +42,7 @@ Route::resource('/project', 'ProjectController');
 Route::get('/rapport/week/{week}', 'RapportController@showWeek');
 Route::get('/rapport/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
 Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
-Route::delete('/rapport/{rapport}/employee/{employee}', 'RapportController@removeEmployee');
+Route::delete('/rapport/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
 Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');
 Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails');
 Route::get('/rapport/daytotal/{date}', 'RapportController@daytotal');

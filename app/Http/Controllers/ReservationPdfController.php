@@ -19,9 +19,9 @@ class ReservationPdfController extends Controller
 
         $this->pdf = new Pdf();
 
-        $employees = Employee::find($id);
+        $employees = Employee::withTrashed()->find($id);
         if (!$employees) {
-            $employees = Employee::orderBy('lastname')->get();
+            $employees = Employee::withTrashed()->orderBy('lastname')->get();
         } else {
             $employees = [$employees];
         }
@@ -39,7 +39,7 @@ class ReservationPdfController extends Controller
                 $bed = $reservation->bedRoomPivot->bed;
 
                 $lines = [];
-                $inventars = Bed::find($bed->id)->inventars;
+                $inventars = Bed::withTrashed()->find($bed->id)->inventars;
                 foreach ($inventars as $inventar) {
                     $amount = $inventar->pivot->amount;
                     array_push($lines, [$amount, $inventar->name, 'CHF ' . number_format($inventar->price, 2), '', '', '']);

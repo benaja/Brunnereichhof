@@ -42,7 +42,7 @@ class PdfController extends Controller
         if (isset($request->workerId)) {
             array_push($workers, User::find($request->workerId));
         } else {
-            foreach (User::workers()->orderby('lastname')->get() as $worker) {
+            foreach (User::workers()->withTrashed()->orderby('lastname')->get() as $worker) {
                 if ($worker->totalHours($firstDayOfMonth) > 0) {
                     array_push($workers, $worker);
                 }

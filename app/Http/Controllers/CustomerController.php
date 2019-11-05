@@ -26,11 +26,13 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
 
-        $customers = Customer::orderBy('lastname')->where('isDeleted', 0)->get();
+        if (isset($request->deleted)) $customers = Customer::onlyTrashed()->orderBy('lastname')->get();
+        else if(isset($request->all)) $customers = Customer::withTrashed()->orderBy('lastname')->get();
+        else $customers = Customer::orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
-            $customer->username = $customer->user->username;
-            $customer->email = $customer->user->email;
+            $customer->username = $customer->user()->withTrashed()->first()->username;
+            $customer->email = $customer->user()->withTrashed()->first()->email;
         }
         $customers = $customers->toArray();
 
@@ -119,6 +121,12 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_write']);
 
+        if (isset($request->deleted_at)) {
+            $customer = Customer::withTrashed()->find($id);
+            $customer->restore();
+            $customer->user()->withTrashed()->first()->restore();
+            return response('success');
+        }
         $this->validate($request, $this->validateArray);
 
         $customer = Customer::find($id);
@@ -195,6 +203,13 @@ class CustomerController extends Controller
         $customer->update([
             'isDeleted' => true
         ]);
+    }
+
+    // GET customer/{id}/projects
+    public function projects($id) {
+        auth()->user()->authorize(['superadmin'], ['customer_read']);
+
+        return Customer::withTrashed()->find($id)->projects;
     }
 
     //-- helpers --//
