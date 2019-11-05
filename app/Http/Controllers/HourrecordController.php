@@ -28,11 +28,11 @@ class HourrecordController extends Controller
             ])->get()->groupBy('week');
         } else {
             if (isset($request->sortBy) && $request->sortBy === 'customer') {
-                return Customer::with(array('Hourrecords' => function ($query) {
-                    $query->where('year', (new \DateTime())->format('Y'));
+                return Customer::withTrashed()->with(array('Hourrecords' => function ($query) {
+                    $query->where('year', (new \DateTime())->format('Y'))->orderBy('week');
                 }))->orderBy('lastname')->get();
             } else if (isset($request->sortBy) && $request->sortBy === 'project') {
-                return Culture::with(['hourrecords' => function ($query) {
+                return Culture::withTrashed()->with(['hourrecords' => function ($query) {
                     $query->where('year', (new \DateTime())->format('Y'));
                 }])->orderBy('name')->get();
             }
@@ -168,7 +168,7 @@ class HourrecordController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
 
-        return Customer::with(['hourrecords' => function ($query) use ($year, $week) {
+        return Customer::withTrashed()->with(['hourrecords' => function ($query) use ($year, $week) {
             $query->with('culture')->where([
                 'year' => $year,
                 'week' => $week

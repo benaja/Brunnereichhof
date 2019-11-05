@@ -144,13 +144,13 @@ class RapportController extends Controller
         return $rapportdetails;
     }
 
-    public function removeEmployee(Rapport $rapport, Employee $employee)
+    public function removeEmployee(Rapport $rapport, $employeeId)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
         Rapportdetail::where([
             'rapport_id' => $rapport->id,
-            'employee_id' => $employee->id
+            'employee_id' => $employeeId
         ])->delete();
 
         return 'success';
