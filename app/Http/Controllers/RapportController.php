@@ -97,7 +97,7 @@ class RapportController extends Controller
 
         $rapport = $this->rapportWithDetails($rapport);
 
-        $employees = Employee::orderBy('lastname')->get();
+        $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
 
         return [
             'rapport' => $rapport,
