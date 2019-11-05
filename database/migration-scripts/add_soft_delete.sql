@@ -16,19 +16,17 @@ alter table `worktype` add `deleted_at` timestamp null
 
 
 
-update bed set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update customer set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update employee set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update user set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update project set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update room set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
-update inventar set deleted_at '2019-11-27 00:00:00.000000' where isDeleted = 1;
+update bed set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
+update customer set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
+update employee set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
+update user set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
+update project set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
+update room set deleted_at='2019-11-27 00:00:00.000000' where isDeleted = 1;
 
 
-alter table `bed` drop `isDeleted`
-alter table `customer` drop `isDeleted`
-alter table `employee` drop `isDeleted`
-alter table `user` drop `isDeleted`
-alter table `project` drop `isDeleted`
-alter table `room` drop `isDeleted`
-alter table `inventar` drop `isDeleted`
+alter table `bed` drop `isDeleted`;
+alter table `customer` drop `isDeleted`;
+alter table `employee` drop `isDeleted`;
+alter table `user` drop `isDeleted`;
+alter table `project` drop `isDeleted`;
+alter table `room` drop `isDeleted`;
