@@ -158,13 +158,15 @@ class RoomController extends Controller
             ->join('bed_room', 'room.id', 'bed_room.room_id')
             ->join('reservation', 'reservation.bed_room_id', 'bed_room.id')
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-M-D'))
-            ->get();
+            ->where('room.id', $id)
+            ->first();
 
-        dd($room);
+        if($room !== null) {
+            return response('Room is currently in use.', 400);
+        }
 
         $room = Room::find($id);
         $room->delete();
-        // Room::destroy($id);
     }
 
     // GET /rooms/reservation/{date}
