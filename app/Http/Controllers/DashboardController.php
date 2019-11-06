@@ -44,7 +44,6 @@ class DashboardController extends Controller
         $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
             return $bedRoomPivot['bed']['places'];
         }, $allBeds));
-
         $stats = [
             'freePlaces' => $amountOfAllBeds - count($beds),
             'usedPlaces' => count($beds),
