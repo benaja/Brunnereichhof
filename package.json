@@ -9,7 +9,7 @@
     "prod": "npm run production",
     "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
     "serve": "cd resources/frontend && npm run serve",
-    "build": "cd resources/frontend && npm run build && rm -f ../../public/*.js RR rm -f ../../public/*.css && cp dist/index.html ../views/index.html && cp dist/* ../../public/"
+    "build": "cd resources/frontend && npm run build && rm -f ../../public/*.js RR rm -f ../../public/*.css && cp dist/index.html ../views/index.html && cp -r dist/* ../../public/"
   },
   "devDependencies": {
     "axios": "^0.18.1",
