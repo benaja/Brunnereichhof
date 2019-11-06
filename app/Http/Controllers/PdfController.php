@@ -363,14 +363,14 @@ class PdfController extends Controller
         return $totalFood;
     }
 
-    private function getFoodOfEmployeeByMonth($fristDayOfMonth, $employee)
+    private function getFoodOfEmployeeByMonth($fristDayOfMonth, $employee, $foodType = [FoodTypeEnum::Eichhof, FoodTypeEnum::Customer])
     {
         $lastDayOfMonth = clone $fristDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
 
         $totalFood = $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))
             ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
-            ->where('foodtype_id', FoodTypeEnum::Eichhof)
+            ->whereIn('foodtype_id', $foodType)
             ->where('hours', '>', 0)
             ->groupBy('date')
             ->count();
@@ -399,8 +399,11 @@ class PdfController extends Controller
         $lines = [];
         foreach ($employees as $rapportdetailsByEmployee) {
             $totalHours = $rapportdetailsByEmployee->sum('hours');
-            $totalFood = $rapportdetailsByEmployee->where('foodtype_id', FoodTypeEnum::Eichhof)
-                ->where('hours', '>', 0)->groupBy('date')->count();
+            $totalFood = $rapportdetailsByEmployee
+                ->where('hours', '>', 0)
+                ->whereIn('foodtype_id', [FoodTypeEnum::Eichhof, FoodTypeEnum::Customer])
+                ->groupBy('date')
+                ->count();
             array_push($lines, [
                 $rapportdetailsByEmployee[0]->employee->name(),
                 $totalHours . 'h',
@@ -432,8 +435,10 @@ class PdfController extends Controller
         $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
         $this->pdf->documentTitle("Monat: " . $montName);
         $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
-        $totalFood = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee);
-        $this->pdf->documentTitle("Verpflegungen auf dem Eichhof: $totalFood");
+        $totalFoodEichhof = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee, [FoodTypeEnum::Eichhof]);
+        $totalFoodCustomer = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee, [FoodTypeEnum::Customer]);
+        $this->pdf->documentTitle("Verpflegungen auf dem Eichhof: $totalFoodEichhof");
+        $this->pdf->documentTitle("Verpflegungen bei Kunde: $totalFoodCustomer");
         $this->pdf->newLine();
         $this->addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee);
     }

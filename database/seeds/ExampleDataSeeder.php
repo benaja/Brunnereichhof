@@ -27,7 +27,10 @@ class ExampleDataSeeder extends Seeder
         DB::table('rapport')->delete();
         DB::table('reservation')->delete();
         DB::table('customer_project')->delete();
+        DB::table('hourrecords')->delete();
         DB::table('customer')->delete();
+        DB::table('hours')->delete();
+        DB::table('timerecord')->delete();
         DB::table('user')->delete();
         DB::table('role_authorizationrule')->delete();
         DB::table('authorizationrule')->delete();
