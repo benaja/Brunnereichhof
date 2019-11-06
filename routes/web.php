@@ -1,5 +1,10 @@
 <?php
 
+Route::get('/{any}', function () {
+    View::addExtension('html', 'php');
+    return View::make('index');
+})->where('any', '.*');
+
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('test');
