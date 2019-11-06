@@ -1,0 +1,9 @@
+{
+    "tabWidth": 2,
+    "disableLanguages": [
+        "js"
+    ],
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 150
+}

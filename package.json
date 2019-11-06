@@ -1,26 +1,27 @@
 {
-    "private": true,
-    "scripts": {
-        "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
-    },
-    "devDependencies": {
-        "axios": "^0.18",
-        "bootstrap": "^4.0.0",
-        "popper.js": "^1.12",
-        "cross-env": "^5.1",
-        "jquery": "^3.2",
-        "laravel-mix": "^2.0",
-        "lodash": "^4.17.4",
-        "vue": "^2.5.7"
-    },
-    "dependencies": {
-        "sweetalert2": "^7.19.3",
-        "tiny-date-picker": "^3.2.5"
-    }
+  "private": true,
+  "scripts": {
+    "dev": "npm run development",
+    "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch-poll": "npm run watch -- --watch-poll",
+    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "prod": "npm run production",
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "serve": "cd resources/frontend && npm run serve",
+    "build": "cd resources/frontend && npm run build && rm -f ../../public/*.js RR rm -f ../../public/*.css && cp dist/index.html ../views/index.html && cp dist/* ../../public/"
+  },
+  "devDependencies": {
+    "axios": "^0.18.1",
+    "bootstrap": "^4.3.1",
+    "cross-env": "^5.1",
+    "jquery": "^3.4.1",
+    "laravel-mix": "^2.0",
+    "lodash": "^4.17.15",
+    "popper.js": "^1.12",
+    "vue": "^2.5.7"
+  },
+  "dependencies": {
+    "concurrently": "^4.1.2"
+  }
 }

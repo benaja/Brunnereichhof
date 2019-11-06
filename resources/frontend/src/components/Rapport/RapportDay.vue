@@ -1,0 +1,232 @@
+<template>
+  <div class="rapport-day">
+    <p class="font-weight-bold my-3 pl-1">{{date.format('dddd')}}</p>
+    <v-divider></v-divider>
+    <edit-field
+      class="mt-1"
+      placeholder="Bemerkung"
+      v-model="rapport[currentCommentString]"
+      @change="updateComment"
+      :readonly="!hasPermisstionToChangeRapport"
+    ></edit-field>
+    <div class="mx-1 all-days">
+      <p class="font-weight-bold d-md-none">Alle</p>
+      <v-select
+        v-model="defaultFoodType"
+        label="Verpflegung"
+        :items="foodTypes"
+        color="black"
+        :readonly="!hasPermisstionToChangeRapport"
+      ></v-select>
+      <v-select
+        v-model="defaultProject"
+        label="Projekt"
+        :items="projects"
+        item-value="id"
+        item-text="name"
+        :readonly="!hasPermisstionToChangeRapport"
+      ></v-select>
+    </div>
+    <div
+      v-for="(rapportdetail, index) of rapportdetails"
+      :key="'rapportdetails-' + rapportdetail.id"
+      class="mx-1 mt-4 rapportday"
+    >
+      <p
+        class="font-weight-bold d-md-none"
+        v-if="rapportdetail.employee"
+      >{{rapportdetail.employee.lastname}} {{rapportdetail.employee.firstname}}</p>
+      <v-text-field
+        v-model="rapportdetail.hours"
+        label="Stunden"
+        type="number"
+        :tabindex="day*1000 + index+1"
+        @input="change('hours', rapportdetail)"
+        :readonly="!hasPermisstionToChangeRapport"
+        @wheel="event => event.preventDefault()"
+        min="0"
+      ></v-text-field>
+      <v-select
+        v-model="rapportdetail.foodtype_id"
+        :background-color="rapportdetail.foodtype_ok ? '' : 'red'"
+        :color="rapportdetail.foodtype_ok ? 'primary' : 'red'"
+        label="Verpflegung"
+        :items="foodTypes"
+        @change="change('foodtype_id', rapportdetail)"
+        :readonly="!hasPermisstionToChangeRapport"
+      ></v-select>
+      <v-select
+        v-model="rapportdetail.project_id"
+        label="Projekt"
+        :items="projects"
+        item-value="id"
+        item-text="name"
+        @change="change('project_id', rapportdetail)"
+        :readonly="!hasPermisstionToChangeRapport"
+      ></v-select>
+    </div>
+    <p class="pl-1 mt-4">
+      <span class="d-md-none font-weight-bold">Total:</span>
+      {{totalHours}}
+    </p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'RapportDay',
+  props: {
+    date: Object,
+    employees: Array,
+    rapport: Object,
+    day: Number,
+    projects: Array,
+    rapportdetails: Array
+  },
+  data() {
+    return {
+      defaultProject: this.rapport.default_project_id,
+      defaultFoodType: 1,
+      foodTypes: [
+        {
+          value: 1,
+          text: 'Eichhof'
+        },
+        {
+          value: 2,
+          text: 'Kunde'
+        },
+        {
+          value: 3,
+          text: 'Keine Angabe'
+        }
+      ],
+      hasPermisstionToChangeRapport: false
+    }
+  },
+  mounted() {
+    this.addEmployeeToRapportdetails()
+    this.hasPermisstionToChangeRapport = this.$auth.user().hasPermission(['superadmin'], ['rapport_write'])
+  },
+  methods: {
+    change(changedElement, rapportdetail) {
+      if (changedElement === 'hours' && rapportdetail.hours < 0) rapportdetail.hours = 0
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch(`rapportdetail/${rapportdetail.id}`, {
+          [changedElement]: rapportdetail[changedElement]
+        })
+        .then(response => {
+          this.$store.commit('isSaving', false)
+          if (changedElement === 'foodtype_id' || changedElement === 'hours') {
+            rapportdetail.foodtype_ok = response.data.foodtype_ok
+          }
+        })
+        .catch(() => {
+          this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+        })
+    },
+    updateComment() {
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch(`rapport/${this.rapport.id}`, {
+          [this.currentCommentString]: this.rapport[this.currentCommentString]
+        })
+        .then(() => {
+          this.$store.commit('isSaving', false)
+        })
+        .catch(() => {
+          this.$store.commit('isSaving', false)
+          this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+        })
+    },
+    addEmployeeToRapportdetails() {
+      for (let rapportdetail of this.rapportdetails) {
+        rapportdetail.employee = this.employees.find(e => e.id === rapportdetail.employee_id)
+      }
+    }
+  },
+  computed: {
+    currentCommentString() {
+      if (this.day === 0) {
+        return 'comment_mo'
+      } else if (this.day === 1) {
+        return 'comment_tu'
+      } else if (this.day === 2) {
+        return 'comment_we'
+      } else if (this.day === 3) {
+        return 'comment_th'
+      } else if (this.day === 4) {
+        return 'comment_fr'
+      } else if (this.day === 5) {
+        return 'comment_sa'
+      }
+      return null
+    },
+    totalHours() {
+      return this.rapportdetails.reduce((total, rapportdetail) => {
+        return Number(total) + Number(rapportdetail.hours)
+      }, 0)
+    }
+  },
+  watch: {
+    defaultProject() {
+      for (let rapportdetail of this.rapportdetails) {
+        rapportdetail.project_id = this.defaultProject
+      }
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch('/rapportdetails', {
+          rapportdetails: this.rapportdetails
+        })
+        .then(() => {
+          this.$store.commit('isSaving', false)
+        })
+        .catch(() => {
+          this.$store.commit('isSaving', false)
+          this.$swal('Fehler', 'Das Projekt konnte nicht geändert werden', 'error')
+        })
+    },
+    defaultFoodType() {
+      for (let rapportdetail of this.rapportdetails) {
+        rapportdetail.foodtype_id = this.defaultFoodType
+      }
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch('/rapportdetails', {
+          rapportdetails: this.rapportdetails
+        })
+        .then(response => {
+          this.$store.commit('isSaving', false)
+          for (let i = 0; i < this.rapportdetails.length; i++) {
+            this.rapportdetails[i].foodtype_ok = response.data[i].foodtype_ok
+          }
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Die Verpflegung konnte nicht geändert werden', 'error')
+          this.$store.commit('isSaving', false)
+        })
+    },
+    'rapport.rapportdetails'() {
+      this.addEmployeeToRapportdetails()
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.rapport-day {
+  width: 100%;
+}
+@media only screen and (min-width: 600px) {
+  .all-days {
+    height: 150px;
+    overflow: hidden;
+  }
+
+  .rapportday {
+    height: 230px;
+    overflow: hidden;
+  }
+}
+</style>
