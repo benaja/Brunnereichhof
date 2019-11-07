@@ -23,7 +23,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 body {
   background-color: rgb(238, 237, 237);
 }

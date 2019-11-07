@@ -9,12 +9,14 @@ import VueSweetalert2 from 'vue-sweetalert2'
 import VueTouch from 'vue-touch'
 import EditField from '@/components/general/EditField'
 import Vuetify from 'vuetify'
+import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.use(VueSweetalert2)
 Vue.use(VueTouch)
+Vue.use(chartist)
 
 Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)

@@ -1,23 +1,45 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12" class="px-2">
-        <h1>Mitarbeiter</h1>
+    <v-row class="mt-4 pt-4">
+      <v-col cols="12" md="6">
+        <stats-card
+          title="Mitarbeiter Stunden"
+          text="Geleistete Stunden pro Monat"
+          :updated-at="stats.updatedAt.date"
+          :dataset="stats.employeeHoursByMonth"
+        ></stats-card>
       </v-col>
-      <v-col cols="12" md="6" class="pa-2">
-        <hours-by-month :stats="stats.employeeHoursByMonth"></hours-by-month>
+      <v-col cols="12" md="6">
+        <stats-card
+          title="Hofmitarbeiter Stunden"
+          text="Geleistete Stunden pro Monat"
+          :updated-at="stats.updatedAt.date"
+          :dataset="stats.workerHoursByMonth"
+        ></stats-card>
       </v-col>
-      <v-col cols="12" md="6" class="pa-2">
-        <total-numbers :stats="employeeTotalNumbers"></total-numbers>
+      <v-col cols="12" md="4">
+        <single-stat-card
+          title="Totale Stunden Mitarbeiter"
+          icon="person"
+          :value="`${stats.employeeTotalNumbers.hours} Stunden`"
+          :updated-at="stats.updatedAt.date"
+        ></single-stat-card>
       </v-col>
-      <v-col cols="12" class="px-2 pt-3" v-if="$auth.user().type_id === 3">
-        <h1>Hofmitarbeiter</h1>
+      <v-col cols="12" md="4">
+        <single-stat-card
+          title="Aktive Mitarbeiter"
+          icon="person"
+          :value="`${stats.employeeTotalNumbers.activeEmployees}`"
+          action-text="Aktuell"
+        ></single-stat-card>
       </v-col>
-      <v-col cols="12" md="6" class="pa-2" v-if="$auth.user().type_id === 3">
-        <hours-by-month :stats="stats.workerHoursByMonth"></hours-by-month>
-      </v-col>
-      <v-col cols="12" md="6" class="pa-2" v-if="$auth.user().type_id === 3">
-        <total-numbers :stats="workerTotalNumbers"></total-numbers>
+      <v-col cols="12" md="4">
+        <single-stat-card
+          title="Totale Stunden Hofmitarbeiter"
+          icon="person_outline"
+          :value="`${stats.workerTotalNumbers.hours} Stunden`"
+          :updated-at="stats.updatedAt.date"
+        ></single-stat-card>
       </v-col>
     </v-row>
     <release-notes></release-notes>
@@ -25,20 +47,23 @@
 </template>
 
 <script>
-import HoursByMonth from '@/components/Dashboard/HoursByMonth'
-import TotalNumbers from '@/components/Dashboard/TotalNumbers'
 import ReleaseNotes from '@/components/Dashboard/ReleaseNotes'
+import StatsCard from '@/components/Dashboard/StatsCard'
+import SingleStatCard from '@/components/Dashboard/SingleStatCard'
 
 export default {
   name: 'Dashboard',
   components: {
-    HoursByMonth,
-    TotalNumbers,
-    ReleaseNotes
+    ReleaseNotes,
+    StatsCard,
+    SingleStatCard
   },
   data() {
     return {
-      stats: {}
+      stats: {
+        employeeHoursByMonth: [],
+        updatedAt: {}
+      }
     }
   },
   mounted() {
@@ -64,5 +89,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+$ct-grid-color: white;
+$ct-text-color: white;
+@import 'chartist/dist/scss/chartist.scss';
 </style>
