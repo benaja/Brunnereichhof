@@ -6,6 +6,7 @@ public/profileimages/*
 .DS_Store
 node_modules
 dist
+vendor
 
 # local env files
 resources/frontend/node_modules
