@@ -61,7 +61,9 @@ export default {
   data() {
     return {
       stats: {
+        employeeTotalNumbers: {},
         employeeHoursByMonth: [],
+        workerTotalNumbers: {},
         updatedAt: {}
       }
     }

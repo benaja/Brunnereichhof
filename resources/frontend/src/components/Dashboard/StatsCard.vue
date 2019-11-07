@@ -106,10 +106,8 @@ h3 {
   stroke: white !important;
 }
 
-.ct-series-a .ct-point,
-.ct-series-a .ct-line,
-.ct-series-a .ct-bar,
-.ct-series-a .ct-slice-donut {
-  stroke: white;
+.ct-labels span {
+  width: 40px !important;
+  margin-right: 5px;
 }
 </style>

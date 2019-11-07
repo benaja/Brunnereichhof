@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
             Stats::put('workerHoursByMonth', $workerHoursByMonth);
             Stats::put('workerTotalNumbers', $workerTotalNumbers);
             Stats::put('lastCronJob', new \DateTime());
-        })->everyMinute();
+        })->hourly();
     }
 
     /**

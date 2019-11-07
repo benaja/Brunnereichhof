@@ -1,5 +1,13 @@
 export default [
   {
+    version: '1.2.1',
+    changes: [
+      `Neues Design beim Dashboard.`,
+      `Die Daten des Dashboards werden nun nur noch einmal pro Stunde aktualisiert. Dafür ist die Ladezeit deutlich besser.`
+    ],
+    bugfixes: [`Mahlzeiten bei Kunde wird nun auch auf dem Mitarbeiter Monatsrapport angezeigt.`]
+  },
+  {
     version: '1.2.0',
     changes: [
       `Mit dieser Version können nun gelöschte Mitarbeiter, Gäste, Hofmitarbeiter und Kunden
