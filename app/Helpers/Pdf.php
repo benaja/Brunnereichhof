@@ -14,6 +14,7 @@ class Pdf extends Fpdf
   private $pagePaddingLeft = 0;
   private $currentRow = 0;
   private $topRowPosition = 0;
+  private $fontName = 'Helvetica';
   public $textSize = 11;
   public $titleSize = 15;
   public $textToInsertOnPageBreak = "";
@@ -27,11 +28,8 @@ class Pdf extends Fpdf
     Fpdf::SetFillColor(38, 166, 154);
     Fpdf::SetDrawColor(255);
     Fpdf::SetLineWidth(.3);
-    Fpdf::AddFont('Raleway', '', 'Raleway-Regular.php');
-    Fpdf::AddFont('Raleway', 'B', 'Raleway-Bold.php');
-    Fpdf::AddFont('Raleway', 'I', 'Raleway-Italic.php');
 
-    Fpdf::SetFont('Raleway', '', $this->titleSize);
+    Fpdf::SetFont($this->fontName, '', $this->titleSize);
     Fpdf::SetAutopageBreak(true);
   }
 
@@ -49,7 +47,7 @@ class Pdf extends Fpdf
     }
     Fpdf::SetDrawColor(255);
     Fpdf::SetTextColor(0);
-    Fpdf::SetFont('Raleway', $fontStile, $textSize);
+    Fpdf::SetFont($this->fontName, $fontStile, $textSize);
     Fpdf::MultiCell(0, $textSize / 1.8, utf8_decode($text), 0, 2);
   }
 
@@ -79,7 +77,7 @@ class Pdf extends Fpdf
 
     Fpdf::SetDrawColor(255);
     Fpdf::SetTextColor(0);
-    Fpdf::SetFont('Raleway', $fontStile, $textSize);
+    Fpdf::SetFont($this->fontName, $fontStile, $textSize);
     Fpdf::MultiCell($this->documentWidth, $textSize / 1.8, utf8_decode($text), 0, 'L', false);
   }
 
@@ -103,7 +101,7 @@ class Pdf extends Fpdf
         Fpdf::Line(Fpdf::GetX(), $this->topOfTable, Fpdf::GetX() + $this->documentWidth,  $this->topOfTable);
       }
       if ($index == count($lines) - 1 && isset($options['lastLineBold'])) {
-        Fpdf::SetFont('Raleway', 'B', $this->textSize);
+        Fpdf::SetFont($this->fontName, 'B', $this->textSize);
       }
       if (isset($options['lineBreakEnabledOnLines']) && in_array($index + 1, $options['lineBreakEnabledOnLines'])) {
         Fpdf::SetAutopageBreak(true);
@@ -118,7 +116,7 @@ class Pdf extends Fpdf
 
   public function signaturePlaceHolder()
   {
-    Fpdf::SetFont('Raleway', '', $this->textSize);
+    Fpdf::SetFont($this->fontName, '', $this->textSize);
     Fpdf::SetXY(110, 185);
     Fpdf::Cell(100, 4, utf8_decode('Datum:_________________________________Unterschrift:__________________________________'), 0, 0, 'L', false);
   }
@@ -158,17 +156,17 @@ class Pdf extends Fpdf
       $this->addPage();
       $this->insertPageBreakTextIfNeeded();
     }
-    Fpdf::SetFont('Raleway', 'B', $this->textSize);
+    Fpdf::SetFont($this->fontName, 'B', $this->textSize);
     Fpdf::Cell(35, 6, utf8_decode($date->format('d.m.Y')), 0, 0, 'L', false);
 
 
-    Fpdf::SetFont('Raleway', '', $this->textSize);
+    Fpdf::SetFont($this->fontName, '', $this->textSize);
     Fpdf::MultiCell($this->documentWidth - 50, 6, utf8_decode($comment['text']), 0, 'L', false);
   }
 
   private function tableHeader($titles, $cellsWidth)
   {
-    Fpdf::SetFont('Raleway', 'B', $this->textSize);
+    Fpdf::SetFont($this->fontName, 'B', $this->textSize);
     $this->topOfTable = Fpdf::GetY();
     Fpdf::SetFillColor(240);
 
@@ -225,6 +223,6 @@ class Pdf extends Fpdf
     Fpdf::SetTextColor(0);
     Fpdf::SetDrawColor(200);
 
-    Fpdf::SetFont('Raleway', '', $this->textSize);
+    Fpdf::SetFont($this->fontName, '', $this->textSize);
   }
 }
