@@ -27,7 +27,7 @@ class CustomerController extends Controller
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
 
         if (isset($request->deleted)) $customers = Customer::onlyTrashed()->orderBy('lastname')->get();
-        else if(isset($request->all)) $customers = Customer::withTrashed()->orderBy('lastname')->get();
+        else if (isset($request->all)) $customers = Customer::withTrashed()->orderBy('lastname')->get();
         else $customers = Customer::orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
@@ -201,7 +201,8 @@ class CustomerController extends Controller
     }
 
     // GET customer/{id}/projects
-    public function projects($id) {
+    public function projects($id)
+    {
         auth()->user()->authorize(['superadmin'], ['customer_read']);
 
         return Customer::withTrashed()->find($id)->projects;
