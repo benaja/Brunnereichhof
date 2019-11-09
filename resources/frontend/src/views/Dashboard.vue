@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <h1>Dashboard</h1>
     <v-row class="mt-4 pt-4">
       <v-col cols="12" md="6">
         <stats-card
