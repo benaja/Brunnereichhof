@@ -45,6 +45,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
+    <evaluation-component :evaluations="evaluations"></evaluation-component>
   </div>
 </template>
 
@@ -56,6 +57,8 @@ import EmployeeList from '@/components/Evaluation/EmployeeList'
 import CustomerYearRapport from '@/components/Evaluation/CustomerYearRapport'
 import CustomerWeekRapport from '@/components/Evaluation/CustomerWeekRapport'
 import EmployeeMonthTotal from '@/components/Evaluation/EmployeeMonthTotal'
+import EvaluationComponent from '@/components/Evaluation/EvaluationComponent'
+import { EVALUATION_INPUT_TYPES } from '@/constants'
 
 export default {
   name: 'Evaluation',
@@ -66,7 +69,29 @@ export default {
     EmployeeList,
     CustomerWeekRapport,
     CustomerYearRapport,
-    EmployeeMonthTotal
+    EmployeeMonthTotal,
+    EvaluationComponent
+  },
+  data() {
+    return {
+      evaluations: [
+        {
+          inputFiels: [
+            {
+              key: 'worker',
+              dispatch: 'workers',
+              label: 'Hofmitarbeier',
+              type: EVALUATION_INPUT_TYPES.COMBOBOX
+            },
+            {
+              key: 'month',
+              type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+            }
+          ],
+          url: 'worker/{worker}/month/{month}'
+        }
+      ]
+    }
   }
 }
 </script>
