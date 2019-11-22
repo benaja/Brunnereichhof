@@ -265,6 +265,10 @@ class RapportController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
+        foreach($rapport->rapportdetails as $rapportdetail) {
+            $rapportdetail->delete();
+        }
+
         $rapport->delete();
     }
 
