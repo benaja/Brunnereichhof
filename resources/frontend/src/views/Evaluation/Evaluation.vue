@@ -45,7 +45,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <evaluation-component :evaluations="evaluations"></evaluation-component>
+    <!-- <evaluation-component :evaluations="evaluations"></evaluation-component> -->
   </div>
 </template>
 
