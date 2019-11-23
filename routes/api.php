@@ -48,7 +48,8 @@ Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails'
 Route::get('/rapport/daytotal/{date}', 'RapportController@daytotal');
 Route::resource('/rapport', 'RapportController');
 
-Route::get('/pdf/worker/{workerId}/month/{month}/', 'PdfController@workerMonthRapport');
+Route::get('/pdf/worker/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
+Route::get('/pdf/worker/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
 Route::get('/pdf/employee/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
 Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
 Route::get('/pdf/employees', 'PdfController@employeeList');

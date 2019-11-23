@@ -56,7 +56,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'worker/{worker}/year/{year}',
+              url: 'pdf/worker/{worker}/year/{year}',
               rules: {
                 year: v => !!v
               }

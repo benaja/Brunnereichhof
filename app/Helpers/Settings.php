@@ -18,6 +18,10 @@ class Settings
     "Ja", "Fe", "Mä", "Ap", "Mai", "Ju", "Jul", "Au", "Se", "Ok", "No", "Dez"
   ];
 
+  public const dayNames = [
+    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
+  ];
+
   public static function getMonthName($date)
   {
     return Settings::monthNames[intval($date->format('m')) - 1];
