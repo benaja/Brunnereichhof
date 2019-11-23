@@ -48,7 +48,7 @@ export default {
         this.items = items
         if (this.inputField.selectAll) {
           this.items.unshift({
-            id: 0,
+            id: 'all',
             name: 'Alle'
           })
         }

@@ -48,12 +48,12 @@ Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails'
 Route::get('/rapport/daytotal/{date}', 'RapportController@daytotal');
 Route::resource('/rapport', 'RapportController');
 
-Route::get('/pdf/worker/month/{month}', 'PdfController@workerMonthRapport');
-Route::get('/pdf/employee/year/{year}', 'PdfController@employeeYearRapport');
+Route::get('/pdf/worker/{workerId}/month/{month}/', 'PdfController@workerMonthRapport');
+Route::get('/pdf/employee/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
 Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
 Route::get('/pdf/employees', 'PdfController@employeeList');
-Route::get('/pdf/customer/year/{year}', 'PdfController@customerYearRapport');
-Route::get('/pdf/customer/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
+Route::get('/pdf/customer/{customerId}/year/{year}', 'PdfController@customerYearRapport');
+Route::get('/pdf/customer/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
 Route::get('/pdf/reservation/employee/{id}', 'ReservationPdfController@pdfByEmployee');
 
 Route::post('/password/change', 'UserController@changePassword');

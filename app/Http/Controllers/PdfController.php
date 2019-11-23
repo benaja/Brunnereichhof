@@ -28,7 +28,7 @@ class PdfController extends Controller
     private $pdf;
 
     // GET pdf/worker/month/{month}
-    public function workerMonthRapport(Request $request, $month)
+    public function workerMonthRapport(Request $request, $workerId, $month)
     {
         Pdf::validateToken($request->token);
 
@@ -37,10 +37,9 @@ class PdfController extends Controller
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
         $workers = [];
-        $workerId = $request->workerId;
 
-        if (isset($request->workerId)) {
-            array_push($workers, User::find($request->workerId));
+        if ($workerId != 'all') {
+            array_push($workers, User::find($workerId));
         } else {
             foreach (User::workers()->withTrashed()->orderby('lastname')->get() as $worker) {
                 if ($worker->totalHours($firstDayOfMonth) > 0) {
@@ -51,7 +50,7 @@ class PdfController extends Controller
 
         $this->pdf = new Pdf();
         $monthName = $this->monthNames[intval($firstDayOfMonth->format('m')) - 1];
-        if (!isset($request->workerId)) {
+        if ($workerId == 'all') {
             $this->pdf->documentTitle("Hofmitarbeiter Monatsrapport: $monthName");
 
             // FrontPage
@@ -70,7 +69,7 @@ class PdfController extends Controller
         }
 
         foreach ($workers as $worker) {
-            if (!isset($request->workerId)) {
+            if ($workerId == 'all') {
                 Fpdf::addPage('F');
             }
             $this->pdf->documentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
@@ -147,7 +146,7 @@ class PdfController extends Controller
             $this->pdf->signaturePlaceHolder();
         }
 
-        if (isset($request->workerId)) {
+        if ($workerId != 'all') {
             $filename = "Monatrapport {$workers[0]->lastname} {$workers[0]->firstname} $monthName.pdf";
         } else {
             $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
@@ -156,11 +155,12 @@ class PdfController extends Controller
     }
 
     // GET pdf/employee/year/{year}
-    public function employeeYearRapport(Request $request, $year)
+    public function employeeYearRapport(Request $request, $employeeId, $year)
     {
         Pdf::validateToken($request->token);
 
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::find($employeeId);
+        $year = (new \DateTime($year))->format('Y');
 
         $totalHoursOfMonths = $this->getHoursOfEmployeeByYear($employee, $year);
         $totalFoodOfMonths = $this->getFoodOfEmployeeByYear($employee, $year);
@@ -236,13 +236,12 @@ class PdfController extends Controller
     }
 
     // GET overview/customer/year/{year}
-    public function customerYearRapport(Request $request, $year)
+    public function customerYearRapport(Request $request, $customerId, $year)
     {
         Pdf::validateToken($request->token);
+        $year = (new \DateTime($year))->format('Y');
 
-        
-
-        if ($request->customer_id == 0) {
+        if ($customerId == 'all') {
             $customers = Customer::all();
             foreach($customers as $key => $customer) {
                 // if ($key > 0) $this->pdf->addPage();
@@ -250,7 +249,7 @@ class PdfController extends Controller
             }
             $this->pdf->export("Jahresrapport $year.pdf");
         } else {
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::find($customerId);
             $this->singleCustomerYearRapport($customer, $year);
             $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
         }

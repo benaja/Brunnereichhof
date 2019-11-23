@@ -33,14 +33,14 @@ class CustomerPdfController extends Controller
     }
 
     // GET /pdf/customer/week/{date}
-    public function weekRapport(Request $request, $date)
+    public function weekRapport(Request $request, $customerId,  $date)
     {
         Pdf::validateToken($request->token);
         $date = new \DateTime($date);
         $monday = $date->modify('+1 day')->modify('last monday');
         $this->pdf = new Pdf();
 
-        if ($request->customer_id == 0) {
+        if ($customerId == 'all') {
             $customers = Customer::all();
             $customersAdded = 0;
             foreach ($customers as $customer) {
@@ -61,7 +61,7 @@ class CustomerPdfController extends Controller
             }
             $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::find($customerId);
             $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
             if ($rapport) {
                 $this->weekRapportForSingleCustomer($rapport);

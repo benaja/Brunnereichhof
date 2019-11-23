@@ -1,11 +1,11 @@
 <template>
   <v-menu
     v-model="model"
-    :close-on-content-click="false"
     :nudge-right="40"
     transition="scale-transition"
     offset-y
     min-width="290px"
+    :close-on-content-click="type === 'year'"
   >
     <template v-slot:activator="{ on }">
       <v-text-field
@@ -16,6 +16,7 @@
         :rules="rules"
         :color="color"
         v-on="on"
+        show-week
       ></v-text-field>
     </template>
     <v-date-picker
@@ -24,6 +25,9 @@
       locale="ch-de"
       :color="color"
       first-day-of-week="1"
+      ref="picker"
+      :type="type === 'year' ? 'date' : type"
+      :max="type === 'year' ? $moment().add(3, 'years').format('YYYY-MM-DD') : undefined"
     ></v-date-picker>
   </v-menu>
 </template>
@@ -34,7 +38,7 @@ import moment from 'moment'
 export default {
   name: 'DatePicker',
   props: {
-    value: String,
+    value: [String, Number],
     label: String,
     rules: {
       type: Array,
@@ -43,17 +47,19 @@ export default {
     color: {
       type: String,
       default: 'primary'
+    },
+    type: {
+      type: String,
+      default: 'date'
     }
   },
   data() {
     return {
-      model: false
+      model: false,
+      formatedDate: ''
     }
   },
   computed: {
-    formatedDate() {
-      return this.date ? moment(this.date).format('DD.MM.YYYY') : ''
-    },
     date: {
       get: function() {
         return this.value
@@ -61,6 +67,26 @@ export default {
       set: function(value) {
         this.$emit('input', value)
       }
+    }
+  },
+  methods: {
+    formatDate(format) {
+      return this.date ? moment(this.date).format(format) : ''
+    }
+  },
+  watch: {
+    model(val) {
+      if (this.type === 'year') {
+        val && this.$nextTick(() => (this.$refs.picker.activePicker = 'YEAR'))
+        if (!val) {
+          this.$emit('input', `${this.$refs.picker.inputYear}-01-01`)
+        }
+      }
+    },
+    date() {
+      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
+      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
+      else this.formatedDate = this.formatDate('YYYY')
     }
   }
 }

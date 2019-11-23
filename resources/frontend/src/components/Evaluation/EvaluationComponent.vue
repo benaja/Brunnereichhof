@@ -3,7 +3,7 @@
     <v-expansion-panel v-for="(evaluationGroup, index) of evaluationGroups" :key="index">
       <v-expansion-panel-header>
         <p class="header-text mb-1">
-          <v-icon class="account-icon mr-2">supervisor_account</v-icon>
+          <v-icon class="account-icon mr-2">{{evaluationGroup.icon}}</v-icon>
           {{evaluationGroup.name}}
         </p>
       </v-expansion-panel-header>
