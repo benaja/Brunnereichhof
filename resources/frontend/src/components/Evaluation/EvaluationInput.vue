@@ -4,17 +4,20 @@
     v-model="inputField.value"
     :items="items"
     :loading="isLoading"
-    :search-input.sync="sarchString"
+    :search-input.sync="searchString"
     no-data-text="keine Daten"
-    @focus="sarchString = ''"
-    :label="inputfield.label"
+    @focus="searchString = ''"
+    :label="inputField.label"
     prepend-icon="search"
+    :autocomplete="false"
     :item-text="inputField.itemText || 'name'"
     :item-value="inputField.itemValue || 'id'"
   ></v-combobox>
 </template>
 
 <script>
+import { EVALUATION_INPUT_TYPES } from '@/constants'
+
 export default {
   props: {
     inputField: {
@@ -22,16 +25,21 @@ export default {
       required: true
     }
   },
+  computed: {
+    EVALUATION_INPUT_TYPES() {
+      return EVALUATION_INPUT_TYPES
+    }
+  },
   data() {
     return {
-      sarchString: null,
+      searchString: null,
       isLoading: false,
       isLoaded: false,
       items: []
     }
   },
   watch: {
-    searchStringEmployee() {
+    searchString() {
       if (this.isLoaded) return
       if (this.isLoading) return
       this.isLoading = true

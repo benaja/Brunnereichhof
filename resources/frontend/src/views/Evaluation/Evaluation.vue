@@ -45,7 +45,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <!-- <evaluation-component :evaluations="evaluations"></evaluation-component> -->
+    <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
   </div>
 </template>
 
@@ -74,21 +74,29 @@ export default {
   },
   data() {
     return {
-      evaluations: [
+      evaluationGroups: [
         {
-          inputFiels: [
+          name: 'Hofmitarbeiter',
+          evaluations: [
             {
-              key: 'worker',
-              dispatch: 'workers',
-              label: 'Hofmitarbeier',
-              type: EVALUATION_INPUT_TYPES.COMBOBOX
-            },
-            {
-              key: 'month',
-              type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+              inputFields: [
+                {
+                  key: 'worker',
+                  dispatch: 'workers',
+                  label: 'Hofmitarbeier',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'month',
+                  type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+                }
+              ],
+              url: 'worker/{worker}/month/{month}',
+              rules: {
+                month: v => !!v
+              }
             }
-          ],
-          url: 'worker/{worker}/month/{month}'
+          ]
         }
       ]
     }

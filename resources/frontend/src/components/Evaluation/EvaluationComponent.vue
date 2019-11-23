@@ -1,12 +1,21 @@
 <template>
   <v-expansion-panels>
-    <v-expansion-panel v-for="(evaluation, index) of evaluations" :key="index">
+    <v-expansion-panel v-for="(evaluationGroup, index) of evaluationGroups" :key="index">
       <v-expansion-panel-header>
         <p class="header-text mb-1">
-          <v-icon class="account-icon mr-2">supervisor_account</v-icon>Kunde
+          <v-icon class="account-icon mr-2">supervisor_account</v-icon>
+          {{evaluationGroup.name}}
         </p>
       </v-expansion-panel-header>
-      <evaluation-element :evaluation="evaluation"></evaluation-element>
+      <v-expansion-panel-content>
+        <div>
+          <evaluation-element
+            v-for="(evaluation, index) of evaluationGroup.evaluations"
+            :key="`e-${index}`"
+            :evaluation="evaluation"
+          ></evaluation-element>
+        </div>
+      </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
 </template>
@@ -19,7 +28,7 @@ export default {
     EvaluationElement
   },
   props: {
-    evaluations: {
+    evaluationGroups: {
       type: Array,
       required: true
     }

@@ -26,7 +26,7 @@
       <evaluation-input v-else :input-field="inputField"></evaluation-input>
     </div>
     <p>
-      <v-btn color="primary" :disabled="!selectedDate" @click="generatePdf">Pdf generieren</v-btn>
+      <v-btn color="primary" :disabled="!allValid" @click="generatePdf">Pdf generieren</v-btn>
     </p>
   </div>
 </template>
@@ -48,6 +48,14 @@ export default {
   computed: {
     EVALUATION_INPUT_TYPES() {
       return EVALUATION_INPUT_TYPES
+    },
+    allValid() {
+      let allValid = true
+      for (let key in this.evaluation.rules) {
+        let value = this.getValue(key)
+        if (!this.evaluation.rules[key](value)) allValid = false
+      }
+      return allValid
     }
   },
   methods: {
@@ -55,21 +63,22 @@ export default {
       this.axios.get('pdftoken').then(response => {
         let regex = /^([^{]*)\{([^{]+)\}(.*)$/
         let url = this.evaluation.url
-        let newUrl = ''
+        let pdfUrl = ''
         do {
           let matches = regex.exec(url)
-          newUrl += matches[1] + this.getValue(matches[2])
+          pdfUrl += matches[1] + this.getValue(matches[2])
           url = matches[3]
         } while (url)
-        console.log(newUrl)
-        // window.location = `${process.env.VUE_APP_API_URL}pdf/customer/week/${this.selectedDate}?token=${response.data}&customer_id=${
-        //   this.selectedCustomer ? this.selectedCustomer.id : 0
-        // }`
+        pdfUrl = `${process.env.VUE_APP_API_URL}${pdfUrl}`
+        if (this.evaluation.url.includes('?')) pdfUrl += `&token=${response.data}`
+        else pdfUrl += `?token=${response.data}`
+        console.log(pdfUrl)
+        window.location = pdfUrl
       })
     },
     getValue(key) {
       let inputField = this.evaluation.inputFields.find(i => i.key === key)
-      return inputField.value
+      return inputField.value.id || inputField.value
     }
   }
 }
