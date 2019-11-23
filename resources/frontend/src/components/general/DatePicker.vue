@@ -33,8 +33,6 @@
 </template>
 
 <script>
-import moment from 'moment'
-
 export default {
   name: 'DatePicker',
   props: {
@@ -71,7 +69,7 @@ export default {
   },
   methods: {
     formatDate(format) {
-      return this.date ? moment(this.date).format(format) : ''
+      return this.date ? this.$moment(this.date).format(format) : ''
     }
   },
   watch: {

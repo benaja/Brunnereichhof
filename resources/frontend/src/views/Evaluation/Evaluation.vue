@@ -19,6 +19,7 @@ export default {
         {
           name: 'Hofmitarbeiter',
           icon: 'perm_identity',
+          show: this.$auth.user().hasPermission(['superadmin'], ['timerecord_stats']),
           evaluations: [
             {
               title: 'Stundenangaben',
@@ -65,6 +66,7 @@ export default {
         {
           name: 'Mitarbeiter',
           icon: 'account_circle',
+          show: this.$auth.user().hasPermission(['superadmin'], ['evaluation_employee']),
           evaluations: [
             {
               title: 'Monatsrapport',
@@ -130,6 +132,7 @@ export default {
         {
           name: 'Kunde',
           icon: 'supervisor_account',
+          show: this.$auth.user().hasPermission(['superadmin'], ['evaluation_customer']),
           evaluations: [
             {
               title: 'Wochenrapport',

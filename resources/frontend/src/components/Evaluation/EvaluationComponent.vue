@@ -1,6 +1,9 @@
 <template>
   <v-expansion-panels>
-    <v-expansion-panel v-for="(evaluationGroup, index) of evaluationGroups" :key="index">
+    <v-expansion-panel
+      v-for="(evaluationGroup, index) of evaluationGroups.filter(e => e.show)"
+      :key="index"
+    >
       <v-expansion-panel-header>
         <p class="header-text mb-1">
           <v-icon class="account-icon mr-2">{{evaluationGroup.icon}}</v-icon>
