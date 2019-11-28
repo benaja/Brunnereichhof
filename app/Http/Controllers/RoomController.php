@@ -104,6 +104,7 @@ class RoomController extends Controller
                 })->where('reservation.bed_room_id', '=', $bed->pivot->id)
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->entry)
+                    ->where('reservation.deleted_at', null)
                     ->get()->toArray();
 
                 $usedBeds2 = BedRoomPivot::join('reservation', function ($join) {
@@ -111,6 +112,7 @@ class RoomController extends Controller
                 })->where('reservation.bed_room_id', '=', $bed->pivot->id)
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->exit)
+                    ->where('reservation.deleted_at', null)
                     ->get()->toArray();
 
                 $usedBedsWithDubilcates = array_merge($usedBeds1, $usedBeds2);
@@ -161,7 +163,7 @@ class RoomController extends Controller
             ->where('room.id', $id)
             ->first();
 
-        if($room !== null) {
+        if ($room !== null) {
             return response('Room is currently in use.', 400);
         }
 
