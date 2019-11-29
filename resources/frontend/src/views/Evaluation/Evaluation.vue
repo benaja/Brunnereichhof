@@ -1,94 +1,179 @@
 <template>
   <div class="container">
-    <v-expansion-panels>
-      <v-expansion-panel v-if="$auth.user().hasPermission(['superadmin'], ['timerecord_stats'])">
-        <v-expansion-panel-header>
-          <p class="header-text mb-1">
-            <v-icon class="account-icon mr-2">perm_identity</v-icon>Hofmitarbeiter
-          </p>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <div>
-            <v-divider></v-divider>
-            <hour-records-worker></hour-records-worker>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel v-if="$auth.user().hasPermission(['superadmin'], ['evaluation_employee'])">
-        <v-expansion-panel-header>
-          <p class="header-text mb-1">
-            <v-icon class="account-icon mr-2">account_circle</v-icon>Mitarbeiter
-          </p>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <div>
-            <v-divider></v-divider>
-            <employee-month-rapport></employee-month-rapport>
-            <employee-year-rapport></employee-year-rapport>
-            <employee-month-total></employee-month-total>
-            <employee-list></employee-list>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel v-if="$auth.user().hasPermission(['superadmin'], ['evaluation_customer'])">
-        <v-expansion-panel-header>
-          <p class="header-text mb-1">
-            <v-icon class="account-icon mr-2">supervisor_account</v-icon>Kunde
-          </p>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <div>
-            <v-divider></v-divider>
-            <customer-week-rapport></customer-week-rapport>
-            <customer-year-rapport></customer-year-rapport>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <!-- <evaluation-component :evaluations="evaluations"></evaluation-component> -->
+    <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
   </div>
 </template>
 
 <script>
-import HourRecordsWorker from '@/components/Evaluation/HourRecordsWorker'
-import EmployeeYearRapport from '@/components/Evaluation/EmployeeYearRapport'
-import EmployeeMonthRapport from '@/components/Evaluation/EmployeeMonthRapport'
-import EmployeeList from '@/components/Evaluation/EmployeeList'
-import CustomerYearRapport from '@/components/Evaluation/CustomerYearRapport'
-import CustomerWeekRapport from '@/components/Evaluation/CustomerWeekRapport'
-import EmployeeMonthTotal from '@/components/Evaluation/EmployeeMonthTotal'
 import EvaluationComponent from '@/components/Evaluation/EvaluationComponent'
 import { EVALUATION_INPUT_TYPES } from '@/constants'
 
 export default {
   name: 'Evaluation',
   components: {
-    HourRecordsWorker,
-    EmployeeYearRapport,
-    EmployeeMonthRapport,
-    EmployeeList,
-    CustomerWeekRapport,
-    CustomerYearRapport,
-    EmployeeMonthTotal,
     EvaluationComponent
   },
   data() {
     return {
-      evaluations: [
+      evaluationGroups: [
         {
-          inputFiels: [
+          name: 'Hofmitarbeiter',
+          icon: 'perm_identity',
+          show: this.$auth.user().hasPermission(['superadmin'], ['timerecord_stats']),
+          evaluations: [
             {
-              key: 'worker',
-              dispatch: 'workers',
-              label: 'Hofmitarbeier',
-              type: EVALUATION_INPUT_TYPES.COMBOBOX
+              title: 'Stundenangaben',
+              inputFields: [
+                {
+                  key: 'worker',
+                  dispatch: 'workers',
+                  label: 'Hofmitarbeier',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'month',
+                  type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+                }
+              ],
+              url: 'pdf/worker/{worker}/month/{month}',
+              rules: {
+                month: v => !!v
+              }
             },
             {
-              key: 'month',
-              type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+              title: 'Jahresrapport',
+              inputFields: [
+                {
+                  key: 'worker',
+                  dispatch: 'workers',
+                  label: 'Hofmitarbeier',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/worker/{worker}/year/{year}',
+              rules: {
+                year: v => !!v
+              }
             }
-          ],
-          url: 'worker/{worker}/month/{month}'
+          ]
+        },
+        {
+          name: 'Mitarbeiter',
+          icon: 'account_circle',
+          show: this.$auth.user().hasPermission(['superadmin'], ['evaluation_employee']),
+          evaluations: [
+            {
+              title: 'Monatsrapport',
+              inputFields: [
+                {
+                  key: 'month',
+                  type: EVALUATION_INPUT_TYPES.MONTH_PICKER
+                }
+              ],
+              url: 'pdf/employee/month/{month}',
+              rules: {
+                month: v => !!v
+              }
+            },
+            {
+              title: 'Jahresrapport',
+              inputFields: [
+                {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  label: 'Mitarbeiter',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/employee/{employee}/year/{year}',
+              rules: {
+                year: v => !!v,
+                employee: v => !!v
+              }
+            },
+            {
+              title: 'Tagestotale',
+              inputFields: [
+                {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  label: 'Mitarbeiter',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
+                }
+              ],
+              url: 'employee/{employee}/evaluation/{date}',
+              rules: {
+                date: v => !!v,
+                employee: v => !!v
+              }
+            },
+            {
+              title: 'Mitarbeiterliste',
+              inputFields: [],
+              url: 'pdf/employees',
+              buttonText: 'Mitarbeiterliste'
+            }
+          ]
+        },
+        {
+          name: 'Kunde',
+          icon: 'supervisor_account',
+          show: this.$auth.user().hasPermission(['superadmin'], ['evaluation_customer']),
+          evaluations: [
+            {
+              title: 'Wochenrapport',
+              inputFields: [
+                {
+                  key: 'customer',
+                  dispatch: 'customers',
+                  label: 'Kunde',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.DATE_PICKER
+                }
+              ],
+              url: 'pdf/customer/{customer}/week/{date}',
+              rules: {
+                date: v => !!v
+              }
+            },
+            {
+              title: 'Jahresrapport',
+              inputFields: [
+                {
+                  key: 'customer',
+                  dispatch: 'customers',
+                  label: 'Kunde',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/customer/{customer}/year/{year}',
+              rules: {
+                year: v => !!v
+              }
+            }
+          ]
         }
       ]
     }

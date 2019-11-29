@@ -24,15 +24,15 @@ class WorkerController extends Controller
         auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
         if (isset($request->deleted)) $workers = User::workers()->onlyTrashed()->orderBy('lastname')->get();
-        else if(isset($request->all)) $workers = User::workers()->withTrashed()->orderBy('lastname')->get();
+        else if (isset($request->all)) $workers = User::workers()->withTrashed()->orderBy('lastname')->get();
         else $workers = User::workers()->orderBy('lastname')->get();
 
         foreach ($workers as $worker) {
             $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
-            $worker->mealsThisMonth = $worker->getNumberOfMeals(new \DateTime('first day of this month'));
+            $worker->mealsThisMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of this month'));
 
-            $worker->workHoursLastMonth = $worker->totalHours(new \DateTime('first day of last month'));
-            $worker->mealsLastMonth = $worker->getNumberOfMeals(new \DateTime('first day of last month'));
+            $worker->workHoursLastMonth = $worker->totalHoursByMonth(new \DateTime('first day of last month'));
+            $worker->mealsLastMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of last month'));
 
             $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
             $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
