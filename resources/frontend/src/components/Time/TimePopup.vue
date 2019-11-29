@@ -90,7 +90,8 @@ export default {
     date: String,
     value: Boolean,
     settings: Object,
-    timerecord: Object
+    timerecord: Object,
+    urlWorkerParam: String
   },
   data() {
     return {
@@ -155,7 +156,7 @@ export default {
         }
         if (this.timerecord.id) {
           this.axios
-            .patch('time/' + this.timerecord.id, requestBody)
+            .patch('time/' + this.timerecord.id + this.urlWorkerParam, requestBody)
             .then(response => {
               this.$emit('input', false)
               this.$emit('add', response.data)
@@ -163,14 +164,14 @@ export default {
             .catch(error => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
-              } else {
+              } else if (!error.status(403)) {
                 this.$swal('Fehler beim Speichern', 'Zeit konnte aus einem umbekannten Grund nicht gespeichert werden.', 'error')
               }
             })
         } else {
           requestBody.date = this.date
           this.axios
-            .post(process.env.VUE_APP_API_URL + 'time', requestBody)
+            .post('/time' + this.urlWorkerParam, requestBody)
             .then(response => {
               localStorage.edittype = this.edittype
               localStorage.worktype = this.worktype
@@ -186,7 +187,7 @@ export default {
             .catch(error => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
-              } else {
+              } else if (!error.status(403)) {
                 this.$swal('Fehler beim Speichern', 'Zeit konnte aus einem umbekannten Grund nicht gespeichert werden.', 'error')
               }
             })
@@ -195,13 +196,15 @@ export default {
     },
     deleteTimerecord() {
       this.axios
-        .delete('time/' + this.timerecord.id)
+        .delete('time/' + this.timerecord.id + this.urlWorkerParam)
         .then(response => {
           this.$emit('input', false)
           this.$emit('add', response.data)
         })
-        .catch(() => {
-          this.$swal('Fehler', 'Element konnte nicht gelöscht werden', 'error')
+        .catch(error => {
+          if (!error.status(403)) {
+            this.$swal('Fehler', 'Element konnte nicht gelöscht werden', 'error')
+          }
         })
     },
     cancel() {

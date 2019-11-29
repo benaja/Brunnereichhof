@@ -53,18 +53,24 @@
         :settings="settings"
         :timerecord="timePopupForm.timerecord"
         @add="newTimerecords => { timePopupForm.day.hours = newTimerecords }"
+        :url-worker-param="urlWorkerParam"
       />
     </v-row>
     <v-row v-else wrap>
-      <v-col cols="3" xl="2" class="pb-0">
+      <v-col cols="3" xl="2" class="py-0">
         <div class="overview-container">
-          <overview @change="newDate => date = newDate" ref="overview"></overview>
+          <overview
+            @change="newDate => date = newDate"
+            ref="overview"
+            :url-worker-param="urlWorkerParam"
+          ></overview>
           <time-popup
             v-model="timePopupForm.isOpen"
             :date="timePopupForm.date"
             :settings="settings"
             :timerecord="timePopupForm.timerecord"
             @add="newTimerecords => { timePopupForm.day.hours = newTimerecords; $refs.overview.getStats() }"
+            :url-worker-param="urlWorkerParam"
           />
         </div>
       </v-col>
@@ -97,11 +103,17 @@ import Overview from '@/components/Time/Overview'
 import TimePopup from '@/components/Time/TimePopup'
 
 export default {
-  name: 'Time',
+  name: 'TimeView',
   components: {
     Day,
     Overview,
     TimePopup
+  },
+  props: {
+    workerId: {
+      type: [Number, String],
+      default: null
+    }
   },
   data() {
     return {
@@ -121,7 +133,7 @@ export default {
   },
   mounted() {
     this.axios
-      .get(process.env.VUE_APP_API_URL + 'settings/time')
+      .get(`/settings/time${this.urlWorkerParam}`)
       .then(response => {
         this.settings = response.data
       })
@@ -148,12 +160,12 @@ export default {
     getDay() {
       let url = ''
       if (this.$store.getters.isMobile) {
-        url = process.env.VUE_APP_API_URL + 'time/' + this.date
+        url = '/time/' + this.date
       } else {
-        url = process.env.VUE_APP_API_URL + 'time/week/' + this.date
+        url = '/time/week/' + this.date
       }
       this.axios
-        .get(url)
+        .get(url + this.urlWorkerParam)
         .then(response => {
           this.weekDays = response.data
         })
@@ -175,6 +187,10 @@ export default {
       let day = date.getDay() === 0 ? 7 : date.getDay()
       day--
       return this.$store.getters.dayNames[day]
+    },
+    urlWorkerParam() {
+      if (this.workerId) return `?workerId=${this.workerId}`
+      return ' '
     }
   },
   watch: {

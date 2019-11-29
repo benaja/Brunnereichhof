@@ -37,6 +37,9 @@
 <script>
 export default {
   name: 'Overview',
+  props: {
+    urlWorkerParam: String
+  },
   data() {
     return {
       date: this.$store.getters.isMobile ? new Date().toISOString().substr(0, 7) : new Date().toISOString().substring(0, 10),
@@ -53,7 +56,7 @@ export default {
   methods: {
     getStats() {
       this.axios
-        .get(`${process.env.VUE_APP_API_URL}time/stats/${this.date}`)
+        .get(`/time/stats/${this.date}${this.urlWorkerParam}`)
         .then(response => {
           this.totalHours = response.data.week.totalHours
           this.holidayHours = response.data.week.holidayHours
@@ -95,6 +98,7 @@ export default {
   top: 0;
   left: 0;
   background-color: white;
+  box-shadow: lightgray 0 0 10px;
 
   .datepicker {
     margin-top: 56px;

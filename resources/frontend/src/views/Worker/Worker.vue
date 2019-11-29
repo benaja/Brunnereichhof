@@ -1,74 +1,75 @@
 <template>
-  <v-container class="form">
-    <v-row>
-      <v-col cols="12" class="mb-3">
-        <h2 class="text-left display-1">Informationen</h2>
-        <v-divider></v-divider>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <edit-field
-          label="Vorname"
-          v-model="worker.firstname"
-          @change="change('firstname')"
-          :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-        ></edit-field>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <edit-field
-          label="Nachname"
-          v-model="worker.lastname"
-          @change="change('lastname')"
-          :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-        ></edit-field>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <edit-field
-          label="Email"
-          v-model="worker.email"
-          @change="change('email')"
-          :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-        ></edit-field>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <select-role v-model="worker.role_id" @change="change('role_id')"></select-role>
-      </v-col>
-      <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
+  <div>
+    <v-container class="form">
+      <v-row>
         <v-col cols="12" class="mb-3">
-          <h2 class="text-left display-1">Aktionen</h2>
+          <h2 class="text-left display-1">Informationen</h2>
           <v-divider></v-divider>
         </v-col>
-        <v-col cols="12" md="6">
-          <v-btn color="primary" @click="resetPassword" text>Passwort zurücksetzten</v-btn>
+        <v-col cols="12" sm="6">
+          <edit-field
+            label="Vorname"
+            v-model="worker.firstname"
+            @change="change('firstname')"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+          ></edit-field>
         </v-col>
-        <!-- <v-col cols="12" md="6">
-        <v-btn
-          color="primary"
-          @click="changeAuthrorization"
-          text
-        >{{worker.type_id === 3 ? 'Zu Admin bevördern' : 'Zu normalem Hofmitarbeiter degradieren'}}</v-btn>
-        </v-col>-->
-        <v-col cols="12" md="6">
-          <p class="text-left">
-            <v-btn color="red" class="white--text" @click="deleteWorker">Hofmitarbeiter Löschen</v-btn>
-          </p>
+        <v-col cols="12" sm="6">
+          <edit-field
+            label="Nachname"
+            v-model="worker.lastname"
+            @change="change('lastname')"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+          ></edit-field>
         </v-col>
-      </template>
-    </v-row>
-  </v-container>
+        <v-col cols="12" sm="6">
+          <edit-field
+            label="Email"
+            v-model="worker.email"
+            @change="change('email')"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+          ></edit-field>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <select-role v-model="worker.role_id" @change="change('role_id')"></select-role>
+        </v-col>
+        <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
+          <v-col cols="12" class="mb-3">
+            <h2 class="text-left display-1">Aktionen</h2>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-btn color="primary" @click="resetPassword" text>Passwort zurücksetzten</v-btn>
+          </v-col>
+          <v-col cols="12" md="6">
+            <p class="text-left">
+              <v-btn color="red" class="white--text" @click="deleteWorker">Hofmitarbeiter Löschen</v-btn>
+            </p>
+          </v-col>
+        </template>
+      </v-row>
+    </v-container>
+    <div class="time-form">
+      <h2 class="text-center display-1 time-title py-4">Stundenangaben bearbeiten</h2>
+      <TimeView :worker-id="this.$route.params.id"></TimeView>
+    </div>
+  </div>
 </template>
 
 <script>
 import SelectRole from '@/components/Authorization/SelectRole'
+import TimeView from '@/views/Time'
 
 export default {
   name: 'worker',
   components: {
-    SelectRole
+    SelectRole,
+    TimeView
   },
   data() {
     return {
       worker: {},
-      apiUrl: process.env.VUE_APP_API_URL + 'worker/' + this.$route.params.id,
+      apiUrl: '/worker/' + this.$route.params.id,
       outline: {
         firstname: true,
         lastname: false,
@@ -139,6 +140,11 @@ h2 {
 .form {
   background-color: white;
   margin-top: 20px;
+}
+
+.time-form {
+  background-color: white;
+  margin-top: 40px;
 }
 
 @media only screen and (max-width: 600px) {

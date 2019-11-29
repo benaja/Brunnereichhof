@@ -7,6 +7,7 @@ use App\Worktype;
 use App\Timerecord;
 use App\Rules\ValidTime;
 use App\Enums\WorkTypeEnum;
+use App\User;
 use Illuminate\Http\Request;
 
 class TimeController extends Controller
@@ -17,14 +18,15 @@ class TimeController extends Controller
     }
 
     // GET time
-    public function index($date)
+    public function index(Request $request, $date)
     {
-        auth()->user()->authorize([], ['timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_read']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         $currentDate = new \DateTime($date);
 
         $timerecord = Timerecord::firstOrNew(
-            ['date' => $currentDate->format('Y-m-d'), 'user_id' => auth()->user()->id]
+            ['date' => $currentDate->format('Y-m-d'), 'user_id' => $userId]
         );
 
         $timerecord->horus = $timerecord->hours->load('worktype');
@@ -39,9 +41,10 @@ class TimeController extends Controller
     }
 
     // GET time/week
-    public function week($date)
+    public function week(Request $request, $date)
     {
-        auth()->user()->authorize([], ['timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_read']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         $date = new \DateTime($date);
         $date->modify('monday this week');
@@ -49,7 +52,7 @@ class TimeController extends Controller
         $timerecords = [];
         for ($i = 0; $i < 7; $i++) {
             $timerecord = Timerecord::firstOrNew(
-                ['date' => $date->format('Y-m-d'), 'user_id' => auth()->user()->id]
+                ['date' => $date->format('Y-m-d'), 'user_id' => $userId]
             );
             foreach ($timerecord->hours as $hour) {
                 $hour = $hour->load('worktype');
@@ -68,11 +71,12 @@ class TimeController extends Controller
     // POST time
     public function store(Request $request)
     {
-        auth()->user()->authorize([], ['timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
-            ['date' => $date->format('Y-m-d'), 'user_id' => auth()->user()->id]
+            ['date' => $date->format('Y-m-d'), 'user_id' => $userId]
         );
 
         $request->validate([
@@ -99,21 +103,14 @@ class TimeController extends Controller
         $timerecord->dinner = $request->dinner;
         $timerecord->save();
 
-        if ($request->hasBreak) {
-            if (!$this->createHour($timerecord, $request->from, $request->breakFrom, $request->comment, $request->worktype)) {
-                return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
-            }
-            if (!$this->createHour($timerecord, $request->breakTo, $request->to, $request->comment, $request->worktype)) {
-                return redirect("/time?date=" . $date->format('d.m.Y') . "&error=overlapping");
-            }
-        } else {
-            if (!$this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->worktype)) {
-                abort(500, 'could not create hourrecord');
-            }
+        if (!$this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->worktype)) {
+            abort(500, 'could not create hourrecord');
         }
-        auth()->user()->ismealdefault = $request->lunch;
-        auth()->user()->save();
-        auth()->user()->timerecords()->save($timerecord);
+
+        $user = User::find($userId);
+        $user->ismealdefault = $request->lunch;
+        $user->save();
+        $user->timerecords()->save($timerecord);
 
         return $this->getHoursWidthLunch($timerecord->id);
     }
@@ -121,10 +118,11 @@ class TimeController extends Controller
     // PATCH time/{id}
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize([], ['timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         $hour = Hour::find($id);
-        if ($hour->timerecord->user->id == auth()->user()->id) {
+        if ($hour->timerecord->user->id == $userId) {
             $request->validate([
                 'worktype' => 'required|string',
                 'from' => 'required|before_or_equal:to',
@@ -158,12 +156,13 @@ class TimeController extends Controller
     // DELETE time/{id}
     public function destroy(Request $request, $id)
     {
-        auth()->user()->authorize([], ['timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         $hour = Hour::find($id);
         $timerecordId = $hour->timerecord->id;
 
-        if ($hour->timerecord->user->id == auth()->user()->id) {
+        if ($hour->timerecord->user->id == $userId) {
             Hour::destroy($id);
 
             return $this->getHoursWidthLunch($timerecordId);
@@ -172,18 +171,19 @@ class TimeController extends Controller
         }
     }
 
-    public function stats($date)
+    public function stats(Request $request, $date)
     {
-        auth()->user()->authorize([], ['timerecord_stats', 'timerecord_read_write']);
+        auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_read']);
+        $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
 
         if (strlen($date) == 7) {
             return [
-                'week' => $this->getMonthStats($date)
+                'week' => $this->getMonthStats($date, $userId)
             ];
         } else {
             return [
-                'month' => $this->getMonthStats($date),
-                'week' => $this->getWeekStats($date)
+                'month' => $this->getMonthStats($date, $userId),
+                'week' => $this->getWeekStats($date, $userId)
             ];
         }
     }
@@ -215,27 +215,29 @@ class TimeController extends Controller
         return $timerecord->hours;
     }
 
-    private function getWeekStats($date)
+    private function getWeekStats($date, $userId)
     {
         $monday = new \DateTime($date);
         $sunday = new \DateTime($date);
         $monday->modify('monday this week');
         $sunday->modify('sunday this week');
 
-        $timerecords = auth()->user()->timerecords->where('date', '>=', $monday->format('Y-m-d'))
+        $user = User::find($userId);
+        $timerecords = $user->timerecords->where('date', '>=', $monday->format('Y-m-d'))
             ->where('date', '<=', $sunday->format('Y-m-d'));
 
         return $this->getTotalHours($timerecords);
     }
 
-    private function getMonthStats($date)
+    private function getMonthStats($date, $userId)
     {
         $firstDayOfMonth = new \DateTime($date);
         $lastDayOfMonth = new \DateTime($date);
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth->modify('last day of this month');
 
-        $timerecords = auth()->user()->timerecords->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
+        $user = User::find($userId);
+        $timerecords = $user->timerecords->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
             ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'));
 
         return $this->getTotalHours($timerecords);
