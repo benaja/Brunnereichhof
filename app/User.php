@@ -24,6 +24,11 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    public function fullName()
+    {
+        return "{$this->lastname} {$this->firstname}";
+    }
+
     public function type()
     {
         return $this->belongsTo(UserType::class, 'type_id');
@@ -81,51 +86,46 @@ class User extends Authenticatable
     {
         $currentDate = new \DateTime('now');
 
-        return $this->totalHours($currentDate);
+        return $this->totalHoursByMonth($currentDate);
     }
 
-    public function totalHours($dateOfMonth, $worktype = null)
+    public function totalHoursByMonth($dateOfMonth, $worktype = null)
     {
-        $totalHours = 0;
         $firstDayOfMonth = $dateOfMonth;
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
-            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'));
 
-        foreach ($timerecords as $timerecord) {
-            foreach ($timerecord->hours as $hour) {
-                if (isset($worktype) && $hour->worktype_id == $worktype) {
-                    $totalHours += $hour->duration();
-                } else if (!isset($worktype)) {
-                    $totalHours += $hour->duration();
-                }
-            }
-        }
-
-        return $totalHours;
+        return $this->getTotalHours($firstDayOfMonth, $lastDayOfMonth, $worktype);
     }
 
-    public function getNumberOfMeals(\DateTime $firstDayOfMonth)
+    public function totalHoursByYear($date, $worktype = null)
+    {
+        $firstDayOfYear = clone $date;
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $date;
+        $lastDayOfYear->modify('last day of december this year');
+
+        return $this->getTotalHours($firstDayOfYear, $lastDayOfYear, $worktype);
+    }
+
+    public function getNumberOfMealsByMonth(\DateTime $firstDayOfMonth)
     {
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
 
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
-            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
-            ->where('lunch', 1);
+        return $this->getNumberOfMeals($firstDayOfMonth, $lastDayOfMonth);
+    }
 
-        $meals = [
-            'breakfast' => count($timerecords->where('breakfast', 1)),
-            'lunch' => count($timerecords->where('lunch', 1)),
-            'dinner' => count($timerecords->where('dinner', 1))
-        ];
+    public function getNumberOfMealsByYear(\DateTime $date)
+    {
+        $firstDayOfYear = clone $date;
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $date;
+        $lastDayOfYear->modify('last day of december this year');
 
-        return $meals;
+        return $this->getNumberOfMeals($firstDayOfYear, $lastDayOfYear);
     }
 
     public function holydaysPlant(\DateTime $today)
@@ -167,5 +167,38 @@ class User extends Authenticatable
     public static function workers()
     {
         return User::where('type_id', UserTypeEnum::Worker);
+    }
+
+    private function getTotalHours($startDate, $endDate, $worktype = null)
+    {
+        $totalHours = 0;
+        $timerecords = $this->timerecords
+            ->where('date', '>=', $startDate->format('Y-m-d'))
+            ->where('date', '<=', $endDate->format('Y-m-d'));
+
+        foreach ($timerecords as $timerecord) {
+            foreach ($timerecord->hours as $hour) {
+                if (isset($worktype) && $hour->worktype_id == $worktype) {
+                    $totalHours += $hour->duration();
+                } else if (!isset($worktype)) {
+                    $totalHours += $hour->duration();
+                }
+            }
+        }
+
+        return $totalHours;
+    }
+
+    private function getNumberOfMeals($startDate, $endDate)
+    {
+        $timerecords = $this->timerecords
+            ->where('date', '>=', $startDate->format('Y-m-d'))
+            ->where('date', '<=', $endDate->format('Y-m-d'));
+
+        return [
+            'breakfast' => count($timerecords->where('breakfast', 1)),
+            'lunch' => count($timerecords->where('lunch', 1)),
+            'dinner' => count($timerecords->where('dinner', 1))
+        ];
     }
 }

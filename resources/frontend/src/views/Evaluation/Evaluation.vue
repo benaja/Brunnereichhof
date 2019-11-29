@@ -48,7 +48,6 @@ export default {
                   key: 'worker',
                   dispatch: 'workers',
                   label: 'Hofmitarbeier',
-                  selectAll: true,
                   type: EVALUATION_INPUT_TYPES.COMBOBOX
                 },
                 {
