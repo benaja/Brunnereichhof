@@ -73,6 +73,7 @@ class TimeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
         $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
+        $this->isAllowedToEdit($userId);
 
         $date = new \DateTime($request->date);
         $timerecord = Timerecord::firstOrCreate(
@@ -120,6 +121,7 @@ class TimeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
         $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
+        $this->isAllowedToEdit($userId);
 
         $hour = Hour::find($id);
         if ($hour->timerecord->user->id == $userId) {
@@ -158,6 +160,7 @@ class TimeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['timerecord_read_write', 'worker_write']);
         $userId = isset($request->workerId) ? $request->workerId : auth()->user()->id;
+        $this->isAllowedToEdit($userId);
 
         $hour = Hour::find($id);
         $timerecordId = $hour->timerecord->id;
@@ -261,13 +264,13 @@ class TimeController extends Controller
         ];
     }
 
-    private $dayNamesGerman = [
-        'So',
-        'Mo',
-        'Di',
-        'Mi',
-        'Do',
-        'Fr',
-        'Sa'
-    ];
+    private function isAllowedToEdit($userId)
+    {
+        if (
+            auth()->user()->hasRule(['timerecord_read_write']) &&
+            !auth()->user()->hasRule('worker_write') &&
+            auth()->user()->id != $userId
+        ) abort(403, 'This action is forbidden.');
+        return true;
+    }
 }
