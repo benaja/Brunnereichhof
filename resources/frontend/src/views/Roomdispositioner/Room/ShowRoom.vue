@@ -54,16 +54,19 @@
         </v-col>
       </template>
     </v-row>
+    <room-stats></room-stats>
   </v-container>
 </template>
 
 <script>
 import SelectBed from '@/components/Roomdispositioner/Bed/SelectBed'
+import RoomStats from '@/components/Roomdispositioner/Room/RoomStats'
 
 export default {
   name: 'SchowRoom',
   components: {
-    SelectBed
+    SelectBed,
+    RoomStats
   },
   data() {
     return {
@@ -82,15 +85,18 @@ export default {
       })
     },
     deleteRoom() {
-      this.axios.delete('/rooms/' + this.$route.params.id).then(() => {
-        this.$router.push('/rooms')
-      }).catch(error => {
-        if (error.includes('Room is currently in use.')) {
-          this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan von einem Mitarbeiter belegt.', 'error')
-        } else {
-          this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
-        }
-      })
+      this.axios
+        .delete('/rooms/' + this.$route.params.id)
+        .then(() => {
+          this.$router.push('/rooms')
+        })
+        .catch(error => {
+          if (error.includes('Room is currently in use.')) {
+            this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan von einem Mitarbeiter belegt.', 'error')
+          } else {
+            this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+          }
+        })
     }
   }
 }
