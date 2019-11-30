@@ -45,7 +45,7 @@ export default {
       this.isLoading = true
 
       this.$store.dispatch(this.inputField.dispatch).then(items => {
-        this.items = items
+        this.items = [...items]
         if (this.inputField.selectAll) {
           this.items.unshift({
             id: 'all',
