@@ -46,7 +46,11 @@
           ></day>
         </v-touch>
       </v-col>
-      <overview v-if="isOverviewOpen" @close="isOverviewOpen = false"></overview>
+      <overview
+        v-if="isOverviewOpen"
+        @close="isOverviewOpen = false"
+        :url-worker-param="urlWorkerParam"
+      ></overview>
       <time-popup
         v-model="timePopupForm.isOpen"
         :date="timePopupForm.date"
