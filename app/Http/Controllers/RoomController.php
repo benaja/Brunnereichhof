@@ -160,6 +160,7 @@ class RoomController extends Controller
             ->join('bed_room', 'room.id', 'bed_room.room_id')
             ->join('reservation', 'reservation.bed_room_id', 'bed_room.id')
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-M-D'))
+            ->where('reservation.deleted_at', null)
             ->where('room.id', $id)
             ->first();
 
