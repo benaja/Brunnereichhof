@@ -160,6 +160,7 @@ class RoomController extends Controller
             ->join('bed_room', 'room.id', 'bed_room.room_id')
             ->join('reservation', 'reservation.bed_room_id', 'bed_room.id')
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-M-D'))
+            ->where('reservation.deleted_at', null)
             ->where('room.id', $id)
             ->first();
 
@@ -212,6 +213,30 @@ class RoomController extends Controller
             }
         }
         $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
+    }
+
+    public function reservationsByMonth(Request $request, $roomId, $date)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $firstDayOfMonth = new \DateTime($date);
+        $firstDayOfMonth->modify('first day of this month');
+        $lastDayOfMonth = clone $firstDayOfMonth;
+        $lastDayOfMonth->modify('last day of this month');
+
+        // $room = Room::with(array('BedRoomPivot.Reservations' => function ($query) use ($lastDayOfMonth, $firstDayOfMonth) {
+        //     $query->with('Employee');
+        //     $query->where('reservation.entry', '<=', $lastDayOfMonth->format('Y-m-d'));
+        //     $query->where('reservation.exit', '>=', $firstDayOfMonth->format('Y-m-d'));
+        // }))->with('BedRoomPivot.Bed')
+        //     ->orderBy('number')
+        //     ->find($roomId);
+        Reservation::with('BedRoomPivot.Room')
+            ->where('entry', '<=', $lastDayOfMonth->format('Y-m-d'))
+            ->where('exit', '>=', $firstDayOfMonth->format('Y-m-d'))
+            ->where();
+
+        return $room;
     }
 
     private function getRoomsforEvaluation(\DateTime $date)
