@@ -231,12 +231,15 @@ class RoomController extends Controller
         // }))->with('BedRoomPivot.Bed')
         //     ->orderBy('number')
         //     ->find($roomId);
-        Reservation::with('BedRoomPivot.Room')
+        $reservations = Reservation::with('employee')
+            ->join('bed_room', 'bed_room.id', '=', 'reservation.bed_room_id')
+            ->where('bed_room.room_id', $roomId)
             ->where('entry', '<=', $lastDayOfMonth->format('Y-m-d'))
             ->where('exit', '>=', $firstDayOfMonth->format('Y-m-d'))
-            ->where();
+            ->orderBy('entry')
+            ->get();
 
-        return $room;
+        return $reservations;
     }
 
     private function getRoomsforEvaluation(\DateTime $date)

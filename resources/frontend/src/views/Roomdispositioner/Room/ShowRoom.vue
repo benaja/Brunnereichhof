@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row class="white px-4 py-2">
+    <v-row class="px-4 py-2">
       <v-col cols="12" md="2">
         <p class="mt-3 font-weight-bold subheading">Name</p>
       </v-col>
@@ -53,8 +53,11 @@
           <v-btn color="red" class="white--text" @click="deleteRoom">Raum Löschen</v-btn>
         </v-col>
       </template>
+      <v-col cols="12">
+        <h1>Statistiken</h1>
+        <room-stats></room-stats>
+      </v-col>
     </v-row>
-    <room-stats></room-stats>
   </v-container>
 </template>
 
