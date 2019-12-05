@@ -6,10 +6,13 @@
       label="Hofmitarbeiter suchen"
       v-model="workersFiltered"
       @showDeleted="s => showDeleted = s"
+      :custom-filter-function="filterActive"
       ref="searchBar"
-    ></search-bar>
+    >
+      <v-switch v-model="showActive" label="Aktiv" slot="custom-filter" :disabled="showDeleted"></v-switch>
+    </search-bar>
     <v-expansion-panels>
-      <v-expansion-panel v-for="(worker, index) in workersFiltered" :key="index">
+      <v-expansion-panel v-for="worker in workersFiltered" :key="worker.id">
         <v-expansion-panel-header hide-actions>
           <p class="pt-2 mt-1">
             <v-icon class="account-icon">account_circle</v-icon>
@@ -39,10 +42,19 @@
               <p class="mb-0">Mittagessen: {{worker.mealsLastMonth.lunch}}</p>
               <p>Abendessen: {{worker.mealsLastMonth.dinner}}</p>
             </v-col>
-            <v-col cols="12" md="6" lg="4">
+            <v-col cols="12" md="6" lg="3">
               <h4>Ferien dieses Jahr</h4>
               <p>Geplant: {{worker.holidaysPlant}} Tage</p>
               <p>Bezogen: {{worker.holidaysDone}} Tage</p>
+            </v-col>
+            <v-col cols="12" md="6" lg="1">
+              <v-switch
+                class="float-right mr-4 pr-3"
+                v-model="worker.isActive"
+                label="Aktiv"
+                @change="update(worker)"
+                :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              ></v-switch>
             </v-col>
           </v-row>
         </v-expansion-panel-content>
@@ -73,7 +85,18 @@ export default {
   data() {
     return {
       workersFiltered: [],
-      showDeleted: false
+      showDeleted: false,
+      showActive: true
+    }
+  },
+  methods: {
+    filterActive(worker) {
+      return (worker.isActive && this.showActive) || (!worker.isActive && !this.showActive)
+    },
+    update(worker) {
+      this.axios.patch('/worker/' + worker.id, { isActive: worker.isActive }).catch(() => {
+        this.$swal('Fehler', 'Aktion konnte nicht durchgeführt werden.', 'error')
+      })
     }
   }
 }
