@@ -63,6 +63,13 @@ axios.interceptors.response.use(
       localStorage.removeItem('default_auth_token')
       store.commit('isLoading', false)
       router.push('/login')
+    } else if (error.status(403) && error.includes('Your account has been deactivated')) {
+      Vue.swal(
+        'Benuter deaktiviert',
+        'Dein Benutzer wurde deaktiviert. Bitte kontaktiere Steffan Brunner um deinen Benutzer wieder zu aktivieren.',
+        'error'
+      )
+      store.commit('isLoading', false)
     } else if (error.status(403)) {
       Vue.swal('Nicht berechtigt', 'Du bist für diese Aktion nicht berechtigt', 'error')
       store.commit('isLoading', false)
@@ -76,9 +83,9 @@ Vue.use(require('@websanova/vue-auth'), {
   auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
   http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
   router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
-  parseUserData: function (body) {
+  parseUserData: function(body) {
     let user = body.data
-    user.hasPermission = function (types, roles = []) {
+    user.hasPermission = function(types, roles = []) {
       if (!Array.isArray(types)) types = [types]
       if (types.includes(this.type.name)) return true
 
