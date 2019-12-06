@@ -48,6 +48,10 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user = User::with('role.authorizationRules')->with('type')->find(Auth::user()->id);
+        if (!$user->isActive) {
+            JWTAuth::invalidate();
+            return response('Your account has been deactivated', 403);
+        }
         return response([
             'status' => 'success',
             'data' => $user
