@@ -57,6 +57,9 @@ export default {
       formatedDate: ''
     }
   },
+  mounted() {
+    this.setFormatedDate()
+  },
   computed: {
     date: {
       get: function() {
@@ -70,6 +73,11 @@ export default {
   methods: {
     formatDate(format) {
       return this.date ? this.$moment(this.date).format(format) : ''
+    },
+    setFormatedDate() {
+      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
+      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
+      else this.formatedDate = this.formatDate('YYYY')
     }
   },
   watch: {
@@ -82,9 +90,7 @@ export default {
       }
     },
     date() {
-      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
-      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
-      else this.formatedDate = this.formatDate('YYYY')
+      this.setFormatedDate()
     }
   }
 }

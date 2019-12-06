@@ -33,6 +33,14 @@
         <v-col cols="12" sm="6">
           <select-role v-model="worker.role_id" @change="change('role_id')"></select-role>
         </v-col>
+        <v-col cols="12">
+          <v-switch
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+            label="Aktiv"
+            v-model="worker.isActive"
+            @change="change('isActive')"
+          ></v-switch>
+        </v-col>
         <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
           <v-col cols="12" class="mb-3">
             <h2 class="text-left display-1">Aktionen</h2>
