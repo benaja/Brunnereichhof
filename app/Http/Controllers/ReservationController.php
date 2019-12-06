@@ -116,8 +116,7 @@ class ReservationController extends Controller
             }
             return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
         } else {
-            $reservation = $reservation->save();
-            // return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+            Reservation::withTrashed()->find($reservation->id)->restore();
             return response($validationResult, 400);
         }
     }

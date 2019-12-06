@@ -236,11 +236,13 @@ export default {
         this.reservationModel.y = position.y
         setTimeout(() => {
           this.reservationModel.open = true
+          this.$nextTick(() => {
+            this.reservation.entry = this.firstday
+              .clone()
+              .add(day, 'days')
+              .format('YYYY-MM-DD')
+          })
         }, 100)
-        this.reservation.entry = this.firstday
-          .clone()
-          .add(day, 'days')
-          .format('YYYY-MM-DD')
       }
     },
     openMoreElementsPopup(e, tag) {
