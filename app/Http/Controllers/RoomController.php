@@ -6,6 +6,7 @@ use App\Bed;
 use App\Room;
 use App\Helpers\Pdf;
 use App\Reservation;
+use App\Helpers\Settings;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -219,22 +220,77 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        $firstDayOfMonth = new \DateTime($date);
-        $firstDayOfMonth->modify('first day of this month');
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
-
-        return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
+        return $this->getReservationsByMonth($roomId, $date);
     }
 
     public function reservationsByYear($roomId, $date)
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
+        return $this->getReservationsByYear($roomId, $date);
+    }
+
+    public function reservationsPdfByYear(Request $request, $roomId, $date)
+    {
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
+        $dateTime = new \DateTime($date);
+
+        $room = Room::find($roomId);
+        $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
+        $this->pdf->documentTitle("Jahr: {$dateTime->format('Y')}");
+        $reservations = $this->getReservationsByYear($roomId, $date);
+        $this->reservationsPdfTable($reservations);
+        $this->pdf->export("Reservationen für Raum {$room->name} {$dateTime->format('Y')}.pdf");
+    }
+
+    public function reservationsPdfByMonth(Request $request, $roomId, $date)
+    {
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
+        $dateTime = new \DateTime($date);
+
+        $room = Room::find($roomId);
+        $monthName = Settings::getMonthName($dateTime);
+        $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
+        $this->pdf->documentTitle("{$monthName} {$dateTime->format('Y')}");
+        $reservations = $this->getReservationsByMonth($roomId, $date);
+        $this->reservationsPdfTable($reservations);
+        $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
+    }
+
+    private function reservationsPdfTable($reservations)
+    {
+        $this->pdf->newLine();
+        $headers = ['Eintritt', 'Austritt', 'Mitarbeiter', 'Bett'];
+        $columns = [];
+        foreach ($reservations as $reservation) {
+            array_push($columns, [
+                (new \DateTime($reservation->entry))->format('d.m.Y'),
+                (new \DateTime($reservation->exit))->format('d.m.Y'),
+                "{$reservation->employee->lastname} {$reservation->employee->lastname}",
+                $reservation->bedRoomPivot->room->name
+            ]);
+        }
+        $this->pdf->table($headers, $columns);
+    }
+
+    private function getReservationsByYear($roomId, $date)
+    {
         $firstDayOfMonth = new \DateTime($date);
         $firstDayOfMonth->modify('first day of january this year');
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of december this year');
+
+        return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
+    }
+
+    private function getReservationsByMonth($roomId, $date)
+    {
+        $firstDayOfMonth = new \DateTime($date);
+        $firstDayOfMonth->modify('first day of this month');
+        $lastDayOfMonth = clone $firstDayOfMonth;
+        $lastDayOfMonth->modify('last day of this month');
 
         return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
     }

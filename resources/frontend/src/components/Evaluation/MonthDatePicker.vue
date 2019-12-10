@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col cols="12" md="6">
+    <v-col cols="12" md="8">
       <date-picker
         v-model="date"
         :type="selectYear ? 'year': 'month'"
@@ -8,7 +8,7 @@
         :color="color"
       ></date-picker>
     </v-col>
-    <v-col cols="12" md="6">
+    <v-col cols="12" md="4">
       <v-switch v-model="selectYear" label="Ganzes Jahr" :color="color"></v-switch>
     </v-col>
   </v-row>
