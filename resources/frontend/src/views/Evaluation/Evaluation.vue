@@ -121,6 +121,26 @@ export default {
               }
             },
             {
+              title: 'Übernachtungen',
+              inputFields: [
+                {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  label: 'Mitarbeiter',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
+                }
+              ],
+              url: 'employee/{employee}/reservations/{date}',
+              rules: {
+                date: v => !!v,
+                employee: v => !!v
+              }
+            },
+            {
               title: 'Mitarbeiterliste',
               inputFields: [],
               url: 'pdf/employees',

@@ -277,12 +277,12 @@ class RoomController extends Controller
 
     private function getReservationsByYear($roomId, $date)
     {
-        $firstDayOfMonth = new \DateTime($date);
-        $firstDayOfMonth->modify('first day of january this year');
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of december this year');
+        $firstDay = new \DateTime($date);
+        $firstDay->modify('first day of january this year');
+        $lastDay = clone $firstDay;
+        $lastDay->modify('last day of december this year');
 
-        return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
+        return $this->getReservationsByRoomAndTime($roomId, $firstDay, $lastDay);
     }
 
     private function getReservationsByMonth($roomId, $date)

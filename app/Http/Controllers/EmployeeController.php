@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
         $employees = [];
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', false)->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
         else $employees = Employee::where('isGuest', false)->orderBy('lastname')->get();
         return $employees;
     }
@@ -32,17 +32,18 @@ class EmployeeController extends Controller
 
         $employees = [];
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', true)->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
         else $employees = Employee::where('isGuest', true)->orderBy('lastname')->get();
         return $employees;
     }
 
     // GET employeeswithguests
-    public function employeesWithGuests(Request $request) {
+    public function employeesWithGuests(Request $request)
+    {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read', 'evaluation_employee']);
 
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
         else $employees = Employee::orderBy('lastname')->get();
         return $employees;
     }
@@ -268,6 +269,49 @@ class EmployeeController extends Controller
         $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
         $monthName = Settings::getMonthName($firstDayOfMonth);
         $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
+    }
+
+    public function reservationsByYear(Request $request, $employeeId, $date)
+    {
+        $this->pdf = new Pdf();
+
+        $employee = Employee::find($employeeId);
+        $firstDayOfYear = new \DateTime($date);
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $firstDayOfYear;
+        $lastDayOfYear->modify('last day of december this year');
+        $sleepCount = 0;
+
+        $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
+        foreach ($reservationsThisYear as $reservation) {
+            $sleepCount += $reservation->days();
+        }
+        $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
+        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
+        $this->pdf->documentTitle("Totale Übernachtungen: $sleepCount");
+        $this->reservationsPdfTable($reservationsThisYear);
+
+        $firstDayOfMonth = clone $firstDayOfYear;
+        for ($i = 0; $i < 12; $i++) {
+            $lastDayOfThisMonth = clone $firstDayOfMonth;
+            $lastDayOfThisMonth->modify('last day of this month');
+            $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
+        }
+    }
+
+    private function reservationsPdfTable($reservations)
+    {
+        $this->pdf->newLine();
+        $headers = ['Eintritt', 'Austritt', 'Bett'];
+        $columns = [];
+        foreach ($reservations as $reservation) {
+            array_push($columns, [
+                (new \DateTime($reservation->entry))->format('d.m.Y'),
+                (new \DateTime($reservation->exit))->format('d.m.Y'),
+                $reservation->bedRoomPivot->room->name
+            ]);
+        }
+        $this->pdf->table($headers, $columns);
     }
 
     private function dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth)

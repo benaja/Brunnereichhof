@@ -27,4 +27,12 @@ class Employee extends Model
     {
         return "$this->lastname $this->firstname";
     }
+
+    public function reservationsBetweenDates($startDate, $endDate)
+    {
+        return $this->reservations()
+            ->where('entry', '<=', $endDate->format('Y-m-d'))
+            ->where('exit', '>=', $startDate->format('Y-m-d'))
+            ->get();
+    }
 }
