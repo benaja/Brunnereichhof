@@ -92,6 +92,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
     Route::resource('/rooms', 'RoomController');
     Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
+    Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
 });
 
 Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');

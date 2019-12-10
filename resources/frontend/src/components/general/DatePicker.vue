@@ -85,6 +85,11 @@ export default {
       if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
       else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
       else this.formatedDate = this.formatDate('YYYY')
+    },
+    type() {
+      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
+      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
+      else this.formatedDate = this.formatDate('YYYY')
     }
   }
 }

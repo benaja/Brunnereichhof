@@ -5,10 +5,11 @@
         v-model="date"
         :type="selectYear ? 'year': 'month'"
         :label="selectYear ? 'Jahr': 'Monat'"
+        :color="color"
       ></date-picker>
     </v-col>
     <v-col cols="12" md="6">
-      <v-switch v-model="selectYear" label="Ganzes Jahr"></v-switch>
+      <v-switch v-model="selectYear" label="Ganzes Jahr" :color="color"></v-switch>
     </v-col>
   </v-row>
 </template>
@@ -21,12 +22,22 @@ export default {
     DatePicker
   },
   props: {
-    value: String
+    value: String,
+    color: {
+      type: String,
+      default: 'primary'
+    }
   },
   data() {
     return {
       selectYear: false,
       date: null
+    }
+  },
+  mounted() {
+    if (this.value) {
+      this.date = this.value.split('/')[1]
+      this.submitInput()
     }
   },
   methods: {
