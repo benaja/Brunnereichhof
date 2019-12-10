@@ -284,8 +284,16 @@ class EmployeeController extends Controller
 
         $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
         foreach ($reservationsThisYear as $reservation) {
-            $sleepCount += $reservation->days();
+            $sleepDays = $reservation->days();
+            if ($firstDayOfYear > $reservation->entry) {
+                $sleepDays -= $firstDayOfYear->diff($reservation->entry)->days;
+            }
+            if ($lastDayOfYear < $reservation->exit) {
+                $sleepDays -= $lastDayOfYear->diff($reservation->exit)->days;
+            }
+            $sleepCount += $sleepDays;
         }
+        return $sleepCount;
         $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
         $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
         $this->pdf->documentTitle("Totale Übernachtungen: $sleepCount");
