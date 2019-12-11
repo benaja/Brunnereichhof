@@ -18,6 +18,7 @@ Route::get('/employee/{employeeId}/evaluation/year/{year}', 'EmployeeController@
 Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeController@employeeDayTotalsByMonth');
 Route::get('/employee/{employeeId}/reservations/year/{year}', 'EmployeeController@reservationsByYear');
 Route::get('/employee/{employeeId}/reservations/month/{month}', 'EmployeeController@reservationsByMonth');
+Route::get('/employee/food/year/{date}', 'EmployeeController@foodRapportByYear');
 Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/guest', 'EmployeeController@guests');
     Route::patch('/guest/{id}', 'EmployeeController@update');

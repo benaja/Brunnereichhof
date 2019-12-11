@@ -141,6 +141,19 @@ export default {
               }
             },
             {
+              title: 'Verpflegungen auf Eichhof',
+              inputFields: [
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'employee/food/year/{date}',
+              rules: {
+                date: v => !!v
+              }
+            },
+            {
               title: 'Mitarbeiterliste',
               inputFields: [],
               url: 'pdf/employees',

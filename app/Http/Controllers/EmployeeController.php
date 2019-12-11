@@ -273,6 +273,7 @@ class EmployeeController extends Controller
 
     public function reservationsByYear(Request $request, $employeeId, $date)
     {
+        Pdf::validateToken($request->token);
         $this->pdf = new Pdf();
 
         $employee = Employee::find($employeeId);
@@ -304,6 +305,56 @@ class EmployeeController extends Controller
             $firstDayOfMonth->modify('first day of next month');
         }
         $this->pdf->export("Übernachtungen von {$employee->name()} {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    public function foodRapportByYear(Request $request, $date)
+    {
+        $firstDayOfYear = new \DateTime($date);
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $firstDayOfYear;
+        $lastDayOfYear->modify('last day of december this year');
+        $employees = Employee::withTrashed()->get();
+        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfYear, $lastDayOfYear);
+
+        $this->pdf = new Pdf('P');
+        $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
+        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
+        $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+        $this->pdf->newLine();
+
+        $this->foodTable($employees, $firstDayOfYear, $lastDayOfYear);
+
+        $firstDayOfMonth = clone $firstDayOfYear;
+        for ($i = 0; $i < 12; $i++) {
+            $lastDayOfMonth = clone $firstDayOfMonth;
+            $lastDayOfMonth->modify('last day of this month');
+            $this->pdf->addPage();
+            $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
+            $monthName = Settings::getMonthName($firstDayOfMonth);
+            $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
+            $this->pdf->documentTitle("$monthName {$firstDayOfMonth->format('Y')}");
+            $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+            $this->pdf->newLine();
+            $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
+            $firstDayOfMonth->modify('first day of next month');
+        }
+
+        $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    private function foodTable($employees, $firstDate, $lastDate)
+    {
+        $columns = [];
+        foreach ($employees as $employee) {
+            $totalFood = $employee->getFoodAmountBetweenDates($firstDate, $lastDate);
+            if ($totalFood > 0) {
+                array_push($columns, [
+                    $employee->name(),
+                    $totalFood
+                ]);
+            }
+        }
+        $this->pdf->table(['Mitarbeiter', 'Verpflegungen'], $columns);
     }
 
     private function getSleepOver($reservations, $firstDay, $lastDay)
