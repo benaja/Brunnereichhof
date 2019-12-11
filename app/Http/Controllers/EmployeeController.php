@@ -280,31 +280,46 @@ class EmployeeController extends Controller
         $firstDayOfYear->modify('first day of january this year');
         $lastDayOfYear = clone $firstDayOfYear;
         $lastDayOfYear->modify('last day of december this year');
-        $sleepCount = 0;
-
         $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
-        foreach ($reservationsThisYear as $reservation) {
-            $sleepDays = $reservation->days();
-            if ($firstDayOfYear > $reservation->entry) {
-                $sleepDays -= $firstDayOfYear->diff($reservation->entry)->days;
-            }
-            if ($lastDayOfYear < $reservation->exit) {
-                $sleepDays -= $lastDayOfYear->diff($reservation->exit)->days;
-            }
-            $sleepCount += $sleepDays;
-        }
-        return $sleepCount;
+        $sleepOver = $this->getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
         $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
         $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
-        $this->pdf->documentTitle("Totale Übernachtungen: $sleepCount");
+        $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
         $this->reservationsPdfTable($reservationsThisYear);
 
         $firstDayOfMonth = clone $firstDayOfYear;
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfThisMonth = clone $firstDayOfMonth;
             $lastDayOfThisMonth->modify('last day of this month');
-            $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
+            $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfMonth, $lastDayOfThisMonth);
+            $sleepOver = $this->getSleepOver($reservationsThisMonth, $firstDayOfMonth, $lastDayOfThisMonth);
+            if ($sleepOver > 0) {
+                $this->pdf->addPage();
+                $monthName = Settings::getMonthName($firstDayOfMonth);
+                $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
+                $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
+                $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
+                $this->reservationsPdfTable($reservationsThisMonth);
+            }
+            $firstDayOfMonth->modify('first day of next month');
         }
+        $this->pdf->export("Übernachtungen von {$employee->name()} {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    private function getSleepOver($reservations, $firstDay, $lastDay)
+    {
+        $sleepOver = 0;
+        foreach ($reservations as $reservation) {
+            $sleepDays = $reservation->days();
+            if ($firstDay > $reservation->entry) {
+                $sleepDays -= $firstDay->diff($reservation->entry)->days;
+            }
+            if ($lastDay < $reservation->exit) {
+                $sleepDays -= $lastDay->diff($reservation->exit)->days - 1;
+            }
+            $sleepOver += $sleepDays;
+        }
+        return $sleepOver;
     }
 
     private function reservationsPdfTable($reservations)

@@ -130,13 +130,13 @@ export default {
                   type: EVALUATION_INPUT_TYPES.COMBOBOX
                 },
                 {
-                  key: 'date',
-                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'employee/{employee}/reservations/{date}',
+              url: 'employee/{employee}/reservations/year/{year}',
               rules: {
-                date: v => !!v,
+                year: v => !!v,
                 employee: v => !!v
               }
             },

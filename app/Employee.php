@@ -33,6 +33,7 @@ class Employee extends Model
         return $this->reservations()
             ->where('entry', '<=', $endDate->format('Y-m-d'))
             ->where('exit', '>=', $startDate->format('Y-m-d'))
+            ->orderBy('entry')
             ->get();
     }
 }
