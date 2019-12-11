@@ -57,6 +57,9 @@ export default {
       formatedDate: ''
     }
   },
+  mounted() {
+    this.setFormatedDate()
+  },
   computed: {
     date: {
       get: function() {
