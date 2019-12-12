@@ -59,6 +59,19 @@ export default {
               rules: {
                 year: v => !!v
               }
+            },
+            {
+              title: 'Verpflegungen',
+              inputFields: [
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/worker/meals/year/{year}',
+              rules: {
+                year: v => !!v
+              }
             }
           ]
         },

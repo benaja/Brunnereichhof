@@ -11,7 +11,7 @@
       outlined
       class="mt-4"
     ></v-select>
-    <h2>Neuerungen</h2>
+    <h2 v-if="selectedRelease.changes && selectedRelease.changes.length">Neuerungen</h2>
     <p v-for="(change, index) of selectedRelease.changes" :key="index">{{change}}</p>
     <h2>Bug fixes</h2>
     <p v-for="(change, index) of selectedRelease.bugfixes" :key="`bf-${index}`">{{change}}</p>
