@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\FoodTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -26,5 +27,25 @@ class Employee extends Model
     public function name()
     {
         return "$this->lastname $this->firstname";
+    }
+
+    public function reservationsBetweenDates($startDate, $endDate)
+    {
+        return $this->reservations()
+            ->where('entry', '<=', $endDate->format('Y-m-d'))
+            ->where('exit', '>=', $startDate->format('Y-m-d'))
+            ->orderBy('entry')
+            ->get();
+    }
+
+    public function getFoodAmountBetweenDates($firstDate, $lastDate, $foodType = [FoodTypeEnum::Eichhof])
+    {
+        return $this->rapportdetails
+            ->where('date', '>=', $firstDate->format('Y-m-d'))
+            ->where('date', '<=', $lastDate->format('Y-m-d'))
+            ->whereIn('foodtype_id', $foodType)
+            ->where('hours', '>', 0)
+            ->groupBy('date')
+            ->count();
     }
 }

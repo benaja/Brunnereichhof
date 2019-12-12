@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
         $employees = [];
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', false)->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
         else $employees = Employee::where('isGuest', false)->orderBy('lastname')->get();
         return $employees;
     }
@@ -32,17 +32,18 @@ class EmployeeController extends Controller
 
         $employees = [];
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', true)->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
         else $employees = Employee::where('isGuest', true)->orderBy('lastname')->get();
         return $employees;
     }
 
     // GET employeeswithguests
-    public function employeesWithGuests(Request $request) {
+    public function employeesWithGuests(Request $request)
+    {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read', 'evaluation_employee']);
 
         if (isset($request->deleted)) $employees = Employee::onlyTrashed()->orderBy('lastname')->get();
-        else if(isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
+        else if (isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
         else $employees = Employee::orderBy('lastname')->get();
         return $employees;
     }
@@ -268,6 +269,123 @@ class EmployeeController extends Controller
         $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
         $monthName = Settings::getMonthName($firstDayOfMonth);
         $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
+    }
+
+    public function reservationsByYear(Request $request, $employeeId, $date)
+    {
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
+
+        $employee = Employee::find($employeeId);
+        $firstDayOfYear = new \DateTime($date);
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $firstDayOfYear;
+        $lastDayOfYear->modify('last day of december this year');
+        $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
+        $sleepOver = $this->getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
+        $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
+        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
+        $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
+        $this->reservationsPdfTable($reservationsThisYear);
+
+        $firstDayOfMonth = clone $firstDayOfYear;
+        for ($i = 0; $i < 12; $i++) {
+            $lastDayOfThisMonth = clone $firstDayOfMonth;
+            $lastDayOfThisMonth->modify('last day of this month');
+            $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfMonth, $lastDayOfThisMonth);
+            $sleepOver = $this->getSleepOver($reservationsThisMonth, $firstDayOfMonth, $lastDayOfThisMonth);
+            if ($sleepOver > 0) {
+                $this->pdf->addPage();
+                $monthName = Settings::getMonthName($firstDayOfMonth);
+                $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
+                $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
+                $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
+                $this->reservationsPdfTable($reservationsThisMonth);
+            }
+            $firstDayOfMonth->modify('first day of next month');
+        }
+        $this->pdf->export("Übernachtungen von {$employee->name()} {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    public function foodRapportByYear(Request $request, $date)
+    {
+        $firstDayOfYear = new \DateTime($date);
+        $firstDayOfYear->modify('first day of january this year');
+        $lastDayOfYear = clone $firstDayOfYear;
+        $lastDayOfYear->modify('last day of december this year');
+        $employees = Employee::withTrashed()->get();
+        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfYear, $lastDayOfYear);
+
+        $this->pdf = new Pdf('P');
+        $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
+        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
+        $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+        $this->pdf->newLine();
+
+        $this->foodTable($employees, $firstDayOfYear, $lastDayOfYear);
+
+        $firstDayOfMonth = clone $firstDayOfYear;
+        for ($i = 0; $i < 12; $i++) {
+            $lastDayOfMonth = clone $firstDayOfMonth;
+            $lastDayOfMonth->modify('last day of this month');
+            $this->pdf->addPage();
+            $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
+            $monthName = Settings::getMonthName($firstDayOfMonth);
+            $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
+            $this->pdf->documentTitle("$monthName {$firstDayOfMonth->format('Y')}");
+            $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+            $this->pdf->newLine();
+            $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
+            $firstDayOfMonth->modify('first day of next month');
+        }
+
+        $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    private function foodTable($employees, $firstDate, $lastDate)
+    {
+        $columns = [];
+        foreach ($employees as $employee) {
+            $totalFood = $employee->getFoodAmountBetweenDates($firstDate, $lastDate);
+            if ($totalFood > 0) {
+                array_push($columns, [
+                    $employee->name(),
+                    $totalFood
+                ]);
+            }
+        }
+        $this->pdf->table(['Mitarbeiter', 'Verpflegungen'], $columns);
+    }
+
+    private function getSleepOver($reservations, $firstDay, $lastDay)
+    {
+        $sleepOver = 0;
+        foreach ($reservations as $reservation) {
+            $sleepDays = $reservation->days();
+            if ($firstDay > $reservation->entry) {
+                $sleepDays -= $firstDay->diff($reservation->entry)->days;
+            }
+            if ($lastDay < $reservation->exit) {
+                $sleepDays -= $lastDay->diff($reservation->exit)->days - 1;
+            }
+            $sleepOver += $sleepDays;
+        }
+        return $sleepOver;
+    }
+
+    private function reservationsPdfTable($reservations)
+    {
+        $this->pdf->newLine();
+        $headers = ['Eintritt', 'Austritt', 'Bett'];
+        $columns = [];
+        foreach ($reservations as $reservation) {
+            array_push($columns, [
+                (new \DateTime($reservation->entry))->format('d.m.Y'),
+                (new \DateTime($reservation->exit))->format('d.m.Y'),
+                $reservation->bedRoomPivot->room->name
+            ]);
+        }
+        $this->pdf->table($headers, $columns);
     }
 
     private function dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth)

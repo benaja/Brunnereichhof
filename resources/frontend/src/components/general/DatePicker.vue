@@ -91,6 +91,9 @@ export default {
     },
     date() {
       this.setFormatedDate()
+    },
+    type() {
+      this.setFormatedDate()
     }
   }
 }

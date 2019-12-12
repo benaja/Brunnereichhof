@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Reservation extends Model
 {
     use SoftDeletes;
-    
+
     public $table = "reservation";
 
     protected $fillable = ['entry', 'exit', 'bed_room_id'];
@@ -28,6 +28,11 @@ class Reservation extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class)->withTrashed();
+    }
+
+    public function days()
+    {
+        return $this->entry->diff($this->exit)->days;
     }
 
     protected $dates = [

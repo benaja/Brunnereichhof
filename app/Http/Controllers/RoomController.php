@@ -6,6 +6,7 @@ use App\Bed;
 use App\Room;
 use App\Helpers\Pdf;
 use App\Reservation;
+use App\Helpers\Settings;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -219,24 +220,92 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
+        return $this->getReservationsByMonth($roomId, $date);
+    }
+
+    public function reservationsByYear($roomId, $date)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        return $this->getReservationsByYear($roomId, $date);
+    }
+
+    public function reservationsPdfByYear(Request $request, $roomId, $date)
+    {
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
+        $dateTime = new \DateTime($date);
+
+        $room = Room::find($roomId);
+        $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
+        $this->pdf->documentTitle("Jahr: {$dateTime->format('Y')}");
+        $reservations = $this->getReservationsByYear($roomId, $date);
+        $this->reservationsPdfTable($reservations);
+        $this->pdf->export("Reservationen für Raum {$room->name} {$dateTime->format('Y')}.pdf");
+    }
+
+    public function reservationsPdfByMonth(Request $request, $roomId, $date)
+    {
+        Pdf::validateToken($request->token);
+        $this->pdf = new Pdf();
+        $dateTime = new \DateTime($date);
+
+        $room = Room::find($roomId);
+        $monthName = Settings::getMonthName($dateTime);
+        $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
+        $this->pdf->documentTitle("{$monthName} {$dateTime->format('Y')}");
+        $reservations = $this->getReservationsByMonth($roomId, $date);
+        $this->reservationsPdfTable($reservations);
+        $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
+    }
+
+    private function reservationsPdfTable($reservations)
+    {
+        $this->pdf->newLine();
+        $headers = ['Eintritt', 'Austritt', 'Mitarbeiter', 'Bett'];
+        $columns = [];
+        foreach ($reservations as $reservation) {
+            array_push($columns, [
+                (new \DateTime($reservation->entry))->format('d.m.Y'),
+                (new \DateTime($reservation->exit))->format('d.m.Y'),
+                "{$reservation->employee->lastname} {$reservation->employee->lastname}",
+                $reservation->bedRoomPivot->room->name
+            ]);
+        }
+        $this->pdf->table($headers, $columns);
+    }
+
+    private function getReservationsByYear($roomId, $date)
+    {
+        $firstDay = new \DateTime($date);
+        $firstDay->modify('first day of january this year');
+        $lastDay = clone $firstDay;
+        $lastDay->modify('last day of december this year');
+
+        return $this->getReservationsByRoomAndTime($roomId, $firstDay, $lastDay);
+    }
+
+    private function getReservationsByMonth($roomId, $date)
+    {
         $firstDayOfMonth = new \DateTime($date);
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
 
-        // $room = Room::with(array('BedRoomPivot.Reservations' => function ($query) use ($lastDayOfMonth, $firstDayOfMonth) {
-        //     $query->with('Employee');
-        //     $query->where('reservation.entry', '<=', $lastDayOfMonth->format('Y-m-d'));
-        //     $query->where('reservation.exit', '>=', $firstDayOfMonth->format('Y-m-d'));
-        // }))->with('BedRoomPivot.Bed')
-        //     ->orderBy('number')
-        //     ->find($roomId);
-        Reservation::with('BedRoomPivot.Room')
-            ->where('entry', '<=', $lastDayOfMonth->format('Y-m-d'))
-            ->where('exit', '>=', $firstDayOfMonth->format('Y-m-d'))
-            ->where();
+        return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
+    }
 
-        return $room;
+    private function getReservationsByRoomAndTime($roomId, $firstDate, $lastdate)
+    {
+        return Reservation::with('employee')
+            ->with('BedRoomPivot.Bed')
+            ->join('bed_room', 'bed_room.id', '=', 'reservation.bed_room_id')
+            ->where('bed_room.room_id', $roomId)
+            ->where('entry', '<=', $lastdate->format('Y-m-d'))
+            ->where('exit', '>=', $firstDate->format('Y-m-d'))
+            ->orderBy('entry')
+            ->select('reservation.*')
+            ->get();
     }
 
     private function getRoomsforEvaluation(\DateTime $date)

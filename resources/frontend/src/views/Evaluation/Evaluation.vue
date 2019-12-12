@@ -59,6 +59,19 @@ export default {
               rules: {
                 year: v => !!v
               }
+            },
+            {
+              title: 'Verpflegungen',
+              inputFields: [
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/worker/meals/year/{year}',
+              rules: {
+                year: v => !!v
+              }
             }
           ]
         },
@@ -118,6 +131,39 @@ export default {
               rules: {
                 date: v => !!v,
                 employee: v => !!v
+              }
+            },
+            {
+              title: 'Übernachtungen',
+              inputFields: [
+                {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  label: 'Mitarbeiter',
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'employee/{employee}/reservations/year/{year}',
+              rules: {
+                year: v => !!v,
+                employee: v => !!v
+              }
+            },
+            {
+              title: 'Verpflegungen auf Eichhof',
+              inputFields: [
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'employee/food/year/{date}',
+              rules: {
+                date: v => !!v
               }
             },
             {
