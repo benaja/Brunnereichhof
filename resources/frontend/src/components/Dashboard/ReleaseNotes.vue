@@ -7,8 +7,10 @@
         <v-icon>close</v-icon>
       </v-btn>
     </p>
-    <p class="title">Änderungen</p>
-    <p v-for="(change, index) of release.changes" :key="index">{{change}}</p>
+    <template v-if="release.changes && release.changes.length">
+      <p class="title">Änderungen</p>
+      <p v-for="(change, index) of release.changes" :key="index">{{change}}</p>
+    </template>
     <v-btn class="float-right" text color="primary" to="/release-notes">Mehr infos</v-btn>
   </v-card>
 </template>

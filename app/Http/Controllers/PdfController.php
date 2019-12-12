@@ -25,7 +25,7 @@ class PdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
     private $documentWidth = 270;
-    private $pdf;    
+    private $pdf;
 
     // GET pdf/employee/year/{year}
     public function employeeYearRapport(Request $request, $employeeId, $year)
@@ -116,7 +116,7 @@ class PdfController extends Controller
 
         if ($customerId == 'all') {
             $customers = Customer::all();
-            foreach($customers as $key => $customer) {
+            foreach ($customers as $key => $customer) {
                 // if ($key > 0) $this->pdf->addPage();
                 $this->singleCustomerYearRapport($customer, $year, true);
             }
@@ -126,7 +126,6 @@ class PdfController extends Controller
             $this->singleCustomerYearRapport($customer, $year);
             $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
         }
-        
     }
 
     // --helpers--
@@ -148,7 +147,8 @@ class PdfController extends Controller
         $this->pdf->table($header, $lines);
     }
 
-    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false) {
+    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false)
+    {
         $firstDate = new \DateTime("1.1.$year");
         $lastDate = new \DateTime("31.12.$year");
 
@@ -159,7 +159,7 @@ class PdfController extends Controller
             ->where('rapportdetail.date', '>=', $firstDate->format('Y-m-d'))
             ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
             ->sum('rapportdetail.hours');
-        
+
         if ($onlyWhenNotZeroHours && $totalHours === 0) return;
 
         $firstDate->modify("first day of this week");
@@ -235,19 +235,11 @@ class PdfController extends Controller
         return $totalFood;
     }
 
-    private function getFoodOfEmployeeByMonth($fristDayOfMonth, $employee, $foodType = [FoodTypeEnum::Eichhof, FoodTypeEnum::Customer])
+    private function getFoodOfEmployeeByMonth($firstDayOfMonth, $employee, $foodType = [FoodTypeEnum::Eichhof, FoodTypeEnum::Customer])
     {
-        $lastDayOfMonth = clone $fristDayOfMonth;
+        $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
-
-        $totalFood = $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))
-            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
-            ->whereIn('foodtype_id', $foodType)
-            ->where('hours', '>', 0)
-            ->groupBy('date')
-            ->count();
-
-        return $totalFood;
+        return $employee->getFoodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth, $foodType);
     }
 
     private function addDetailsForAllEmployees($rapportdetails, $monthName)

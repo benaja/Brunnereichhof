@@ -201,4 +201,16 @@ class User extends Authenticatable
             'dinner' => count($timerecords->where('dinner', 1))
         ];
     }
+
+    public function getTotalNumberOfMealsBetweenDates($startDate, $endDate)
+    {
+        $numberOfMealsByTpye = $this->getNumberOfMeals($startDate, $endDate);
+        return $numberOfMealsByTpye['breakfast'] + $numberOfMealsByTpye['lunch'] + $numberOfMealsByTpye['dinner'];
+    }
+
+    private function timerecordsBetweenDates($startDate, $endDate)
+    {
+        return $this->timerecords->where('date', '>=', $startDate->format('Y-m-d'))
+            ->where('date', '<=', $endDate->format('Y-m-d'));
+    }
 }

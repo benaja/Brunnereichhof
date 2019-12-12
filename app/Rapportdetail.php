@@ -2,13 +2,15 @@
 
 namespace App;
 
+use App\Enums\FoodTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Rapportdetail extends Model
 {
     use SoftDeletes;
-    
+
     public $table = "rapportdetail";
 
     protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date', 'project_id'];
@@ -50,5 +52,16 @@ class Rapportdetail extends Model
             }
         }
         return true;
+    }
+
+    public static function foodAmountBetweenDates($firstDate, $lastDate, $foodType = [FoodTypeEnum::Eichhof])
+    {
+        return Rapportdetail::where('date', '>=', $firstDate->format('Y-m-d'))
+            ->where('date', '<=', $lastDate->format('Y-m-d'))
+            ->whereIn('foodtype_id', $foodType)
+            ->where('hours', '>', 0)
+            ->groupBy('date', 'employee_id')
+            ->get()
+            ->count();
     }
 }
