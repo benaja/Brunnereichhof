@@ -2,10 +2,10 @@ export default [
   {
     version: '1.4.0',
     changes: [
-      `Bei jedem Raum sieht man nun direkt von wann bis wann er belegt ist. Dies kann entweder per Monat oder
-      per Jahr ausgewählt werden. Die Tabelle kann auch als pdf exportiert werden`,
-      `Verpflegung auswertung pro Jahr und Monat für Mitarbeiter und Hofmitarbeiter`,
-      `Auswertung der Übernachtungen für jeden Mitarbeiter über ein ganzes Jahr`
+      `Bei jedem Raum sieht man nun direkt von wann bis wann er belegt ist. Dies kann entweder pro Monat oder
+       Jahr ausgewählt werden. Die Tabelle kann auch als Pdf exportiert werden.`,
+      `Auswertung der Verpflegungen für Mitarbeiter und Hofmitarbeiter über ein ganzes Jahr.`,
+      `Auswertung der Übernachtungen für jeden Mitarbeiter über ein ganzes Jahr.`
     ]
   },
   {
