@@ -82,4 +82,7 @@ export default {
   align-items: unset;
   padding-top: 12px;
 }
+p {
+  word-break: normal;
+}
 </style>

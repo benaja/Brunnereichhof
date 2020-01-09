@@ -1,5 +1,7 @@
 <?php
 Route::post('auth/login', 'AuthController@login');
+Route::post('auth/reset-password', 'AuthController@resetPassword');
+Route::post('auth/set-password', 'AuthController@setPassword');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
     Route::get('/pdftoken', 'AuthController@generatePdfToken');

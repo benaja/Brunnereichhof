@@ -1,5 +1,12 @@
 export default [
   {
+    version: '1.4.1',
+    changes: [
+      `Es ist jetzt möglich, das Passwort zurückzusetzten. Dafür kann man auf der Login-Seite auf
+      "Passwort vergesse" klicken un erhält dann eine Email, welche den Link zum Zurücksetzen des Passworts enthält. `
+    ]
+  },
+  {
     version: '1.4.0',
     changes: [
       `Bei jedem Raum sieht man nun direkt von wann bis wann er belegt ist. Dies kann entweder pro Monat oder

@@ -5,12 +5,32 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style type="text/css">
             p{
-                font-size: 2em;
+                font-size: 1.3em;
                 margin: 0;
             }
 
             a{
                 color: #039be5;
+            }
+
+            .button {
+                background-color: #26a69a;
+                border-style: none;
+                border-radius: 20px;
+                padding: 10px 30px;
+                color: white;
+                font-size: 1.3rem;
+                text-decoration: none;
+                margin: 20px 0;
+                text-transform: uppercase;
+                display: inline-block;
+            }
+
+            .button a {
+                color: white;
+                font-size: 1.3rem;
+                text-decoration: none;
+                text-transform: uppercase;
             }
         </style>
     </head>

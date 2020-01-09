@@ -19,7 +19,18 @@ export default new Router({
     {
       path: '/login',
       name: 'Login',
-      component: () => import('./views/Login.vue')
+      component: () => import('./views/auth/Login.vue')
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('./views/auth/ResetPassword.vue')
+    },
+    {
+      path: '/set-password',
+      props: route => ({ token: route.query.token, userId: route.query.userId }),
+      name: 'SetPassword',
+      component: () => import('./views/auth/SetPassword')
     },
     {
       path: '/customer',

@@ -3,7 +3,7 @@
 @section('content')
     <tr> 
         <td style="height: 180px">
-            <img src="http://rapport2.brunnereichhof.ch/images/logo.png">
+            <img src="http://rapport-brunnereichhof.ch/images/logo.png">
             <h1 style="font-family: sans-serif; text-align: left;">Herrzlich Willkommen beim Brunnereichhof</h1>
         </td>
     </tr>
@@ -29,7 +29,7 @@
     </tr>
     <tr>
         <td>
-            <p>Anmelden können Sie sich auf <a href="https://rapport2.brunnereichhof.ch">dieser Website</a>.</p>
+            <p>Anmelden können Sie sich auf <a href="https://rapport-brunnereichhof.ch">dieser Website</a>.</p>
             <p>Bei Fragen können sie gerne einfach eine E-Mail an <a href="mailto:info@brunnereichhof.ch">info@brunnereichhof.ch</a> schreiben oder sich direkt an Stefan Brunner wenden.</p>
         </td>
     </tr>

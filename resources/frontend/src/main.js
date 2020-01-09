@@ -85,11 +85,13 @@ Vue.use(require('@websanova/vue-auth'), {
   router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
   parseUserData: function(body) {
     let user = body.data
-    user.hasPermission = function(types, roles = []) {
-      if (!Array.isArray(types)) types = [types]
-      if (types.includes(this.type.name)) return true
+    if (user) {
+      user.hasPermission = function(types, roles = []) {
+        if (!Array.isArray(types)) types = [types]
+        if (types.includes(this.type.name)) return true
 
-      return this.role && !!this.role.authorization_rules.find(r => roles.includes(r.name))
+        return this.role && !!this.role.authorization_rules.find(r => roles.includes(r.name))
+      }
     }
     return user
   }
