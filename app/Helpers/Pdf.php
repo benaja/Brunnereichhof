@@ -140,7 +140,7 @@ class Pdf extends Fpdf
 
   public function export($fileName)
   {
-    Fpdf::Output('D', utf8_decode($fileName));
+    Fpdf::Output('I', utf8_decode($fileName));
   }
 
   public function error($errorMessage)

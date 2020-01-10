@@ -269,7 +269,7 @@ class RoomController extends Controller
                 (new \DateTime($reservation->entry))->format('d.m.Y'),
                 (new \DateTime($reservation->exit))->format('d.m.Y'),
                 "{$reservation->employee->lastname} {$reservation->employee->lastname}",
-                $reservation->bedRoomPivot->room->name
+                $reservation->bedRoomPivot->bed->name
             ]);
         }
         $this->pdf->table($headers, $columns);

@@ -317,9 +317,8 @@ class EmployeeController extends Controller
         $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfYear, $lastDayOfYear);
 
         $this->pdf = new Pdf('P');
-        $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
-        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
-        $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+        $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichof \nJahr: {$firstDayOfYear->format('Y')} \nTotale Verpflegungen: $totalFood";
+        $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
         $this->pdf->newLine();
 
         $this->foodTable($employees, $firstDayOfYear, $lastDayOfYear);
@@ -329,11 +328,10 @@ class EmployeeController extends Controller
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
             $this->pdf->addPage();
-            $this->pdf->documentTitle('Verpflegungen Mitarbeiter auf dem Eichhof');
             $monthName = Settings::getMonthName($firstDayOfMonth);
             $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
-            $this->pdf->documentTitle("$monthName {$firstDayOfMonth->format('Y')}");
-            $this->pdf->documentTitle("Totale Verpflegungen: $totalFood");
+            $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$monthName {$firstDayOfMonth->format('Y')} \nTotale Verpflegungen: $totalFood";
+            $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
             $this->pdf->newLine();
             $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
             $firstDayOfMonth->modify('first day of next month');
