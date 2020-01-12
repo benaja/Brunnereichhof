@@ -9,7 +9,9 @@ use App\Customer;
 use App\Rapportdetail;
 use App\Project;
 use App\Enums\FoodTypeEnum;
+use App\Exports\CustomerExport;
 use App\Rapport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerPdfController extends Controller
 {
@@ -70,6 +72,13 @@ class CustomerPdfController extends Controller
             }
             $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
+    }
+
+    // GET customers/export
+    public function csvExport(Request $request)
+    {
+        Pdf::validateToken($request->token);
+        return Excel::download(new CustomerExport, 'Kundenverzeichnis.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 
     private function weekRapportForSingleCustomer($rapport)

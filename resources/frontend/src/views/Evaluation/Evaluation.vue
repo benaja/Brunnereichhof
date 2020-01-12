@@ -218,6 +218,12 @@ export default {
               rules: {
                 year: v => !!v
               }
+            },
+            {
+              title: 'Kundenverzeichnis Export',
+              inputFields: [],
+              url: 'customers/export',
+              buttonText: 'Kundenverzeichnis exportieren'
             }
           ]
         }

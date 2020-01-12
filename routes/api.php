@@ -64,6 +64,7 @@ Route::get('/pdf/customer/{customerId}/week/{date}', 'Evaluation\CustomerPdfCont
 Route::get('/pdf/reservation/employee/{id}', 'ReservationPdfController@pdfByEmployee');
 Route::get('/pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
 Route::get('/pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
+Route::get('/customers/export', 'Evaluation\CustomerPdfController@csvExport');
 
 Route::post('/password/change', 'UserController@changePassword');
 Route::post('/resetpassword/{user}', 'UserController@resetPassword');

@@ -1,5 +1,10 @@
 export default [
   {
+    version: '1.4.2',
+    changes: [`Bei den Auswertungen kann das Kundenverzeichnis als CSV-Datei exportiert werden.`],
+    bugfixes: [`PDFs können auch auf Mobile richtig erstellt und direkt im Browser geöffnet werden.`]
+  },
+  {
     version: '1.4.1',
     changes: [
       `Es ist jetzt möglich, das Passwort zurückzusetzten. Dafür kann man auf der Login-Seite auf
