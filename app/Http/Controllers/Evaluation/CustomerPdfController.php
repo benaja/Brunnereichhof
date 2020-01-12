@@ -49,7 +49,7 @@ class CustomerPdfController extends Controller
                     $hours = $rapport->rapportdetails->sum('hours');
                     if ($hours > 0) {
                         if ($customersAdded > 0) {
-                            $this->pdf->addPage();
+                            $this->pdf->addNewPage();
                         }
                         $this->weekRapportForSingleCustomer($rapport);
                         $customersAdded++;

@@ -34,7 +34,7 @@ class ReservationPdfController extends Controller
                 ->where('exit', '>=', $date)->first();
             if (!in_array($employee->id, $usedEmployees) && $reservation) {
                 if ($counter != 0) {
-                    $this->pdf->addPage();
+                    $this->pdf->addNewPage();
                 }
                 $bed = $reservation->bedRoomPivot->bed;
 

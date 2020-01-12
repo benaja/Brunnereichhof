@@ -53,7 +53,7 @@ class WorkerPdfController extends Controller
 
         foreach ($workers as $worker) {
             if ($workerId == 'all') {
-                $this->pdf->addPage('F');
+                $this->pdf->addNewPage('F');
             }
             $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName);
         }
@@ -106,7 +106,7 @@ class WorkerPdfController extends Controller
         $firstDayOfMonth = clone $firstDayOfYear;
         for ($i = 0; $i < 12; $i++) {
             if ($totalHoursByMonth[$i] > 0) {
-                $this->pdf->addPage();
+                $this->pdf->addNewPage();
                 $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, Settings::getMonthName($firstDayOfMonth));
             }
             $firstDayOfMonth->modify('first day of next month');
@@ -136,7 +136,7 @@ class WorkerPdfController extends Controller
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
             $totalMeals = Timerecord::getMealsBetweenDate($firstDayOfMonth, $lastDayOfMonth);
-            $this->pdf->addPage();
+            $this->pdf->addNewPage();
             $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
             $monthName = Settings::getMonthName($firstDayOfMonth);
             $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
@@ -228,7 +228,6 @@ class WorkerPdfController extends Controller
         // $this->generateTable($titles, $lines, 3);
         $this->pdf->table($titles, $lines, [3]);
         if (count($comments) > 0) {
-            $this->pdf->newLine();
             $this->pdf->documentTitle('Kommentare');
             $this->pdf->textToInsertOnPageBreak = "Mitarbeiter: {$worker->lastname} {$worker->firstname} \nMonat: $monthName";
 

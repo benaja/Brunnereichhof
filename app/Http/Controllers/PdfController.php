@@ -116,8 +116,8 @@ class PdfController extends Controller
 
         if ($customerId == 'all') {
             $customers = Customer::all();
-            foreach ($customers as $key => $customer) {
-                // if ($key > 0) $this->pdf->addPage();
+            // dd($customers);
+            foreach ($customers as $customer) {
                 $this->singleCustomerYearRapport($customer, $year, true);
             }
             $this->pdf->export("Jahresrapport $year.pdf");
@@ -246,7 +246,7 @@ class PdfController extends Controller
     {
         $rapportdetailsByEmployee = $rapportdetails->groupBy('employee_id');
         foreach ($rapportdetailsByEmployee as $details) {
-            Fpdf::AddPage('L');
+            $this->pdf->addNewPage('L');
             $totalHours = $details->sum('hours');
             $firstOfMonth = new \DateTime($rapportdetails[0]->date);
             $firstOfMonth->modify("first day of this month");
@@ -282,7 +282,7 @@ class PdfController extends Controller
         $firstOfMonth = new \DateTime("1.1.$year");
         for ($i = 0; $i < 12; $i++) {
             if ($totalHoursOfMonths[$i] > 0) {
-                Fpdf::AddPage('L');
+                $this->pdf->AddNewPage('L');
                 $this->addDetailsForMonth($employee, $firstOfMonth, $this->monthNames[$i], $totalHoursOfMonths[$i]);
             }
             $firstOfMonth->modify("+1 month");

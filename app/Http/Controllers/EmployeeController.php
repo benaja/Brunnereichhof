@@ -236,7 +236,7 @@ class EmployeeController extends Controller
 
             $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
             if (count($lines) > 0) {
-                if ($monthsAdded > 0) $this->pdf->addPage();
+                if ($monthsAdded > 0) $this->pdf->addNewPage();
                 $monthsAdded++;
 
                 $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
@@ -295,7 +295,7 @@ class EmployeeController extends Controller
             $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfMonth, $lastDayOfThisMonth);
             $sleepOver = $this->getSleepOver($reservationsThisMonth, $firstDayOfMonth, $lastDayOfThisMonth);
             if ($sleepOver > 0) {
-                $this->pdf->addPage();
+                $this->pdf->addNewPage();
                 $monthName = Settings::getMonthName($firstDayOfMonth);
                 $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
                 $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
@@ -327,7 +327,7 @@ class EmployeeController extends Controller
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
-            $this->pdf->addPage();
+            $this->pdf->addNewPage();
             $monthName = Settings::getMonthName($firstDayOfMonth);
             $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
             $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$monthName {$firstDayOfMonth->format('Y')} \nTotale Verpflegungen: $totalFood";
