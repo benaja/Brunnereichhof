@@ -326,6 +326,6 @@ export default {
 }
 
 .delete-button {
-  margin-bottom: 60px;
+  margin-bottom: 70px;
 }
 </style>

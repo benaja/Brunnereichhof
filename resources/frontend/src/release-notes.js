@@ -2,7 +2,10 @@ export default [
   {
     version: '1.4.2',
     changes: [`Bei den Auswertungen kann das Kundenverzeichnis als CSV-Datei exportiert werden.`],
-    bugfixes: [`PDFs können auch auf Mobile richtig erstellt und direkt im Browser geöffnet werden.`]
+    bugfixes: [
+      `PDFs können auch auf Mobile richtig erstellt und direkt im Browser geöffnet werden.`,
+      `Styling fixes für Zeiterfassung auf Mobile Geräten.`
+    ]
   },
   {
     version: '1.4.1',

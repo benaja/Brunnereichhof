@@ -52,6 +52,8 @@ export default {
   top: 0;
   left: 0;
   z-index: 5;
+  overflow-x: hidden;
+  overflow-y: scroll;
 
   &.desktop {
     position: absolute;

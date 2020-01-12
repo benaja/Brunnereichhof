@@ -1,18 +1,20 @@
 <template>
-  <div>
+  <div class="time-container">
     <v-row wrap v-if="$store.getters.isMobile">
       <v-col cols="12">
-        <p class="text-center mt-2 font-weight-bold day-name">{{dayName}}</p>
+        <p class="text-center mt-0 font-weight-bold day-name">{{dayName}}</p>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon @click="previousDay">
-          <v-icon>keyboard_arrow_left</v-icon>
-        </v-btn>
+        <p class="ma-0 text-center">
+          <v-btn text icon @click="previousDay">
+            <v-icon>keyboard_arrow_left</v-icon>
+          </v-btn>
+        </p>
       </v-col>
       <v-col cols="8" class="text-center">
         <v-dialog v-model="dateDialog" width="290px" class="text-center">
           <template v-slot:activator="{ on }">
-            <v-text-field v-on="on" v-model="date" readonly class="text-center"></v-text-field>
+            <v-text-field v-on="on" v-model="formatedDate" readonly class="text-center pt-0"></v-text-field>
           </template>
           <v-date-picker
             v-model="date"
@@ -24,9 +26,11 @@
         </v-dialog>
       </v-col>
       <v-col cols="2">
-        <v-btn text icon @click="nextDay">
-          <v-icon>keyboard_arrow_right</v-icon>
-        </v-btn>
+        <p class="ma-0 text-center">
+          <v-btn text icon @click="nextDay">
+            <v-icon>keyboard_arrow_right</v-icon>
+          </v-btn>
+        </p>
       </v-col>
       <v-col cols="2">
         <div v-for="index in numbers" :key="index" class="time">
@@ -195,6 +199,9 @@ export default {
     urlWorkerParam() {
       if (this.workerId) return `?workerId=${this.workerId}`
       return ' '
+    },
+    formatedDate() {
+      return this.$moment(this.date, 'YYYY-MM-DD').format('DD.MM.YYYY')
     }
   },
   watch: {
@@ -205,11 +212,12 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.text-center {
-  input {
-    text-align: center;
-  }
+<style lang="scss" scoped>
+.time-container {
+  max-height: calc(100vh - 64px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 0 5px;
 }
 
 .time {
@@ -243,5 +251,13 @@ export default {
 .day-name {
   margin-top: 10px;
   margin-bottom: -12px;
+}
+</style>
+
+<style lang="scss">
+.text-center {
+  input {
+    text-align: center;
+  }
 }
 </style>
