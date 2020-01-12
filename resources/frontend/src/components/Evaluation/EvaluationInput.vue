@@ -9,7 +9,7 @@
     @focus="searchString = ''"
     :label="inputField.label"
     prepend-icon="search"
-    :autocomplete="false"
+    autocomplete="off"
     :item-text="inputField.itemText || 'name'"
     :item-value="inputField.itemValue || 'id'"
   ></v-combobox>

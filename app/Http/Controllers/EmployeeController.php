@@ -208,7 +208,6 @@ class EmployeeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['employee_read']);
 
-
         $employees = Employee::where('isActive', 1)->get();
 
         return $employees;
@@ -319,7 +318,7 @@ class EmployeeController extends Controller
         $this->pdf = new Pdf('P');
         $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichof \nJahr: {$firstDayOfYear->format('Y')} \nTotale Verpflegungen: $totalFood";
         $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
-        $this->pdf->newLine();
+        $this->pdf->documentTitle("");
 
         $this->foodTable($employees, $firstDayOfYear, $lastDayOfYear);
 
@@ -327,13 +326,15 @@ class EmployeeController extends Controller
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
-            $this->pdf->addNewPage();
             $monthName = Settings::getMonthName($firstDayOfMonth);
             $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
-            $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$monthName {$firstDayOfMonth->format('Y')} \nTotale Verpflegungen: $totalFood";
-            $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
-            $this->pdf->newLine();
-            $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
+            if ($totalFood > 0) {
+                $this->pdf->addNewPage();
+                $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$monthName {$firstDayOfMonth->format('Y')} \nTotale Verpflegungen: $totalFood";
+                $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
+                $this->pdf->documentTitle("");
+                $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
+            }
             $firstDayOfMonth->modify('first day of next month');
         }
 
@@ -417,7 +418,7 @@ class EmployeeController extends Controller
                     if (count($rapportdetails) > 1) {
                         array_push($cells, $hours);
                     } else {
-                        array_push($cells, "Total: $hours");
+                        array_push($cells, $hours);
                     }
                     array_push($lines, $cells);
                     $cells = [""];

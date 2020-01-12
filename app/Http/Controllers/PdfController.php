@@ -85,7 +85,7 @@ class PdfController extends Controller
         Pdf::validateToken($request->token);
 
         $this->pdf = new Pdf();
-        $employees = Employee::where('isActive', true)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
+        $employees = Employee::where('isActive', true)->where('isGuest', false)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
         $numberOfEmployee = count($employees);
 
         $this->pdf->documentTitle("Mitarbeiterliste");
@@ -114,11 +114,13 @@ class PdfController extends Controller
         Pdf::validateToken($request->token);
         $year = (new \DateTime($year))->format('Y');
 
+        $this->pdf = new Pdf('P');
         if ($customerId == 'all') {
             $customers = Customer::all();
-            // dd($customers);
+            $isNotFirstPage = false;
             foreach ($customers as $customer) {
-                $this->singleCustomerYearRapport($customer, $year, true);
+                $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
+                if ($pageAdded) $isNotFirstPage = true;
             }
             $this->pdf->export("Jahresrapport $year.pdf");
         } else {
@@ -147,7 +149,7 @@ class PdfController extends Controller
         $this->pdf->table($header, $lines);
     }
 
-    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false)
+    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false, $isNotFirstPage = false)
     {
         $firstDate = new \DateTime("1.1.$year");
         $lastDate = new \DateTime("31.12.$year");
@@ -160,7 +162,7 @@ class PdfController extends Controller
             ->where('rapportdetail.date', '<=', $lastDate->format('Y-m-d'))
             ->sum('rapportdetail.hours');
 
-        if ($onlyWhenNotZeroHours && $totalHours === 0) return;
+        if ($onlyWhenNotZeroHours && $totalHours === 0) return false;
 
         $firstDate->modify("first day of this week");
         $weeks = $customer->rapports
@@ -168,7 +170,10 @@ class PdfController extends Controller
             ->where('startdate', '<=', $lastDate->format('Y-m-d'))
             ->sortBy('startdate');
 
-        $this->pdf = new Pdf('P');
+
+        if ($isNotFirstPage) {
+            $this->pdf->addNewPage();
+        }
 
         $this->pdf->documentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
         $this->pdf->documentTitle("Jahr: $year");
@@ -197,6 +202,7 @@ class PdfController extends Controller
             ]);
         }
         $this->pdf->table($titles, $lines);
+        return true;
     }
 
     private function getHoursOfEmployeeByYear($employee, $year)

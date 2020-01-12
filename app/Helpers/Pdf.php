@@ -28,7 +28,6 @@ class Pdf extends TCPDF
     $this->pagePaddingLeft = $this->getX();
     $this->SetTextColor(38, 166, 154);
     $this->SetDrawColor(255);
-    // $this->SetLineWidth(.3);
 
     $this->SetFont($this->fontName, '', $this->titleSize);
     $this->SetAutopageBreak(true);
@@ -36,9 +35,9 @@ class Pdf extends TCPDF
 
   public static function validateToken($token)
   {
-    // if ($token != Cache::pull('pdfToken')) {
-    //   abort(401, 'This action is unauthorized.');
-    // }
+    if ($token != Cache::pull('pdfToken')) {
+      abort(401, 'This action is unauthorized.');
+    }
   }
 
   public function documentTitle($text, $textSize = 0, $fontStile = '')
@@ -142,14 +141,14 @@ class Pdf extends TCPDF
 
   public function export($fileName)
   {
-    $this->Output($fileName, 'I');
+    $this->Output($fileName, 'D');
   }
 
-  // public function error($errorMessage)
-  // {
-  //   $this->documentTitle($errorMessage);
-  //   $this->export('fehler.pdf');
-  // }
+  public function error($errorMessage)
+  {
+    $this->documentTitle($errorMessage);
+    $this->export('fehler.pdf');
+  }
 
   public function comment($date, $comment)
   {

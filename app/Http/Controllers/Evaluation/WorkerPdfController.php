@@ -136,12 +136,14 @@ class WorkerPdfController extends Controller
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
             $totalMeals = Timerecord::getMealsBetweenDate($firstDayOfMonth, $lastDayOfMonth);
-            $this->pdf->addNewPage();
-            $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
-            $monthName = Settings::getMonthName($firstDayOfMonth);
-            $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
-            $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
-            $this->mealsTable($firstDayOfMonth, $lastDayOfMonth);
+            if ($totalMeals > 0) {
+                $this->pdf->addNewPage();
+                $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
+                $monthName = Settings::getMonthName($firstDayOfMonth);
+                $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
+                $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
+                $this->mealsTable($firstDayOfMonth, $lastDayOfMonth);
+            }
             $firstDayOfMonth->modify('first day of next month');
         }
         $this->pdf->export("Verpflegungen Hofmitarbeiter {$firstDayOfYear->format('Y')}");
