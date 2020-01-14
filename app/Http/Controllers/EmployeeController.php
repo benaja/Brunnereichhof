@@ -334,9 +334,9 @@ class EmployeeController extends Controller
     {
         Pdf::validateToken($request->token);
         $firstDayOfMonth = new \DateTime($date);
-        $firstDayOfMonth->modify('first day of january this year');
+        $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of december this year');
+        $lastDayOfMonth->modify('last day of this month');
         $employees = Employee::withTrashed()->get();
         $monthName = Settings::getMonthName($firstDayOfMonth);
 
