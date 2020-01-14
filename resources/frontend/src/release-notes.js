@@ -1,5 +1,13 @@
 export default [
   {
+    version: '1.4.3',
+    changes: [
+      `Auswertung von Verpflegungen der Mitarbeiter pro Monat.`,
+      `Auswertung von Verpflegungen der Hofmitarbeiter pro Monat.`,
+      `Genauere Angaben für Frühstück, Mittagessen und Abendessen bei der Auswertung von Verpflegungen der Hofmitarbeiter.`
+    ]
+  },
+  {
     version: '1.4.2',
     changes: [`Bei den Auswertungen kann das Kundenverzeichnis als CSV-Datei exportiert werden.`],
     bugfixes: [
