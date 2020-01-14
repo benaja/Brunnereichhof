@@ -308,37 +308,53 @@ class EmployeeController extends Controller
 
     public function foodRapportByYear(Request $request, $date)
     {
+        Pdf::validateToken($request->token);
         $firstDayOfYear = new \DateTime($date);
         $firstDayOfYear->modify('first day of january this year');
         $lastDayOfYear = clone $firstDayOfYear;
         $lastDayOfYear->modify('last day of december this year');
         $employees = Employee::withTrashed()->get();
-        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfYear, $lastDayOfYear);
 
         $this->pdf = new Pdf('P');
-        $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichof \nJahr: {$firstDayOfYear->format('Y')} \nTotale Verpflegungen: $totalFood";
-        $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
-        $this->pdf->documentTitle("");
-
-        $this->foodTable($employees, $firstDayOfYear, $lastDayOfYear);
+        $this->generateFoodPage($employees, $firstDayOfYear, $lastDayOfYear, "Jahr: {$firstDayOfYear->format('Y')}", false);
 
         $firstDayOfMonth = clone $firstDayOfYear;
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
             $monthName = Settings::getMonthName($firstDayOfMonth);
-            $totalFood = Rapportdetail::foodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth);
-            if ($totalFood > 0) {
-                $this->pdf->addNewPage();
-                $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$monthName {$firstDayOfMonth->format('Y')} \nTotale Verpflegungen: $totalFood";
-                $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
-                $this->pdf->documentTitle("");
-                $this->foodTable($employees, $firstDayOfMonth, $lastDayOfMonth);
-            }
+            $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}");
             $firstDayOfMonth->modify('first day of next month');
         }
 
         $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
+    }
+
+    public function foodRapportByMonth(Request $request, $date)
+    {
+        Pdf::validateToken($request->token);
+        $firstDayOfMonth = new \DateTime($date);
+        $firstDayOfMonth->modify('first day of january this year');
+        $lastDayOfMonth = clone $firstDayOfMonth;
+        $lastDayOfMonth->modify('last day of december this year');
+        $employees = Employee::withTrashed()->get();
+        $monthName = Settings::getMonthName($firstDayOfMonth);
+
+        $this->pdf = new Pdf('P');
+        $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}", false);
+        $this->pdf->export("Verpflegungen Mitarbeiter $monthName {$firstDayOfMonth->format('Y')}");
+    }
+
+    private function generateFoodPage($employees, $firstDate, $lastDate, $titleDate, $addNewPage = true)
+    {
+        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDate, $lastDate);
+        if ($totalFood > 0 || !$addNewPage) {
+            if ($addNewPage) $this->pdf->addNewPage();
+            $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$titleDate \nTotale Verpflegungen: $totalFood";
+            $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
+            $this->pdf->documentTitle("");
+            $this->foodTable($employees, $firstDate, $lastDate);
+        }
     }
 
     private function foodTable($employees, $firstDate, $lastDate)

@@ -14,6 +14,12 @@ class WorkerPdfController extends Controller
 {
     private $pdf;
 
+    private $mealTypes = [
+        'breakfast' => 'Frühstück',
+        'lunch' => 'Mittagessen',
+        'dinner' => 'Abendessen'
+    ];
+
     public function workerMonthRapport(Request $request, $workerId, $month)
     {
         Pdf::validateToken($request->token);
@@ -125,28 +131,50 @@ class WorkerPdfController extends Controller
         $lastDayOfYear->modify('last day of december this year');
 
         $this->pdf = new Pdf('P');
-        $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
-        $this->pdf->documentTitle("Jahr: {$date->format('Y')}");
-        $totalMeals = Timerecord::getMealsBetweenDate($firstDayOfYear, $lastDayOfYear);
-        $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
-        $this->mealsTable($firstDayOfYear, $lastDayOfYear);
+        $this->generateMealsPage($firstDayOfYear, $lastDayOfYear, "Jahr: {$date->format('Y')}", false);
 
         $firstDayOfMonth = clone $firstDayOfYear;
         for ($i = 0; $i < 12; $i++) {
             $lastDayOfMonth = clone $firstDayOfMonth;
             $lastDayOfMonth->modify('last day of this month');
-            $totalMeals = Timerecord::getMealsBetweenDate($firstDayOfMonth, $lastDayOfMonth);
-            if ($totalMeals > 0) {
-                $this->pdf->addNewPage();
-                $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
-                $monthName = Settings::getMonthName($firstDayOfMonth);
-                $this->pdf->documentTitle("{$monthName} {$firstDayOfMonth->format('Y')}");
-                $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
-                $this->mealsTable($firstDayOfMonth, $lastDayOfMonth);
-            }
+            $monthName = Settings::getMonthName($firstDayOfMonth);
+            $this->generateMealsPage($firstDayOfMonth, $lastDayOfMonth, "{$monthName} {$firstDayOfMonth->format('Y')}");
             $firstDayOfMonth->modify('first day of next month');
         }
         $this->pdf->export("Verpflegungen Hofmitarbeiter {$firstDayOfYear->format('Y')}");
+    }
+
+    public function mealsMonthRapport(Request $request, $month)
+    {
+        Pdf::validateToken($request->token);
+        $date = new \DateTime($month);
+        $firstDayOfMonth = clone $date;
+        $firstDayOfMonth->modify('first day of this month');
+        $lastDayOfMonth = clone $firstDayOfMonth;
+        $lastDayOfMonth->modify('last day of this month');
+
+        $this->pdf = new Pdf('P');
+        $monthName = Settings::getMonthName($firstDayOfMonth);
+        $this->generateMealsPage($firstDayOfMonth, $lastDayOfMonth, "{$monthName} {$firstDayOfMonth->format('Y')}", false);
+        $this->pdf->export("Verpflegungen Hofmitarbeiter {$monthName} {$firstDayOfMonth->format('Y')}");
+    }
+
+    private function generateMealsPage($firstDate, $lastDate, $titleForTime, $addNewPage = true)
+    {
+        $totalMeals = Timerecord::getMealsBetweenDate($firstDate, $lastDate);
+        if ($totalMeals > 0 || !$addNewPage) {
+            if ($addNewPage) $this->pdf->addNewPage();
+            $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
+            $this->pdf->documentTitle($titleForTime);
+            $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
+            foreach ($this->mealTypes as $key => $mealType) {
+                $meals = Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, $key);
+                if ($meals > 0) {
+                    $this->pdf->documentTitle("$mealType: $meals");
+                }
+            }
+            $this->mealsTable($firstDate, $lastDate);
+        }
     }
 
     private function mealsTable($firstDate, $lastDate)
@@ -155,13 +183,14 @@ class WorkerPdfController extends Controller
 
         $columns = [];
         foreach ($workers as $worker) {
-            $totalHours = $worker->getTotalNumberOfMealsBetweenDates($firstDate, $lastDate);
-            if ($totalHours > 0) {
-                array_push($columns, [$worker->fullName(), $totalHours]);
+            $totalMealsByType = $worker->getNumberOfMeals($firstDate, $lastDate);
+            $totalMeals = $totalMealsByType['breakfast'] + $totalMealsByType['lunch'] + $totalMealsByType['dinner'];
+            if ($totalMeals > 0) {
+                array_push($columns, [$worker->fullName(), $totalMeals, $totalMealsByType['breakfast'], $totalMealsByType['lunch'], $totalMealsByType['dinner']]);
             }
         }
         $this->pdf->newLine();
-        $this->pdf->table(['Hofmitarbeiter', 'Verpflegungen'], $columns);
+        $this->pdf->table(['Hofmitarbeiter', 'Verpflegungen', 'Frühstück', 'Mittagessen', 'Abendessen'], $columns, [2, 1, 1, 1, 1]);
     }
 
     private function monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName)

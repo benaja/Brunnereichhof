@@ -21,6 +21,7 @@ Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeControlle
 Route::get('/employee/{employeeId}/reservations/year/{year}', 'EmployeeController@reservationsByYear');
 Route::get('/employee/{employeeId}/reservations/month/{month}', 'EmployeeController@reservationsByMonth');
 Route::get('/employee/food/year/{date}', 'EmployeeController@foodRapportByYear');
+Route::get('/employee/food/month/{date}', 'EmployeeController@foodRapportByMonth');
 Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/guest', 'EmployeeController@guests');
     Route::patch('/guest/{id}', 'EmployeeController@update');
@@ -54,6 +55,7 @@ Route::get('/rapport/daytotal/{date}', 'RapportController@daytotal');
 Route::resource('/rapport', 'RapportController');
 
 Route::get('/pdf/worker/meals/year/{year}', 'Evaluation\WorkerPdfController@mealsYearRapport');
+Route::get('/pdf/worker/meals/month/{month}', 'Evaluation\WorkerPdfController@mealsMonthRapport');
 Route::get('/pdf/worker/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
 Route::get('/pdf/worker/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
 Route::get('/pdf/employee/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');

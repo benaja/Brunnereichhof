@@ -64,13 +64,13 @@ export default {
               title: 'Verpflegungen',
               inputFields: [
                 {
-                  key: 'year',
-                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
-              url: 'pdf/worker/meals/year/{year}',
+              url: 'pdf/worker/meals/{date}',
               rules: {
-                year: v => !!v
+                date: v => !!v
               }
             }
           ]
@@ -158,10 +158,10 @@ export default {
               inputFields: [
                 {
                   key: 'date',
-                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
-              url: 'employee/food/year/{date}',
+              url: 'employee/food/{date}',
               rules: {
                 date: v => !!v
               }

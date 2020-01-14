@@ -48,12 +48,12 @@ class Timerecord extends Model
 
     public static function getMealsBetweenDate($firstDate, $lastDate)
     {
-        return Timerecord::getAmountOfMealsbetweenDates($firstDate, $lastDate, 'lunch') +
-            Timerecord::getAmountOfMealsbetweenDates($firstDate, $lastDate, 'breakfast') +
-            Timerecord::getAmountOfMealsbetweenDates($firstDate, $lastDate, 'dinner');
+        return Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'lunch') +
+            Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'breakfast') +
+            Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'dinner');
     }
 
-    private static function getAmountOfMealsbetweenDates($firstDate, $lastDate, $mealType)
+    public static function getMealsBetweenDateByType($firstDate, $lastDate, $mealType)
     {
         return Timerecord::where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))

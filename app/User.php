@@ -189,7 +189,7 @@ class User extends Authenticatable
         return $totalHours;
     }
 
-    private function getNumberOfMeals($startDate, $endDate)
+    public function getNumberOfMeals($startDate, $endDate)
     {
         $timerecords = $this->timerecords
             ->where('date', '>=', $startDate->format('Y-m-d'))

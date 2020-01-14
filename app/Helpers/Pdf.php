@@ -23,6 +23,7 @@ class Pdf extends TCPDF
   {
     parent::__construct($landscape, 'mm', 'A4');
     $this->setPrintHeader(false);
+    $this->setPrintFooter(false);
     $this->landscape = $landscape;
     $this->addNewPage();
     $this->pagePaddingLeft = $this->getX();
@@ -31,6 +32,7 @@ class Pdf extends TCPDF
 
     $this->SetFont($this->fontName, '', $this->titleSize);
     $this->SetAutopageBreak(true);
+    $this->SetCellPaddings(1, 1.5, 1, 1.5);
   }
 
   public static function validateToken($token)
@@ -90,7 +92,6 @@ class Pdf extends TCPDF
     $this->SetTextColor(0);
     $this->SetDrawColor(200);
     $this->tableHeader($titles, $cellsWidth);
-    $this->SetCellPaddings(1, 1.5, 1, 1.5);
 
     $this->setTableDefaultStyle();
     foreach ($lines as $index => $line) {
