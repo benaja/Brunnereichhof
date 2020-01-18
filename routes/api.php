@@ -61,7 +61,7 @@ Route::get('/pdf/worker/{workerId}/year/{year}/', 'Evaluation\WorkerPdfControlle
 Route::get('/pdf/employee/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
 Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
 Route::get('/pdf/employees', 'PdfController@employeeList');
-Route::get('/pdf/customer/{customerId}/year/{year}', 'PdfController@customerYearRapport');
+Route::get('/pdf/customer/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
 Route::get('/pdf/customer/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
 Route::get('/pdf/reservation/employee/{id}', 'ReservationPdfController@pdfByEmployee');
 Route::get('/pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
