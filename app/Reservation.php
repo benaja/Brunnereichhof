@@ -22,7 +22,7 @@ class Reservation extends Model
 
     public function bedRoomPivot()
     {
-        return $this->belongsTo(BedRoomPivot::class, 'bed_room_id');
+        return $this->belongsTo(BedRoomPivot::class, 'bed_room_id')->withTrashed();
     }
 
     public function employee()
