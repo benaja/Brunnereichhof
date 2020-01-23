@@ -342,13 +342,11 @@ class RoomController extends Controller
                 })
                 ->with(['Reservations' => function ($query) use ($date) {
                     $query->with('Employee');
-                    // $query->join('reservation', 'reservation.bed_room_id', '=', 'bed_room.id');
                     $query->where('reservation.entry', '<=', $date->format('Y-m-d'));
                     $query->where('reservation.exit', '>=', $date->format('Y-m-d'));
                 }])->with('Bed')
                 ->get()->toArray();
         }
-
         return $this->sortAndFormatRoomsForEvaluation($rooms->toArray());
     }
 
