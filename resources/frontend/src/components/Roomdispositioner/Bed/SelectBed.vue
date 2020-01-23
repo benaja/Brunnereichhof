@@ -1,14 +1,19 @@
 <template>
   <div>
     <h3>Betten</h3>
-    <div v-for="(bed, index) of value" :key="index + '' + bed.id">
-      <p class="my-4">
-        {{bed.name}}
-        <v-btn text icon color="red" class="float-right delete-bed-icon" @click="removeBed(bed)">
-          <v-icon>delete</v-icon>
-        </v-btn>
-      </p>
-    </div>
+    <template v-if="value">
+      <div
+        v-for="(bed, index) of value.filter(b => !b.pivot || !b.pivot.deleted_at)"
+        :key="index + '' + bed.id"
+      >
+        <p class="my-4">
+          {{bed.name}}
+          <v-btn text icon color="red" class="float-right delete-bed-icon" @click="removeBed(bed)">
+            <v-icon>delete</v-icon>
+          </v-btn>
+        </p>
+      </div>
+    </template>
     <v-row>
       <v-col cols="12">
         <v-autocomplete
@@ -75,9 +80,21 @@ export default {
       }
     },
     removeBed(bed) {
-      this.value.splice(this.value.indexOf(bed), 1)
       if (this.$route.params.id) {
-        this.axios.delete(`/rooms/${this.$route.params.id}/beds/${bed.pivot.id}`)
+        this.axios
+          .delete(`/rooms/${this.$route.params.id}/beds/${bed.pivot.id}`)
+          .then(() => {
+            this.value.splice(this.value.indexOf(bed), 1)
+          })
+          .catch(error => {
+            if (error.includes('Bed is currently in use')) {
+              this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error')
+            } else {
+              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+            }
+          })
+      } else {
+        this.value.splice(this.value.indexOf(bed), 1)
       }
     }
   }

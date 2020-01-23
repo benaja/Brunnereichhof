@@ -77,6 +77,7 @@ class RoomController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         $pivot = BedRoomPivot::create();
+
         $pivot->room()->associate($roomId);
         $pivot->bed()->associate($bedId);
         $pivot->save();
@@ -88,7 +89,18 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
-        DB::table('bed_room')->where('id', $pivotId)->delete();
+        $doday = new \DateTime();
+        $reservations = Reservation::where('bed_room_id', $pivotId)
+            ->where(function ($query) use ($doday) {
+                $query->where('entry', '>=', $doday->format('Y-m-d'));
+                $query->orWhere('exit', '>=', $doday->format('Y-m-d'));
+            })
+            ->get();
+        if (count($reservations) > 0) {
+            return response('Bed is currently in use', 400);
+        }
+
+        BedRoomPivot::find($pivotId)->delete();
     }
 
     public function getBeds(Request $request, $id)
@@ -96,21 +108,23 @@ class RoomController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         if (isset($request->entry)) {
-            $beds = Room::withTrashed()->find($id)->beds;
+            $bedPivots = Room::withTrashed()->find($id)->bedRoomPivots;
             $availableBeds = [];
 
-            foreach ($beds as $bed) {
-                $usedBeds1 = BedRoomPivot::join('reservation', function ($join) {
-                    $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-                })->where('reservation.bed_room_id', '=', $bed->pivot->id)
+            foreach ($bedPivots as $bedPivot) {
+                $usedBeds1 = BedRoomPivot::withTrashed()
+                    ->join('reservation', function ($join) {
+                        $join->on('reservation.bed_room_id', '=', 'bed_room.id');
+                    })->where('reservation.bed_room_id', '=', $bedPivot->id)
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->entry)
                     ->where('reservation.deleted_at', null)
                     ->get()->toArray();
 
-                $usedBeds2 = BedRoomPivot::join('reservation', function ($join) {
-                    $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-                })->where('reservation.bed_room_id', '=', $bed->pivot->id)
+                $usedBeds2 = BedRoomPivot::withTrashed()
+                    ->join('reservation', function ($join) {
+                        $join->on('reservation.bed_room_id', '=', 'bed_room.id');
+                    })->where('reservation.bed_room_id', '=', $bedPivot->id)
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->exit)
                     ->where('reservation.deleted_at', null)
@@ -129,7 +143,7 @@ class RoomController extends Controller
                 } else if (count($usedBeds) > 1) {
                     $bedsUsed = 1;
                     for ($i  = 0; $i < count($usedBeds); $i++) {
-                        $pivot = $bed->pivot->id;
+                        $pivot = $bedPivot->id;
                         if ($usedBeds[$i]['bed_room_id'] == $pivot) {
                             for ($j = 0; $j < count($usedBeds); $j++) {
                                 if (
@@ -143,7 +157,11 @@ class RoomController extends Controller
                         }
                     }
                 }
-                if ($bedsUsed < $bed->places) {
+                if ($bedsUsed < $bedPivot->bed->places) {
+                    $bed = $bedPivot->bed;
+                    $bed['pivot'] = [
+                        'id' => $bedPivot->id
+                    ];
                     array_push($availableBeds, $bed);
                 }
             }
@@ -310,24 +328,35 @@ class RoomController extends Controller
 
     private function getRoomsforEvaluation(\DateTime $date)
     {
-        $rooms = Room::with(array('BedRoomPivot.Reservations' => function ($query) use ($date) {
-            $query->with('Employee');
-            // $query->join('reservation', 'reservation.bed_room_id', '=', 'bed_room.id');
-            $query->where('reservation.entry', '<=', $date->format('Y-m-d'));
-            $query->where('reservation.exit', '>=', $date->format('Y-m-d'));
-        }))->with('BedRoomPivot.Bed')
-            ->orderBy('number')
-            ->get()
-            ->toArray();
+        $rooms = Room::all();
+        foreach ($rooms as $room) {
+            $room->bed_room_pivots = $room->bedRoomPivots()
+                ->withTrashed()
+                ->where(function ($query) use ($date) {
+                    $query->where('deleted_at', '>', $date->format('Y-m-d') . ' 23:59:59')
+                        ->orWhere('deleted_at', null);
+                })
+                ->where(function ($query) use ($date) {
+                    $query->where('created_at', '<=', $date->format('Y-m-d') . ' 23:59:59')
+                        ->orWhere('created_at', null);
+                })
+                ->with(['Reservations' => function ($query) use ($date) {
+                    $query->with('Employee');
+                    // $query->join('reservation', 'reservation.bed_room_id', '=', 'bed_room.id');
+                    $query->where('reservation.entry', '<=', $date->format('Y-m-d'));
+                    $query->where('reservation.exit', '>=', $date->format('Y-m-d'));
+                }])->with('Bed')
+                ->get()->toArray();
+        }
 
-        return $this->sortAndFormatRoomsForEvaluation($rooms);
+        return $this->sortAndFormatRoomsForEvaluation($rooms->toArray());
     }
 
     private function sortAndFormatRoomsForEvaluation($rooms)
     {
         foreach ($rooms as &$room) {
             $room['bedsWithReservation'] = [];
-            foreach ($room["bed_room_pivot"] as &$bedRoomPivot) {
+            foreach ($room["bed_room_pivots"] as &$bedRoomPivot) {
                 $freePlacesInBed = $bedRoomPivot["bed"]["places"] - count($bedRoomPivot["reservations"]);
                 if ($freePlacesInBed > 0) {
                     $empyReservation = [
@@ -350,6 +379,7 @@ class RoomController extends Controller
                 else return 0;
             });
         }
+
 
         return $rooms;
     }

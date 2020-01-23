@@ -11,6 +11,7 @@ use App\Project;
 use App\Enums\FoodTypeEnum;
 use App\Exports\CustomerExport;
 use App\Rapport;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerPdfController extends Controller
@@ -79,6 +80,108 @@ class CustomerPdfController extends Controller
     {
         Pdf::validateToken($request->token);
         return Excel::download(new CustomerExport, 'Kundenverzeichnis.csv', \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    // GET pdf/customer/{customer}/year/{year}
+    public function customerYearRapport(Request $request, $customerId, $year)
+    {
+        Pdf::validateToken($request->token);
+        $year = (new \DateTime($year))->format('Y');
+
+        $this->pdf = new Pdf('P');
+        if ($customerId == 'all') {
+            $customers = Customer::all();
+            $isNotFirstPage = false;
+            foreach ($customers as $customer) {
+                $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
+                if ($pageAdded) $isNotFirstPage = true;
+            }
+            $this->pdf->export("Jahresrapport $year.pdf");
+        } else {
+            $customer = Customer::find($customerId);
+            $this->singleCustomerYearRapport($customer, $year);
+            $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
+        }
+    }
+
+    private function singleCustomerYearRapport($customer, $year, $onlyWhenNotZeroHours = false, $isNotFirstPage = false)
+    {
+        $firstDate = new \DateTime("1.1.$year");
+        $lastDate = new \DateTime("31.12.$year");
+
+        $rapportIds = $customer->rapports->map(function ($item) {
+            return $item->id;
+        });
+
+        $totalHours = Rapportdetail::whereIn('rapport_id', $rapportIds)
+            ->where('date', '>=', $firstDate->format('Y-m-d'))
+            ->where('date', '<=', $lastDate->format('Y-m-d'))
+            ->sum('hours');
+
+        if ($onlyWhenNotZeroHours && $totalHours === 0) return false;
+
+        $mondayThisWeek = clone $firstDate;
+        $mondayThisWeek->modify("monday this week");
+        $weeks = $customer->rapports
+            ->where('startdate', '>=', $mondayThisWeek->format('Y-m-d'))
+            ->where('startdate', '<=', $lastDate->format('Y-m-d'))
+            ->sortBy('startdate');
+
+
+        if ($isNotFirstPage) {
+            $this->pdf->addNewPage();
+        }
+
+        $this->pdf->documentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
+        $this->pdf->documentTitle("Jahr: $year");
+        $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
+
+        foreach ($customer->projects as $project) {
+            $hoursByProject = $project->rapportdetails->whereIn('rapport_id', $rapportIds)
+                ->where('date', '>=', $firstDate->format('Y-m-d'))
+                ->where('date', '<=', $lastDate->format('Y-m-d'))
+                ->sum('hours');
+            if ($hoursByProject > 0) {
+                $this->pdf->documentTitle("{$project->name}: {$hoursByProject}h");
+            }
+        }
+        $this->pdf->newLine();
+
+        $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
+        $lines = [];
+        foreach ($weeks as $week) {
+            $startDate = new \DateTime($week->startdate);
+            $endDate = clone $startDate;
+            $endDate->modify('+6 days');
+            if ($startDate->format("Y") != $year) {
+                $startDate->modify("first day of january");
+                $startDate->modify("+1 year");
+            }
+            if ($endDate->format("Y") != $year) {
+                $endDate->modify("last day of december");
+                $endDate->modify("-1 year");
+            }
+            $hours = $week->rapportdetails->where('date', '>=', $startDate->format('Y-m-d'))
+                ->where('date', '<=', $endDate->format('Y-m-d'))->sum('hours');
+            array_push($lines, [
+                "KW {$startDate->format('W')} ({$startDate->format('d.m.Y')}-{$endDate->format('d.m.Y')})",
+                $hours . "h"
+            ]);
+        }
+        $this->pdf->table($titles, $lines);
+
+        $rapports = $customer->rapports
+            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
+            ->where('startdate', '<=', $lastDate->format('Y-m-d'));
+
+        foreach ($rapports as $rapport) {
+            $hours = $rapport->rapportdetails->sum('hours');
+            if ($hours > 0) {
+                $this->pdf->addNewPage('L');
+                $this->weekRapportForSingleCustomer($rapport);
+            }
+        }
+        return true;
     }
 
     private function weekRapportForSingleCustomer($rapport)

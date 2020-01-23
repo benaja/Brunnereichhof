@@ -128,10 +128,12 @@ class Pdf extends TCPDF
     $this->Ln();
   }
 
-  public function addNewPage()
+  public function addNewPage($landscape = null)
   {
-    $this->AddPage($this->landscape);
-    if ($this->landscape == 'P') {
+    if (!$landscape) $landscape = $this->landscape;
+
+    $this->AddPage($landscape);
+    if ($landscape == 'P') {
       $this->documentWidth = 190;
       $this->pageBreakeWidth = 260;
     } else {
