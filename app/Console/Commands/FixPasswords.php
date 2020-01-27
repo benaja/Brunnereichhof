@@ -42,7 +42,6 @@ class FixPasswords extends Command
         $cusotmers = Customer::whereNotNull('secret')->get();
         foreach ($cusotmers as $customer) {
             $secret = decrypt($customer->secret);
-            $this->info($secret);
             $customer->user->password = Hash::make($secret);
             $customer->user->save();
         }
