@@ -85,7 +85,8 @@ class CustomerPdfController extends Controller
     // GET pdf/customer/{customer}/year/{year}
     public function customerYearRapport(Request $request, $customerId, $year)
     {
-        Pdf::validateToken($request->token);
+        $startTime = microtime(true);
+        // Pdf::validateToken($request->token);
         $year = (new \DateTime($year))->format('Y');
 
         $this->pdf = new Pdf('P');
@@ -96,6 +97,8 @@ class CustomerPdfController extends Controller
                 $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
                 if ($pageAdded) $isNotFirstPage = true;
             }
+            $diff = microtime(true) - $startTime;
+            dd($diff);
             $this->pdf->export("Jahresrapport $year.pdf");
         } else {
             $customer = Customer::find($customerId);
@@ -122,7 +125,7 @@ class CustomerPdfController extends Controller
 
         $mondayThisWeek = clone $firstDate;
         $mondayThisWeek->modify("monday this week");
-        $weeks = $customer->rapports
+        $rapportsByWeek = $customer->rapports
             ->where('startdate', '>=', $mondayThisWeek->format('Y-m-d'))
             ->where('startdate', '<=', $lastDate->format('Y-m-d'))
             ->sortBy('startdate');
@@ -149,7 +152,7 @@ class CustomerPdfController extends Controller
 
         $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
         $lines = [];
-        foreach ($weeks as $week) {
+        foreach ($rapportsByWeek as $week) {
             $startDate = new \DateTime($week->startdate);
             $endDate = clone $startDate;
             $endDate->modify('+6 days');
@@ -170,11 +173,7 @@ class CustomerPdfController extends Controller
         }
         $this->pdf->table($titles, $lines);
 
-        $rapports = $customer->rapports
-            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
-            ->where('startdate', '<=', $lastDate->format('Y-m-d'));
-
-        foreach ($rapports as $rapport) {
+        foreach ($rapportsByWeek as $rapport) {
             $hours = $rapport->rapportdetails->sum('hours');
             if ($hours > 0) {
                 $this->pdf->addNewPage('L');
@@ -195,10 +194,10 @@ class CustomerPdfController extends Controller
         $header = ['Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
         $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
 
-        $totalHours = (clone $rapport->rapportdetails)->sum('hours');
+        $totalHours = $rapport->rapportdetails->sum('hours');
         $this->pdf->documentTitle("Stunden: $totalHours");
 
-        $meals = (clone $rapport->rapportdetails)->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
+        $meals = $rapport->rapportdetails->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
         $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
         if ($rapport->customer->needs_payment_order) {
             $this->pdf->documentTitle("Einzahlungsschein erwünscht");
@@ -212,7 +211,7 @@ class CustomerPdfController extends Controller
         $currentDay = clone $monday;
         $mealsPerDay = ['Verpflegungen'];
         for ($i = 0; $i < 6; $i++) {
-            $meals = (clone $rapport->rapportdetails)->where('date', '=', $currentDay->format('Y-m-d'))
+            $meals = $rapport->rapportdetails->where('date', '=', $currentDay->format('Y-m-d'))
                 ->where('foodtype_id', '=', FoodTypeEnum::Customer)
                 ->where('hours', '>', 0)
                 ->count();
@@ -243,16 +242,10 @@ class CustomerPdfController extends Controller
 
         $this->pdf->table($header, $lines, [], ['lastLineBold' => true, 'lineBreakEnabledOnLines' => [0]]);
 
-        $rappordetailsByProjects = (clone $rapport->rapportdetails)->groupBy('project_id')->toArray();
+        $rappordetailsByProjects = $rapport->rapportdetails->groupBy('project_id')->toArray();
         $rappordetailsByProjects = array_keys($rappordetailsByProjects);
-        $projects = [];
-        foreach ($rappordetailsByProjects as $projectId) {
-            $project = Project::find($projectId);
-            if ($project && !in_array($project->name, $projects)) {
-                array_push($projects, $project->name);
-            }
-        }
 
-        $this->pdf->documentTitle("Projekte: " . implode(", ", $projects));
+        $projects = Project::whereIn('id', $rappordetailsByProjects)->pluck('name');
+        $this->pdf->documentTitle("Projekte: " . $projects->implode(', '));
     }
 }
