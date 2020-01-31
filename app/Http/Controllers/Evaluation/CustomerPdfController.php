@@ -25,20 +25,25 @@ class CustomerPdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
 
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     // GET /rapport/{id}/pdf
     public function weekRapportByRapportId(Request $request, Rapport $rapport)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['rapport_read']);
         $this->pdf = new Pdf();
         $this->weekRapportForSingleCustomer($rapport);
         $date = new \DateTime($rapport->startdate);
-        $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
+        return $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
     }
 
     // GET /pdf/customer/week/{date}
     public function weekRapport(Request $request, $customerId,  $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
         $date = new \DateTime($date);
         $monday = $date->modify('+1 day')->modify('last monday');
         $this->pdf = new Pdf();
@@ -62,7 +67,7 @@ class CustomerPdfController extends Controller
             if ($customersAdded == 0) {
                 $this->pdf->documentTitle("Keine Einträge vorhanden in dieser Woche.");
             }
-            $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
+            return $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
             $customer = Customer::find($customerId);
             $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
@@ -71,22 +76,26 @@ class CustomerPdfController extends Controller
             } else {
                 $this->pdf->documentTitle("Keine Enträge vorhanden für {$customer->lastname} {$customer->firstname} in der Woche {$date->format('W')}.");
             }
-            $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
+            return $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
     }
 
     // GET customers/export
     public function csvExport(Request $request)
     {
-        Pdf::validateToken($request->token);
-        return Excel::download(new CustomerExport, 'Kundenverzeichnis.csv', \Maatwebsite\Excel\Excel::CSV);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
+        $fileName = "Kundenverzeichnis.csv";
+        $file = storage_path() . "/app/" . $fileName;
+        Excel::store(new CustomerExport, $fileName, null, \Maatwebsite\Excel\Excel::CSV);
+        return response()->download($file, $fileName, [
+            'Pragma' => $fileName
+        ])->deleteFileAfterSend();
     }
 
     // GET pdf/customer/{customer}/year/{year}
     public function customerYearRapport(Request $request, $customerId, $year)
     {
-        $startTime = microtime(true);
-        // Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
         $year = (new \DateTime($year))->format('Y');
 
         $this->pdf = new Pdf('P');
@@ -97,13 +106,11 @@ class CustomerPdfController extends Controller
                 $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
                 if ($pageAdded) $isNotFirstPage = true;
             }
-            $diff = microtime(true) - $startTime;
-            dd($diff);
-            $this->pdf->export("Jahresrapport $year.pdf");
+            return $this->pdf->export("Jahresrapport $year.pdf");
         } else {
             $customer = Customer::find($customerId);
             $this->singleCustomerYearRapport($customer, $year);
-            $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
+            return $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
         }
     }
 

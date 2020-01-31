@@ -35,13 +35,6 @@ class Pdf extends TCPDF
     $this->SetCellPaddings(1, 1.5, 1, 1.5);
   }
 
-  public static function validateToken($token)
-  {
-    if ($token != Cache::pull('pdfToken')) {
-      abort(401, 'This action is unauthorized.');
-    }
-  }
-
   public function documentTitle($text, $textSize = 0, $fontStile = '')
   {
     if ($textSize == 0) {
@@ -144,7 +137,17 @@ class Pdf extends TCPDF
 
   public function export($fileName)
   {
-    $this->Output($fileName, 'D');
+    $headers = [
+      'Content-Type' => 'application/pdf',
+      'Pragma' => utf8_decode($fileName)
+    ];
+    $dirName = storage_path() . "/pdfs/";
+    $file = $dirName . $fileName;
+    if (!is_dir($dirName)) {
+      mkdir($dirName);
+    }
+    $this->Output($file, 'F');
+    return response()->download($file, $fileName, $headers);
   }
 
   public function error($errorMessage)

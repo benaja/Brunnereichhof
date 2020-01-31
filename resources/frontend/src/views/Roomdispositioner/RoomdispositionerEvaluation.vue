@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import utils from '@/utils'
+
 export default {
   name: 'RoomdispositionerEvaluation',
   data() {
@@ -76,9 +78,7 @@ export default {
         })
     },
     generatePdf() {
-      this.axios.get('pdftoken').then(response => {
-        window.location = `${process.env.VUE_APP_API_URL}rooms/evaluation/${this.date}/pdf?token=${response.data}&showFreeBeds=${this.showFreeBeds}`
-      })
+      utils.downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
     }
   },
   watch: {

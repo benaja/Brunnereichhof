@@ -27,10 +27,15 @@ class PdfController extends Controller
     private $documentWidth = 270;
     private $pdf;
 
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     // GET pdf/employee/year/{year}
     public function employeeYearRapport(Request $request, $employeeId, $year)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $employee = Employee::find($employeeId);
         $year = (new \DateTime($year))->format('Y');
@@ -48,13 +53,13 @@ class PdfController extends Controller
         $this->addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year);
         $this->addDetailsForAllMonths($employee, $year, $totalHoursOfMonths);
 
-        $this->pdf->export("Jahresrapport $year {$employee->lastname} {$employee->firstname}.pdf");
+        return $this->pdf->export("Jahresrapport $year {$employee->lastname} {$employee->firstname}.pdf");
     }
 
     // GET overview/employee/month/{month}
     public function employeeMonthRapport(Request $request, $month)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $firstdate = new \Datetime($month);
 
@@ -76,13 +81,13 @@ class PdfController extends Controller
         $this->addDetailsForAllEmployees($rapportdetails, $monthName);
 
         $filename = "Monatsrapport $monthName {$firstdate->format('Y')}.pdf";
-        $this->pdf->export($filename);
+        return $this->pdf->export($filename);
     }
 
     // GET pdf/employees
     public function employeeList(Request $request)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->pdf = new Pdf();
         $employees = Employee::where('isActive', true)->where('isGuest', false)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
@@ -105,7 +110,7 @@ class PdfController extends Controller
             ]);
         }
         $this->pdf->table($titles, $lines);
-        $this->pdf->export("Mitarbeiterliste.pdf");
+        return $this->pdf->export("Mitarbeiterliste.pdf");
     }
 
     // --helpers--

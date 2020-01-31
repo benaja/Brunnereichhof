@@ -203,9 +203,7 @@ export default new Vuex.Store({
     authorizationRules: state => state.authorizationRules
   },
   actions: {
-    closeAllPopups({
-      commit
-    }) {
+    closeAllPopups({ commit }) {
       commit('openPupups', false)
       setTimeout(() => {
         commit('openPopups', true)

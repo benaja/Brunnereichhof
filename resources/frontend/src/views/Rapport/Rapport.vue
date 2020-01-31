@@ -132,6 +132,7 @@ import SelectProjects from '@/components/Rapport/SelectProjects'
 import RapportDay from '@/components/Rapport/RapportDay'
 import DayTotal from '@/components/Rapport/DayTotal'
 import LoadingDots from '@/components/general/LoadingDots'
+import utils from '@/utils'
 
 export default {
   name: 'Rapport',
@@ -208,9 +209,7 @@ export default {
       this.rapport.rapportdetails = [...this.rapport.rapportdetails]
     },
     generatePdf() {
-      this.axios.get('pdftoken').then(response => {
-        window.location = `${process.env.VUE_APP_API_URL}rapport/${this.$route.params.id}/pdf?token=${response.data}`
-      })
+      utils.downloadFile(`rapport/${this.$route.params.id}/pdf`)
     },
     change(changedElement) {
       this.$store.commit('isSaving', true)

@@ -27,6 +27,7 @@
 
 <script>
 import MonthDatePicker from '@/components/Evaluation/MonthDatePicker'
+import utils from '@/utils'
 
 export default {
   components: {
@@ -102,9 +103,7 @@ export default {
       return items
     },
     generatePdf() {
-      this.axios.get('pdftoken').then(response => {
-        window.location = `${process.env.VUE_APP_API_URL}pdf/rooms/${this.$route.params.id}/reservations/${this.date}?token=${response.data}`
-      })
+      utils.downloadFile(`pdf/rooms/${this.$route.params.id}/reservations/${this.date}`)
     }
   },
   watch: {

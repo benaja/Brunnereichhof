@@ -13,6 +13,12 @@ use App\Helpers\Settings;
 class EmployeeController extends Controller
 {
     private $pdf;
+
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     // GET employee
     public function index(Request $request)
     {
@@ -215,7 +221,8 @@ class EmployeeController extends Controller
 
     public function employeeDayTotalsByYear(Request $request, $employeeId, $year)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+
         $this->pdf = new Pdf('P');
         $employee = Employee::find($employeeId);
 
@@ -246,12 +253,13 @@ class EmployeeController extends Controller
             $this->pdf->documentTitle("Keine Daten gefunden für dieses Jahr und diesen Mitarbeiter.");
         }
 
-        $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$year->format('Y')}.pdf");
+        return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$year->format('Y')}.pdf");
     }
 
     public function employeeDayTotalsByMonth(Request $request, $employeeId, $month)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+
         $this->pdf = new Pdf('P');
         $employee = Employee::find($employeeId);
         if (!$employee) {
@@ -267,12 +275,12 @@ class EmployeeController extends Controller
         $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
         $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
         $monthName = Settings::getMonthName($firstDayOfMonth);
-        $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
+        return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
     }
 
     public function reservationsByYear(Request $request, $employeeId, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
         $this->pdf = new Pdf();
 
         $employee = Employee::find($employeeId);
@@ -303,12 +311,13 @@ class EmployeeController extends Controller
             }
             $firstDayOfMonth->modify('first day of next month');
         }
-        $this->pdf->export("Übernachtungen von {$employee->name()} {$firstDayOfYear->format('Y')}.pdf");
+        return $this->pdf->export("Übernachtungen von {$employee->name()} {$firstDayOfYear->format('Y')}.pdf");
     }
 
     public function foodRapportByYear(Request $request, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+
         $firstDayOfYear = new \DateTime($date);
         $firstDayOfYear->modify('first day of january this year');
         $lastDayOfYear = clone $firstDayOfYear;
@@ -327,12 +336,13 @@ class EmployeeController extends Controller
             $firstDayOfMonth->modify('first day of next month');
         }
 
-        $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
+        return $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
     }
 
     public function foodRapportByMonth(Request $request, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+
         $firstDayOfMonth = new \DateTime($date);
         $firstDayOfMonth->modify('first day of this month');
         $lastDayOfMonth = clone $firstDayOfMonth;
@@ -342,7 +352,7 @@ class EmployeeController extends Controller
 
         $this->pdf = new Pdf('P');
         $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}", false);
-        $this->pdf->export("Verpflegungen Mitarbeiter $monthName {$firstDayOfMonth->format('Y')}");
+        return $this->pdf->export("Verpflegungen Mitarbeiter $monthName {$firstDayOfMonth->format('Y')}");
     }
 
     private function generateFoodPage($employees, $firstDate, $lastDate, $titleDate, $addNewPage = true)
