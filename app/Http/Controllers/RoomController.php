@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     public function index()
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
@@ -204,7 +209,7 @@ class RoomController extends Controller
     // GET /rooms/evaluation/{date}/pdf
     public function evaluationPdf(Request $request, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $date = new \DateTime($date);
         $rooms = $this->getRoomsforEvaluation($date);
@@ -231,7 +236,7 @@ class RoomController extends Controller
                 }
             }
         }
-        $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
+        return $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
     }
 
     public function reservationsByMonth(Request $request, $roomId, $date)
@@ -250,7 +255,8 @@ class RoomController extends Controller
 
     public function reservationsPdfByYear(Request $request, $roomId, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
         $this->pdf = new Pdf();
         $dateTime = new \DateTime($date);
 
@@ -259,12 +265,13 @@ class RoomController extends Controller
         $this->pdf->documentTitle("Jahr: {$dateTime->format('Y')}");
         $reservations = $this->getReservationsByYear($roomId, $date);
         $this->reservationsPdfTable($reservations);
-        $this->pdf->export("Reservationen für Raum {$room->name} {$dateTime->format('Y')}.pdf");
+        return $this->pdf->export("Reservationen für Raum {$room->name} {$dateTime->format('Y')}.pdf");
     }
 
     public function reservationsPdfByMonth(Request $request, $roomId, $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
         $this->pdf = new Pdf();
         $dateTime = new \DateTime($date);
 
@@ -274,7 +281,7 @@ class RoomController extends Controller
         $this->pdf->documentTitle("{$monthName} {$dateTime->format('Y')}");
         $reservations = $this->getReservationsByMonth($roomId, $date);
         $this->reservationsPdfTable($reservations);
-        $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
+        return $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
     }
 
     private function reservationsPdfTable($reservations)

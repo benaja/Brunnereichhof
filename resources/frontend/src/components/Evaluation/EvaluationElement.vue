@@ -19,6 +19,7 @@
         color="primary"
         :disabled="!allValid"
         @click="generatePdf"
+        :loading="isLoading"
       >{{evaluation.buttonText || 'pdf erstellen'}}</v-btn>
     </p>
   </div>
@@ -29,6 +30,7 @@ import EvaluationInput from '@/components/Evaluation/EvaluationInput'
 import { EVALUATION_INPUT_TYPES } from '@/constants'
 import DatePicker from '@/components/general/DatePicker'
 import MonthDatePicker from '@/components/Evaluation/MonthDatePicker'
+import utils from '@/utils'
 
 export default {
   components: {
@@ -44,7 +46,8 @@ export default {
   },
   data() {
     return {
-      datePickerModel: false
+      datePickerModel: false,
+      isLoading: false
     }
   },
   computed: {
@@ -62,25 +65,45 @@ export default {
   },
   methods: {
     generatePdf() {
-      this.axios.get('pdftoken').then(response => {
-        let regex = /^([^{]*)\{([^{]+)\}(.*)$/
-        let url = this.evaluation.url
-        let pdfUrl = ''
-        do {
-          let matches = regex.exec(url)
-          if (!matches) {
-            pdfUrl = url
-            url = null
-          } else {
-            pdfUrl += matches[1] + this.getValue(matches[2])
-            url = matches[3]
-          }
-        } while (url)
-        pdfUrl = `${process.env.VUE_APP_API_URL}${pdfUrl}`
-        if (this.evaluation.url.includes('?')) pdfUrl += `&token=${response.data}`
-        else pdfUrl += `?token=${response.data}`
-        window.location = pdfUrl
+      let regex = /^([^{]*)\{([^{]+)\}(.*)$/
+      let url = this.evaluation.url
+      let pdfUrl = ''
+      do {
+        let matches = regex.exec(url)
+        if (!matches) {
+          pdfUrl = url
+          url = null
+        } else {
+          pdfUrl += matches[1] + this.getValue(matches[2])
+          url = matches[3]
+        }
+      } while (url)
+      this.isLoading = true
+      utils.downloadFile(pdfUrl).then(() => {
+        this.isLoading = false
       })
+      // this.axios.get(pdfUrl, { responseType: 'arraybuffer' }).then(response => {
+      //   var newBlob = new Blob([response.data], { type: 'application/pdf' })
+
+      //   // IE doesn't allow using a blob object directly as link href
+      //   // instead it is necessary to use msSaveOrOpenBlob
+      //   if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      //     window.navigator.msSaveOrOpenBlob(newBlob)
+      //     return true
+      //   }
+
+      //   // // For other browsers:
+      //   // // Create a link pointing to the ObjectURL containing the blob.
+      //   const data = window.URL.createObjectURL(newBlob)
+      //   var link = document.createElement('a')
+      //   link.href = data
+      //   link.download = response.headers.pragma // axios only supports less headers so I took this one because it works with this
+      //   link.click()
+      //   setTimeout(function() {
+      //     // For Firefox it is necessary to delay revoking the ObjectURL
+      //     window.URL.revokeObjectURL(data)
+      //   }, 100)
+      // })
     },
     getValue(key) {
       let inputField = this.evaluation.inputFields.find(i => i.key === key)

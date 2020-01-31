@@ -32,6 +32,7 @@
 import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
 import SelectEmployee from '@/components/Roomdispositioner/SelectEmployee'
+import utils from '@/utils'
 
 export default {
   name: 'CreatePdf',
@@ -51,11 +52,7 @@ export default {
   },
   methods: {
     generatePdf() {
-      this.axios.get('/pdftoken').then(response => {
-        window.location = `${process.env.VUE_APP_API_URL}pdf/reservation/employee/${this.selectedEmployee || 0}?token=${response.data}&date=${
-          this.date
-        }`
-      })
+      utils.downloadFile(`pdf/reservation/employee/${this.selectedEmployee || 0}?date=${this.date}`)
     }
   },
   watch: {

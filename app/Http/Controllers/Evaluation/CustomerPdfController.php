@@ -25,20 +25,25 @@ class CustomerPdfController extends Controller
         'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
     ];
 
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     // GET /rapport/{id}/pdf
     public function weekRapportByRapportId(Request $request, Rapport $rapport)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['rapport_read']);
         $this->pdf = new Pdf();
         $this->weekRapportForSingleCustomer($rapport);
         $date = new \DateTime($rapport->startdate);
-        $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
+        return $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
     }
 
     // GET /pdf/customer/week/{date}
     public function weekRapport(Request $request, $customerId,  $date)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
         $date = new \DateTime($date);
         $monday = $date->modify('+1 day')->modify('last monday');
         $this->pdf = new Pdf();
@@ -62,7 +67,7 @@ class CustomerPdfController extends Controller
             if ($customersAdded == 0) {
                 $this->pdf->documentTitle("Keine Einträge vorhanden in dieser Woche.");
             }
-            $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
+            return $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
             $customer = Customer::find($customerId);
             $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
@@ -71,21 +76,26 @@ class CustomerPdfController extends Controller
             } else {
                 $this->pdf->documentTitle("Keine Enträge vorhanden für {$customer->lastname} {$customer->firstname} in der Woche {$date->format('W')}.");
             }
-            $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
+            return $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
     }
 
     // GET customers/export
     public function csvExport(Request $request)
     {
-        Pdf::validateToken($request->token);
-        return Excel::download(new CustomerExport, 'Kundenverzeichnis.csv', \Maatwebsite\Excel\Excel::CSV);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
+        $fileName = "Kundenverzeichnis.csv";
+        $file = storage_path() . "/app/" . $fileName;
+        Excel::store(new CustomerExport, $fileName, null, \Maatwebsite\Excel\Excel::CSV);
+        return response()->download($file, $fileName, [
+            'Pragma' => $fileName
+        ])->deleteFileAfterSend();
     }
 
     // GET pdf/customer/{customer}/year/{year}
     public function customerYearRapport(Request $request, $customerId, $year)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
         $year = (new \DateTime($year))->format('Y');
 
         $this->pdf = new Pdf('P');
@@ -96,11 +106,11 @@ class CustomerPdfController extends Controller
                 $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
                 if ($pageAdded) $isNotFirstPage = true;
             }
-            $this->pdf->export("Jahresrapport $year.pdf");
+            return $this->pdf->export("Jahresrapport $year.pdf");
         } else {
             $customer = Customer::find($customerId);
             $this->singleCustomerYearRapport($customer, $year);
-            $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
+            return $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
         }
     }
 
@@ -122,7 +132,7 @@ class CustomerPdfController extends Controller
 
         $mondayThisWeek = clone $firstDate;
         $mondayThisWeek->modify("monday this week");
-        $weeks = $customer->rapports
+        $rapportsByWeek = $customer->rapports
             ->where('startdate', '>=', $mondayThisWeek->format('Y-m-d'))
             ->where('startdate', '<=', $lastDate->format('Y-m-d'))
             ->sortBy('startdate');
@@ -149,7 +159,7 @@ class CustomerPdfController extends Controller
 
         $titles = ['Kalenderwoche', 'Arbeitszeit Total'];
         $lines = [];
-        foreach ($weeks as $week) {
+        foreach ($rapportsByWeek as $week) {
             $startDate = new \DateTime($week->startdate);
             $endDate = clone $startDate;
             $endDate->modify('+6 days');
@@ -170,11 +180,7 @@ class CustomerPdfController extends Controller
         }
         $this->pdf->table($titles, $lines);
 
-        $rapports = $customer->rapports
-            ->where('startdate', '>=', $firstDate->format('Y-m-d'))
-            ->where('startdate', '<=', $lastDate->format('Y-m-d'));
-
-        foreach ($rapports as $rapport) {
+        foreach ($rapportsByWeek as $rapport) {
             $hours = $rapport->rapportdetails->sum('hours');
             if ($hours > 0) {
                 $this->pdf->addNewPage('L');
@@ -195,10 +201,10 @@ class CustomerPdfController extends Controller
         $header = ['Wochentag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
         $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
 
-        $totalHours = (clone $rapport->rapportdetails)->sum('hours');
+        $totalHours = $rapport->rapportdetails->sum('hours');
         $this->pdf->documentTitle("Stunden: $totalHours");
 
-        $meals = (clone $rapport->rapportdetails)->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
+        $meals = $rapport->rapportdetails->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
         $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
         if ($rapport->customer->needs_payment_order) {
             $this->pdf->documentTitle("Einzahlungsschein erwünscht");
@@ -212,7 +218,7 @@ class CustomerPdfController extends Controller
         $currentDay = clone $monday;
         $mealsPerDay = ['Verpflegungen'];
         for ($i = 0; $i < 6; $i++) {
-            $meals = (clone $rapport->rapportdetails)->where('date', '=', $currentDay->format('Y-m-d'))
+            $meals = $rapport->rapportdetails->where('date', '=', $currentDay->format('Y-m-d'))
                 ->where('foodtype_id', '=', FoodTypeEnum::Customer)
                 ->where('hours', '>', 0)
                 ->count();
@@ -243,16 +249,10 @@ class CustomerPdfController extends Controller
 
         $this->pdf->table($header, $lines, [], ['lastLineBold' => true, 'lineBreakEnabledOnLines' => [0]]);
 
-        $rappordetailsByProjects = (clone $rapport->rapportdetails)->groupBy('project_id')->toArray();
+        $rappordetailsByProjects = $rapport->rapportdetails->groupBy('project_id')->toArray();
         $rappordetailsByProjects = array_keys($rappordetailsByProjects);
-        $projects = [];
-        foreach ($rappordetailsByProjects as $projectId) {
-            $project = Project::find($projectId);
-            if ($project && !in_array($project->name, $projects)) {
-                array_push($projects, $project->name);
-            }
-        }
 
-        $this->pdf->documentTitle("Projekte: " . implode(", ", $projects));
+        $projects = Project::whereIn('id', $rappordetailsByProjects)->pluck('name');
+        $this->pdf->documentTitle("Projekte: " . $projects->implode(', '));
     }
 }

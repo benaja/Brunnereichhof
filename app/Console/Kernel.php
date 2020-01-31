@@ -35,6 +35,15 @@ class Kernel extends ConsoleKernel
             Stats::put('workerTotalNumbers', $workerTotalNumbers);
             Stats::put('lastCronJob', new \DateTime());
         })->hourly();
+
+        $schedule->call(function () {
+            $files = glob(storage_path() . "/pdfs/*");
+            var_dump($files);
+            foreach ($files as $file) {
+                if (is_file($file))
+                    unlink($file);
+            }
+        })->daily();
     }
 
     /**

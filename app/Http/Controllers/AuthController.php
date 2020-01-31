@@ -119,12 +119,4 @@ class AuthController extends Controller
             'msg' => 'Logged out Successfully.'
         ], 200);
     }
-
-    public function generatePdfToken()
-    {
-        $token = str_random(32);
-        Cache::put('pdfToken', $token, 5);
-
-        return $token;
-    }
 }

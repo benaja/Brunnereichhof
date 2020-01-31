@@ -13,9 +13,14 @@ class ReservationPdfController extends Controller
 {
     private $pdf;
 
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+    }
+
     public function pdfByEmployee(Request $request, $id)
     {
-        Pdf::validateToken($request->token);
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $this->pdf = new Pdf();
 
@@ -59,6 +64,6 @@ class ReservationPdfController extends Controller
         }
 
         $employeename = count($employees) == 1 ? " $employee->lastname $employee->firstname" : "";
-        $this->pdf->export('Raumbelegung ' . (new \DateTime($request->date))->format('d-m-Y') . $employeename . '.pdf');
+        return $this->pdf->export('Raumbelegung ' . (new \DateTime($request->date))->format('d-m-Y') . $employeename . '.pdf');
     }
 }

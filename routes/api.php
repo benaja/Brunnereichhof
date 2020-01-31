@@ -4,7 +4,6 @@ Route::post('auth/reset-password', 'AuthController@resetPassword');
 Route::post('auth/set-password', 'AuthController@setPassword');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
-    Route::get('/pdftoken', 'AuthController@generatePdfToken');
 });
 Route::group(['middleware' => 'jwt.refresh'], function () {
     Route::get('auth/refresh', 'AuthController@refresh');
@@ -22,14 +21,12 @@ Route::get('/employee/{employeeId}/reservations/year/{year}', 'EmployeeControlle
 Route::get('/employee/{employeeId}/reservations/month/{month}', 'EmployeeController@reservationsByMonth');
 Route::get('/employee/food/year/{date}', 'EmployeeController@foodRapportByYear');
 Route::get('/employee/food/month/{date}', 'EmployeeController@foodRapportByMonth');
-Route::middleware(['jwt.auth'])->group(function () {
-    Route::get('/guest', 'EmployeeController@guests');
-    Route::patch('/guest/{id}', 'EmployeeController@update');
-    Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
-    Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
-    Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
-    Route::resource('employee', 'EmployeeController');
-});
+Route::get('/guest', 'EmployeeController@guests');
+Route::patch('/guest/{id}', 'EmployeeController@update');
+Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
+Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
+Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
+Route::resource('employee', 'EmployeeController');
 
 // Worker
 Route::resource('/worker', 'WorkerController');
@@ -96,15 +93,13 @@ Route::resource('roles', 'RoleController');
 
 // roomdispositioner
 Route::get('/rooms/evaluation/{date}/pdf', 'RoomController@evaluationPdf');
-Route::middleware(['jwt.auth'])->group(function () {
-    Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
-    Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
-    Route::get('/rooms/{id}/beds', 'RoomController@getBeds');
-    Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
-    Route::resource('/rooms', 'RoomController');
-    Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
-    Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
-});
+Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
+Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
+Route::get('/rooms/{id}/beds', 'RoomController@getBeds');
+Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
+Route::resource('/rooms', 'RoomController');
+Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
+Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
 
 Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
 Route::delete('/beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');
