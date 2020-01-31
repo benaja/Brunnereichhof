@@ -147,7 +147,7 @@ class Pdf extends TCPDF
       mkdir($dirName);
     }
     $this->Output($file, 'F');
-    return response()->download($file, $fileName, $headers);
+    return response()->download($file, $fileName, $headers)->deleteFileAfterSend();
   }
 
   public function error($errorMessage)
