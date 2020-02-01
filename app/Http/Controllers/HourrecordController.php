@@ -7,11 +7,14 @@ use App\Customer;
 use App\Culture;
 use Illuminate\Http\Request;
 use App\Enums\UserTypeEnum;
+use App\Helpers\Pdf;
 use App\Settings;
 use App\Project;
 
 class HourrecordController extends Controller
 {
+    private $pdf = null;
+
     public function __construct()
     {
         $this->middleware('jwt.auth');
@@ -27,17 +30,18 @@ class HourrecordController extends Controller
                 'year' => (new \DateTime())->format('Y')
             ])->get()->groupBy('week');
         } else {
+            $date = new \DateTime($request->year);
             if (isset($request->sortBy) && $request->sortBy === 'customer') {
-                return Customer::withTrashed()->with(array('Hourrecords' => function ($query) {
-                    $query->where('year', (new \DateTime())->format('Y'))->orderBy('week');
+                return Customer::withTrashed()->with(array('Hourrecords' => function ($query) use ($date) {
+                    $query->where('year', $date->format('Y'))->orderBy('week');
                 }))->orderBy('lastname')->get();
             } else if (isset($request->sortBy) && $request->sortBy === 'project') {
-                return Culture::withTrashed()->with(['hourrecords' => function ($query) {
-                    $query->where('year', (new \DateTime())->format('Y'));
+                return Culture::withTrashed()->with(['hourrecords' => function ($query) use ($date) {
+                    $query->where('year', $date->format('Y'));
                 }])->orderBy('name')->get();
             }
             return Hourrecord::with('culture')
-                ->where('year', (new \DateTime())->format('Y'))
+                ->where('year', $date->format('Y'))
                 ->get()->groupBy('week');
         }
     }
@@ -188,6 +192,29 @@ class HourrecordController extends Controller
         $hourrecrod->delete();
     }
 
+    // GET pdf/hourrecord/{year}/customer/{customer}
+    public function hourrecordYearRappport($year, $customer)
+    {
+        auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
+
+        $year = new \DateTime($year);
+        $this->pdf = new Pdf();
+        if ($customer === 'all') {
+            $customers = Customer::withTrashed()->with(['Hourrecords' => function ($query) use ($year) {
+                $query->where('year', $year->format('Y'))->orderBy('week');
+            }])->orderBy('lastname')->get();
+            foreach ($customers as $customer) {
+                $this->customerYearRapport($customer, $year);
+            }
+        } else {
+            $customer = Customer::with(['hourrecords' => function ($query) use ($year) {
+                $query->where('year', $year->format('Y'))->orderBy('week');
+            }])->find($customer);
+            $this->customerYearRapport($customer, $year);
+            return $this->pdf->export('Stundenangaben.pdf');
+        }
+    }
+
 
     // --helpers--
     private function isEditDate()
@@ -222,5 +249,12 @@ class HourrecordController extends Controller
                 $hourrecord->customer->projects()->save($project);
             }
         }
+    }
+
+    private function customerYearRapport($customer, $year)
+    {
+        $totalHours = $customer->hourrecords->sum('hours');
+        $this->pdf->documentTitle("{$customer->lastname} {$customer->firstname}\nJahr: {$year->format('Y')}\nTotale Stunden: {$totalHours}");
+        $test = 'sdf';
     }
 }

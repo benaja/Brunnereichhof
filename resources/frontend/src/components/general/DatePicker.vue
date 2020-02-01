@@ -49,6 +49,10 @@ export default {
     type: {
       type: String,
       default: 'date'
+    },
+    outlined: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

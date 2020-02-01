@@ -84,6 +84,7 @@ Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
 Route::resource('/culture', 'CultureController');
 
 Route::get('/hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
+Route::get('/pdf/hourrecord/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
 Route::post('/hourrecord/week/{week}', 'HourrecordController@createSingle');
 Route::resource('/hourrecord', 'HourrecordController');
 
