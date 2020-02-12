@@ -88,7 +88,7 @@ class HourrecordController extends Controller
         ])->get()->groupBy('week');
     }
 
-    public function createSingle(Request $request, $week)
+    public function createSingle(Request $request, $year, $week)
     {
         auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
@@ -122,7 +122,7 @@ class HourrecordController extends Controller
             'hours' => $request->hours,
             'comment' => $request->comment,
             'week' => $week,
-            'year' => (new \DateTime)->format('Y'),
+            'year' => $year,
             'createdByAdmin' => !(auth()->user()->type_id == UserTypeEnum::Customer),
             'customer_id' => $customer->id
         ]);
@@ -201,17 +201,23 @@ class HourrecordController extends Controller
         $this->pdf = new Pdf();
         if ($customer === 'all') {
             $customers = Customer::withTrashed()->with(['Hourrecords' => function ($query) use ($year) {
+                $query->with('culture');
                 $query->where('year', $year->format('Y'))->orderBy('week');
             }])->orderBy('lastname')->get();
+            $addNewPage = false;
             foreach ($customers as $customer) {
-                $this->customerYearRapport($customer, $year);
+                if ($customer->hourrecords->count() > 0) {
+                    $this->customerYearRapport($customer, $year, $addNewPage);
+                    $addNewPage = true;
+                }
             }
+            return $this->pdf->export("Stundenangaben {$year->format('Y')}.pdf");
         } else {
             $customer = Customer::with(['hourrecords' => function ($query) use ($year) {
                 $query->where('year', $year->format('Y'))->orderBy('week');
             }])->find($customer);
             $this->customerYearRapport($customer, $year);
-            return $this->pdf->export('Stundenangaben.pdf');
+            return $this->pdf->export("Stundenangaben {$customer->lastname} {$customer->firstname} {$year->format('Y')}.pdf");
         }
     }
 
@@ -251,10 +257,26 @@ class HourrecordController extends Controller
         }
     }
 
-    private function customerYearRapport($customer, $year)
+    private function customerYearRapport($customer, $year, $addNewPage = false)
     {
+        if ($addNewPage) $this->pdf->addNewPage();
         $totalHours = $customer->hourrecords->sum('hours');
-        $this->pdf->documentTitle("{$customer->lastname} {$customer->firstname}\nJahr: {$year->format('Y')}\nTotale Stunden: {$totalHours}");
-        $test = 'sdf';
+        $title = "{$customer->lastname} {$customer->firstname}\nJahr: {$year->format('Y')}\nTotale Stunden: {$totalHours}";
+        $this->pdf->documentTitle($title);
+        $this->pdf->textToInsertOnPageBreak = $title;
+
+        $lines = [];
+
+        foreach ($customer->hourrecords as $hourrecord) {
+            $date = new \DateTime();
+            $date->setISODate(intval($year->format('Y')), $hourrecord->week);
+            $weekStartDate = $date->format('Y-m-d');
+            $date->modify('+6 days');
+            $weekEndDate = $date->format('Y-m-d');
+            array_push($lines, ["KW {$date->format('W')} ($weekStartDate - $weekEndDate)", $hourrecord->hours, $hourrecord->culture['name'], $hourrecord->comment]);
+        }
+
+        $headers = ['Woche (Datum)', 'Stunden', 'Kultur', 'Kommentar'];
+        $this->pdf->table($headers, $lines);
     }
 }

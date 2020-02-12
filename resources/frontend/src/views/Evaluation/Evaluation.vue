@@ -225,6 +225,7 @@ export default {
                   key: 'customer',
                   dispatch: 'customers',
                   label: 'Kunde',
+                  selectAll: true,
                   type: EVALUATION_INPUT_TYPES.COMBOBOX
                 },
                 {

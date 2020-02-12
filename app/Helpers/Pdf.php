@@ -220,7 +220,6 @@ class Pdf extends TCPDF
   {
     if ($this->textToInsertOnPageBreak !== "") {
       $this->documentTitle($this->textToInsertOnPageBreak);
-      $this->newLine();
       $this->setTableDefaultStyle();
     }
   }
