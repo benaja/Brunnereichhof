@@ -2,16 +2,13 @@
 <script>
 import { Bar, mixins } from 'vue-chartjs'
 
+const { reactiveProp } = mixins
 export default {
   name: 'HourrecordsChart',
   extends: Bar,
-  mixins: [mixins.reactiveProp],
-  props: {
-    labels: Array,
-    chartData: Object
-  },
+  mixins: [reactiveProp],
   mounted() {
-    this.renderChart(this.chartData, {
+    return this.renderChart(this.chartData, {
       height: '500px',
       style: {
         height: '500px'
@@ -20,6 +17,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

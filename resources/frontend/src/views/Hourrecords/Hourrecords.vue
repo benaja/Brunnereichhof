@@ -1,17 +1,27 @@
 <template>
   <v-container>
-    <h2 class="text-center display-3">{{totalHours}}</h2>
-    <h2 class="text-center subheading">Stunden in disem Jahr</h2>
+    <v-row>
+      <v-col cols="12" sm="8" offset-sm="2">
+        <h2 class="text-center display-3">{{totalHours}}</h2>
+        <h2 class="text-center subheading mb-4">Stunden in disem Jahr</h2>
+      </v-col>
+    </v-row>
     <hourrecords-chart v-if="!isLoading" :chartData="chartData" :height="250"></hourrecords-chart>
-    <v-row class="mt-4" justify="end">
+    <v-row class="mt-4">
       <v-col cols="12" md="5" lg="3" class="text-right">
         <v-select
           v-model="sortType"
           :items="sortTypes"
+          label="Sortieren nach"
           outline
-          single-line
           prepend-inner-icon="sort"
         ></v-select>
+      </v-col>
+      <v-col cols="12" md="3" lg="2">
+        <date-picker v-model="selectedYear" type="year" label="Jahr"></date-picker>
+      </v-col>
+      <v-col cols="12" md="4" lg="7">
+        <v-btn color="primary" class="float-right" @click="generatePdf">Pdf Erstellen</v-btn>
       </v-col>
     </v-row>
     <v-list class="mt-4 pa-0" v-if="sortType == 'week'">
@@ -83,12 +93,15 @@
 import HourrecordWeekList from '@/components/Hourrecords/HourrecordWeekList'
 import HourrecordsChart from '@/components/Hourrecords/HourrecordsChart'
 import moment from 'moment'
+import DatePicker from '@/components/general/DatePicker'
+import utils from '@/utils'
 
 export default {
   name: 'Hourrecords',
   components: {
     HourrecordsChart,
-    HourrecordWeekList
+    HourrecordWeekList,
+    DatePicker
   },
   data() {
     return {
@@ -102,6 +115,7 @@ export default {
           }
         ]
       },
+      selectedYear: moment().format('YYYY'),
       hourrecords: {},
       hourrecrodsByCustomer: [],
       hourrecrodsByProject: [],
@@ -110,7 +124,11 @@ export default {
       newHourrecordDate: null,
       totalHours: 0,
       randomNumbersInterval: null,
-      sortTypes: [{ text: 'Woche', value: 'week' }, { text: 'Kunde', value: 'customer' }, { text: 'Projekt', value: 'project' }],
+      sortTypes: [
+        { text: 'Woche', value: 'week' },
+        { text: 'Kunde', value: 'customer' },
+        { text: 'Projekt', value: 'project' }
+      ],
       sortType: 'week'
     }
   },
@@ -118,39 +136,63 @@ export default {
     this.randomNumbersInterval = setInterval(() => {
       this.totalHours = Math.floor(Math.random() * 100000)
     }, 10)
-    this.$store.commit('isLoading', true)
-    this.axios
-      .get(process.env.VUE_APP_API_URL + 'hourrecord')
-      .then(response => {
-        this.hourrecords = response.data
-        clearInterval(this.randomNumbersInterval)
-        this.totalHours = 0
-        for (let i = 1; i <= 52; i++) {
-          this.chartData.labels.push(i)
-          if (this.hourrecords[i]) {
-            let hours = 0
-            for (let hourrecord of this.hourrecords[i]) {
-              hours += hourrecord.hours
-              this.totalHours += hourrecord.hours
-            }
-            this.chartData.datasets[0].data.push(hours)
-          } else {
-            this.chartData.datasets[0].data.push(0)
-          }
-        }
-        // this.totalHours = this.hou
-        this.$store.commit('isLoading', false)
-        this.isLoading = false
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
-        this.isLoading = false
-        this.$store.commit('isLoading', false)
-        clearInterval(this.randomNumbersInterval)
-        this.totalHours = 0
-      })
+    this.getHourRecords()
   },
   methods: {
+    getHourRecords(updateStats = false) {
+      if (this.sortType === 'week' || updateStats) {
+        this.getHourRecordsByWeek()
+      }
+      if (this.sortType === 'customer') {
+        this.getHourrecordsByCustomer()
+      } else if (this.sortType === 'project') {
+        this.getHourrecordsByProject()
+      }
+    },
+    getHourRecordsByWeek() {
+      this.$store.commit('isLoading', true)
+      this.axios
+        .get(`hourrecord?year=${this.selectedYear}`)
+        .then(response => {
+          this.hourrecords = response.data
+          clearInterval(this.randomNumbersInterval)
+          this.totalHours = 0
+          let labels = []
+          let data = []
+          for (let i = 1; i <= 52; i++) {
+            labels.push(i)
+            if (this.hourrecords[i]) {
+              let hours = 0
+              for (let hourrecord of this.hourrecords[i]) {
+                hours += hourrecord.hours
+                this.totalHours += hourrecord.hours
+              }
+              data.push(hours)
+            } else {
+              data.push(0)
+            }
+          }
+          this.chartData = {
+            labels,
+            datasets: [
+              {
+                label: 'Anzahl Stunden',
+                backgroundColor: '#26a69a',
+                data
+              }
+            ]
+          }
+          this.$store.commit('isLoading', false)
+          this.isLoading = false
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
+          this.isLoading = false
+          this.$store.commit('isLoading', false)
+          clearInterval(this.randomNumbersInterval)
+          this.totalHours = 0
+        })
+    },
     getMondayOfWeek(week, year) {
       let day = (week - 1) * 7
       return new Date(year, 0, day)
@@ -177,55 +219,53 @@ export default {
       this.$router.push(`/hourrecords/${newDate.format('YYYY')}/${newDate.format('W')}?edit=true`)
     },
     getHourrecordsByCustomer() {
-      if (this.hourrecrodsByCustomer.length === 0) {
-        this.$store.commit('isLoading', true)
-        this.axios
-          .get('hourrecord?sortBy=customer')
-          .then(response => {
-            for (let customer of response.data) {
-              customer.hours = 0
-              for (let hourrecord of customer.hourrecords) {
-                customer.hours += hourrecord.hours
-              }
+      this.$store.commit('isLoading', true)
+      this.axios
+        .get(`hourrecord?sortBy=customer&year=${this.selectedYear}`)
+        .then(response => {
+          for (let customer of response.data) {
+            customer.hours = 0
+            for (let hourrecord of customer.hourrecords) {
+              customer.hours += hourrecord.hours
             }
-            this.$store.commit('isLoading', false)
-            this.hourrecrodsByCustomer = response.data
-          })
-          .catch(() => {
-            this.$store.commit('isLoading', false)
-            this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
-          })
-      }
+          }
+          this.$store.commit('isLoading', false)
+          this.hourrecrodsByCustomer = response.data
+        })
+        .catch(() => {
+          this.$store.commit('isLoading', false)
+          this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
+        })
     },
     getHourrecordsByProject() {
-      if (this.hourrecrodsByProject.length === 0) {
-        this.$store.commit('isLoading', true)
-        this.axios
-          .get('hourrecord?sortBy=project')
-          .then(response => {
-            for (let project of response.data) {
-              project.hours = 0
-              for (let hourrecord of project.hourrecords) {
-                project.hours += hourrecord.hours
-              }
+      this.$store.commit('isLoading', true)
+      this.axios
+        .get(`hourrecord?sortBy=project&year=${this.selectedYear}`)
+        .then(response => {
+          for (let project of response.data) {
+            project.hours = 0
+            for (let hourrecord of project.hourrecords) {
+              project.hours += hourrecord.hours
             }
-            this.hourrecrodsByProject = response.data
-            this.$store.commit('isLoading', false)
-          })
-          .catch(() => {
-            this.$store.commit('isLoading', false)
-            this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
-          })
-      }
+          }
+          this.hourrecrodsByProject = response.data
+          this.$store.commit('isLoading', false)
+        })
+        .catch(() => {
+          this.$store.commit('isLoading', false)
+          this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
+        })
+    },
+    generatePdf() {
+      utils.downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
     }
   },
   watch: {
     sortType() {
-      if (this.sortType === 'customer') {
-        this.getHourrecordsByCustomer()
-      } else if (this.sortType === 'project') {
-        this.getHourrecordsByProject()
-      }
+      this.getHourRecords()
+    },
+    selectedYear() {
+      this.getHourRecords(true)
     }
   }
 }

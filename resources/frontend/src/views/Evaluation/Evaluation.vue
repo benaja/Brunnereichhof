@@ -206,7 +206,6 @@ export default {
                   key: 'customer',
                   dispatch: 'customers',
                   label: 'Kunde',
-                  selectAll: true,
                   type: EVALUATION_INPUT_TYPES.COMBOBOX
                 },
                 {
@@ -215,6 +214,26 @@ export default {
                 }
               ],
               url: 'pdf/customer/{customer}/year/{year}',
+              rules: {
+                year: v => !!v
+              }
+            },
+            {
+              title: 'Stundenangaben',
+              inputFields: [
+                {
+                  key: 'customer',
+                  dispatch: 'customers',
+                  label: 'Kunde',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
+                  key: 'year',
+                  type: EVALUATION_INPUT_TYPES.YEAR_PICKER
+                }
+              ],
+              url: 'pdf/hourrecord/{year}/customer/{customer}',
               rules: {
                 year: v => !!v
               }

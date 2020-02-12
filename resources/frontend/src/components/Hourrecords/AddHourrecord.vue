@@ -75,7 +75,7 @@ export default {
   methods: {
     save() {
       this.axios
-        .post('hourrecord/week/' + this.$route.params.week, this.hourrecord)
+        .post(`hourrecord/${this.$route.params.year}/${this.$route.params.week}`, this.hourrecord)
         .then(response => {
           this.$emit('add', response.data)
           this.$emit('input', false)
