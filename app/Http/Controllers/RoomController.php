@@ -19,11 +19,13 @@ class RoomController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return Room::with('beds')->get();
+        if (isset($request->deleted)) return Room::with('beds')->onlyTrashed()->get();
+        else if (isset($request->all)) return Room::with('beds')->withTrashed()->get();
+        else return Room::with('beds')->get();
     }
 
     public function store(Request $request)
@@ -60,14 +62,20 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return Room::with('beds.inventars')->find($id);
+        return Room::withTrashed()->with('beds.inventars')->find($id);
     }
 
     public function update(Request $request, $id)
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
-        $room = Room::find($id);
+        if (isset($request->deleted_at)) {
+            $room = Room::withTrashed()->find($id);
+            $room->restore();
+            return response('success');
+        }
+
+        $room = Room::withTrashed()->find($id);
         $updatetKey = key($request->except('_token'));
         $updatedValue = $request->$updatetKey;
 

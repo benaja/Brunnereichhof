@@ -107,6 +107,9 @@ export default new Vuex.Store({
     employeesWithGuests: {
       ...defaultValuesArray
     },
+    rooms: {
+      ...defaultValuesArray
+    },
     allEmployees: [],
     employeesAndGuests: [],
     roles: [],
@@ -150,6 +153,9 @@ export default new Vuex.Store({
     },
     employees(state, employees) {
       state.employees.items = getPeopleWithFullName(employees)
+    },
+    rooms(state, rooms) {
+      state.rooms.items = rooms
     },
     roles(state, roles) {
       state.roles = roles
@@ -197,6 +203,7 @@ export default new Vuex.Store({
     cultures: state => state.cultures,
     employees: state => state.employees,
     workers: state => state.workers,
+    rooms: state => state.rooms,
     employeesWithGuests: state => state.employeesWithGuests,
     guests: state => state.guests,
     roles: state => state.roles,
@@ -220,6 +227,9 @@ export default new Vuex.Store({
     },
     guests(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'guests', 'guest', properties)
+    },
+    rooms(context, properties = defaultResolveProperties) {
+      return resolveContent(context, 'rooms', 'rooms', properties)
     },
     employeesWithGuests(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'employeesWithGuests', 'employeeswithguests', properties)
@@ -247,6 +257,9 @@ export default new Vuex.Store({
     },
     resetGuests(context) {
       resetContent(context, 'guests')
+    },
+    resetRooms(context) {
+      resetContent(context, 'rooms')
     }
   }
 })

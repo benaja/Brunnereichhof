@@ -24,7 +24,7 @@
             <span class="font-italic hidden-xs-only">&nbsp; {{employee.callname}}</span>
           </p>
           <v-btn
-            v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['employee_read'])"
+            v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['employee_write'])"
             color="primary"
             max-width="200"
             @click="restoreEmployee(employee)"
