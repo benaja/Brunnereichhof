@@ -270,9 +270,9 @@ class HourrecordController extends Controller
         foreach ($customer->hourrecords as $hourrecord) {
             $date = new \DateTime();
             $date->setISODate(intval($year->format('Y')), $hourrecord->week);
-            $weekStartDate = $date->format('Y-m-d');
+            $weekStartDate = $date->format('d.m.Y');
             $date->modify('+6 days');
-            $weekEndDate = $date->format('Y-m-d');
+            $weekEndDate = $date->format('d.m.Y');
             array_push($lines, ["KW {$date->format('W')} ($weekStartDate - $weekEndDate)", $hourrecord->hours, $hourrecord->culture['name'], $hourrecord->comment]);
         }
 
