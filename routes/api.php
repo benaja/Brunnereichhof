@@ -99,6 +99,7 @@ Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
 Route::get('/rooms/{id}/beds', 'RoomController@getBeds');
 Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
 Route::patch('/room/{room}', 'RoomController@update');
+Route::post('/rooms/{roomId}/files', 'RoomController@uploadImages');
 Route::resource('/rooms', 'RoomController');
 Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
 Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');

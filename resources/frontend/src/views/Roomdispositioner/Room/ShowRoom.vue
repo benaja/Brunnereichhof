@@ -47,7 +47,12 @@
         ></edit-field>
       </v-col>
       <template v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])">
-        <select-bed v-model="room.beds"></select-bed>
+        <v-col cols="12" md="6">
+          <select-bed v-model="room.beds"></select-bed>
+        </v-col>
+        <v-col cols="12">
+          <file-upload></file-upload>
+        </v-col>
         <v-col cols="12" class="mt-2">
           <v-divider class="mb-2"></v-divider>
           <v-btn color="red" class="white--text" @click="deleteRoom">Raum Löschen</v-btn>
@@ -64,12 +69,14 @@
 <script>
 import SelectBed from '@/components/Roomdispositioner/Bed/SelectBed'
 import RoomStats from '@/components/Roomdispositioner/Room/RoomStats'
+import FileUpload from '@/components/Roomdispositioner/Room/FileUpload'
 
 export default {
   name: 'SchowRoom',
   components: {
     SelectBed,
-    RoomStats
+    RoomStats,
+    FileUpload
   },
   data() {
     return {

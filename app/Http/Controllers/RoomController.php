@@ -10,7 +10,9 @@ use App\Helpers\Settings;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\RoomImage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -83,6 +85,24 @@ class RoomController extends Controller
         $room->save();
 
         return $room;
+    }
+
+    public function uploadImages(Request $request, $roomId)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
+
+        $images = $request->images;
+
+        // store each image
+        foreach ($images as $image) {
+            $fileEnding = str_split($image->getClientOriginalName(), ".")[1];
+            $fileName = "posts/" . str_random(16) . "." . $fileEnding;
+            $imagePath = Storage::disk('s3')->put($fileName, $image);
+            RoomImage::create([
+                'path' => $imagePath,
+                'room_id' => $roomId
+            ]);
+        }
     }
 
     public function addBed($roomId, $bedId)
