@@ -154,6 +154,22 @@
           rows="1"
           :readonly="!isUserAllowedToEdit"
         ></v-textarea>
+        <v-textarea
+          label="Wochenrapport-Karte Titel"
+          v-model="settings.weekRapportTitle"
+          @change="update('weekRapportTitle')"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
+        ></v-textarea>
+        <v-textarea
+          label="Wochenrapport-Karte Text"
+          v-model="settings.weekRapportText"
+          @change="update('weekRapportText')"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
+        ></v-textarea>
       </v-col>
     </v-row>
   </v-container>

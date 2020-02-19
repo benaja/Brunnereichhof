@@ -219,6 +219,14 @@ export default new Router({
       }
     },
     {
+      path: '/kundenportal/wochenrapport',
+      name: 'WorkRecordDetails',
+      component: () => import('./views/CustomerPortal/WeekRapports'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/roomdispositioner',
       name: 'Roomdispositioner',
       component: () => import('./views/Roomdispositioner/Dashboard'),

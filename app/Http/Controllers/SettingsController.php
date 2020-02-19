@@ -50,7 +50,9 @@ class SettingsController extends Controller
             'hourrecordInvalid' => Settings::value('hourrecordInvalid'),
             'surveyTitle' => Settings::value('surveyTitle'),
             'surveyText' => Settings::value('surveyText'),
-            'subtitle' => Settings::value('subtitle')
+            'subtitle' => Settings::value('subtitle'),
+            'weekRapportTitle' => Settings::value('weekRapportTitle'),
+            'weekRapportText' => Settings::value('weekRapportText')
         ];
     }
 

@@ -65,14 +65,8 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        $room = Room::withTrashed()->with(['beds.inventars'])->find($id);
+        $room = Room::withTrashed()->with(['beds.inventars', 'images'])->find($id);
 
-        foreach ($room->images as &$image) {
-            $image['url'] = Storage::disk('s3')->temporaryUrl(
-                $image->path,
-                Carbon::now()->addMinutes(5)
-            );
-        }
         return $room;
     }
 
@@ -109,12 +103,6 @@ class RoomController extends Controller
                 'path' => $imagePath,
                 'room_id' => $roomId
             ]);
-
-            $newImage['url'] = Storage::disk('s3')->temporaryUrl(
-                $imagePath,
-                Carbon::now()->addMinutes(5)
-            );
-
             array_push($createdImages, $newImage);
         }
         return $createdImages;

@@ -43,6 +43,20 @@
           </v-card-actions>
         </v-card>
       </v-col>
+      <v-col>
+        <v-card width="500" max-width="100%" left>
+          <!-- <v-img src="/cornfield_questionmark.jpg" aspect-ratio="2"></v-img> -->
+          <v-card-title primary-title class="card-title">
+            <div>
+              <h3 class="headline mb-0">{{settings.weekRapportTitle}}</h3>
+              <p>{{settings.weekRapportText}}</p>
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn text color="primary" to="/kundenportal/wochenrapport">Zu den Wochenrapporten</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
     </v-row>
   </v-container>
 </template>
