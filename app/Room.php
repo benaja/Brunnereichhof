@@ -23,4 +23,9 @@ class Room extends Model
     {
         return $this->hasMany(BedRoomPivot::class);
     }
+
+    public function images()
+    {
+        return $this->hasMany(RoomImage::class);
+    }
 }

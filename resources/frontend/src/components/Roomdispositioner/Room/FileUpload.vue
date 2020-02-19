@@ -1,33 +1,23 @@
 <template>
-  <div class="file-upload">
-    <div class="form-group">
-      <label for="logo" class="control-label">Attachments</label>
-      <br />
-      <br />
-      <div class="form-group">
-        <input type="file" multiple="multiple" id="attachments" @change="uploadFieldChange" />
-        <hr />
-        <div class="form-group files">
-          <div
-            class="attachment-holder animated fadeIn"
-            v-cloak
-            v-for="(attachment, index) in attachments"
-            :key="index"
-          >
-            <div class="form-group">
-              <span
-                class="label label-primary"
-              >{{ attachment.name + ' (' + Number((attachment.size / 1024 / 1024).toFixed(1)) + 'MB)'}}</span>
-              <span style="background: red; cursor: pointer;" @click="removeAttachment(attachment)">
-                <button class="btn btn-xs btn-danger">Remove</button>
-              </span>
-            </div>
-          </div>
-        </div>
+  <v-col class="d-flex child-flex" cols="4">
+    <div class="upload-container">
+      <div class="file-upload">
+        <p class="text-center file-upload-text">
+          <v-progress-circular v-if="isLoading" indeterminate color="grey lighten-5"></v-progress-circular>
+          <v-btn v-else text x-large class="center upload-button" @click="$refs.fileInput.click()">
+            <v-icon x-large>add</v-icon>Bild hinzufügen
+          </v-btn>
+        </p>
+        <input
+          type="file"
+          multiple="multiple"
+          id="attachments"
+          ref="fileInput"
+          @change="uploadFieldChange"
+        />
       </div>
-      <button class="btn btn-primary" @click="submit">Upload</button>
     </div>
-  </div>
+  </v-col>
 </template>
 
 <script>
@@ -37,9 +27,9 @@ export default {
   data() {
     return {
       attachments: [],
-      attachment_labels: [],
       data: new FormData(),
-      percentCompleted: 0
+      percentCompleted: 0,
+      isLoading: false
     }
   },
   watch: {},
@@ -47,34 +37,15 @@ export default {
   methods: {
     validate() {
       if (!this.attachments.length) {
-        console.log('Add files')
         return false
       }
       return true
     },
-    getAttachmentSize() {
-      this.upload_size = 0
-      this.attachments.map(item => {
-        this.upload_size += parseInt(item.size)
-      })
-
-      this.upload_size = Number(this.upload_size.toFixed(1))
-      this.$forceUpdate()
-    },
     prepareFields() {
+      this.data = new FormData()
       for (let i = this.attachments.length - 1; i >= 0; i--) {
-        console.log(this.attachments[i].category_id)
-        this.data.append('attachments[][0]', this.attachments[i])
-        this.data.append('attachments[][1]', this.attachments[i].category_id)
+        this.data.append('images[]', this.attachments[i])
       }
-      for (let i = this.attachment_labels.length - 1; i >= 0; i--) {
-        this.data.append('attachment_labels[]', JSON.stringify(this.attachment_labels[i]))
-      }
-    },
-    removeAttachment(attachment) {
-      this.attachments.splice(this.attachments.indexOf(attachment), 1)
-
-      this.getAttachmentSize()
     },
     uploadFieldChange(e) {
       let files = e.target.files || e.dataTransfer.files
@@ -84,7 +55,7 @@ export default {
       for (let i = files.length - 1; i >= 0; i--) {
         this.attachments.push(files[i])
       }
-      document.getElementById('attachments').value = []
+      this.submit()
     },
     submit() {
       this.prepareFields()
@@ -93,40 +64,50 @@ export default {
       }
       let config = {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: function(progressEvent) {
+        onUploadProgress: progressEvent => {
           this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          console.log(this.percentCompleted)
-          this.$forceUpdate()
-        }.bind(this)
+        }
       }
+      this.isLoading = true
       this.axios
-        .post(`/rooms/${this.$route.params.id}`, this.data, config)
-        .then(
-          function(response) {
-            console.log(response)
-            if (response.data.success) {
-              console.log('Successfull upload')
-              this.resetData()
-            } else {
-              console.log('Unsuccessful Upload')
-            }
-          }.bind(this)
-        )
-        .catch(function(error) {
-          console.log(error)
+        .post(`/rooms/${this.$route.params.id}/images`, this.data, config)
+        .then(response => {
+          this.$emit('uploaded', response.data)
+          this.resetData()
+          this.isLoading = false
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
         })
     },
     resetData() {
       this.data = new FormData()
       this.attachments = []
-    },
-    start() {
-      console.log('Starting File Management Component')
-      this.pullCategories()
     }
-  },
-  created() {
-    this.start()
   }
 }
 </script>
+
+<style lang="scss" scoped>
+#attachments {
+  display: none;
+}
+
+.file-upload-text {
+  margin-top: calc(50% - 30px);
+}
+
+.upload-container {
+  padding-bottom: 100%;
+  position: relative;
+}
+
+.file-upload {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgb(236, 236, 236);
+}
+</style>

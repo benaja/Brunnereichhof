@@ -1,5 +1,9 @@
 export default [
   {
+    version: '1.5',
+    changes: [`Pdf Erstellung von den Stundenangaben`, `Stundenangaben des letzten Jahres können angesehen werden.`, `Bilder hinzufügen zu Räume.`]
+  },
+  {
     version: '1.4.3',
     changes: [
       `Auswertung von Verpflegungen der Mitarbeiter pro Monat.`,

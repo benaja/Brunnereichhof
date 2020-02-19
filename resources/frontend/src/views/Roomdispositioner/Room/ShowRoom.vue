@@ -51,8 +51,38 @@
           <select-bed v-model="room.beds"></select-bed>
         </v-col>
         <v-col cols="12">
-          <file-upload></file-upload>
+          <v-row>
+            <v-col
+              v-for="(image, index) of room.images"
+              :key="image.id"
+              class="d-flex child-flex"
+              cols="4"
+            >
+              <v-card flat tile class="d-flex image-card">
+                <v-img
+                  :src="image.url"
+                  aspect-ratio="1"
+                  class="grey lighten-2"
+                  @click="
+                    selectedImage = index
+                    galleryDialog = true
+                  "
+                >
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
+                <v-btn fab dark class="delete-icon" @click="deleteImage(image)">
+                  <v-icon>delete</v-icon>
+                </v-btn>
+              </v-card>
+            </v-col>
+            <file-upload @uploaded="addImages"></file-upload>
+          </v-row>
         </v-col>
+        <v-col cols="12"></v-col>
         <v-col cols="12" class="mt-2">
           <v-divider class="mb-2"></v-divider>
           <v-btn color="red" class="white--text" @click="deleteRoom">Raum Löschen</v-btn>
@@ -63,6 +93,22 @@
         <room-stats></room-stats>
       </v-col>
     </v-row>
+    <v-dialog v-model="galleryDialog" fullscreen>
+      <div class="black-background">
+        <v-carousel v-model="selectedImage" height="100%" hide-delimiters>
+          <v-carousel-item v-for="(image, index) of room.images" :key="index">
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-img :src="`${image.url}`" max-height="100%" max-width="100%" contain></v-img>
+            </v-row>
+          </v-carousel-item>
+          <div class="close-button">
+            <v-btn @click="galleryDialog = false" text icon>
+              <v-icon>close</v-icon>
+            </v-btn>
+          </div>
+        </v-carousel>
+      </div>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -80,7 +126,9 @@ export default {
   },
   data() {
     return {
-      room: {}
+      room: {},
+      galleryDialog: false,
+      selectedImage: null
     }
   },
   mounted() {
@@ -107,10 +155,61 @@ export default {
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
           }
         })
+    },
+    addImages(images) {
+      for (let image of images) {
+        this.room.images.push(image)
+      }
+    },
+    deleteImage(image) {
+      this.$swal({
+        title: 'Wirklich Löschen?',
+        text: 'Willst du dieses Bild wirklich löschen?',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ja, löschen!',
+        cancelButtonText: 'Nein, abbrechen'
+      }).then(result => {
+        if (result.value) {
+          this.axios
+            .delete(`/images/${image.id}`)
+            .then(response => {
+              const index = this.room.images.indexOf(image)
+              this.room.images.splice(index, 1)
+            })
+            .catch(() => {
+              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
+            })
+        }
+      })
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.black-background {
+  background-color: black;
+  height: 100%;
+  width: 100%;
+}
+
+.close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.delete-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: none;
+}
+
+.image-card:hover {
+  .delete-icon {
+    display: block;
+  }
+}
 </style>

@@ -11,6 +11,7 @@ use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\RoomImage;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -64,7 +65,15 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return Room::withTrashed()->with('beds.inventars')->find($id);
+        $room = Room::withTrashed()->with(['beds.inventars'])->find($id);
+
+        foreach ($room->images as &$image) {
+            $image['url'] = Storage::disk('s3')->temporaryUrl(
+                $image->path,
+                Carbon::now()->addMinutes(5)
+            );
+        }
+        return $room;
     }
 
     public function update(Request $request, $id)
@@ -91,18 +100,33 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
-        $images = $request->images;
+        $images = $request->file('images');
 
-        // store each image
+        $createdImages = [];
         foreach ($images as $image) {
-            $fileEnding = str_split($image->getClientOriginalName(), ".")[1];
-            $fileName = "posts/" . str_random(16) . "." . $fileEnding;
-            $imagePath = Storage::disk('s3')->put($fileName, $image);
-            RoomImage::create([
+            $imagePath = Storage::disk('s3')->put('rooms', $image);
+            $newImage = RoomImage::create([
                 'path' => $imagePath,
                 'room_id' => $roomId
             ]);
+
+            $newImage['url'] = Storage::disk('s3')->temporaryUrl(
+                $imagePath,
+                Carbon::now()->addMinutes(5)
+            );
+
+            array_push($createdImages, $newImage);
         }
+        return $createdImages;
+    }
+
+    public function deleteImage($imageId)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
+
+        $image = RoomImage::find($imageId);
+        Storage::disk('s3')->delete($image->path);
+        $image->delete();
     }
 
     public function addBed($roomId, $bedId)
