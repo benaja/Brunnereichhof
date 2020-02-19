@@ -1,7 +1,12 @@
 export default [
   {
     version: '1.5',
-    changes: [`Pdf Erstellung von den Stundenangaben`, `Stundenangaben des letzten Jahres können angesehen werden.`, `Bilder hinzufügen zu Räume.`]
+    changes: [
+      `Pdf Erstellung von den Stundenangaben`,
+      `Stundenangaben des letzten Jahres können angesehen werden.`,
+      `Bilder hinzufügen zu Räume.`,
+      'Gelöschte Räume anzeigen und wiederherstellen.'
+    ]
   },
   {
     version: '1.4.3',
