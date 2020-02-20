@@ -6,6 +6,7 @@ use App\Project;
 use App\Rapport;
 use App\Customer;
 use App\Employee;
+use App\Enums\UserTypeEnum;
 use App\Foodtype;
 use App\Rapportdetail;
 use Illuminate\Http\Request;
@@ -22,32 +23,37 @@ class RapportController extends Controller
     // GET rapport
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['rapport_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['rapport_read']);
 
-        $rapports = Rapport::get()->sortBy('startdate')->groupBy('startdate');
+        if (auth()->user()->type_id == UserTypeEnum::Customer) {
+            return Rapport::where('customer_id', auth()->user()->customer->id)->orderBy('startdate')->get();
+            // return auth()->user()->customer->rapports->sortBy('startdate');
+        } else {
+            $rapports = Rapport::get()->sortBy('startdate')->groupBy('startdate');
 
-        $rapportWeeks = array();
-        foreach ($rapports as $rapportGroup) {
-            $date = new \DateTime($rapportGroup[0]->startdate);
-            $isFinished = true;
-            $hours = 0;
-            foreach ($rapportGroup as $rapport) {
-                if ($rapport->isFinished == 0) {
-                    $isFinished = false;
+            $rapportWeeks = array();
+            foreach ($rapports as $rapportGroup) {
+                $date = new \DateTime($rapportGroup[0]->startdate);
+                $isFinished = true;
+                $hours = 0;
+                foreach ($rapportGroup as $rapport) {
+                    if ($rapport->isFinished == 0) {
+                        $isFinished = false;
+                    }
+                    $hours += $rapport->hours();
                 }
-                $hours += $rapport->hours();
+                $week = [
+                    'date' => $date,
+                    'hours' => $hours,
+                    'isFinished' => $isFinished
+                ];
+                array_push($rapportWeeks, $week);
             }
-            $week = [
-                'date' => $date,
-                'hours' => $hours,
-                'isFinished' => $isFinished
-            ];
-            array_push($rapportWeeks, $week);
+
+            $rapportWeeks = array_reverse($rapportWeeks);
+
+            return $rapportWeeks;
         }
-
-        $rapportWeeks = array_reverse($rapportWeeks);
-
-        return $rapportWeeks;
     }
 
     // GET rapport/week/{week}
@@ -93,9 +99,13 @@ class RapportController extends Controller
     // GET rapport/{id}
     public function show(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorize(['superadmin'], ['rapport_read']);
+        $this->authorize('view', $rapport);
 
-        $rapport = $this->rapportWithDetails($rapport);
+        $rapport = $this->rapportWithDetails($rapport, !!auth()->user()->customer);
+
+        if (auth()->user()->customer) {
+            return $rapport;
+        }
 
         $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
 
@@ -265,17 +275,21 @@ class RapportController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
-        foreach($rapport->rapportdetails as $rapportdetail) {
+        foreach ($rapport->rapportdetails as $rapportdetail) {
             $rapportdetail->delete();
         }
 
         $rapport->delete();
     }
 
-    private function rapportWithDetails($rapport)
+    private function rapportWithDetails($rapport, $withEmployees)
     {
         $rapport->customer = $rapport->customer;
-        $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+        if ($withEmployees) {
+            $rapport->rapportdetails = Rapportdetail::with('Employee')->where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+        } else {
+            $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+        }
         $rapport->rapportdetails = array_values($rapport->rapportdetails);
         return $rapport;
     }

@@ -220,11 +220,20 @@ export default new Router({
     },
     {
       path: '/kundenportal/wochenrapport',
-      name: 'WorkRecordDetails',
+      name: 'CustomerRapportOverview',
       component: () => import('./views/CustomerPortal/WeekRapports'),
       meta: {
         auth: true
       }
+    },
+    {
+      path: '/kundenportal/wochenrapport/:id',
+      name: 'CustomerRapport',
+      component: () => import('./views/CustomerPortal/Rapport'),
+      meta: {
+        auth: true
+      },
+      props: true
     },
     {
       path: '/roomdispositioner',
