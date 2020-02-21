@@ -282,11 +282,11 @@ class RapportController extends Controller
         $rapport->delete();
     }
 
-    private function rapportWithDetails($rapport, $withEmployees)
+    private function rapportWithDetails($rapport, $withEmployees = false)
     {
         $rapport->customer = $rapport->customer;
         if ($withEmployees) {
-            $rapport->rapportdetails = Rapportdetail::with('Employee')->where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
+            $rapport->rapportdetails = Rapportdetail::with(['Employee', 'Project'])->where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
         } else {
             $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
         }
