@@ -1,5 +1,9 @@
 export default [
   {
+    version: '1.6',
+    changes: [`Kunden können ihre Rapporte einsehen`, `Neues Kundenporal Design.`]
+  },
+  {
     version: '1.5',
     changes: [
       `Pdf Erstellung von den Stundenangaben`,
