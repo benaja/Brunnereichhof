@@ -134,12 +134,6 @@ export default {
           gridTemplateAreas += ` "total-${i}"`
           gridTemplateRows += ' auto '
         }
-
-        console.log({
-          gridTemplateColumns,
-          gridTemplateRows,
-          gridTemplateAreas
-        })
         return {
           gridTemplateColumns,
           gridTemplateRows,
@@ -159,10 +153,6 @@ export default {
         }
         gridTemplateRows += ' auto'
         gridTemplateAreas += ' "total-label total-0 total-1 total-2 total-3 total-4 total-5"'
-        console.log({
-          gridTemplateRows,
-          gridTemplateAreas
-        })
         return {
           gridTemplateRows,
           gridTemplateAreas
