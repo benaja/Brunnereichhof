@@ -1,56 +1,37 @@
 <template>
   <div>
-    <h1 class="text-center mt-4 mb-8">Wochenrapport für Woche {{formatedWeek}}</h1>
+    <h1 class="text-center mt-4 mb-8 display-1">Wochenrapport für Woche {{formatedWeek}}</h1>
+    <v-row class="mx-1">
+      <v-col cols="12" sm="6">
+        <p class="text-left mb-0 text-sm-center">Totale Stunden: {{rapport.hours}}</p>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <p class="text-left text-sm-center">Abgeschlossen: {{rapport.isFinished ? 'Ja' : 'Nein'}}</p>
+      </v-col>
+    </v-row>
     <div class="grid ma-3" :style="gridLayout">
       <p
         v-if="!$vuetify.breakpoint.smAndDown"
         class="font-weight-bold"
         :style="{gridArea: 'weekdays-label'}"
       >Wochentag</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-0'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Montag</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-1'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Dienstag</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-2'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Mittwoch</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-3'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Donnerstag</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-4'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Freitag</p>
-      <p
-        class="font-weight-bold"
-        :style="{gridArea: 'weekday-5'}"
-        :class="{'title': $vuetify.breakpoint.smAndDown }"
-      >Samstag</p>
+      <day-title grid-area="weekday-0" text="Montag" />
+      <day-title grid-area="weekday-1" text="Dienstag" />
+      <day-title grid-area="weekday-2" text="Mittwoch" />
+      <day-title grid-area="weekday-3" text="Donnerstag" />
+      <day-title grid-area="weekday-4" text="Freitag" />
+      <day-title grid-area="weekday-5" text="Samstag" />
       <p
         v-if="!$vuetify.breakpoint.smAndDown"
         class="font-weight-bold"
         :style="{gridArea: 'comments-label'}"
       >Kommentar</p>
-      <div :style="{gridArea: 'comment-0'}">
-        <p v-if="$vuetify.breakpoint.smAndDown" class="overline mb-0">Kommentar</p>
-        <p class="mb-8">{{rapport.comment_mo}}</p>
-      </div>
-      <p :style="{gridArea: 'comment-1'}" class="mb-8">{{rapport.comment_tu}}</p>
-      <p :style="{gridArea: 'comment-2'}" class="mb-8">{{rapport.comment_we}}</p>
-      <p :style="{gridArea: 'comment-3'}" class="mb-8">{{rapport.comment_th}}</p>
-      <p :style="{gridArea: 'comment-4'}" class="mb-8">{{rapport.comment_fr}}</p>
-      <p :style="{gridArea: 'comment-5'}" class="mb-8">{{rapport.comment_sa}}</p>
+      <comment grid-area="comment-0" :text="rapport.comment_mo" />
+      <comment grid-area="comment-1" :text="rapport.comment_tu" />
+      <comment grid-area="comment-2" :text="rapport.comment_we" />
+      <comment grid-area="comment-3" :text="rapport.comment_th" />
+      <comment grid-area="comment-4" :text="rapport.comment_fr" />
+      <comment grid-area="comment-5" :text="rapport.comment_sa" />
       <template v-for="(rapportdetailsByEmployee) of rapport.rapportdetails">
         <p
           v-if="!$vuetify.breakpoint.smAndDown"
@@ -87,7 +68,7 @@
         class="font-weight-bold mb-8"
         :style="{gridArea: `total-${index - 1}`}"
       >
-        <span v-if="$vuetify.breakpoint.smAndDown">Totale Stunden</span>
+        <span v-if="$vuetify.breakpoint.smAndDown">Totale Stunden:</span>
         {{getTotalHours(index - 1)}}
       </p>
     </div>
@@ -95,7 +76,14 @@
 </template>
 
 <script>
+import Comment from '@/components/CustomerPortal/Rapport/Comment'
+import DayTitle from '@/components/CustomerPortal/Rapport/DayTitle'
+
 export default {
+  components: {
+    Comment,
+    DayTitle
+  },
   props: {
     id: {
       type: String,

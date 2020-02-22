@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Rapport extends Model
 {
     use SoftDeletes;
-    
+
     public $table = "rapport";
 
     protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment_mo', 'default_project_id', 'comment_tu', 'comment_we', 'comment_th', 'comment_fr', 'comment_sa'];
+
+    protected $appends = ['hours'];
 
     public function customer()
     {
@@ -30,6 +32,11 @@ class Rapport extends Model
 
     public function hours()
     {
-        return $this->rapportdetails->sum('hours');
+        return $this->rapportdetails()->sum('hours');
+    }
+
+    public function getHoursAttribute()
+    {
+        return $this->hours();
     }
 }

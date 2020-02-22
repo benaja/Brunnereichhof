@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1 class="text-center">Rapportübersicht</h1>
+    <h1 class="text-center display-1">Rapportübersicht</h1>
     <v-row justify="center" class="mt-4">
       <v-col cols="12" lg="8" sm="10">
         <v-list class="pa-0 elevation-1" :two-line="$store.getters.isMobile">

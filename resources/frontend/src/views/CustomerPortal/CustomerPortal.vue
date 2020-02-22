@@ -1,69 +1,42 @@
 <template>
   <v-container>
-    <h1>{{settings.welcomeText}}</h1>
-    <h2 class="mb-4 subheading">{{settings.subtitle}}</h2>
-    <v-row>
-      <v-col>
-        <v-card width="500" max-width="100%" class="mb-4">
-          <v-img src="/field.jpg" aspect-ratio="2"></v-img>
-          <v-card-title primary-title class="card-title">
-            <div>
-              <h3 class="headline mb-0">{{settings.hourrecordTitle}}</h3>
-              <p v-if="$store.getters.isEditTime">{{settings.hourrecordValid}}</p>
-              <p v-else>{{settings.hourrecordInvalid}}</p>
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn
-              v-if="$store.getters.isEditTime"
-              text
-              color="primary"
-              to="/kundenportal/erfassen"
-            >Arbeiten Erfassen</v-btn>
-            <v-btn
-              v-else
-              text
-              color="primary"
-              to="/kundenportal/erfassen/details"
-            >Arbeiten Anschauen</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col>
-        <v-card width="500" max-width="100%" left>
-          <v-img src="/cornfield_questionmark.jpg" aspect-ratio="2"></v-img>
-          <v-card-title primary-title class="card-title">
-            <div>
-              <h3 class="headline mb-0">{{settings.surveyTitle}}</h3>
-              <p>{{settings.surveyText}}</p>
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn text color="primary" @click="openSurvey">Zur Umfrage</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col>
-        <v-card width="500" max-width="100%" left>
-          <!-- <v-img src="/cornfield_questionmark.jpg" aspect-ratio="2"></v-img> -->
-          <v-card-title primary-title class="card-title">
-            <div>
-              <h3 class="headline mb-0">{{settings.weekRapportTitle}}</h3>
-              <p>{{settings.weekRapportText}}</p>
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn text color="primary" to="/kundenportal/wochenrapport">Zu den Wochenrapporten</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
+    <h1 class="display-1 my-4 text-center text-md-left">{{settings.welcomeText}}</h1>
+    <h2 class="mb-4 headline text-center text-md-left">{{settings.subtitle}}</h2>
+    <div :class="{card: $vuetify.breakpoint.mdAndUp}">
+      <v-row>
+        <front-page-card
+          icon="/icons/write.svg"
+          :title="settings.hourrecordTitle"
+          :text="$store.getters.isEditTime ? settings.hourrecordValid : settings.hourrecordInvalid"
+          :button-text="$store.getters.isEditTime ? 'Arbeiten Erfassen' : 'Arbeiten Anschauen'"
+          :button-link="$store.getters.isEditTime ? '/kundenportal/erfassen' : '/kundenportal/erfassen/details'"
+        ></front-page-card>
+        <front-page-card
+          icon="/icons/see.svg"
+          :title="settings.weekRapportTitle"
+          :text="settings.weekRapportText"
+          button-text="Zu den Wochenrapporten"
+          button-link="/kundenportal/wochenrapport"
+        ></front-page-card>
+        <front-page-card
+          icon="/icons/survey.svg"
+          :title="settings.surveyTitle"
+          :text="settings.surveyText"
+          button-text="Zur Umfrage"
+          @clickLink="openSurvey"
+        ></front-page-card>
+      </v-row>
+    </div>
   </v-container>
 </template>
 
 <script>
+import FrontPageCard from '@/components/CustomerPortal/FrontPageCard'
+
 export default {
-  name: 'CustomerPortal',
+  components: {
+    FrontPageCard
+  },
   data() {
     return {
       settings: {}
@@ -98,5 +71,12 @@ export default {
 }
 p {
   word-break: normal;
+}
+
+.card {
+  box-shadow: 0 25px 60px rgb(194, 194, 194);
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 40px;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <h1>Arbeiten im {{(new Date()).getFullYear()}}</h1>
+    <h1 class="display-1">Arbeiten im {{(new Date()).getFullYear()}}</h1>
     <h2
-      class="mb-4 subheading"
+      class="mb-4 headline"
     >Wählen sie alle Kallenderwochen aus, in denen Sie Arbeiten vorgesehen haben.</h2>
     <v-row>
       <v-col cols="12" sm6 md="4" lg="3" v-for="week of activeWeeks" :key="week.week">

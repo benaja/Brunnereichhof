@@ -1,12 +1,12 @@
 <template>
   <v-container>
-    <h1>Arbeiten im {{(new Date()).getFullYear()}}</h1>
+    <h1 class="display-1">Arbeiten im {{(new Date()).getFullYear()}}</h1>
     <h2
-      class="mb-4 subheading"
+      class="mb-4 headline"
       v-if="$store.getters.isEditTime"
     >Geben Sie für die ausgewählten Wochen an, wieviele Studen Sie in den jeweiligen Wochen geplant haben.</h2>
     <h2
-      class="mb-4 subheading"
+      class="mb-4 headline"
       v-else
     >Hier können sie ihre vorgesehenen Arbeiten anschauen. Falls sie Änderungen bezüglich ihren Arbeiten haben kontaktieren sie bitte info@brunnereichhof.ch.</h2>
     <week
