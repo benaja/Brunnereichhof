@@ -52,11 +52,15 @@
           <v-col cols="12" md="2" class="pl-2 d-none d-md-block">
             <p class="font-weight-bold">Wochentag</p>
             <p class="font-weight-bold pt-3 mt-4">Kommentar</p>
-            <p class="font-weight-bold all-employees">Alle</p>
+            <p
+              class="font-weight-bold all-employees"
+              :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
+            >Alle</p>
             <div
               v-for="rapportdetail of rapport.rapportdetails"
               :key="'e-' + rapportdetail[0].id"
               class="employee-name mx-1 mt-4"
+              :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
             >
               <p
                 class="font-weight-bold"
@@ -80,6 +84,7 @@
                   :projects="projects"
                   :rapportdetails="rapportdetail"
                   :employees="employees"
+                  :settings="settings"
                 ></rapport-day>
               </v-col>
             </v-row>
@@ -158,7 +163,8 @@ export default {
       dayTotalModel: false,
       rapportdetailsFiltered: [],
       isSaving: false,
-      savedSuccessful: false
+      savedSuccessful: false,
+      settings: {}
     }
   },
   mounted() {
@@ -187,6 +193,10 @@ export default {
       .catch(() => {
         this.$swal('Fehler', 'Unbekannter Fehler ist aufgetreten', 'error')
       })
+
+    this.axios.get('/settings').then(response => {
+      this.settings = response.data
+    })
   },
   methods: {
     getFormatedWeek() {
@@ -315,10 +325,18 @@ export default {
 .all-employees {
   margin-top: 50px;
   margin-bottom: 150px;
+
+  &.small-height {
+    margin-bottom: 90px;
+  }
 }
 
 .employee-name {
   height: 230px;
+
+  &.small-height {
+    height: 150px;
+  }
 }
 
 .alert {

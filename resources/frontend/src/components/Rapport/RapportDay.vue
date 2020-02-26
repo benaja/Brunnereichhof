@@ -9,9 +9,10 @@
       @change="updateComment"
       :readonly="!hasPermisstionToChangeRapport"
     ></edit-field>
-    <div class="mx-1 all-days">
+    <div class="mx-1 all-days" :class="{ 'small-height': !settings.rapportFoodTypeEnabled }">
       <p class="font-weight-bold d-md-none">Alle</p>
       <v-select
+        v-if="settings.rapportFoodTypeEnabled"
         v-model="defaultFoodType"
         label="Verpflegung"
         :items="foodTypes"
@@ -31,6 +32,7 @@
       v-for="(rapportdetail, index) of rapportdetails"
       :key="'rapportdetails-' + rapportdetail.id"
       class="mx-1 mt-4 rapportday"
+      :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
     >
       <p
         class="font-weight-bold d-md-none"
@@ -47,6 +49,7 @@
         min="0"
       ></v-text-field>
       <v-select
+        v-if="settings.rapportFoodTypeEnabled"
         v-model="rapportdetail.foodtype_id"
         :background-color="rapportdetail.foodtype_ok ? '' : 'red'"
         :color="rapportdetail.foodtype_ok ? 'primary' : 'red'"
@@ -81,7 +84,8 @@ export default {
     rapport: Object,
     day: Number,
     projects: Array,
-    rapportdetails: Array
+    rapportdetails: Array,
+    settings: Object
   },
   data() {
     return {
@@ -222,11 +226,19 @@ export default {
   .all-days {
     height: 150px;
     overflow: hidden;
+
+    &.small-height {
+      height: 75px;
+    }
   }
 
   .rapportday {
     height: 230px;
     overflow: hidden;
+
+    &.small-height {
+      height: 150px;
+    }
   }
 }
 </style>

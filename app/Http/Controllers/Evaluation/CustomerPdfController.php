@@ -11,19 +11,14 @@ use App\Project;
 use App\Enums\FoodTypeEnum;
 use App\Exports\CustomerExport;
 use App\Rapport;
+use App\Settings;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerPdfController extends Controller
 {
     private $pdf;
-    private $monthNames = [
-        "Januar", "Februar", "März", "April", "Mai", "Juni",
-        "Juli", "August", "September", "Oktober", "November", "Dezember"
-    ];
-    private $dayNames = [
-        'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'
-    ];
+    private $rapportFoodTypeEnabled = false;
 
     public function __construct()
     {
@@ -34,6 +29,8 @@ class CustomerPdfController extends Controller
     public function weekRapportByRapportId(Request $request, Rapport $rapport)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_read']);
+
+        $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
         $this->pdf = new Pdf();
         $this->weekRapportForSingleCustomer($rapport);
         $date = new \DateTime($rapport->startdate);
@@ -44,6 +41,8 @@ class CustomerPdfController extends Controller
     public function weekRapport(Request $request, $customerId,  $date)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
+
+        $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
         $date = new \DateTime($date);
         $monday = $date->modify('+1 day')->modify('last monday');
         $this->pdf = new Pdf();
@@ -96,6 +95,8 @@ class CustomerPdfController extends Controller
     public function customerYearRapport(Request $request, $customerId, $year)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
+
+        $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
         $year = (new \DateTime($year))->format('Y');
 
         $this->pdf = new Pdf('P');
@@ -204,8 +205,10 @@ class CustomerPdfController extends Controller
         $totalHours = $rapport->rapportdetails->sum('hours');
         $this->pdf->documentTitle("Stunden: $totalHours");
 
-        $meals = $rapport->rapportdetails->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
-        $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
+        if ($this->rapportFoodTypeEnabled) {
+            $meals = $rapport->rapportdetails->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
+            $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
+        }
         if ($rapport->customer->needs_payment_order) {
             $this->pdf->documentTitle("Einzahlungsschein erwünscht");
         }
@@ -215,18 +218,20 @@ class CustomerPdfController extends Controller
         $lines = [$comments];
         $rapportdetailsGruped = $rapport->rapportdetails->groupBy('employee_id');
 
-        $currentDay = clone $monday;
-        $mealsPerDay = ['Verpflegungen'];
-        for ($i = 0; $i < 6; $i++) {
-            $meals = $rapport->rapportdetails->where('date', '=', $currentDay->format('Y-m-d'))
-                ->where('foodtype_id', '=', FoodTypeEnum::Customer)
-                ->where('hours', '>', 0)
-                ->count();
+        if ($this->rapportFoodTypeEnabled) {
+            $currentDay = clone $monday;
+            $mealsPerDay = ['Verpflegungen'];
+            for ($i = 0; $i < 6; $i++) {
+                $meals = $rapport->rapportdetails->where('date', '=', $currentDay->format('Y-m-d'))
+                    ->where('foodtype_id', '=', FoodTypeEnum::Customer)
+                    ->where('hours', '>', 0)
+                    ->count();
 
-            array_push($mealsPerDay, $meals);
-            $currentDay->modify('+1 day');
+                array_push($mealsPerDay, $meals);
+                $currentDay->modify('+1 day');
+            }
+            array_push($lines, $mealsPerDay);
         }
-        array_push($lines, $mealsPerDay);
 
         foreach ($rapportdetailsGruped as $rapportdetails) {
             $cells = [$rapportdetails[0]->employee->name()];

@@ -171,6 +171,17 @@
           :readonly="!isUserAllowedToEdit"
         ></v-textarea>
       </v-col>
+      <v-col cols="12" class="mt-4">
+        <h2>Sonstige Einstellungen</h2>
+      </v-col>
+      <v-col cols="12">
+        <v-switch
+          v-model="settings.rapportFoodTypeEnabled"
+          label="Verpflegung bei Wochenrapport"
+          @change="update('rapportFoodTypeEnabled')"
+          :readonly="!isUserAllowedToEdit"
+        ></v-switch>
+      </v-col>
     </v-row>
   </v-container>
 </template>

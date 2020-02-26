@@ -66,9 +66,6 @@ class RapportController extends Controller
 
         $rapports = Rapport::with('customer')->where('startdate', $week->format('Y-m-d'))->get();
 
-        // foreach ($rapports as $rapport) {
-        //     $rapport->customer = $rapport->customer()->withTrashed()->first();
-        // }
         return $rapports;
     }
 

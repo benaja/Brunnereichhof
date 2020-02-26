@@ -15,7 +15,13 @@ class SettingsController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['superadmin'], ['settings_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['settings_read']);
+
+        if (auth()->user()->customer) {
+            return [
+                'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled')
+            ];
+        }
 
         $settings = Settings::allSettings();
 
@@ -52,7 +58,8 @@ class SettingsController extends Controller
             'surveyText' => Settings::value('surveyText'),
             'subtitle' => Settings::value('subtitle'),
             'weekRapportTitle' => Settings::value('weekRapportTitle'),
-            'weekRapportText' => Settings::value('weekRapportText')
+            'weekRapportText' => Settings::value('weekRapportText'),
+            'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled')
         ];
     }
 

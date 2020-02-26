@@ -43,6 +43,7 @@
           <div
             :key="`employee-${rapportdetailsByEmployee[0].employee.id}-${index}`"
             :style="{gridArea: `employee-${rapportdetailsByEmployee[0].employee.id}-${index}`}"
+            class="mb-4"
           >
             <p
               v-if="$vuetify.breakpoint.smAndDown"
@@ -50,8 +51,10 @@
             >{{rapportdetailsByEmployee[0].employee.lastname}} {{rapportdetailsByEmployee[0].employee.firstname}}</p>
             <p class="overline mb-0">Stunden</p>
             <p>{{rapportdetail.hours || 0}}</p>
-            <p class="overline mb-0">Verpflegung</p>
-            <p>{{foodTypes.find(f => f.value === rapportdetail.foodtype_id).text}}</p>
+            <p v-if="settings.rapportFoodTypeEnabled" class="overline mb-0">Verpflegung</p>
+            <p
+              v-if="settings.rapportFoodTypeEnabled"
+            >{{foodTypes.find(f => f.value === rapportdetail.foodtype_id).text}}</p>
             <p class="overline mb-0">Kultur</p>
             <p>{{rapportdetail.project.name}}</p>
           </div>
@@ -108,7 +111,8 @@ export default {
           value: 3,
           text: 'Keine Angabe'
         }
-      ]
+      ],
+      settings: {}
     }
   },
   computed: {
@@ -144,7 +148,7 @@ export default {
         let gridTemplateAreas = `"weekdays-label weekday-0 weekday-1 weekday-2 weekday-3 weekday-4 weekday-5"
         "comments-label comment-0 comment-1 comment-2 comment-3 comment-4 comment-5"`
         for (let rapportdetailsByEmployee of this.rapport.rapportdetails) {
-          gridTemplateRows += ' 200px'
+          gridTemplateRows += ' auto'
           gridTemplateAreas += ` "employee-${rapportdetailsByEmployee[0].employee.id}-label`
           for (let i = 0; i < 6; i++) {
             gridTemplateAreas += ` employee-${rapportdetailsByEmployee[0].employee.id}-${i}`
@@ -163,6 +167,9 @@ export default {
   mounted() {
     this.axios.get(`/rapport/${this.id}`).then(response => {
       this.rapport = response.data
+    })
+    this.axios.get('/settings').then(response => {
+      this.settings = response.data
     })
   },
   methods: {

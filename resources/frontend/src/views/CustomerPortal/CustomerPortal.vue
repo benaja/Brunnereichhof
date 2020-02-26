@@ -43,7 +43,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(process.env.VUE_APP_API_URL + 'settings/hourrecords').then(response => {
+    this.axios.get('/settings/hourrecords').then(response => {
       response.data.welcomeText = response.data.welcomeText.replace('{name}', this.$auth.user().firstname + ' ' + this.$auth.user().lastname)
       this.settings = response.data
       this.settings.hourrecordValid = this.settings.hourrecordValid.replace('{datum}', this.endDate.toLocaleDateString())
