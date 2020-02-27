@@ -32,4 +32,14 @@ class Customer extends Model
     {
         return $this->hasMany(Rapport::class);
     }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function billingAddress()
+    {
+        return $this->belongsTo(Address::class);
+    }
 }
