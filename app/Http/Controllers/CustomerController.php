@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Address;
 use App\User;
 use App\Project;
 use App\Customer;
@@ -49,65 +50,77 @@ class CustomerController extends Controller
             'email' => 'nullable|email|unique:user',
             'customer_number' => 'nullable|unique:customer'
         ]);
-
-        $password = str_random(8);
-        $secret = encrypt($password);
-
-        $usertype = UserType::where('name', 'customer')->first();
-        $user = User::create([
-            'firstname' => request('firstname'),
-            'lastname' => request('lastname'),
-            'email' => request('email'),
-            'username' => $request->customer_number,
-            'password' => Hash::make($password)
-        ]);
-        $usertype->users()->save($user);
-
-        $customer = Customer::create([
-            'firstname' => request('firstname'),
-            'lastname' => request('lastname'),
-            'addition' => request('addition'),
-            'street' => request('street'),
-            'place' => request('place'),
-            'plz' => request('plz'),
-            'mobile' => request('mobile'),
-            'phone' => request('phone'),
-            'hasCatering' => request('hasCatering'),
-            'kitchen_infrastructure' => request('kitchen_infrastructure'),
-            'max_catering' => request('max_catering'),
-            'comment_catering' => request('comment_catering'),
-            'driver_info' => request('driver_info'),
-            'comment' => request('comment'),
-            'maps' => request('maps'),
-            'secret' => $secret,
-            'user_id' => $user->id,
-            'customer_number' => request('customer_number'),
-            'needs_payment_order' => request('needs_payment_order')
-        ]);
-
-        $defaultProject = Project::where('name', 'Allgemein')->first();
-        if ($defaultProject == null) {
-            $customer->delete();
-            return response('no project called "Allgemein"', 404);
-        }
-        $customer->projects()->save($defaultProject);
-        $customer->save();
-
-        if ($user->email != null) {
-            $data['mail'] = $user->email;
-            $data['password'] = $password;
-
-            \Mail::to($user->email)->send(new CustomerCreated($data));
+        $this->validateAddress($request, 'address');
+        if ($request->differingBillingAddress) {
+            $this->validateAddress($request, 'billingAddress');
         }
 
-        return $customer;
+        DB::transaction(function () use ($request) {
+            $password = str_random(8);
+            $secret = encrypt($password);
+
+            $usertype = UserType::where('name', 'customer')->first();
+            $user = User::create([
+                'firstname' => request('firstname'),
+                'lastname' => request('lastname'),
+                'email' => request('email'),
+                'username' => $request->customer_number,
+                'password' => Hash::make($password)
+            ]);
+            $usertype->users()->save($user);
+
+            $customer = Customer::create([
+                'firstname' => request('firstname'),
+                'lastname' => request('lastname'),
+                'mobile' => request('mobile'),
+                'phone' => request('phone'),
+                'hasCatering' => request('hasCatering'),
+                'kitchen_infrastructure' => request('kitchen_infrastructure'),
+                'max_catering' => request('max_catering'),
+                'comment_catering' => request('comment_catering'),
+                'driver_info' => request('driver_info'),
+                'comment' => request('comment'),
+                'maps' => request('maps'),
+                'secret' => $secret,
+                'user_id' => $user->id,
+                'customer_number' => request('customer_number'),
+                'needs_payment_order' => request('needs_payment_order'),
+                'differingBillingAddress' => request('differingBillingAddress')
+            ]);
+
+            $address = Address::create($request->address);
+            $customer->address()->associate($address);
+
+            if ($request->differingBillingAddress) {
+                $billingAddress = Address::create($request->billingAddress);
+                $customer->billingAddress()->associate($billingAddress);
+            }
+
+            $defaultProject = Project::where('name', 'Allgemein')->first();
+            if ($defaultProject == null) {
+                $customer->delete();
+                return response('no project called "Allgemein"', 404);
+            }
+            $customer->projects()->save($defaultProject);
+            $customer->save();
+
+            if ($user->email != null) {
+                $data['mail'] = $user->email;
+                $data['password'] = $password;
+
+                \Mail::to($user->email)->send(new CustomerCreated($data));
+            }
+
+            return $customer;
+        });
     }
 
     // GET customer/{id}
-    public function show(Request $request, Customer $customer)
+    public function show(Request $request, $id)
     {
         auth()->user()->authorize(['superadmin'], ['customer_read']);
 
+        $customer = Customer::with(['address', 'billingAddress'])->find($id);
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
         if ($customer->secret != null) {
@@ -134,10 +147,6 @@ class CustomerController extends Controller
         $customer->update([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
-            'addition' => $request->addition,
-            'street' => $request->street,
-            'place' => $request->place,
-            'plz' => $request->plz,
             'mobile' => $request->mobile,
             'phone' => $request->phone,
             'hasCatering' => $request->hasCatering,
@@ -148,10 +157,22 @@ class CustomerController extends Controller
             'comment' => $request->comment,
             'maps' => $request->maps,
             'customer_number' => $request->customer_number,
-            'needs_payment_order' => $request->needs_payment_order
+            'needs_payment_order' => $request->needs_payment_order,
+            'differingBillingAddress' => $request->differingBillingAddress
         ]);
         $customer->user->username = $request->customer_number;
         $customer->user->save();
+
+        $customer->address()->update($request->address);
+        if ($request->differingBillingAddress && $request->billing_address) {
+            if (!$customer->billingAddress) {
+                $billingAddress = Address::create($request->billing_address);
+                $customer->billingAddress()->associate($billingAddress);
+                $customer->save();
+            } else {
+                $customer->billingAddress()->update($request->billing_address);
+            }
+        }
 
         if ($request->email != $customer->user->email) {
             $this->validate($request, [
@@ -212,10 +233,6 @@ class CustomerController extends Controller
     private $validateArray = [
         'firstname' => 'required|string|max:100',
         'lastname' => 'required|string|max:100',
-        'addition' => 'nullable|max:400|string',
-        'street' => 'required|string|max:100',
-        'place' => 'required|string|max:100',
-        'plz' => 'required|integer',
         'mobile' => 'nullable',
         'phone' => 'nullable',
         'hasCatering' => 'nullable|boolean',
@@ -226,6 +243,17 @@ class CustomerController extends Controller
         'comment' => 'nullable|string|max:1000',
         'maps' => 'nullable|string|max:1000',
         'customer_number' => 'nullable|numeric',
-        'needs_payment_order' => 'nullable|boolean'
+        'needs_payment_order' => 'nullable|boolean',
+        'differingBillingAddress' => 'nullable|boolean'
     ];
+
+    private function validateAddress($request, $addressType)
+    {
+        $this->validate($request, [
+            "$addressType.addition" => 'nullable|max:400|string',
+            "$addressType.street" => 'required|string|max:100',
+            "$addressType.place" => 'required|string|max:100',
+            "$addressType.plz" => 'required|integer',
+        ]);
+    }
 }

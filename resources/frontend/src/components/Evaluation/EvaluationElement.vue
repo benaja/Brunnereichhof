@@ -30,7 +30,7 @@ import EvaluationInput from '@/components/Evaluation/EvaluationInput'
 import { EVALUATION_INPUT_TYPES } from '@/constants'
 import DatePicker from '@/components/general/DatePicker'
 import MonthDatePicker from '@/components/Evaluation/MonthDatePicker'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   components: {
@@ -79,7 +79,7 @@ export default {
         }
       } while (url)
       this.isLoading = true
-      utils.downloadFile(pdfUrl).then(() => {
+      downloadFile(pdfUrl).then(() => {
         this.isLoading = false
       })
       // this.axios.get(pdfUrl, { responseType: 'arraybuffer' }).then(response => {

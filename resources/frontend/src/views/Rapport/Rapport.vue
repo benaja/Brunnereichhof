@@ -137,7 +137,7 @@ import SelectProjects from '@/components/Rapport/SelectProjects'
 import RapportDay from '@/components/Rapport/RapportDay'
 import DayTotal from '@/components/Rapport/DayTotal'
 import LoadingDots from '@/components/general/LoadingDots'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'Rapport',
@@ -219,7 +219,7 @@ export default {
       this.rapport.rapportdetails = [...this.rapport.rapportdetails]
     },
     generatePdf() {
-      utils.downloadFile(`rapport/${this.$route.params.id}/pdf`)
+      downloadFile(`rapport/${this.$route.params.id}/pdf`)
     },
     change(changedElement) {
       this.$store.commit('isSaving', true)

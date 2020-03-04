@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'RoomdispositionerEvaluation',
@@ -78,7 +78,7 @@ export default {
         })
     },
     generatePdf() {
-      utils.downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
+      downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
     }
   },
   watch: {

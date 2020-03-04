@@ -11,7 +11,7 @@ class Customer extends Model
 
     public $table = "customer";
 
-    protected $fillable = ['firstname', 'lastname', 'addition', 'street', 'place', 'plz', 'mobile', 'phone', 'hasCatering', 'kitchen_infrastructure', 'max_catering', 'comment_catering', 'driver_info', 'comment', 'maps', 'secret', 'user_id', 'customer_number', 'needs_payment_order'];
+    protected $fillable = ['firstname', 'lastname', 'mobile', 'phone', 'hasCatering', 'kitchen_infrastructure', 'max_catering', 'comment_catering', 'driver_info', 'comment', 'maps', 'secret', 'user_id', 'customer_number', 'needs_payment_order', 'differingBillingAddress'];
 
     public function user()
     {

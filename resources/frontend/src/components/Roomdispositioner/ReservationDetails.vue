@@ -94,7 +94,7 @@
 import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
 import SelectEmployee from '@/components/Roomdispositioner/SelectEmployee'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'ReservationDetailss',
@@ -204,7 +204,7 @@ export default {
       }
     },
     generatePdf() {
-      utils.downloadFile(`pdf/reservation/employee/${this.value.employee_id}?date=${this.selectedDay.format('YYYY-MM-DD')}`)
+      downloadFile(`pdf/reservation/employee/${this.value.employee_id}?date=${this.selectedDay.format('YYYY-MM-DD')}`)
     },
     updateExistingReservation(response) {
       this.editMode = false

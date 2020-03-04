@@ -32,7 +32,7 @@
 import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
 import SelectEmployee from '@/components/Roomdispositioner/SelectEmployee'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'CreatePdf',
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     generatePdf() {
-      utils.downloadFile(`pdf/reservation/employee/${this.selectedEmployee || 0}?date=${this.date}`)
+      downloadFile(`pdf/reservation/employee/${this.selectedEmployee || 0}?date=${this.date}`)
     }
   },
   watch: {

@@ -27,7 +27,7 @@
 
 <script>
 import MonthDatePicker from '@/components/Evaluation/MonthDatePicker'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   components: {
@@ -103,7 +103,7 @@ export default {
       return items
     },
     generatePdf() {
-      utils.downloadFile(`pdf/rooms/${this.$route.params.id}/reservations/${this.date}`)
+      downloadFile(`pdf/rooms/${this.$route.params.id}/reservations/${this.date}`)
     }
   },
   watch: {

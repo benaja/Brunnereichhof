@@ -94,7 +94,7 @@ import HourrecordWeekList from '@/components/Hourrecords/HourrecordWeekList'
 import HourrecordsChart from '@/components/Hourrecords/HourrecordsChart'
 import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
-import utils from '@/utils'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'Hourrecords',
@@ -257,7 +257,7 @@ export default {
         })
     },
     generatePdf() {
-      utils.downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
+      downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
     }
   },
   watch: {
