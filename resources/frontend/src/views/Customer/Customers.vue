@@ -25,8 +25,8 @@
           <v-row wrap>
             <v-col cols="12" md="6" lg="4">
               <h4>Adresse</h4>
-              <p>{{ customer.street }}</p>
-              <p>{{ customer.place }} {{ customer.plz }}</p>
+              <p>{{ customer.address.street }}</p>
+              <p>{{ customer.address.place }} {{ customer.address.plz }}</p>
             </v-col>
             <v-col cols="12" md="6" lg="4">
               <h4>Telefon</h4>
