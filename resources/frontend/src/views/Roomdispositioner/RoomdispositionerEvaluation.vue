@@ -10,6 +10,7 @@
           first-day-of-week="1"
           color="blue"
           width="100%"
+          show-week
         ></v-date-picker>
         <diV class="text-center">
           <v-btn color="blue" class="white--text text-center" @click="generatePdf">

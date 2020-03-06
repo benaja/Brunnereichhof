@@ -22,6 +22,7 @@
             first-day-of-week="1"
             locale="ch-de"
             @change="dateDialog = false"
+            show-week
           ></v-date-picker>
         </v-dialog>
       </v-col>
@@ -65,7 +66,7 @@
       />
     </v-row>
     <v-row v-else wrap>
-      <v-col cols="3" xl="2" class="py-0">
+      <v-col cols="3" xl="2" class="py-0 px-0">
         <div class="overview-container">
           <overview
             @change="newDate => date = newDate"

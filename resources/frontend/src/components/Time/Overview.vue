@@ -7,6 +7,7 @@
       width="100%"
       locale="ch-de"
       class="elevation-0 datepicker"
+      show-week
     ></v-date-picker>
     <p class="text-center hidden-md-and-up">
       <v-btn :color="monthColor" depressed @click="type = 'month'">Monat</v-btn>

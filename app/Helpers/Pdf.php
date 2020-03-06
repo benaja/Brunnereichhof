@@ -43,7 +43,9 @@ class Pdf extends TCPDF
     $this->SetDrawColor(255);
     $this->SetTextColor(0);
     $this->SetFont($this->fontName, $fontStile, $textSize);
-    $this->MultiCell(0, $textSize / 1.8, $text, 0, 2);
+    $this->setCellPaddings(0, 0, 0, 0.5);
+    $this->setCellHeightRatio(1.3);
+    $this->MultiCell(0, 0, $text, 0, 2);
   }
 
   public function paragraph($text, $textSize = 0, $fontStile = '', $options = [])
@@ -84,6 +86,7 @@ class Pdf extends TCPDF
 
     $this->SetTextColor(0);
     $this->SetDrawColor(200);
+    $this->setCellPaddings(1, 1, 1, 1);
     $this->tableHeader($titles, $cellsWidth);
 
     $this->setTableDefaultStyle();

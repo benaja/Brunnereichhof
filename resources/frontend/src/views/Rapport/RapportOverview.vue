@@ -35,7 +35,13 @@
           <v-icon>add</v-icon>
         </v-btn>
       </template>
-      <v-date-picker v-model="newRapportDate" scrollable first-day-of-week="1" locale="ch-de">
+      <v-date-picker
+        v-model="newRapportDate"
+        scrollable
+        first-day-of-week="1"
+        locale="ch-de"
+        show-week
+      >
         <v-spacer></v-spacer>
         <v-btn text color="primary" @click="datepicker = false">Abbrechen</v-btn>
         <v-btn text color="primary" @click="addRapport">OK</v-btn>

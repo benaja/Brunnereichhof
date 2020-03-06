@@ -28,6 +28,7 @@
       ref="picker"
       :type="type === 'year' ? 'date' : type"
       :max="type === 'year' ? $moment().add(3, 'years').format('YYYY-MM-DD') : undefined"
+      show-week
     ></v-date-picker>
   </v-menu>
 </template>

@@ -212,6 +212,15 @@ class CustomerPdfController extends Controller
         if ($rapport->customer->needs_payment_order) {
             $this->pdf->documentTitle("Einzahlungsschein erwünscht");
         }
+        if ($rapport->customer->differingBillingAddress) {
+            $this->pdf->newLine();
+            $billingAddress = $rapport->customer->billingAddress;
+            $this->pdf->documentTitle("Rechnungsadresse", 0, "B");
+            $documentTitle = "{$billingAddress->street}";
+            if ($billingAddress->addition) $documentTitle .= ", {$billingAddress->addition}";
+            $documentTitle .= "\n{$billingAddress->plz} {$billingAddress->place}";
+            $this->pdf->documentTitle($documentTitle);
+        }
         $this->pdf->newLine();
 
         $timePerDay = ['Totale Stunden', 0, 0, 0, 0, 0, 0];

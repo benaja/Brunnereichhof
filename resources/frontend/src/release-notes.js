@@ -1,5 +1,13 @@
 export default [
   {
+    version: '1.7',
+    changes: [
+      `Abweichende Rechnungsadresse für Kunden erfassen.`,
+      `Rechnungsadresse wird auf Wochenrapport ausgegeben.`,
+      `Kalenderwochen werden bei einem Datum-Eingabefeld angezeigt.`
+    ]
+  },
+  {
     version: '1.6',
     changes: [`Kunden können ihre Rapporte einsehen`, `Neues Kundenporal Design.`]
   },

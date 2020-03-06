@@ -22,9 +22,9 @@ class CustomerExport implements FromCollection, WithMapping
             $customer->customer_number,
             $customer->lastname,
             $customer->firstname,
-            $customer->street,
-            $customer->plz,
-            $customer->place,
+            $customer->address->street,
+            $customer->address->plz,
+            $customer->address->place,
             $customer->user->email,
             $customer->secret ? decrypt($customer->secret) : ""
         ];
