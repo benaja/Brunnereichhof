@@ -29,7 +29,7 @@ class CustomerController extends Controller
 
         if (isset($request->deleted)) $customers = Customer::onlyTrashed()->orderBy('lastname')->get();
         else if (isset($request->all)) $customers = Customer::withTrashed()->orderBy('lastname')->get();
-        else $customers = Customer::orderBy('lastname')->get();
+        else $customers = Customer::with('address')->orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user()->withTrashed()->first()->username;
