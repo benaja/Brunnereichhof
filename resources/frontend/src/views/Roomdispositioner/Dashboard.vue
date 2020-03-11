@@ -2,14 +2,18 @@
   <div class="white background" ref="background">
     <v-row>
       <v-col class="side-bar">
-        <v-date-picker
+        <range-picker v-model="dates"></range-picker>
+        <!-- <v-date-picker
           class="elevation-0"
           v-model="date"
           no-title
           locale="ch-de"
           first-day-of-week="1"
           color="blue"
-        ></v-date-picker>
+          range
+          show-week
+          :day-format="dayFormat"
+        ></v-date-picker>-->
         <div class="px-2">
           <v-select
             v-model="calendarType"
@@ -45,18 +49,16 @@
           <div
             class="day"
             v-for="(day, index) in days"
-            :key="day.key"
-            :style="{ height: dayHeight + 'px' }"
+            :key="day.format('YYYY-MM-DD')"
+            :style="{ height: '500px', width: `calc(100% / ${amountOfDays})` }"
             @click="e => openReservationPopup(e, index)"
           >
             <div class="day-border"></div>
             <div class="day-content pt-2">
               <!-- <p class="text-center mb-2" v-if="index < 7">{{day.date.format('ddd')}}</p> -->
               <p :class="['text-center', { 'font-weight-bold': isCurrentMonth(index + 1) }]">
-                {{day.date.format('D')}}
-                <span
-                  v-if="day.date.format('D') == 1"
-                >. {{day.date.format('MMM')}}</span>
+                {{day.format('D')}}
+                <span v-if="day.format('D') == 1">. {{day.format('MMM')}}</span>
               </p>
             </div>
           </div>
@@ -158,6 +160,7 @@ import Stats from '@/components/Roomdispositioner/Stats'
 import CreatePdf from '@/components/Roomdispositioner/CreatePdf'
 import CreateReservation from '@/components/Roomdispositioner/CreateReservation'
 import ReservationDetails from '@/components/Roomdispositioner/ReservationDetails'
+import RangePicker from '@/components/Roomdispositioner/RangePicker'
 
 export default {
   name: 'Dashboard',
@@ -165,7 +168,8 @@ export default {
     Stats,
     CreatePdf,
     CreateReservation,
-    ReservationDetails
+    ReservationDetails,
+    RangePicker
   },
   data() {
     return {
@@ -193,16 +197,23 @@ export default {
         entry: null
       },
       reservations: [],
-      date: moment(new Date()).format('YYYY-MM-DD'),
+      dates: [moment(new Date()).subtract(2, 'weeks'), moment(new Date())],
       dayHeight: 0,
       firstday: moment(),
       reservationTags: [],
       moreElementsTags: [],
       initialLoad: false,
-      calendarTypeOptions: [{ text: 'Monat', value: 'month' }, { text: 'Woche', value: 'week' }],
+      calendarTypeOptions: [
+        { text: 'Monat', value: 'month' },
+        { text: 'Woche', value: 'week' }
+      ],
       calendarType: localStorage.getItem('calendarType') || 'month',
       calendarSortType: localStorage.getItem('calendarSortType') || 'lastname',
-      calendarSortTypes: [{ text: 'Nachname', value: 'lastname' }, { text: 'Zimmernummer', value: 'number' }, { text: 'Auffüllen', value: 'fill' }]
+      calendarSortTypes: [
+        { text: 'Nachname', value: 'lastname' },
+        { text: 'Zimmernummer', value: 'number' },
+        { text: 'Auffüllen', value: 'fill' }
+      ]
     }
   },
   mounted() {
@@ -305,14 +316,12 @@ export default {
         return moment(r.entry).isSameOrBefore(currentDay, 'day') && moment(r.exit).isSameOrAfter(currentDay, 'day')
       })
     },
-    reservationsThisWeek(week) {
-      return this.reservations.filter(r => {
-        let dayOfWeek = this.firstday.clone().add(week, 'weeks')
-        return (
-          moment(r.entry, 'YYYY-MM-DD', 'de-ch').isSameOrBefore(dayOfWeek, 'week') &&
-          moment(r.exit, 'YYYY-MM-DD', 'de-ch').isSameOrAfter(dayOfWeek, 'week')
-        )
-      })
+    getReservationsForSelectedTime(week) {
+      return this.reservations.filter(
+        r =>
+          this.$moment(r.entry, 'YYYY-MM-DD', 'de-ch').isSameOrBefore(this.dates[1], 'week') &&
+          this.$moment(r.exit, 'YYYY-MM-DD', 'de-ch').isSameOrAfter(this.dates[0], 'week')
+      )
     },
     isFirstDay(day, reservation) {
       if ((day - 1) % 7 === 0) return true
@@ -332,116 +341,118 @@ export default {
       } else {
         this.initialLoad = true
       }
-      this.detailsModel.open = false
-      this.reservationTags = []
-      this.moreElementsTags = []
-      for (let week = 0; week < this.amountOfDays / 7; week++) {
-        let reservationsPerWeekDay = []
-        let reservations = this.reservationsThisWeek(week)
+      let reservations = this.getReservationsForSelectedTime()
+      console.log(reservations)
+      // this.detailsModel.open = false
+      // this.reservationTags = []
+      // this.moreElementsTags = []
+      // for (let week = 0; week < this.amountOfDays / 7; week++) {
+      //   let reservationsPerWeekDay = []
+      //   let reservations = this.reservationsThisWeek(week)
 
-        let monday = this.firstday.clone().add(week, 'weeks')
-        let sunday = monday.clone().endOf('isoweek')
-        for (let reservation of reservations) {
-          this.getFirstDayFromReservationAndWeek(reservation, week, monday)
-          this.getLastDayFromReservationAndWeek(reservation, week, sunday)
-        }
+      //   let monday = this.firstday.clone().add(week, 'weeks')
+      //   let sunday = monday.clone().endOf('isoweek')
+      //   for (let reservation of reservations) {
+      //     this.getFirstDayFromReservationAndWeek(reservation, week, monday)
+      //     this.getLastDayFromReservationAndWeek(reservation, week, sunday)
+      //   }
 
-        if (this.calendarSortType === 'number') {
-          reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
-        } else if (this.calendarSortType === 'lastname') {
-          reservations.sort((a, b) => a.employee.lastname.toLowerCase().localeCompare(b.employee.lastname.toLowerCase()))
-        } else {
-          reservations.sort((reservation1, reservation2) => {
-            let duration1 = reservation1.lastDayOfWeek.diff(reservation1.firstDayOfWeek, 'days')
-            let duration2 = reservation2.lastDayOfWeek.diff(reservation2.firstDayOfWeek, 'days')
+      //   if (this.calendarSortType === 'number') {
+      //     reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
+      //   } else if (this.calendarSortType === 'lastname') {
+      //     reservations.sort((a, b) => a.employee.lastname.toLowerCase().localeCompare(b.employee.lastname.toLowerCase()))
+      //   } else {
+      //     reservations.sort((reservation1, reservation2) => {
+      //       let duration1 = reservation1.lastDayOfWeek.diff(reservation1.firstDayOfWeek, 'days')
+      //       let duration2 = reservation2.lastDayOfWeek.diff(reservation2.firstDayOfWeek, 'days')
 
-            if (duration1 > duration2) return -1
-            if (duration1 < duration2) return 1
-            return 0
-          })
-        }
+      //       if (duration1 > duration2) return -1
+      //       if (duration1 < duration2) return 1
+      //       return 0
+      //     })
+      //   }
 
-        let count = 0
-        let hasMoreElementsTags = 0
-        for (let reservation of reservations) {
-          let diffMonday = reservation.firstDayOfWeek.diff(monday, 'days')
-          let diffFromTo = reservation.lastDayOfWeek.diff(reservation.firstDayOfWeek, 'days')
-          let reservedDaysCurrentWeek = [0, 0, 0, 0, 0, 0, 0]
-          if (this.calendarSortType === 'lastname' || this.calendarSortType === 'number') {
-            reservedDaysCurrentWeek = [1, 1, 1, 1, 1, 1, 1]
-          }
-          for (let i = diffMonday; i < diffMonday + diffFromTo + 1; i++) {
-            reservedDaysCurrentWeek[i] = 1
-          }
+      //   let count = 0
+      //   let hasMoreElementsTags = 0
+      //   for (let reservation of reservations) {
+      //     let diffMonday = reservation.firstDayOfWeek.diff(monday, 'days')
+      //     let diffFromTo = reservation.lastDayOfWeek.diff(reservation.firstDayOfWeek, 'days')
+      //     let reservedDaysCurrentWeek = [0, 0, 0, 0, 0, 0, 0]
+      //     if (this.calendarSortType === 'lastname' || this.calendarSortType === 'number') {
+      //       reservedDaysCurrentWeek = [1, 1, 1, 1, 1, 1, 1]
+      //     }
+      //     for (let i = diffMonday; i < diffMonday + diffFromTo + 1; i++) {
+      //       reservedDaysCurrentWeek[i] = 1
+      //     }
 
-          let index = count
-          if (this.calendarType === 'month') {
-            let freePlace = reservationsPerWeekDay.find(r => {
-              let isCompatible = true
-              for (let i = 0; i < r.length; i++) {
-                if (reservedDaysCurrentWeek[i] === 1 && r[i] === 1) {
-                  isCompatible = false
-                }
-              }
-              return isCompatible
-            })
-            if (freePlace) {
-              index = reservationsPerWeekDay.indexOf(freePlace)
-              for (let i = 0; i < freePlace.length; i++) {
-                if (reservedDaysCurrentWeek[i] === 1) {
-                  freePlace[i] = 1
-                }
-              }
-            } else {
-              index = reservationsPerWeekDay.length
-              reservationsPerWeekDay.push(reservedDaysCurrentWeek)
-            }
-          }
+      //     let index = count
+      //     if (this.calendarType === 'month') {
+      //       let freePlace = reservationsPerWeekDay.find(r => {
+      //         let isCompatible = true
+      //         for (let i = 0; i < r.length; i++) {
+      //           if (reservedDaysCurrentWeek[i] === 1 && r[i] === 1) {
+      //             isCompatible = false
+      //           }
+      //         }
+      //         return isCompatible
+      //       })
+      //       if (freePlace) {
+      //         index = reservationsPerWeekDay.indexOf(freePlace)
+      //         for (let i = 0; i < freePlace.length; i++) {
+      //           if (reservedDaysCurrentWeek[i] === 1) {
+      //             freePlace[i] = 1
+      //           }
+      //         }
+      //       } else {
+      //         index = reservationsPerWeekDay.length
+      //         reservationsPerWeekDay.push(reservedDaysCurrentWeek)
+      //       }
+      //     }
 
-          let top = 25 * index + 40
-          if (this.calendarType !== 'month' && top >= this.dayHeight - 40) {
-            this.dayHeight += 25
-          }
-          if (top < this.dayHeight - 40) {
-            let tag = {
-              style: {
-                top: top + this.getDayHeight * week + 'px',
-                left: 'calc(' + (100 / 7) * diffMonday + '% + 5px)',
-                width: 'calc(' + (100 / 7) * (diffFromTo + 1) + '% - 10px)'
-              },
-              reservation: reservation
-            }
-            this.reservationTags.push(tag)
-          } else {
-            hasMoreElementsTags++
-          }
-          count++
-        }
-        if (hasMoreElementsTags > 0) {
-          let maxElementsOnOneDay = Math.floor((this.dayHeight - 80) / 30) + 1
-          for (let day = 0; day < 7; day++) {
-            let amountOfMoreElements = 0
-            for (let i = maxElementsOnOneDay; i < reservationsPerWeekDay.length; i++) {
-              if (reservationsPerWeekDay[i][day] === 1) {
-                amountOfMoreElements++
-              }
-            }
-            if (amountOfMoreElements > 0) {
-              let reservationsThisDay = this.reservationsThisDay(7 * week + day + 1)
-              this.moreElementsTags.push({
-                style: {
-                  top: this.dayHeight * week + this.dayHeight - 30 + 'px',
-                  left: (100 / 7) * day + '%'
-                },
-                reservations: reservationsThisDay,
-                amountOfMoreElements: amountOfMoreElements,
-                day,
-                week
-              })
-            }
-          }
-        }
-      }
+      //     let top = 25 * index + 40
+      //     if (this.calendarType !== 'month' && top >= this.dayHeight - 40) {
+      //       this.dayHeight += 25
+      //     }
+      //     if (top < this.dayHeight - 40) {
+      //       let tag = {
+      //         style: {
+      //           top: top + this.getDayHeight * week + 'px',
+      //           left: 'calc(' + (100 / 7) * diffMonday + '% + 5px)',
+      //           width: 'calc(' + (100 / 7) * (diffFromTo + 1) + '% - 10px)'
+      //         },
+      //         reservation: reservation
+      //       }
+      //       this.reservationTags.push(tag)
+      //     } else {
+      //       hasMoreElementsTags++
+      //     }
+      //     count++
+      //   }
+      //   if (hasMoreElementsTags > 0) {
+      //     let maxElementsOnOneDay = Math.floor((this.dayHeight - 80) / 30) + 1
+      //     for (let day = 0; day < 7; day++) {
+      //       let amountOfMoreElements = 0
+      //       for (let i = maxElementsOnOneDay; i < reservationsPerWeekDay.length; i++) {
+      //         if (reservationsPerWeekDay[i][day] === 1) {
+      //           amountOfMoreElements++
+      //         }
+      //       }
+      //       if (amountOfMoreElements > 0) {
+      //         let reservationsThisDay = this.reservationsThisDay(7 * week + day + 1)
+      //         this.moreElementsTags.push({
+      //           style: {
+      //             top: this.dayHeight * week + this.dayHeight - 30 + 'px',
+      //             left: (100 / 7) * day + '%'
+      //           },
+      //           reservations: reservationsThisDay,
+      //           amountOfMoreElements: amountOfMoreElements,
+      //           day,
+      //           week
+      //         })
+      //       }
+      //     }
+      //   }
+      // }
     },
     getFirstDayFromReservationAndWeek(reservation, week, monday) {
       if (moment(reservation.entry).diff(monday, 'days') < 0) {
@@ -500,18 +511,15 @@ export default {
     },
     days() {
       let days = []
-      let day = this.firstDate.clone()
+      let day = this.dates[0].clone()
       for (let i = 0; i < this.amountOfDays; i++) {
         let currentDay = day.clone().add(i, 'days')
-        days.push({
-          date: currentDay,
-          key: currentDay.format('DD-MM-YYYY')
-        })
+        days.push(currentDay)
       }
       return days
     },
     amountOfDays() {
-      return this.lastDate.diff(this.firstDate, 'days') + 1
+      return this.dates[1].diff(this.dates[0], 'days') + 1
     },
     getDayHeight() {
       if (this.calendarType === 'month') {
@@ -523,9 +531,7 @@ export default {
     }
   },
   watch: {
-    date() {
-      this.dayHeight = this.getDayHeight
-      this.firstday = this.firstDate
+    dates() {
       this.drawReservations()
     },
     reservations() {
@@ -579,7 +585,7 @@ export default {
 }
 
 .day {
-  width: calc(100% / 7.001);
+  // width: calc(100% / 7.001);
   position: relative;
 }
 
