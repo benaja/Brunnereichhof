@@ -18,6 +18,7 @@ Vue.use(VueSweetalert2)
 Vue.use(VueTouch)
 Vue.use(chartist)
 
+moment.lang('de-ch')
 Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)
 Vue.router = router

@@ -37,54 +37,40 @@
           <stats ref="stats"></stats>
         </div>
       </v-col>
-      <v-col class="content">
-        <div class="week-days">
-          <div
-            v-for="index in 7"
-            :key="'d-' + index"
-            class="week-day text-center"
-          >{{firstday.clone().add(index - 1, 'days').format('ddd')}}</div>
-        </div>
+      <v-col class="content pa-0">
         <div class="callendar-container" ref="callendarContainer">
           <div
             class="day"
             v-for="(day, index) in days"
             :key="day.format('YYYY-MM-DD')"
-            :style="{ height: '500px', width: `calc(100% / ${amountOfDays})` }"
+            :style="{ width: `calc(100% / ${amountOfDays})` }"
             @click="e => openReservationPopup(e, index)"
           >
             <div class="day-border"></div>
             <div class="day-content pt-2">
-              <!-- <p class="text-center mb-2" v-if="index < 7">{{day.date.format('ddd')}}</p> -->
-              <p :class="['text-center', { 'font-weight-bold': isCurrentMonth(index + 1) }]">
-                {{day.format('D')}}
-                <span v-if="day.format('D') == 1">. {{day.format('MMM')}}</span>
+              <p class="text-center mb-0">{{day.format('ddd')}}</p>
+              <p class="text-center font-weight-bold">
+                <span
+                  v-if="day.format('D') == 1 || index === 0"
+                >{{day.format('D')}}. {{day.format('MMM')}}</span>
+                <span v-else>{{day.format('D')}}</span>
               </p>
             </div>
           </div>
-          <div
-            v-for="(tag, index) of reservationTags"
-            :key="'r' + index"
-            :class="['reservation', 'blue', 'reservation-' + tag.reservation.id]"
-            :style="tag.style"
-            @click="e => openDetailsPopup(e, tag.reservation)"
-            @mouseover="hover(tag.reservation.id)"
-            @mouseleave="leave(tag.reservation.id)"
-          >
-            <p
-              class="white--text ml-2 mr-1 caption"
-            >{{ tag.reservation.employee.lastname }} {{ tag.reservation.employee.firstname }} | {{tag.reservation.bed_room_pivot.room.name}} / {{tag.reservation.bed_room_pivot.room.number}}</p>
-          </div>
-          <div
-            v-for="(tag, index) of moreElementsTags"
-            :key="'m' + index"
-            class="more-elements pa-1"
-            :style="tag.style"
-          >
-            <p
-              class="text-center ma-0"
-              @click="e => openMoreElementsPopup(e, tag)"
-            >{{ tag.amountOfMoreElements }} {{ tag.amountOfMoreElements === 1 ? 'weitere Reservation' : 'weitere Reservationen' }}</p>
+          <div class="reservations-container">
+            <div
+              v-for="(tag, index) of reservationTags"
+              :key="'r' + index"
+              :class="['reservation', 'blue', 'reservation-' + tag.reservation.id]"
+              :style="tag.style"
+              @click="e => openDetailsPopup(e, tag.reservation)"
+              @mouseover="hover(tag.reservation.id)"
+              @mouseleave="leave(tag.reservation.id)"
+            >
+              <p
+                class="white--text ml-2 mr-1 caption"
+              >{{ tag.reservation.employee.lastname }} {{ tag.reservation.employee.firstname }} | {{tag.reservation.bed_room_pivot.room.name}} / {{tag.reservation.bed_room_pivot.room.number}}</p>
+            </div>
           </div>
         </div>
       </v-col>
@@ -342,7 +328,31 @@ export default {
         this.initialLoad = true
       }
       let reservations = this.getReservationsForSelectedTime()
-      console.log(reservations)
+      if (this.calendarSortType === 'number') {
+        reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
+      } else if (this.calendarSortType === 'lastname') {
+        reservations.sort((a, b) => a.employee.lastname.toLowerCase().localeCompare(b.employee.lastname.toLowerCase()))
+      }
+
+      this.reservationTags = []
+      for (let reservation of reservations) {
+        let diffFromFirstDay = 0
+        if (this.$moment(reservation.entry).isAfter(this.dates[0])) {
+          diffFromFirstDay = this.$moment(reservation.entry).diff(this.dates[0], 'days')
+        }
+        let diffFromLastDay = 0
+        if (this.$moment(reservation.exit).isBefore(this.dates[1])) {
+          diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
+        }
+        let tag = {
+          style: {
+            marginLeft: 'calc(' + (100 / this.amountOfDays) * diffFromFirstDay + '% + 5px)',
+            width: 'calc(' + (100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay) + '% - 10px)'
+          },
+          reservation
+        }
+        this.reservationTags.push(tag)
+      }
       // this.detailsModel.open = false
       // this.reservationTags = []
       // this.moreElementsTags = []
@@ -587,6 +597,7 @@ export default {
 .day {
   // width: calc(100% / 7.001);
   position: relative;
+  min-height: calc(100vh - 64px);
 }
 
 .day-border {
@@ -609,11 +620,18 @@ export default {
   z-index: 2;
 }
 
+.reservations-container {
+  position: absolute;
+  top: 80px;
+  width: 100%;
+  z-index: 2;
+}
+
 .reservation {
   height: 20px;
-  position: absolute;
   z-index: 2;
   border-radius: 5px;
+  margin-top: 5px;
   cursor: pointer;
 
   p {
