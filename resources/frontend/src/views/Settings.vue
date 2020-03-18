@@ -3,6 +3,9 @@
     <h1>Einstellungen</h1>
     <h2>Zeiterfassung</h2>
     <v-row wrap>
+      <v-col cols="12">
+        <edit-work-types />
+      </v-col>
       <v-col cols="12" sm6 class="px-2">
         <v-text-field
           label="Ganzer Tag Winter Startzeit"
@@ -187,8 +190,13 @@
 </template>
 
 <script>
+import EditWorkTypes from '@/components/Settings/EditWorkTypes'
+
 export default {
   name: 'Settings',
+  components: {
+    EditWorkTypes
+  },
   data() {
     return {
       settings: {},

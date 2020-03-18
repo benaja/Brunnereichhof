@@ -81,7 +81,7 @@ class TimeController extends Controller
         );
 
         $request->validate([
-            'worktype' => 'required|string',
+            'worktype' => 'required|numeric',
             'from' => 'required|before_or_equal:to',
             'to' => ['required', new ValidTime($request->from, $timerecord)],
             'hasBreak' => 'nullable|boolean',
@@ -126,7 +126,7 @@ class TimeController extends Controller
         $hour = Hour::find($id);
         if ($hour->timerecord->user->id == $userId) {
             $request->validate([
-                'worktype' => 'required|string',
+                'worktype' => 'required|numeric',
                 'from' => 'required|before_or_equal:to',
                 'to' => ['required', new ValidTime($request->from, $hour->timerecord, $hour->id)],
                 'lunch' => 'nullable|boolean',
@@ -139,7 +139,7 @@ class TimeController extends Controller
             $hour->to = $request->to;
             $hour->comment = $request->comment;
 
-            $worktype = Worktype::where('name', $request->worktype)->first();
+            $worktype = Worktype::find($request->worktype);
             $worktype->hours()->save($hour);
 
             $hour->save();
@@ -192,14 +192,14 @@ class TimeController extends Controller
     }
 
     //-- helpers --//
-    private function createHour($timerecord, $from, $to, $comment, $workTypeName)
+    private function createHour($timerecord, $from, $to, $comment, $workTypeId)
     {
         $hour = Hour::create([
             'from' => $from,
             'to' => $to,
             'comment' => $comment
         ]);
-        $worktype = Worktype::where('name', $workTypeName)->first();
+        $worktype = Worktype::find($workTypeId);
 
         $timerecord->hours()->save($hour);
         $worktype->hours()->save($hour);

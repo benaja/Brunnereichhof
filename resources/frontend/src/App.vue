@@ -6,6 +6,7 @@
         <NavigationBar></NavigationBar>
         <router-view />
       </div>
+      <alert v-model="alert.visible" :text="alert.text"></alert>
     </v-app>
   </div>
 </template>
@@ -13,12 +14,18 @@
 <script>
 import NavigationBar from '@/components/NavigationBar'
 import LoadingPage from '@/components/general/LoadingPage'
+import Alert from '@/components/general/Alert'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'app',
   components: {
     NavigationBar,
-    LoadingPage
+    LoadingPage,
+    Alert
+  },
+  computed: {
+    ...mapGetters(['alert'])
   }
 }
 </script>

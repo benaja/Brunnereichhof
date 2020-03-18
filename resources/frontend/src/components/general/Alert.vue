@@ -1,11 +1,8 @@
 <template>
   <div class="alert">
-    <v-alert
-      :value="value"
-      :color="color"
-      icon="check_circle"
-      transition="slide-y-reverse-transition"
-    >{{text}}</v-alert>
+    <v-snackbar :value="value" :color="color" icon="check_circle" right transition="slide-y-reverse-transition"
+      ><span class="white--text">{{ text }}</span>
+    </v-snackbar>
   </div>
 </template>
 

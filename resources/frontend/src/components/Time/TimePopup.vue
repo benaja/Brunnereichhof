@@ -12,13 +12,15 @@
       v-model="worktype"
       :items="worktypes"
       item-text="name_de"
-      item-value="name"
+      item-value="id"
     ></v-select>
     <v-select
       label="Erfassungsart"
       v-model="edittype"
+      item-text="name"
+      item-value="id"
       :items="edittypes"
-      :disabled="worktype === 'holidays-long' || worktype === 'holidays-short'"
+      no-data-text="Wähle zuerst eine Leistungsart"
     ></v-select>
     <div v-if="edittype !== 'manually'">
       <v-dialog v-model="timeDialogFrom" width="290px">
@@ -29,35 +31,19 @@
             readonly
             label="Zeit von"
             :error-messages="rules.from()"
-            :disabled="edittype === 'full-day-short' || edittype === 'full-day-long'"
+            disabled
           ></v-text-field>
         </template>
-        <v-time-picker
-          v-if="timeDialogFrom"
-          v-model="from"
-          format="24hr"
-          :disabled="edittype === 'full-day-short' || edittype === 'full-day-long'"
-        >
+        <v-time-picker v-if="timeDialogFrom" v-model="from" format="24hr" disabled>
           <v-spacer></v-spacer>
           <v-btn text color="primary" @click="timeDialogFrom = false">OK</v-btn>
         </v-time-picker>
       </v-dialog>
       <v-dialog v-model="timeDialogTo" width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field
-            v-on="on"
-            v-model="to"
-            readonly
-            label="Zeit bis"
-            :disabled="edittype === 'full-day-short' || edittype === 'full-day-long'"
-          ></v-text-field>
+          <v-text-field v-on="on" v-model="to" readonly label="Zeit bis" disabled></v-text-field>
         </template>
-        <v-time-picker
-          v-if="timeDialogTo"
-          v-model="to"
-          format="24hr"
-          :disabled="edittype === 'full-day-short' || edittype === 'full-day-long'"
-        >
+        <v-time-picker v-if="timeDialogTo" v-model="to" format="24hr" disabled>
           <v-spacer></v-spacer>
           <v-btn text color="primary" @click="timeDialogTo = false">OK</v-btn>
         </v-time-picker>
@@ -96,20 +82,6 @@ export default {
   data() {
     return {
       worktypes: [],
-      edittypes: [
-        {
-          value: 'full-day-short',
-          text: 'Ganztägig Winter'
-        },
-        {
-          value: 'full-day-long',
-          text: 'Ganztäging Sommer'
-        },
-        {
-          value: 'manually',
-          text: 'Manuell'
-        }
-      ],
       worktype: localStorage.worktype ? localStorage.worktype : 'productiveHours',
       edittype: localStorage.edittype ? localStorage.edittype : 'full-day-short',
       from: '07:00',
@@ -139,8 +111,11 @@ export default {
     if (this.edittype === 'manually') {
       this.hours = localStorage.hours
     }
-    this.appliLocalStorageSettings()
+    this.applyLocalStorageSettings()
     this.applyTimeSettings()
+    this.axios.get('/worktypes').then(response => {
+      this.worktypes = response.data
+    })
   },
   methods: {
     save() {
@@ -219,7 +194,6 @@ export default {
       return date
     },
     applyTimeSettings() {
-      this.worktypes = this.settings.worktypes
       if (this.edittype === 'full-day-short') {
         this.from = this.settings.fullDayShortStart
         this.to = this.settings.fullDayShortEnd
@@ -228,36 +202,45 @@ export default {
         this.to = this.settings.fullDayLongEnd
       }
     },
-    appliLocalStorageSettings() {
+    applyLocalStorageSettings() {
       this.breakfast = localStorage.breakfast ? JSON.parse(localStorage.breakfast) : false
       this.lunch = localStorage.lunch ? JSON.parse(localStorage.lunch) : false
       this.dinner = localStorage.dinner ? JSON.parse(localStorage.dinner) : false
       this.worktype = localStorage.worktype ? localStorage.worktype : 'productiveHours'
       this.edittype = localStorage.edittype ? localStorage.edittype : 'full-day-short'
     },
-    setEdittypeByTime() {
-      if (this.from === this.settings.fullDayLongStart && this.to === this.settings.fullDayLongEnd) {
-        this.edittype = 'full-day-long'
-      } else if (this.from === this.settings.fullDayShortStart && this.to === this.settings.fullDayShortEnd) {
-        this.edittype = 'full-day-short'
+    setEditTypeByTime() {
+      const worktype = this.worktypes.find(w => w.id === this.worktype)
+      const hours = this.calculateHoursFromTime()
+      const inputType = worktype.work_input_types.find(w => w.hours === hours)
+      if (inputType) {
+        this.edittype = inputType.id
       } else {
+        // to prevent bugs, because worktype changes and hours gets changed in watch function
         this.edittype = 'manually'
-        this.timeToHour()
+        setTimeout(() => {
+          this.hours = hours
+        }, 10)
       }
     },
     hoursToTime() {
-      this.from = '08:00'
-      let minutes = (this.hours - Math.floor(this.hours)) * 60
-      this.to = Math.floor(8 + Number(this.hours)) + ':' + minutes.toFixed(0)
+      if (this.edittype === 'manually') {
+        this.from = '08:00'
+        let minutes = (this.hours - Math.floor(this.hours)) * 60
+        this.to = Math.floor(8 + Number(this.hours)) + ':' + minutes.toFixed(0)
+      } else {
+        this.from = '08:00'
+        let worktype = this.worktypes.find(w => w.id === this.worktype)
+        let edittype = worktype.work_input_types.find(w => w.id === this.edittype)
+        let minutes = (edittype.hours - Math.floor(edittype.hours)) * 60
+        this.to = Math.floor(8 + Number(edittype.hours)) + ':' + minutes.toFixed(0)
+      }
     },
-    timeToHour() {
+    calculateHoursFromTime() {
       let from = this.getDate(this.from)
       let to = this.getDate(this.to)
       let timeDiff = Math.abs(from.getTime() - to.getTime())
-      // to prevent bugs, because worktype changes and hours gets changed in watch function
-      setTimeout(() => {
-        this.hours = timeDiff / 1000 / 60 / 60
-      }, 10)
+      return timeDiff / 1000 / 60 / 60
     }
   },
   computed: {
@@ -271,6 +254,20 @@ export default {
       let day = date.getDay() === 0 ? 6 : date.getDay()
       day--
       return `${this.$store.getters.dayShortNames[day]}, ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+    },
+    edittypes() {
+      let worktype = this.worktypes.find(w => w.id === this.worktype)
+      if (!worktype) return []
+      if (worktype.manually) {
+        return [
+          ...worktype.work_input_types,
+          {
+            id: 'manually',
+            name: 'Manuell'
+          }
+        ]
+      }
+      return worktype.work_input_types
     }
   },
   watch: {
@@ -285,24 +282,15 @@ export default {
         this.lunch = this.timerecord.lunch
         this.dinner = this.timerecord.dinner
         this.comment = this.timerecord.comment
-        this.worktype = this.timerecord.worktype.name
-        this.setEdittypeByTime()
+        this.worktype = this.timerecord.worktype.id
+        this.setEditTypeByTime()
       } else {
         this.applyTimeSettings()
-        this.appliLocalStorageSettings()
+        this.applyLocalStorageSettings()
       }
     },
     edittype() {
-      if (this.edittype === 'full-day-short') {
-        this.from = this.settings.fullDayShortStart
-        this.to = this.settings.fullDayShortEnd
-      } else if (this.edittype === 'full-day-long') {
-        this.from = this.settings.fullDayLongStart
-        this.to = this.settings.fullDayLongEnd
-      } else if (this.edittype === 'manually') {
-        this.hours = localStorage.hours
-        this.hoursToTime()
-      }
+      this.hoursToTime()
     },
     hours() {
       if (this.edittype === 'manually') {
@@ -311,6 +299,9 @@ export default {
     },
     settings() {
       this.applyTimeSettings()
+    },
+    worktype() {
+      this.setEditTypeByTime()
     }
   }
 }

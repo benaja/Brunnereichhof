@@ -112,3 +112,5 @@ Route::resource('/beds', 'BedController');
 Route::resource('/reservations', 'ReservationController');
 
 Route::resource('/inventars', 'InventarController');
+
+Route::resource('/worktypes', 'WorktypeController');
