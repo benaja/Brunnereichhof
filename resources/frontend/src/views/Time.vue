@@ -16,14 +16,7 @@
           <template v-slot:activator="{ on }">
             <v-text-field v-on="on" v-model="formatedDate" readonly class="text-center pt-0"></v-text-field>
           </template>
-          <v-date-picker
-            v-model="date"
-            scrollable
-            first-day-of-week="1"
-            locale="ch-de"
-            @change="dateDialog = false"
-            show-week
-          ></v-date-picker>
+          <v-date-picker v-model="date" scrollable first-day-of-week="1" locale="ch-de" @change="dateDialog = false" show-week></v-date-picker>
         </v-dialog>
       </v-col>
       <v-col cols="2">
@@ -52,11 +45,7 @@
           ></day>
         </v-touch>
       </v-col>
-      <overview
-        v-if="isOverviewOpen"
-        @close="isOverviewOpen = false"
-        :url-worker-param="urlWorkerParam"
-      ></overview>
+      <overview v-if="isOverviewOpen" @close="isOverviewOpen = false" :url-worker-param="urlWorkerParam"></overview>
       <time-popup
         v-model="timePopupForm.isOpen"
         :date="timePopupForm.date"
@@ -73,11 +62,7 @@
     <v-row v-else wrap>
       <v-col cols="3" xl="2" class="py-0 px-0">
         <div class="overview-container">
-          <overview
-            @change="newDate => (date = newDate)"
-            ref="overview"
-            :url-worker-param="urlWorkerParam"
-          ></overview>
+          <overview @change="newDate => (date = newDate)" ref="overview" :url-worker-param="urlWorkerParam"></overview>
           <time-popup
             v-model="timePopupForm.isOpen"
             :date="timePopupForm.date"
@@ -97,22 +82,26 @@
         <v-row>
           <v-col cols="11" offset="1" class="day-labels">
             <div class="day-label" v-for="(day, index) of weekDays" :key="index">
-              <p class="text-center overline">{{ $moment(day.date).format('dd') }}</p>
-              <p class="text-center display-1">{{ $moment(day.date).format('DD')}}</p>
+              <p class="text-center overline mb-0">{{ $moment(day.date).format('dd') }}</p>
+              <p class="text-center display-1 mb-0">{{ $moment(day.date).format('DD') }}</p>
             </div>
+          </v-col>
+          <v-col cols="11" offset="1" class="pa-0">
+            <v-divider></v-divider>
           </v-col>
         </v-row>
         <v-row class="scroll-container">
+          <time-card ref="timeCard"></time-card>
           <v-col cols="1" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
-              <p class="text-right">{{ timeString(index)}}</p>
+              <p class="text-right">{{ timeString(index) }}</p>
             </div>
           </v-col>
           <v-col cols="11" class="py-0 pr-0">
             <div class="days">
               <div class="lines">
                 <div v-for="index in 24" :key="index" class="time-number">
-                  <v-divider></v-divider>
+                  <v-divider v-if="index !== 1"></v-divider>
                 </div>
               </div>
               <template v-for="(day, index) of weekDays">
@@ -122,7 +111,10 @@
                   v-model="day.hours"
                   :settings="settings"
                   @update="$refs.overview.getStats()"
-                  @add="date => openTimePopup({}, day)"
+                  @add="
+                    (selectedStartHour, mouseCoordinates, pixelPerHour) =>
+                      openTimePopup({}, day, index, selectedStartHour, mouseCoordinates, pixelPerHour)
+                  "
                   @edit="timerecord => openTimePopup(timerecord, day)"
                 ></day>
               </template>
@@ -138,13 +130,15 @@
 import Day from '@/components/Time/Day'
 import Overview from '@/components/Time/Overview'
 import TimePopup from '@/components/Time/TimePopup'
+import TimeCard from '@/components/Time/TimeCard'
 
 export default {
   name: 'TimeView',
   components: {
     Day,
     Overview,
-    TimePopup
+    TimePopup,
+    TimeCard
   },
   props: {
     workerId: {
@@ -210,11 +204,12 @@ export default {
           this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
         })
     },
-    openTimePopup(timerecord, day) {
-      this.timePopupForm.timerecord = timerecord
-      this.timePopupForm.isOpen = true
-      this.timePopupForm.day = day
-      this.timePopupForm.date = day.date
+    openTimePopup(timerecord, day, index, selectedHours, event, hoursPerPixel) {
+      // this.timePopupForm.timerecord = timerecord
+      // // this.timePopupForm.isOpen = true
+      // this.timePopupForm.day = day
+      // this.timePopupForm.date = day.date
+      this.$refs.timeCard.openNewTimerecord(day.date, index, event, hoursPerPixel)
     },
     timeString(index) {
       return index < 10 ? `0${index}:00` : `${index}:00`
@@ -269,19 +264,15 @@ export default {
 }
 
 .scroll-container {
-  max-height: calc(100vh - 64px);
+  max-height: calc(100vh - 138px);
   overflow-y: scroll;
+  position: relative;
 }
 
 .days {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 70px;
   position: relative;
-
-  // > div {
-  //   width: calc(100% / 7.01 - 1px);
-  // }
 }
 
 .day-labels {
@@ -290,6 +281,7 @@ export default {
 
 .day-label {
   width: calc(100% / 7.01);
+  height: 46px;
 }
 
 .lines {
@@ -298,10 +290,6 @@ export default {
   height: 100%;
   top: 0;
   left: -10px;
-}
-
-.time-numbers {
-  margin-top: 70px;
 }
 
 .day-name {

@@ -1,9 +1,8 @@
 <template>
   <div class="day">
     <v-divider vertical class="float-left"></v-divider>
-    <p class="date hidden-sm-and-down">{{ formatedDate }}</p>
     <div class="time-elements">
-      <div class="time-elements-container" @mouseup="openTimePopup">
+      <div class="time-elements-container" ref="timeElementsCointainer" @mouseup="openTimePopup">
         <time-element
           v-for="timerecord of value"
           :key="timerecord.id"
@@ -13,12 +12,7 @@
         ></time-element>
       </div>
     </div>
-    <v-btn
-      fab
-      color="primary"
-      class="overview-button hidden-md-and-up"
-      @click="$emit('openOveriew')"
-    >
+    <v-btn fab color="primary" class="overview-button hidden-md-and-up" @click="$emit('openOveriew')">
       <v-icon>assessment</v-icon>
     </v-btn>
   </div>
@@ -53,17 +47,17 @@ export default {
       this.isAddTimeOpen = true
     },
     openTimePopup(event) {
+      event.preventDefault()
       const elementsContainerRect = event.target.getBoundingClientRect()
-      console.log(event.clientY - elementsContainerRect.top)
-      // console.log(event)
+      const relativeHeight = event.clientY - elementsContainerRect.top
+      const hour = relativeHeight / this.pixelPerHour
+      const selectedStartHour = Math.floor(hour * 2) / 2
+      this.$emit('add', selectedStartHour, event, this.pixelPerHour)
     }
   },
   computed: {
-    formatedDate() {
-      let date = new Date(this.date)
-      let day = date.getDay() === 0 ? 7 : date.getDay()
-      day--
-      return `${this.$store.getters.dayShortNames[day]}, ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+    pixelPerHour() {
+      return this.$refs.timeElementsCointainer.clientHeight / 24
     }
   }
 }

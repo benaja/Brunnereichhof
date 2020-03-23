@@ -1,11 +1,5 @@
 <template>
-  <drag-it-dude
-    :class="['time-element', value.worktype.color]"
-    :style="{ height: difference * 4 + 'vh', top }"
-    ref="timeElement"
-    @dropped="save"
-    @dragging="onDrag"
-  >
+  <drag-it-dude :class="['time-element', value.worktype.color]" :style="{ height, top }" ref="timeElement" @dropped="save" @dragging="onDrag">
     <div class="time-element-content" @mouseup="edit">
       <p class="white--text ml-1">{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
     </div>
@@ -35,20 +29,22 @@ export default {
       lastPosition: 0,
       startHour: 0,
       top: 0,
-      hasDragged: false
+      height: 0,
+      hasDragged: false,
+      minStartHour: 0,
+      maxStartHour: 24
     }
   },
   mounted() {
     this.setStartHour()
     this.top = this.getPixelsFromTop() + 'px'
+    this.height = this.pixelPerHour * this.difference + 'px'
   },
   methods: {
     onDrag() {
-      let minStartHour = 4
-      let maxStartHour = 20
-      let hoursDiff = maxStartHour - minStartHour
+      let hoursDiff = this.maxStartHour - this.minStartHour
       let hoursPerPixel = hoursDiff / this.$refs.timeElement.elem.parentElement.clientHeight
-      this.startHour = minStartHour + hoursPerPixel * this.$refs.timeElement.top
+      this.startHour = this.minStartHour + hoursPerPixel * this.$refs.timeElement.top
       let difference = this.difference
       this.value.from = this.getTimeString(this.startHour)
       this.value.to = this.getTimeString(this.startHour + difference)
@@ -78,11 +74,7 @@ export default {
       }
     },
     getPixelsFromTop() {
-      let minStartHour = 4
-      let maxStartHour = 20
-      let hoursDiff = maxStartHour - minStartHour
-      let pixelPerHour = this.$refs.timeElement.elem.parentElement.clientHeight / hoursDiff
-      return (this.startHour - minStartHour) * pixelPerHour
+      return (this.startHour - this.minStartHour) * this.pixelPerHour
     },
     getDate(timeString) {
       let date = new Date()
@@ -141,6 +133,10 @@ export default {
       let hoursDiff = timeDiff / 1000 / 60 / 60
 
       return hoursDiff
+    },
+    pixelPerHour() {
+      let hoursDiff = this.maxStartHour - this.minStartHour
+      return this.$refs.timeElement.elem.parentElement.clientHeight / hoursDiff
     }
   },
   watch: {
