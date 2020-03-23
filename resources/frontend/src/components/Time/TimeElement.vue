@@ -1,42 +1,89 @@
 <template>
-  <!-- <div
-    :class="['time-element', { primary: value.worktype_id === 1 }, { 'yellow darken-3': value.worktype_id === 2}, {'red': value.worktype_id === 3 || value.worktype_id === 4}]"
-    :style="{height: difference * 4 + 'vh', top: startHour * 4 - 16 + 'vh'}"
-    @click="$emit('edit')"
-    @touchstart="start"
-    @mousedown="start"
-    @mouseup="end"
-    @mouseleave="end"
+  <drag-it-dude
+    :class="['time-element', value.worktype.color]"
+    :style="{ height: difference * 4 + 'vh', top }"
     ref="timeElement"
-  >-->
-  <div
+    @dropped="save"
+    @dragging="onDrag"
+  >
+    <div class="time-element-content" @mouseup="edit">
+      <p class="white--text ml-1">{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
+    </div>
+    <!-- <div
     :class="['time-element', value.worktype.color]"
     :style="{height: difference * 4 + 'vh', top: startHour * 4 - 16 + 'vh'}"
     @click="$emit('edit')"
     ref="timeElement"
-  >
-    <p
-      class="white--text ml-1"
-    >{{formatTime(value.from)}} - {{formatTime(value.to)}} ({{(difference).toFixed(2)}}h)</p>
-  </div>
+    >-->
+  </drag-it-dude>
 </template>
 
 <script>
+import DragItDude from 'vue-drag-it-dude'
+
 export default {
   name: 'TimeElement',
+  components: {
+    DragItDude
+  },
   props: {
-    value: Object
+    value: Object,
+    urlWorkerParam: String
   },
   data() {
     return {
       lastPosition: 0,
-      startHour: 0
+      startHour: 0,
+      top: 0,
+      hasDragged: false
     }
   },
   mounted() {
     this.setStartHour()
+    this.top = this.getPixelsFromTop() + 'px'
   },
   methods: {
+    onDrag() {
+      let minStartHour = 4
+      let maxStartHour = 20
+      let hoursDiff = maxStartHour - minStartHour
+      let hoursPerPixel = hoursDiff / this.$refs.timeElement.elem.parentElement.clientHeight
+      this.startHour = minStartHour + hoursPerPixel * this.$refs.timeElement.top
+      let difference = this.difference
+      this.value.from = this.getTimeString(this.startHour)
+      this.value.to = this.getTimeString(this.startHour + difference)
+      this.hasDragged = true
+    },
+    save() {
+      if (this.hasDragged) {
+        this.axios
+          .put(`/time/${this.value.id}${this.urlWorkerParam}`, {
+            ...this.value,
+            worktype: this.value.worktype.id
+          })
+          .then(() => {
+            this.$store.dispatch('alert', { text: 'Erfolgreich gespeichert' })
+          })
+          .catch(() => {
+            this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+          })
+          .finally(() => {
+            this.hasDragged = false
+          })
+      }
+    },
+    edit() {
+      if (!this.hasDragged) {
+        this.$emit('edit')
+      }
+    },
+    getPixelsFromTop() {
+      let minStartHour = 4
+      let maxStartHour = 20
+      let hoursDiff = maxStartHour - minStartHour
+      let pixelPerHour = this.$refs.timeElement.elem.parentElement.clientHeight / hoursDiff
+      return (this.startHour - minStartHour) * pixelPerHour
+    },
     getDate(timeString) {
       let date = new Date()
       let timeSplits = timeString.split(':')
@@ -107,12 +154,17 @@ export default {
 <style lang="scss" scoped>
 .time-element {
   position: absolute;
-  width: calc(100% - 8px);
+  width: 100%;
   height: 5vh;
   top: 0;
   left: 0;
   cursor: pointer;
   min-height: 2vh;
   user-select: none;
+  z-index: 2;
+}
+
+.time-element-content {
+  height: 100%;
 }
 </style>

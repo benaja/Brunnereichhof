@@ -1,19 +1,7 @@
 <template>
-  <time-type-form
-    :open="value && $store.getters.openPopups"
-    @save="save"
-    @cancel="cancel"
-    :saveButtonActive="allValid"
-    class="no-select"
-  >
-    <p class="font-weight-bold headline">{{formatedDate}}</p>
-    <v-select
-      label="Leistungsart"
-      v-model="worktype"
-      :items="worktypes"
-      item-text="name_de"
-      item-value="id"
-    ></v-select>
+  <time-type-form :open="value && $store.getters.openPopups" @save="save" @cancel="cancel" :saveButtonActive="allValid" class="no-select">
+    <p class="font-weight-bold headline">{{ formatedDate }}</p>
+    <v-select label="Leistungsart" v-model="worktype" :items="worktypes" item-text="name_de" item-value="id"></v-select>
     <v-select
       label="Erfassungsart"
       v-model="edittype"
@@ -25,14 +13,7 @@
     <div v-if="edittype !== 'manually'">
       <v-dialog v-model="timeDialogFrom" width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field
-            v-on="on"
-            v-model="from"
-            readonly
-            label="Zeit von"
-            :error-messages="rules.from()"
-            disabled
-          ></v-text-field>
+          <v-text-field v-on="on" v-model="from" readonly label="Zeit von" :error-messages="rules.from()" disabled></v-text-field>
         </template>
         <v-time-picker v-if="timeDialogFrom" v-model="from" format="24hr" disabled>
           <v-spacer></v-spacer>
@@ -276,8 +257,10 @@ export default {
     },
     timerecord() {
       if (this.timerecord.id) {
-        this.from = this.timerecord.from.slice(0, -3)
-        this.to = this.timerecord.to.slice(0, -3)
+        if (this.timerecord.from.length === 8) {
+          this.from = this.timerecord.from.slice(0, -3)
+          this.to = this.timerecord.to.slice(0, -3)
+        }
         this.breakfast = this.timerecord.breakfast
         this.lunch = this.timerecord.lunch
         this.dinner = this.timerecord.dinner

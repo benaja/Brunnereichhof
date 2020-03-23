@@ -1,17 +1,17 @@
 <template>
   <div class="day">
-    <p class="date hidden-sm-and-down">{{formatedDate}}</p>
-    <div class="hour" v-for="index in numbers" :key="index" @mouseup="$emit('add', date)">
-      <v-divider :class="{'mr-2': $store.getters.isMobile}"></v-divider>
-    </div>
-    <v-divider class="mr-2"></v-divider>
+    <v-divider vertical class="float-left"></v-divider>
+    <p class="date hidden-sm-and-down">{{ formatedDate }}</p>
     <div class="time-elements">
-      <time-element
-        v-for="timerecord of value"
-        :key="timerecord.id"
-        :value="timerecord"
-        @edit="$emit('edit', timerecord)"
-      ></time-element>
+      <div class="time-elements-container" @mouseup="openTimePopup">
+        <time-element
+          v-for="timerecord of value"
+          :key="timerecord.id"
+          :value="timerecord"
+          @edit="$emit('edit', timerecord)"
+          :url-worker-param="urlWorkerParam"
+        ></time-element>
+      </div>
     </div>
     <v-btn
       fab
@@ -35,7 +35,8 @@ export default {
   props: {
     date: String,
     settings: Object,
-    value: Array
+    value: Array,
+    urlWorkerParam: String
   },
   data() {
     return {
@@ -50,6 +51,11 @@ export default {
     edit(timerecord) {
       this.currentTimeRecord = timerecord
       this.isAddTimeOpen = true
+    },
+    openTimePopup(event) {
+      const elementsContainerRect = event.target.getBoundingClientRect()
+      console.log(event.clientY - elementsContainerRect.top)
+      // console.log(event)
     }
   },
   computed: {
@@ -67,12 +73,15 @@ export default {
 .day {
   position: relative;
   padding-top: 0.1px;
+  width: calc(100% / 7.01);
+  height: calc(50px * 24);
 }
 
 .hour {
-  height: 8vh;
+  height: 50px;
   cursor: pointer;
   user-select: none;
+  z-index: 5;
 }
 
 .overview-button {
@@ -88,5 +97,19 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.time-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.time-elements-container {
+  position: relative;
+  width: calc(100% - 8px);
+  height: 100%;
 }
 </style>
