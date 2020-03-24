@@ -78,12 +78,12 @@ export default {
       if (hoursToAdd >= 0.075 || hoursToAdd <= -0.075) {
         this.moving = true
         this.hasDragged = true
-        this.startHour += hoursToAdd
+        let minutes = (this.startHour + hoursToAdd) * 60
+        this.startHour = (Math.round(minutes / 5) * 5) / 60
         this.lastPosition = positionY
         let difference = this.difference
         this.value.from = this.getTimeString(this.startHour)
-        this.setStartHour()
-        this.value.to = this.getTimeString(this.startHour + difference, true)
+        this.value.to = this.getTimeString(this.startHour + difference)
         this.updateTimeElemenPosition()
       }
     },
@@ -117,7 +117,7 @@ export default {
           })
       }
     },
-    edit() {
+    edit(event) {
       if (!this.hasDragged) {
         this.$emit('edit')
         this.mousedown = false
@@ -145,14 +145,10 @@ export default {
       hours += minutes / 60
       this.startHour = hours
     },
-    getTimeString(time, dontRoundToFiveMinutes = false) {
+    getTimeString(time) {
       let hours = Math.floor(time)
       let minutes
-      if (dontRoundToFiveMinutes) {
-        minutes = Math.round((time - Math.floor(time)) * 60)
-      } else {
-        minutes = Math.round(((time - Math.floor(time)) * 60) / 5) * 5
-      }
+      minutes = Math.round((time - Math.floor(time)) * 60)
       if (minutes === 60) {
         minutes = 0
         hours++

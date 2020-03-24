@@ -2,7 +2,7 @@
   <div class="day">
     <v-divider vertical class="float-left"></v-divider>
     <div class="time-elements">
-      <div class="time-elements-container" ref="timeElementsCointainer" @mouseup="openTimePopup">
+      <div class="time-elements-container" ref="timeElementsCointainer" @click.self="openTimePopup">
         <time-element
           v-for="timerecord of value"
           :key="timerecord.id"
