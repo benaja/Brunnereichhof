@@ -1,5 +1,14 @@
 export default [
   {
+    version: '1.8',
+    changes: [
+      `In den Einstellungen kann für jede Leistungsart die Erfassungsarten angepasst werden.`,
+      `Überarbeitung des Designs vom Erfassen der Zeit für die Hofmitarbeiter.`,
+      `Die Zeit-Elemente können per Drag-n-Drp verschoben werden.`,
+      `Es können meherere Zeit-Elemente am gleichen Tag erstellt werden.`
+    ]
+  },
+  {
     version: '1.7',
     changes: [
       `Abweichende Rechnungsadresse für Kunden erfassen.`,

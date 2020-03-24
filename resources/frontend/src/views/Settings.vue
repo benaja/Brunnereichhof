@@ -6,38 +6,6 @@
       <v-col cols="12">
         <edit-work-types />
       </v-col>
-      <v-col cols="12" sm6 class="px-2">
-        <v-text-field
-          label="Ganzer Tag Winter Startzeit"
-          v-model="settings.fullDayShortStart"
-          @change="update('fullDayShortStart')"
-          :readonly="!isUserAllowedToEdit"
-        />
-      </v-col>
-      <v-col cols="12" sm6 class="px-2">
-        <v-text-field
-          label="Ganzer Tag Winter Endzeit"
-          v-model="settings.fullDayShortEnd"
-          @change="update('fullDayShortEnd')"
-          :readonly="!isUserAllowedToEdit"
-        />
-      </v-col>
-      <v-col cols="12" sm6 class="px-2">
-        <v-text-field
-          label="Ganzer Tag Sommer Startzeit"
-          v-model="settings.fullDayLongStart"
-          @change="update('fullDayLongStart')"
-          :readonly="!isUserAllowedToEdit"
-        />
-      </v-col>
-      <v-col cols="12" sm6 class="px-2">
-        <v-text-field
-          label="Ganzer Tag Sommer Endzeit"
-          v-model="settings.fullDayLongEnd"
-          @change="update('fullDayLongEnd')"
-          :readonly="!isUserAllowedToEdit"
-        />
-      </v-col>
       <v-col cols="12" class="mt-4">
         <h2>Stundenangaben der Kunden</h2>
       </v-col>

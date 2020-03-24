@@ -7,12 +7,17 @@
           v-for="timerecord of value"
           :key="timerecord.id"
           :value="timerecord"
-          @edit="$emit('edit', timerecord)"
+          @edit="$emit('update', {timerecord, pixelPerHour})"
           :url-worker-param="urlWorkerParam"
         ></time-element>
       </div>
     </div>
-    <v-btn fab color="primary" class="overview-button hidden-md-and-up" @click="$emit('openOveriew')">
+    <v-btn
+      fab
+      color="primary"
+      class="overview-button hidden-md-and-up"
+      @click="$emit('openOveriew')"
+    >
       <v-icon>assessment</v-icon>
     </v-btn>
   </div>
@@ -52,7 +57,7 @@ export default {
       const relativeHeight = event.clientY - elementsContainerRect.top
       const hour = relativeHeight / this.pixelPerHour
       const selectedStartHour = Math.floor(hour * 2) / 2
-      this.$emit('add', selectedStartHour, event, this.pixelPerHour)
+      this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
     }
   },
   computed: {
@@ -80,8 +85,9 @@ export default {
 
 .overview-button {
   position: fixed;
-  bottom: 10px;
   right: 10px;
+  bottom: 10px;
+  z-index: 5;
 }
 
 .date {
@@ -105,5 +111,12 @@ export default {
   position: relative;
   width: calc(100% - 8px);
   height: 100%;
+  margin-left: 4px;
+}
+
+@media only screen and (max-width: 960px) {
+  .day {
+    width: 100%;
+  }
 }
 </style>

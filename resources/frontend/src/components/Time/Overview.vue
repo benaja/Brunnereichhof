@@ -1,45 +1,55 @@
 <template>
-  <div :class="['overview', {desktop: !$store.getters.isMobile}]">
-    <v-date-picker
-      v-model="date"
-      first-day-of-week="1"
-      :type="type"
-      width="100%"
-      locale="ch-de"
-      class="elevation-0 datepicker"
-      show-week
-    ></v-date-picker>
-    <p class="text-center hidden-md-and-up">
-      <v-btn :color="monthColor" depressed @click="type = 'month'">Monat</v-btn>
-      <v-btn :color="weekColor" depressed @click="type = 'date'">Woche</v-btn>
-    </p>
-    <v-divider></v-divider>
-    <div class="px-3 pt-3 hidden-md-and-up">
-      <h2 class="mb-1">Bezogene Stunden {{type === 'month' ? 'diesen Monat' : 'diese Woche'}}</h2>
-      <p class="mb-0">Total: {{totalHours}}h</p>
-      <p class="mb-0">Ferien: {{holidayHours}}h</p>
+  <transition name="move">
+    <div
+      :class="['overview', {desktop: !$vuetify.breakpoint.smAndDown}]"
+      v-if="value || !$vuetify.breakpoint.smAndDown"
+    >
+      <div class="header py-3 hidden-md-and-up">
+        <v-btn icon class="ml-3" @click="$emit('input', false)">
+          <v-icon>close</v-icon>
+        </v-btn>
+      </div>
+      <v-divider class="hidden-md-and-up"></v-divider>
+      <div class="content">
+        <v-date-picker
+          v-model="date"
+          first-day-of-week="1"
+          :type="type"
+          width="100%"
+          locale="ch-de"
+          class="elevation-0 datepicker"
+          show-week
+          no-title
+        ></v-date-picker>
+        <p class="text-center hidden-md-and-up">
+          <v-btn :color="monthColor" depressed @click="type = 'month'">Monat</v-btn>
+          <v-btn :color="weekColor" depressed @click="type = 'date'">Woche</v-btn>
+        </p>
+        <v-divider></v-divider>
+        <div class="px-3 pt-3 hidden-md-and-up">
+          <h2 class="mb-1">Bezogene Stunden {{type === 'month' ? 'diesen Monat' : 'diese Woche'}}</h2>
+          <p class="mb-0">Total: {{totalHours}}h</p>
+          <p class="mb-0">Ferien: {{holidayHours}}h</p>
+        </div>
+        <div class="pl-6 pt-3 hidden-sm-and-down">
+          <h2 class="mb-1">Bezogene Stunden</h2>
+          <h3>Diese Woche</h3>
+          <p>Total: {{totalHours}}h</p>
+          <h3>Diesen Monat</h3>
+          <p class="mb-0">Total: {{totalHoursMonth}}h</p>
+          <p class="mb-0">Ferien: {{holidayHoursMonth}}h</p>
+        </div>
+      </div>
     </div>
-    <div class="px-3 pt-3 hidden-sm-and-down">
-      <h2 class="mb-1">Bezogene Stunden</h2>
-      <h3>Diese Woche</h3>
-      <p>Total: {{totalHours}}h</p>
-      <h3>Diesen Monat</h3>
-      <p class="mb-0">Total: {{totalHoursMonth}}h</p>
-      <p class="mb-0">Ferien: {{holidayHoursMonth}}h</p>
-    </div>
-    <p class="text-center hidden-md-and-up">
-      <v-btn @click="$emit('close')" color="red" dark>
-        <v-icon class="mr-2">close</v-icon>Schliessen
-      </v-btn>
-    </p>
-  </div>
+  </transition>
 </template>
 
 <script>
 export default {
   name: 'Overview',
   props: {
-    urlWorkerParam: String
+    urlWorkerParam: String,
+    value: Boolean
   },
   data() {
     return {
@@ -83,9 +93,6 @@ export default {
     date() {
       this.$emit('change', this.date)
       this.getStats()
-    },
-    type() {
-      // if (this.type === 'date') this.date = new Date().toISOString().substr(0, 10)
     }
   }
 }
@@ -93,32 +100,43 @@ export default {
 
 <style lang="scss" scoped>
 .overview {
-  position: absolute;
+  position: fixed;
   width: 100%;
   min-height: 100%;
   top: 0;
   left: 0;
   background-color: white;
   box-shadow: lightgray 0 0 10px;
-
-  .datepicker {
-    margin-top: 56px;
-  }
+  z-index: 10;
 
   &.desktop {
+    z-index: 1;
+    position: absolute;
+
     .datepicker {
       margin-top: 0;
     }
   }
 }
 
+.header {
+  height: 60px;
+}
+
+.content {
+  max-height: calc(100vh - 61px);
+  overflow-y: auto;
+}
+
 p {
   font-size: 1.2rem;
 }
-
-.close-button {
-  position: absolute;
-  bottom: 0;
-  width: 100vw;
+.move-enter-active,
+.move-leave-active {
+  transition: translateY(0);
+  transition-duration: 0.3s;
+}
+.move-enter, .move-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  transform: translateY(130vh);
 }
 </style>

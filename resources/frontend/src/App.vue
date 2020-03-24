@@ -6,7 +6,13 @@
         <NavigationBar></NavigationBar>
         <router-view />
       </div>
-      <alert v-model="alert.visible" :text="alert.text"></alert>
+      <div class="alerts" v-if="$store">
+        <v-alert
+          v-for="alert of alerts"
+          :key="alert.key"
+          :type="alert.type || 'success'"
+        >{{alert.text}}</v-alert>
+      </div>
     </v-app>
   </div>
 </template>
@@ -14,18 +20,16 @@
 <script>
 import NavigationBar from '@/components/NavigationBar'
 import LoadingPage from '@/components/general/LoadingPage'
-import Alert from '@/components/general/Alert'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'app',
   components: {
     NavigationBar,
-    LoadingPage,
-    Alert
+    LoadingPage
   },
   computed: {
-    ...mapGetters(['alert'])
+    ...mapGetters(['alerts'])
   }
 }
 </script>
@@ -41,5 +45,12 @@ body {
 
 .no-select {
   user-select: none;
+}
+
+.alerts {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
 }
 </style>

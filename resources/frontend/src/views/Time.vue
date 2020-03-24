@@ -1,81 +1,82 @@
 <template>
   <div class="time-container">
-    <v-row wrap v-if="$store.getters.isMobile">
-      <v-col cols="12">
-        <p class="text-center mt-0 font-weight-bold day-name">{{ dayName }}</p>
-      </v-col>
+    <v-row wrap v-if="$vuetify.breakpoint.smAndDown" class="pa-0 ma-0">
       <v-col cols="2">
-        <p class="ma-0 text-center">
+        <p class="mx-0 mt-4 text-center">
           <v-btn text icon @click="previousDay">
             <v-icon>keyboard_arrow_left</v-icon>
           </v-btn>
         </p>
       </v-col>
-      <v-col cols="8" class="text-center">
+      <v-col cols="8">
         <v-dialog v-model="dateDialog" width="290px" class="text-center">
           <template v-slot:activator="{ on }">
-            <v-text-field v-on="on" v-model="formatedDate" readonly class="text-center pt-0"></v-text-field>
+            <div v-on="on" class="mobile-day-label">
+              <p class="text-center overline mb-0">{{ $moment(date).format('dddd') }}</p>
+              <p class="text-center display-1 mb-0">{{ $moment(date).format('DD') }}</p>
+              <p class="text-center overline mb-0">{{ $moment(date).format('MMM') }}</p>
+            </div>
           </template>
-          <v-date-picker v-model="date" scrollable first-day-of-week="1" locale="ch-de" @change="dateDialog = false" show-week></v-date-picker>
+          <v-date-picker
+            v-model="date"
+            scrollable
+            first-day-of-week="1"
+            locale="ch-de"
+            @change="dateDialog = false"
+            show-week
+          ></v-date-picker>
         </v-dialog>
       </v-col>
       <v-col cols="2">
-        <p class="ma-0 text-center">
+        <p class="mx-0 mt-4 text-center">
           <v-btn text icon @click="nextDay">
             <v-icon>keyboard_arrow_right</v-icon>
           </v-btn>
         </p>
       </v-col>
-      <v-col cols="2">
-        <div v-for="index in 24" :key="index" class="time">
-          <p class="text-right pr-3">{{ index }}:00</p>
-        </div>
+      <v-col cols="12" class="pa-0">
+        <v-divider></v-divider>
       </v-col>
-      <v-col cols="10">
-        <v-touch @swipeleft="nextDay" @swiperight="previousDay">
-          <day
-            v-if="weekDays.length > 0"
-            :date="date"
-            v-model="weekDays[0].hours"
-            :settings="settings"
-            @add="date => openTimePopup({}, weekDays[0])"
-            @edit="timerecord => openTimePopup(timerecord, weekDays[0])"
-            @openOveriew="isOverviewOpen = true"
-            :url-worker-param="urlWorkerParam"
-          ></day>
-        </v-touch>
+      <v-col cols="12" class="py-0">
+        <v-row class="scroll-container" ref="scrollContainer">
+          <v-col cols="2" class="time-numbers py-0">
+            <div v-for="index in 23" :key="index" class="time-number">
+              <p class="text-right">{{ timeString(index) }}</p>
+            </div>
+          </v-col>
+          <v-col cols="10" class="py-0 pr-0">
+            <v-touch @swipeleft="nextDay" @swiperight="previousDay">
+              <div class="days">
+                <div class="lines">
+                  <div v-for="index in 24" :key="index" class="time-number">
+                    <v-divider v-if="index !== 1"></v-divider>
+                  </div>
+                </div>
+                <day
+                  v-if="weekDays.length > 0"
+                  :date="date"
+                  v-model="weekDays[0].hours"
+                  :settings="settings"
+                  @update="props => openTimePopup({day: weekDays[0], ...props})"
+                  @openOveriew="isOverviewOpen = true"
+                  :url-worker-param="urlWorkerParam"
+                ></day>
+              </div>
+            </v-touch>
+          </v-col>
+        </v-row>
       </v-col>
-      <overview v-if="isOverviewOpen" @close="isOverviewOpen = false" :url-worker-param="urlWorkerParam"></overview>
-      <time-popup
-        v-model="timePopupForm.isOpen"
-        :date="timePopupForm.date"
-        :settings="settings"
-        :timerecord="timePopupForm.timerecord"
-        @add="
-          newTimerecords => {
-            timePopupForm.day.hours = newTimerecords
-          }
-        "
-        :url-worker-param="urlWorkerParam"
-      />
+      <overview v-model="isOverviewOpen" :url-worker-param="urlWorkerParam"></overview>
+      <time-popup ref="timeCard" :url-worker-param="urlWorkerParam"></time-popup>
     </v-row>
     <v-row v-else wrap>
       <v-col cols="3" xl="2" class="py-0 px-0">
         <div class="overview-container">
-          <overview @change="newDate => (date = newDate)" ref="overview" :url-worker-param="urlWorkerParam"></overview>
-          <time-popup
-            v-model="timePopupForm.isOpen"
-            :date="timePopupForm.date"
-            :settings="settings"
-            :timerecord="timePopupForm.timerecord"
-            @add="
-              newTimerecords => {
-                timePopupForm.day.hours = newTimerecords
-                $refs.overview.getStats()
-              }
-            "
+          <overview
+            @change="newDate => (date = newDate)"
+            ref="overview"
             :url-worker-param="urlWorkerParam"
-          />
+          ></overview>
         </div>
       </v-col>
       <v-col cols="9" xl="10" class="py-0">
@@ -90,8 +91,12 @@
             <v-divider></v-divider>
           </v-col>
         </v-row>
-        <v-row class="scroll-container">
-          <time-card ref="timeCard"></time-card>
+        <v-row class="scroll-container" ref="scrollContainer">
+          <time-card
+            ref="timeCard"
+            :url-worker-param="urlWorkerParam"
+            @updated="$refs.overview.getStats()"
+          ></time-card>
           <v-col cols="1" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
               <p class="text-right">{{ timeString(index) }}</p>
@@ -110,12 +115,8 @@
                   :date="new Date(day.date).toISOString().substr(0, 10)"
                   v-model="day.hours"
                   :settings="settings"
-                  @update="$refs.overview.getStats()"
-                  @add="
-                    (selectedStartHour, mouseCoordinates, pixelPerHour) =>
-                      openTimePopup({}, day, index, selectedStartHour, mouseCoordinates, pixelPerHour)
-                  "
-                  @edit="timerecord => openTimePopup(timerecord, day)"
+                  @update="props => openTimePopup({day, index, ...props})"
+                  :url-worker-param="urlWorkerParam"
                 ></day>
               </template>
             </div>
@@ -173,6 +174,7 @@ export default {
       })
     this.date = new Date().toISOString().substr(0, 10)
     this.getDay()
+    this.$refs.scrollContainer.scroll(0, 270)
   },
   methods: {
     nextDay() {
@@ -204,12 +206,8 @@ export default {
           this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
         })
     },
-    openTimePopup(timerecord, day, index, selectedHours, event, hoursPerPixel) {
-      // this.timePopupForm.timerecord = timerecord
-      // // this.timePopupForm.isOpen = true
-      // this.timePopupForm.day = day
-      // this.timePopupForm.date = day.date
-      this.$refs.timeCard.openNewTimerecord(day.date, index, event, hoursPerPixel)
+    openTimePopup(props) {
+      this.$refs.timeCard.openNewTimerecord(props)
     },
     timeString(index) {
       return index < 10 ? `0${index}:00` : `${index}:00`
@@ -240,10 +238,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.time-container {
-  padding: 0 5px;
-}
-
 .time-number {
   height: 50px;
   position: relative;
@@ -295,6 +289,16 @@ export default {
 .day-name {
   margin-top: 10px;
   margin-bottom: -12px;
+}
+
+.mobile-day-label {
+  height: 70px;
+}
+
+@media only screen and (max-width: 960px) {
+  .scroll-container {
+    max-height: calc(100vh - 160px);
+  }
 }
 </style>
 

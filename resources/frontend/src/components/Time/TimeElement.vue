@@ -1,7 +1,16 @@
 <template>
-  <drag-it-dude :class="['time-element', value.worktype.color]" :style="{ height, top }" ref="timeElement" @dropped="save" @dragging="onDrag">
-    <div class="time-element-content" @mouseup="edit">
-      <p class="white--text ml-1">{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
+  <drag-it-dude
+    v-if="!hide"
+    :class="['time-element', value.worktype.color]"
+    :style="{ height, top }"
+    ref="timeElement"
+    @dropped="save"
+    @dragging="onDrag"
+  >
+    <div class="time-element-content" @click="edit">
+      <p
+        class="white--text ml-1"
+      >{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
     </div>
     <!-- <div
     :class="['time-element', value.worktype.color]"
@@ -22,7 +31,10 @@ export default {
   },
   props: {
     value: Object,
-    urlWorkerParam: String
+    urlWorkerParam: {
+      type: String,
+      default: ''
+    }
   },
   data() {
     return {
@@ -32,23 +44,28 @@ export default {
       height: 0,
       hasDragged: false,
       minStartHour: 0,
-      maxStartHour: 24
+      maxStartHour: 24,
+      origialValue: {},
+      hide: false,
+      mousedown: false
     }
   },
   mounted() {
-    this.setStartHour()
-    this.top = this.getPixelsFromTop() + 'px'
-    this.height = this.pixelPerHour * this.difference + 'px'
+    this.updateTimeElemenPosition()
+    this.origialValue = { ...this.value }
   },
   methods: {
     onDrag() {
-      let hoursDiff = this.maxStartHour - this.minStartHour
-      let hoursPerPixel = hoursDiff / this.$refs.timeElement.elem.parentElement.clientHeight
-      this.startHour = this.minStartHour + hoursPerPixel * this.$refs.timeElement.top
-      let difference = this.difference
-      this.value.from = this.getTimeString(this.startHour)
-      this.value.to = this.getTimeString(this.startHour + difference)
-      this.hasDragged = true
+      // next tick for prevent bug that the timeElement.top can be 0
+      this.$nextTick(() => {
+        let hoursDiff = this.maxStartHour - this.minStartHour
+        let hoursPerPixel = hoursDiff / this.$refs.timeElement.elem.parentElement.clientHeight
+        this.startHour = this.minStartHour + hoursPerPixel * this.$refs.timeElement.top
+        let difference = this.difference
+        this.value.from = this.getTimeString(this.startHour)
+        this.value.to = this.getTimeString(this.startHour + difference)
+        if (this.value.from !== this.formatTime(this.origialValue.from)) this.hasDragged = true
+      })
     },
     save() {
       if (this.hasDragged) {
@@ -59,9 +76,21 @@ export default {
           })
           .then(() => {
             this.$store.dispatch('alert', { text: 'Erfolgreich gespeichert' })
+            this.origialValue = { ...this.value }
           })
-          .catch(() => {
-            this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+          .catch(error => {
+            if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
+              this.value.from = this.origialValue.from
+              this.value.to = this.origialValue.to
+              this.updateTimeElemenPosition()
+              this.hide = true
+              this.$nextTick(() => {
+                this.hide = false
+              })
+              this.$store.dispatch('alert', { text: 'Kollision mit einem anderen Eintrag', type: 'error' })
+            } else {
+              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+            }
           })
           .finally(() => {
             this.hasDragged = false
@@ -71,6 +100,7 @@ export default {
     edit() {
       if (!this.hasDragged) {
         this.$emit('edit')
+        this.mousedown = false
       }
     },
     getPixelsFromTop() {
@@ -95,23 +125,6 @@ export default {
       hours += minutes / 60
       this.startHour = hours
     },
-    start() {
-      this.lastPosition = event.clientY
-      this.$refs.timeElement.addEventListener('mousemove', this.move)
-    },
-    end() {
-      this.$refs.timeElement.removeEventListener('mousemove', this.move)
-    },
-    move() {
-      let hoursToAdd = (event.clientY - this.lastPosition) / (window.innerHeight / 25)
-      if (hoursToAdd >= 0.075 || hoursToAdd <= -0.075) {
-        this.startHour += hoursToAdd
-        this.lastPosition = event.clientY
-        let difference = this.difference
-        this.value.from = this.getTimeString(this.startHour)
-        this.value.to = this.getTimeString(this.startHour + difference)
-      }
-    },
     getTimeString(time) {
       let hours = Math.floor(time)
       let minutes = Math.round(((time - Math.floor(time)) * 60) / 5) * 5
@@ -122,6 +135,11 @@ export default {
       let formatedTimeFrom = hours >= 10 ? `${hours}:` : `0${hours}:`
       formatedTimeFrom += minutes >= 10 ? minutes : `0${minutes}`
       return formatedTimeFrom
+    },
+    updateTimeElemenPosition() {
+      this.setStartHour()
+      this.top = this.getPixelsFromTop() + 'px'
+      this.height = this.pixelPerHour * this.difference + 'px'
     }
   },
   computed: {
@@ -141,7 +159,8 @@ export default {
   },
   watch: {
     value() {
-      this.setStartHour()
+      this.updateTimeElemenPosition()
+      this.origialValue = { ...this.value }
     }
   }
 }
