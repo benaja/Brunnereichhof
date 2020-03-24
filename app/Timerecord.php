@@ -28,6 +28,11 @@ class Timerecord extends Model
         return $this->hasMany(Hour::class);
     }
 
+    public function workInputType()
+    {
+        return $this->hasMany(WorkInputType::class);
+    }
+
     public function totalHours()
     {
         $total = 0;

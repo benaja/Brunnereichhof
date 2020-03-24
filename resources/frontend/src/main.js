@@ -6,19 +6,19 @@ import axios from './axios'
 import moment from 'moment'
 import VueAxios from 'vue-axios'
 import VueSweetalert2 from 'vue-sweetalert2'
-import VueTouch from 'vue-touch'
 import EditField from '@/components/general/EditField'
 import Vuetify from 'vuetify'
 import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
+import Vue2TouchEvents from 'vue2-touch-events'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.use(VueSweetalert2)
-Vue.use(VueTouch)
 Vue.use(chartist)
+Vue.use(Vue2TouchEvents)
 
-moment.lang('de-ch')
+moment.locale('de-ch')
 Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)
 Vue.router = router

@@ -113,7 +113,8 @@ export default new Vuex.Store({
     allEmployees: [],
     employeesAndGuests: [],
     roles: [],
-    authorizationRules: []
+    authorizationRules: [],
+    alerts: []
   },
   mutations: {
     isMobile(state, isMobile) {
@@ -172,6 +173,12 @@ export default new Vuex.Store({
       } else {
         state[properties.getter][properties.value] = properties.items
       }
+    },
+    addAlert(state, alert) {
+      state.alerts.push(alert)
+    },
+    removeAlert(state) {
+      state.alerts.shift()
     }
   },
   getters: {
@@ -207,7 +214,8 @@ export default new Vuex.Store({
     employeesWithGuests: state => state.employeesWithGuests,
     guests: state => state.guests,
     roles: state => state.roles,
-    authorizationRules: state => state.authorizationRules
+    authorizationRules: state => state.authorizationRules,
+    alerts: state => state.alerts
   },
   actions: {
     closeAllPopups({ commit }) {
@@ -260,6 +268,16 @@ export default new Vuex.Store({
     },
     resetRooms(context) {
       resetContent(context, 'rooms')
+    },
+    alert({ commit }, alert, time = 3) {
+      commit('addAlert', {
+        ...alert,
+        visible: true,
+        key: Math.random()
+      })
+      setTimeout(() => {
+        commit('removeAlert')
+      }, time * 1000)
     }
   }
 })
