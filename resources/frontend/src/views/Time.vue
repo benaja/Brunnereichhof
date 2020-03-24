@@ -34,11 +34,11 @@
         <v-row class="scroll-container" ref="scrollContainer" :style="{ overflowY: isScrolling ? 'hidden' : 'auto' }">
           <v-col cols="2" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
-              <p class="text-right">{{ timeString(index) }}</p>
+              <p class="text-right caption">{{ timeString(index) }}</p>
             </div>
           </v-col>
           <v-col cols="10" class="py-0 pr-0">
-            <v-touch @swipeleft="nextDay" @swiperight="previousDay">
+            <v-touch v-touch:swipe.left="nextDay" v-touch:swipe.right="previousDay">
               <div class="days">
                 <div class="lines">
                   <div v-for="index in 24" :key="index" class="time-number">

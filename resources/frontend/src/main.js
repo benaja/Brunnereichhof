@@ -6,7 +6,6 @@ import axios from './axios'
 import moment from 'moment'
 import VueAxios from 'vue-axios'
 import VueSweetalert2 from 'vue-sweetalert2'
-import VueTouch from 'vue-touch'
 import EditField from '@/components/general/EditField'
 import Vuetify from 'vuetify'
 import chartist from 'vue-chartist'
@@ -16,7 +15,6 @@ import Vue2TouchEvents from 'vue2-touch-events'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.use(VueSweetalert2)
-Vue.use(VueTouch)
 Vue.use(chartist)
 Vue.use(Vue2TouchEvents)
 
@@ -25,10 +23,6 @@ Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)
 Vue.router = router
 Vue.store = store
-
-VueTouch.config.swipe = {
-  direction: 'horizontal'
-}
 
 Vue.use(require('@websanova/vue-auth'), {
   auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
