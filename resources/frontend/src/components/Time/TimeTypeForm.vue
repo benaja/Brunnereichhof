@@ -10,13 +10,7 @@
             <v-btn icon small class="ml-3 mt-1" @click="$emit('deleteTimerecord')" v-if="edit">
               <v-icon>delete</v-icon>
             </v-btn>
-            <v-btn
-              color="primary"
-              depressed
-              medium
-              class="float-right mr-3"
-              @click="$emit('save')"
-            >{{ edit ? 'Aktualisieren' : 'Speichern' }}</v-btn>
+            <v-btn color="primary" depressed medium class="float-right mr-3" @click="$emit('save')">{{ edit ? 'Aktualisieren' : 'Speichern' }}</v-btn>
           </div>
           <v-divider></v-divider>
           <div class="pa-3 content">
@@ -60,6 +54,7 @@ export default {
 
 .content {
   max-height: calc(100vh - 60px);
+  max-height: calc(var(--vh, 1vh) * 100 - 60px);
   overflow-y: auto;
 }
 

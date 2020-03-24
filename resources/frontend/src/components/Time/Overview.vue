@@ -1,9 +1,6 @@
 <template>
   <transition name="move">
-    <div
-      :class="['overview', {desktop: !$vuetify.breakpoint.smAndDown}]"
-      v-if="value || !$vuetify.breakpoint.smAndDown"
-    >
+    <div :class="['overview', { desktop: !$vuetify.breakpoint.smAndDown }]" v-if="value || !$vuetify.breakpoint.smAndDown">
       <div class="header py-3 hidden-md-and-up">
         <v-btn icon class="ml-3" @click="$emit('input', false)">
           <v-icon>close</v-icon>
@@ -27,17 +24,17 @@
         </p>
         <v-divider></v-divider>
         <div class="px-3 pt-3 hidden-md-and-up">
-          <h2 class="mb-1">Bezogene Stunden {{type === 'month' ? 'diesen Monat' : 'diese Woche'}}</h2>
-          <p class="mb-0">Total: {{totalHours}}h</p>
-          <p class="mb-0">Ferien: {{holidayHours}}h</p>
+          <h2 class="mb-1">Bezogene Stunden {{ type === 'month' ? 'diesen Monat' : 'diese Woche' }}</h2>
+          <p class="mb-0">Total: {{ totalHours }}h</p>
+          <p class="mb-0">Ferien: {{ holidayHours }}h</p>
         </div>
         <div class="pl-6 pt-3 hidden-sm-and-down">
           <h2 class="mb-1">Bezogene Stunden</h2>
           <h3>Diese Woche</h3>
-          <p>Total: {{totalHours}}h</p>
+          <p>Total: {{ totalHours }}h</p>
           <h3>Diesen Monat</h3>
-          <p class="mb-0">Total: {{totalHoursMonth}}h</p>
-          <p class="mb-0">Ferien: {{holidayHoursMonth}}h</p>
+          <p class="mb-0">Total: {{ totalHoursMonth }}h</p>
+          <p class="mb-0">Ferien: {{ holidayHoursMonth }}h</p>
         </div>
       </div>
     </div>
@@ -125,6 +122,7 @@ export default {
 
 .content {
   max-height: calc(100vh - 61px);
+  max-height: calc(var(--vh, 1vh) * 100 - 61px);
   overflow-y: auto;
 }
 

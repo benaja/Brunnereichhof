@@ -17,14 +17,7 @@
               <p class="text-center overline mb-0">{{ $moment(date).format('MMM') }}</p>
             </div>
           </template>
-          <v-date-picker
-            v-model="date"
-            scrollable
-            first-day-of-week="1"
-            locale="ch-de"
-            @change="dateDialog = false"
-            show-week
-          ></v-date-picker>
+          <v-date-picker v-model="date" scrollable first-day-of-week="1" locale="ch-de" @change="dateDialog = false" show-week></v-date-picker>
         </v-dialog>
       </v-col>
       <v-col cols="2">
@@ -57,7 +50,7 @@
                   :date="date"
                   v-model="weekDays[0].hours"
                   :settings="settings"
-                  @update="props => openTimePopup({day: weekDays[0], ...props})"
+                  @update="props => openTimePopup({ day: weekDays[0], ...props })"
                   @openOveriew="isOverviewOpen = true"
                   :url-worker-param="urlWorkerParam"
                 ></day>
@@ -72,11 +65,7 @@
     <v-row v-else wrap>
       <v-col cols="3" xl="2" class="py-0 px-0">
         <div class="overview-container">
-          <overview
-            @change="newDate => (date = newDate)"
-            ref="overview"
-            :url-worker-param="urlWorkerParam"
-          ></overview>
+          <overview @change="newDate => (date = newDate)" ref="overview" :url-worker-param="urlWorkerParam"></overview>
         </div>
       </v-col>
       <v-col cols="9" xl="10" class="py-0">
@@ -92,11 +81,7 @@
           </v-col>
         </v-row>
         <v-row class="scroll-container" ref="scrollContainer">
-          <time-card
-            ref="timeCard"
-            :url-worker-param="urlWorkerParam"
-            @updated="$refs.overview.getStats()"
-          ></time-card>
+          <time-card ref="timeCard" :url-worker-param="urlWorkerParam" @updated="$refs.overview.getStats()"></time-card>
           <v-col cols="1" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
               <p class="text-right">{{ timeString(index) }}</p>
@@ -115,7 +100,7 @@
                   :date="new Date(day.date).toISOString().substr(0, 10)"
                   v-model="day.hours"
                   :settings="settings"
-                  @update="props => openTimePopup({day, index, ...props})"
+                  @update="props => openTimePopup({ day, index, ...props })"
                   :url-worker-param="urlWorkerParam"
                 ></day>
               </template>
@@ -255,10 +240,12 @@ export default {
   position: relative;
   width: 100%;
   height: calc(100vh - 64px);
+  max-height: calc(var(--vh, 1vh) * 100 - 64px);
 }
 
 .scroll-container {
   max-height: calc(100vh - 138px);
+  max-height: calc(var(--vh, 1vh) * 100 - 138px);
   overflow-y: scroll;
   position: relative;
 }
@@ -298,6 +285,7 @@ export default {
 @media only screen and (max-width: 960px) {
   .scroll-container {
     max-height: calc(100vh - 160px);
+    max-height: calc(var(--vh, 1vh) * 100 - 160px);
   }
 }
 </style>

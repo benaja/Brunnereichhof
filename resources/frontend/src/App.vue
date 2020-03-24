@@ -7,11 +7,7 @@
         <router-view />
       </div>
       <div class="alerts" v-if="$store">
-        <v-alert
-          v-for="alert of alerts"
-          :key="alert.key"
-          :type="alert.type || 'success'"
-        >{{alert.text}}</v-alert>
+        <v-alert class="ma-3" v-for="alert of alerts" :key="alert.key" :type="alert.type || 'success'">{{ alert.text }}</v-alert>
       </div>
     </v-app>
   </div>
@@ -30,6 +26,16 @@ export default {
   },
   computed: {
     ...mapGetters(['alerts'])
+  },
+  mounted() {
+    this.setCssWindowHeight()
+    window.addEventListener('resize', this.setCssWindowHeight)
+  },
+  methods: {
+    setCssWindowHeight() {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
   }
 }
 </script>
