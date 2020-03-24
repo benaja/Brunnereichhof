@@ -31,7 +31,7 @@
         <v-divider></v-divider>
       </v-col>
       <v-col cols="12" class="py-0">
-        <v-row class="scroll-container" ref="scrollContainer">
+        <v-row class="scroll-container" ref="scrollContainer" :style="{ overflowY: isScrolling ? 'hidden' : 'auto' }">
           <v-col cols="2" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
               <p class="text-right">{{ timeString(index) }}</p>
@@ -52,6 +52,7 @@
                   :settings="settings"
                   @update="props => openTimePopup({ day: weekDays[0], ...props })"
                   @openOveriew="isOverviewOpen = true"
+                  @scrolling="scrolling => (isScrolling = scrolling)"
                   :url-worker-param="urlWorkerParam"
                 ></day>
               </div>
@@ -145,7 +146,8 @@ export default {
         date: '',
         day: {},
         timerecord: {}
-      }
+      },
+      isScrolling: false
     }
   },
   mounted() {

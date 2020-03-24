@@ -1,34 +1,21 @@
 <template>
-  <drag-it-dude
-    v-if="!hide"
-    :class="['time-element', value.worktype.color]"
+  <div
+    :class="['time-element', value.worktype.color, { moving }]"
     :style="{ height, top }"
     ref="timeElement"
-    @dropped="save"
-    @dragging="onDrag"
+    v-touch:touchhold="startTouchMove"
+    @mousedown="startMouseMove"
+    @click="edit"
   >
-    <div class="time-element-content" @click="edit">
-      <p
-        class="white--text ml-1"
-      >{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
+    <div class="time-element-content">
+      <p class="white--text ml-1">{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
     </div>
-    <!-- <div
-    :class="['time-element', value.worktype.color]"
-    :style="{height: difference * 4 + 'vh', top: startHour * 4 - 16 + 'vh'}"
-    @click="$emit('edit')"
-    ref="timeElement"
-    >-->
-  </drag-it-dude>
+  </div>
 </template>
 
 <script>
-import DragItDude from 'vue-drag-it-dude'
-
 export default {
   name: 'TimeElement',
-  components: {
-    DragItDude
-  },
   props: {
     value: Object,
     urlWorkerParam: {
@@ -47,7 +34,8 @@ export default {
       maxStartHour: 24,
       origialValue: {},
       hide: false,
-      mousedown: false
+      mousedown: false,
+      moving: false
     }
   },
   mounted() {
@@ -55,17 +43,49 @@ export default {
     this.origialValue = { ...this.value }
   },
   methods: {
-    onDrag() {
-      // next tick for prevent bug that the timeElement.top can be 0
-      this.$nextTick(() => {
-        let hoursDiff = this.maxStartHour - this.minStartHour
-        let hoursPerPixel = hoursDiff / this.$refs.timeElement.elem.parentElement.clientHeight
-        this.startHour = this.minStartHour + hoursPerPixel * this.$refs.timeElement.top
+    startTouchMove(event) {
+      if (!event.touches) return
+      this.lastPosition = event.touches[0].clientY
+      window.addEventListener('touchmove', this.move)
+      window.addEventListener('touchend', this.endTouchMove)
+      this.$emit('scrolling', true)
+      this.moving = true
+    },
+    startMouseMove(event) {
+      this.lastPosition = event.clientY
+      window.addEventListener('mousemove', this.move)
+      window.addEventListener('mouseup', this.endMouseMove)
+      this.$emit('moving', true)
+    },
+    endTouchMove() {
+      window.removeEventListener('touchmove', this.move)
+      window.removeEventListener('touchend', this.endTouchMove)
+      this.$emit('scrolling', false)
+      this.save()
+      this.moving = false
+    },
+    endMouseMove(event) {
+      event.preventDefault()
+      window.removeEventListener('mousemove', this.move)
+      window.removeEventListener('mouseup', this.endMouseMove)
+      this.save()
+      this.moving = false
+      this.$emit('moving', false)
+    },
+    move(event) {
+      const positionY = event.touches ? event.touches[0].clientY : event.clientY
+      let hoursToAdd = (positionY - this.lastPosition) / this.pixelPerHour
+      if (hoursToAdd >= 0.075 || hoursToAdd <= -0.075) {
+        this.moving = true
+        this.hasDragged = true
+        this.startHour += hoursToAdd
+        this.lastPosition = positionY
         let difference = this.difference
         this.value.from = this.getTimeString(this.startHour)
-        this.value.to = this.getTimeString(this.startHour + difference)
-        if (this.value.from !== this.formatTime(this.origialValue.from)) this.hasDragged = true
-      })
+        this.setStartHour()
+        this.value.to = this.getTimeString(this.startHour + difference, true)
+        this.updateTimeElemenPosition()
+      }
     },
     save() {
       if (this.hasDragged) {
@@ -125,9 +145,14 @@ export default {
       hours += minutes / 60
       this.startHour = hours
     },
-    getTimeString(time) {
+    getTimeString(time, dontRoundToFiveMinutes = false) {
       let hours = Math.floor(time)
-      let minutes = Math.round(((time - Math.floor(time)) * 60) / 5) * 5
+      let minutes
+      if (dontRoundToFiveMinutes) {
+        minutes = Math.round((time - Math.floor(time)) * 60)
+      } else {
+        minutes = Math.round(((time - Math.floor(time)) * 60) / 5) * 5
+      }
       if (minutes === 60) {
         minutes = 0
         hours++
@@ -154,7 +179,7 @@ export default {
     },
     pixelPerHour() {
       let hoursDiff = this.maxStartHour - this.minStartHour
-      return this.$refs.timeElement.elem.parentElement.clientHeight / hoursDiff
+      return this.$refs.timeElement.parentElement.clientHeight / hoursDiff
     }
   },
   watch: {
@@ -177,6 +202,11 @@ export default {
   min-height: 2vh;
   user-select: none;
   z-index: 2;
+
+  &.moving {
+    filter: brightness(105%);
+    box-shadow: gray 0 0 20px;
+  }
 }
 
 .time-element-content {

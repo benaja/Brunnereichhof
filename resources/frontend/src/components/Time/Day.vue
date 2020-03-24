@@ -7,17 +7,14 @@
           v-for="timerecord of value"
           :key="timerecord.id"
           :value="timerecord"
-          @edit="$emit('update', {timerecord, pixelPerHour})"
+          @edit="$emit('update', { timerecord, pixelPerHour })"
+          @scrolling="isScrolling => $emit('scrolling', isScrolling)"
+          @moving="isMoving => (moving = isMoving)"
           :url-worker-param="urlWorkerParam"
         ></time-element>
       </div>
     </div>
-    <v-btn
-      fab
-      color="primary"
-      class="overview-button hidden-md-and-up"
-      @click="$emit('openOveriew')"
-    >
+    <v-btn fab color="primary" class="overview-button hidden-md-and-up" @click="$emit('openOveriew')">
       <v-icon>assessment</v-icon>
     </v-btn>
   </div>
@@ -43,7 +40,8 @@ export default {
       isEditTimeOpen: false,
       time: '07:00',
       currentTimeRecord: {},
-      numbers: [3, 4, 5, 6, 7, 8, 9, 10]
+      numbers: [3, 4, 5, 6, 7, 8, 9, 10],
+      moving: false
     }
   },
   methods: {
@@ -52,12 +50,14 @@ export default {
       this.isAddTimeOpen = true
     },
     openTimePopup(event) {
-      event.preventDefault()
-      const elementsContainerRect = event.target.getBoundingClientRect()
-      const relativeHeight = event.clientY - elementsContainerRect.top
-      const hour = relativeHeight / this.pixelPerHour
-      const selectedStartHour = Math.floor(hour * 2) / 2
-      this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
+      if (!this.moving) {
+        event.preventDefault()
+        const elementsContainerRect = event.target.getBoundingClientRect()
+        const relativeHeight = event.clientY - elementsContainerRect.top
+        const hour = relativeHeight / this.pixelPerHour
+        const selectedStartHour = Math.floor(hour * 2) / 2
+        this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
+      }
     }
   },
   computed: {
