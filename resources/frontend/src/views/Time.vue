@@ -38,25 +38,23 @@
             </div>
           </v-col>
           <v-col cols="10" class="py-0 pr-0">
-            <v-touch v-touch:swipe.left="nextDay" v-touch:swipe.right="previousDay">
-              <div class="days">
-                <div class="lines">
-                  <div v-for="index in 24" :key="index" class="time-number">
-                    <v-divider v-if="index !== 1"></v-divider>
-                  </div>
+            <div class="days" v-touch:swipe.left="nextDay" v-touch:swipe.right="previousDay">
+              <div class="lines">
+                <div v-for="index in 24" :key="index" class="time-number">
+                  <v-divider v-if="index !== 1"></v-divider>
                 </div>
-                <day
-                  v-if="weekDays.length > 0"
-                  :date="date"
-                  v-model="weekDays[0].hours"
-                  :settings="settings"
-                  @update="props => openTimePopup({ day: weekDays[0], ...props })"
-                  @openOveriew="isOverviewOpen = true"
-                  @scrolling="scrolling => (isScrolling = scrolling)"
-                  :url-worker-param="urlWorkerParam"
-                ></day>
               </div>
-            </v-touch>
+              <day
+                v-if="weekDays.length > 0"
+                :date="date"
+                v-model="weekDays[0].hours"
+                :settings="settings"
+                @update="props => openTimePopup({ day: weekDays[0], ...props })"
+                @openOveriew="isOverviewOpen = true"
+                @scrolling="scrolling => (isScrolling = scrolling)"
+                :url-worker-param="urlWorkerParam"
+              ></day>
+            </div>
           </v-col>
         </v-row>
       </v-col>
