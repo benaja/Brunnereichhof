@@ -165,14 +165,12 @@ export default {
   },
   methods: {
     nextDay() {
-      let tomorrow = new Date(this.date)
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      this.date = tomorrow.toISOString().substring(0, 10)
+      let tomorrow = this.$moment(this.date, 'YYYY-MM-DD').add(1, 'day')
+      this.date = tomorrow.format('YYYY-MM-DD')
     },
     previousDay() {
-      let yesterday = new Date(this.date)
-      yesterday.setDate(yesterday.getDate() - 1)
-      this.date = yesterday.toISOString().substring(0, 10)
+      let yesterday = this.$moment(this.date, 'YYYY-MM-DD').subtract(1, 'day')
+      this.date = yesterday.format('YYYY-MM-DD')
     },
     openAddTimePopup(date) {
       this.isAddTimeOpen = true

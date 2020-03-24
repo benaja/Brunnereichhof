@@ -9,7 +9,6 @@
           :value="timerecord"
           @edit="$emit('update', { timerecord, pixelPerHour })"
           @scrolling="isScrolling => $emit('scrolling', isScrolling)"
-          @moving="isMoving => (moving = isMoving)"
           :url-worker-param="urlWorkerParam"
         ></time-element>
       </div>
@@ -40,8 +39,7 @@ export default {
       isEditTimeOpen: false,
       time: '07:00',
       currentTimeRecord: {},
-      numbers: [3, 4, 5, 6, 7, 8, 9, 10],
-      moving: false
+      numbers: [3, 4, 5, 6, 7, 8, 9, 10]
     }
   },
   methods: {
@@ -50,14 +48,11 @@ export default {
       this.isAddTimeOpen = true
     },
     openTimePopup(event) {
-      if (!this.moving) {
-        event.preventDefault()
-        const elementsContainerRect = event.target.getBoundingClientRect()
-        const relativeHeight = event.clientY - elementsContainerRect.top
-        const hour = relativeHeight / this.pixelPerHour
-        const selectedStartHour = Math.floor(hour * 2) / 2
-        this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
-      }
+      const elementsContainerRect = event.target.getBoundingClientRect()
+      const relativeHeight = event.clientY - elementsContainerRect.top
+      const hour = relativeHeight / this.pixelPerHour
+      const selectedStartHour = Math.floor(hour * 2) / 2
+      this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
     }
   },
   computed: {

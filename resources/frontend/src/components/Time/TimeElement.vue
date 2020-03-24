@@ -46,7 +46,7 @@ export default {
     startTouchMove(event) {
       if (!event.touches) return
       this.lastPosition = event.touches[0].clientY
-      window.addEventListener('touchmove', this.move)
+      window.addEventListener('touchmove', this.move, { passive: false })
       window.addEventListener('touchend', this.endTouchMove)
       this.$emit('scrolling', true)
       this.moving = true
@@ -55,7 +55,6 @@ export default {
       this.lastPosition = event.clientY
       window.addEventListener('mousemove', this.move)
       window.addEventListener('mouseup', this.endMouseMove)
-      this.$emit('moving', true)
     },
     endTouchMove() {
       window.removeEventListener('touchmove', this.move)
@@ -70,7 +69,6 @@ export default {
       window.removeEventListener('mouseup', this.endMouseMove)
       this.save()
       this.moving = false
-      this.$emit('moving', false)
     },
     move(event) {
       const positionY = event.touches ? event.touches[0].clientY : event.clientY
