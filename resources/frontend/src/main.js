@@ -24,6 +24,10 @@ Vue.component('edit-field', EditField)
 Vue.router = router
 Vue.store = store
 
+VueTouch.config.swipe = {
+  direction: 'horizontal'
+}
+
 Vue.use(require('@websanova/vue-auth'), {
   auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
   http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
