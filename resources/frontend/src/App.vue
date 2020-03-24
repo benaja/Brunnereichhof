@@ -45,6 +45,10 @@ body {
   background-color: rgb(238, 237, 237);
 }
 
+#app .v-application--wrap {
+  min-height: calc(var(--vh, 1vh) * 100);
+}
+
 * {
   font-family: Roboto, sans-serif;
 }

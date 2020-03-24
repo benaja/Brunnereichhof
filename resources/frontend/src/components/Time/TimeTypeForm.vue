@@ -74,6 +74,7 @@ export default {
 
     > .min-height-100 {
       min-height: 100vh;
+      max-height: calc(var(--vh, 1vh) * 100);
     }
   }
 }
