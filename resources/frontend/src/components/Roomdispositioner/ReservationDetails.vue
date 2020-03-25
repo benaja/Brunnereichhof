@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card width="400">
     <p class="text-right pa-2">
       <v-btn text icon small @click="generatePdf">
         <v-icon>picture_as_pdf</v-icon>

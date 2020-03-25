@@ -106,8 +106,8 @@
       :position-x="detailsModel.x"
       :position-y="detailsModel.y"
       z-index="4"
-      max-width="400"
-      min-width="400"
+      max-width="100%"
+      min-width="300"
       close-delay="10"
     >
       <reservation-details
@@ -255,7 +255,7 @@ export default {
       let calendarContainerRect = this.$refs.callendarContainer.getBoundingClientRect()
       let x = calendarContainerRect.left
       while (x < e.clientX) {
-        x += calendarContainerRect.width / 7
+        x += calendarContainerRect.width / this.amountOfDays
       }
       this.detailsModel.x = x
       reservation.employee.name = `${reservation.employee.lastname} ${reservation.employee.firstname}`
@@ -315,7 +315,6 @@ export default {
 
       this.reservationTags = []
       let top = 0
-      console.log('amountofDays', this.amountOfDays)
       for (let reservation of reservations) {
         let marginLeft = 0
         let diffFromFirstDay = 0
@@ -510,8 +509,8 @@ export default {
   top: 80px;
   width: 100%;
   z-index: 2;
-  height: calc(100vh - 145px);
-  height: calc(var(--vh, 1vh) * 100 - 145px);
+  max-height: calc(100vh - 145px);
+  max-height: calc(var(--vh, 1vh) * 100 - 145px);
   overflow-y: scroll;
   overflow-x: hidden;
 

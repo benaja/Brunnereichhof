@@ -1,5 +1,13 @@
 export default [
   {
+    version: '1.9',
+    changes: [
+      `Zeitraum beim Roomdispositioner kann beliebig angepasst werden.`,
+      `Mobile Ansicht verbessert.`,
+      `Standort des Raums wird auf dem Export angezeigt.`
+    ]
+  },
+  {
     version: '1.8',
     changes: [
       `In den Einstellungen kann für jede Leistungsart die Erfassungsarten angepasst werden.`,
