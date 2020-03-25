@@ -53,6 +53,7 @@ class ReservationPdfController extends Controller
                 $this->pdf->documentTitle($reservation->employee->lastname . ' ' . $reservation->employee->firstname);
 
                 $this->pdf->documentTitle('Raum: ' . $reservation->bedRoomPivot->room->name);
+                $this->pdf->documentTitle('Standort: ' . $reservation->bedRoomPivot->room->location);
                 $this->pdf->documentTitle('Bett: ' . $bed->name);
                 $this->pdf->documentTitle('');
                 $this->pdf->documentTitle('Bettwäsche und Bettinhalt', $this->pdf->titleSize, 'B');
