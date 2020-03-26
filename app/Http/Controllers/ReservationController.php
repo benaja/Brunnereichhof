@@ -15,11 +15,17 @@ class ReservationController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+        $startDate = new \DateTime($request->start);
+        $endDate = new \DateTime($request->end);
+
+        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])
+            ->where('entry', '<=', $endDate->format('Y-m-d'))
+            ->where('exit', '>=', $startDate->format('Y-m-d'))
+            ->get();
     }
 
     public function store(Request $request)

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import roles from './modules/roles'
 
 Vue.use(Vuex)
 
@@ -76,6 +77,9 @@ const defaultValuesArray = {
 }
 
 export default new Vuex.Store({
+  modules: {
+    roles
+  },
   state: {
     isMobile: false,
     openPopups: true,
@@ -112,7 +116,6 @@ export default new Vuex.Store({
     },
     allEmployees: [],
     employeesAndGuests: [],
-    roles: [],
     authorizationRules: [],
     alerts: []
   },
@@ -157,9 +160,6 @@ export default new Vuex.Store({
     },
     rooms(state, rooms) {
       state.rooms.items = rooms
-    },
-    roles(state, roles) {
-      state.roles = roles
     },
     authorizationRules(state, authorizationRules) {
       state.authorizationRules = authorizationRules
@@ -213,7 +213,6 @@ export default new Vuex.Store({
     rooms: state => state.rooms,
     employeesWithGuests: state => state.employeesWithGuests,
     guests: state => state.guests,
-    roles: state => state.roles,
     authorizationRules: state => state.authorizationRules,
     alerts: state => state.alerts
   },
@@ -244,9 +243,6 @@ export default new Vuex.Store({
     },
     cultures(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'cultures', 'culture', properties)
-    },
-    roles(context, properties = defaultResolveProperties) {
-      return resolveContent(context, 'roles', 'roles', properties)
     },
     authorizationRules(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'authorizationRules', 'rules', properties)

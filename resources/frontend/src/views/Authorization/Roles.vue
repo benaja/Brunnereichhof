@@ -10,7 +10,7 @@
         <v-divider :key="'divider-' + role.id"></v-divider>
       </template>
     </v-list>
-    <CreateRole v-model="isCreateRolePopupOpen" @addRole="addRole">
+    <CreateRole v-model="isCreateRolePopupOpen">
       <v-btn fab color="primary" slot="activator" class="add-button">
         <v-icon>add</v-icon>
       </v-btn>
@@ -20,6 +20,8 @@
 
 <script>
 import CreateRole from '@/components/Authorization/CreateRole'
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'Roles',
   components: {
@@ -27,24 +29,16 @@ export default {
   },
   data() {
     return {
-      roles: [],
       isCreateRolePopupOpen: false
     }
   },
-  mounted() {
-    this.$store
-      .dispatch('roles', true)
-      .then(roles => {
-        this.roles = roles
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Rollen konnten nicht emfangen werden', 'error')
-      })
+  computed: {
+    ...mapGetters(['roles'])
   },
-  methods: {
-    addRole(role) {
-      this.roles.push(role)
-    }
+  mounted() {
+    this.$store.dispatch('fetchRoles').catch(() => {
+      this.$swal('Fehler', 'Rollen konnten nicht emfangen werden', 'error')
+    })
   }
 }
 </script>

@@ -78,7 +78,7 @@ export default {
         this.axios
           .post('roles', this.role)
           .then(response => {
-            this.$emit('addRole', response.data)
+            this.$store.commit('addRole', response.data)
             this.isOpen = false
             this.$refs.form.reset()
           })

@@ -7,7 +7,12 @@
         <router-view />
       </div>
       <div class="alerts" v-if="$store">
-        <v-alert class="ma-3" v-for="alert of alerts" :key="alert.key" :type="alert.type || 'success'">{{ alert.text }}</v-alert>
+        <v-alert
+          class="ma-3"
+          v-for="alert of alerts"
+          :key="alert.key"
+          :type="alert.type || 'success'"
+        >{{ alert.text }}</v-alert>
       </div>
     </v-app>
   </div>

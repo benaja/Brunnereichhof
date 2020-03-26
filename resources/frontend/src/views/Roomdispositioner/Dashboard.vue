@@ -75,33 +75,6 @@
     </v-menu>
     <v-menu
       :close-on-content-click="false"
-      offset-x
-      v-model="moreElementsModel.open"
-      absolute
-      :position-x="moreElementsModel.x"
-      :position-y="moreElementsModel.y"
-      z-index="101"
-      :nudge-width="moreElementsModel.width"
-      max-width="300"
-      close-delay="10"
-    >
-      <v-card class="pa-3 more-elements-popup">
-        <p class="text-center">{{ moreElementsModel.date.format('ddd') }}</p>
-        <h2 class="text-center">{{ moreElementsModel.date.format('D') }}</h2>
-        <div
-          class="reservation blue my-2"
-          v-for="(reservation, index) of moreElementsModel.reservations"
-          :key="'rm' + index"
-          @click="e => openDetailsPopup(e, reservation, moreElementsModel.date)"
-        >
-          <p
-            class="white--text ml-2 mr-2"
-          >{{ reservation.employee.lastname }} {{ reservation.employee.firstname }} | {{reservation.bed_room_pivot.room.name}} / {{reservation.bed_room_pivot.room.number}}</p>
-        </div>
-      </v-card>
-    </v-menu>
-    <v-menu
-      :close-on-content-click="false"
       v-model="detailsModel.open"
       :position-x="detailsModel.x"
       :position-y="detailsModel.y"
@@ -146,14 +119,6 @@ export default {
         x: 0,
         y: 0
       },
-      moreElementsModel: {
-        open: false,
-        x: 0,
-        y: 0,
-        width: 200,
-        date: moment(),
-        reservations: []
-      },
       detailsModel: {
         open: false,
         x: 0,
@@ -174,7 +139,6 @@ export default {
       dayHeight: 0,
       firstday: moment(),
       reservationTags: [],
-      moreElementsTags: [],
       initialLoad: false,
       calendarSortType: localStorage.getItem('calendarSortType') || 'lastname',
       calendarSortTypes: [
@@ -186,11 +150,13 @@ export default {
   mounted() {
     this.dayHeight = this.getDayHeight
     this.firstday = this.firstDate
-    this.axios.get(`/reservations?entry=${this.firstDate.format('YYYY-MM-DD')}&exit="${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
-      this.reservations = response.data
-    })
   },
   methods: {
+    loadReservations() {
+      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
+        this.reservations = response.data
+      })
+    },
     isCurrentMonth(day) {
       return (
         moment(this.date).format('MM') ===
@@ -201,7 +167,7 @@ export default {
       )
     },
     openReservationPopup(e, day) {
-      if (!this.moreElementsModel.open && !this.detailsModel.open && this.$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])) {
+      if (!this.detailsModel.open && this.$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])) {
         e.preventDefault()
         let targetElement = e.target
         while (!targetElement.classList.contains('day')) {
@@ -221,32 +187,7 @@ export default {
         }, 100)
       }
     },
-    openMoreElementsPopup(e, tag) {
-      e.preventDefault()
-      this.moreElementsModel.open = false
-      let position = this.$refs.callendarContainer.getBoundingClientRect()
-      this.moreElementsModel.x = position.left + (position.width / 7) * tag.day - 20
-      this.moreElementsModel.y = this.dayHeight * tag.week + 64 - 20
-      this.moreElementsModel.width = position.width / 7 + 40
-      this.moreElementsModel.date = moment(
-        this.firstday
-          .clone()
-          .add(tag.day, 'days')
-          .add(tag.week, 'weeks')
-      )
-      if (this.calendarSortType === 'number') {
-        this.moreElementsModel.reservations = tag.reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
-      } else {
-        this.moreElementsModel.reservations = tag.reservations.sort((a, b) => {
-          return a.employee.lastname.toLowerCase().localeCompare(b.employee.lastname.toLowerCase())
-        })
-      }
-
-      setTimeout(() => {
-        this.moreElementsModel.open = true
-      }, 100)
-    },
-    openDetailsPopup(e, reservation, date = null) {
+    openDetailsPopup(e, reservation) {
       e.preventDefault()
       this.detailsModel.open = false
       let position = e.target.getBoundingClientRect()
@@ -261,15 +202,8 @@ export default {
       reservation.employee.name = `${reservation.employee.lastname} ${reservation.employee.firstname}`
       this.detailsModel.reservation = reservation
 
-      if (date) {
-        this.detailsModel.clickedDay = date
-      } else {
-        let day = Math.floor((e.x - calendarContainerRect.x) / (calendarContainerRect.width / 7))
-        let week = Math.floor((e.y - calendarContainerRect.y) / (calendarContainerRect.height / (this.amountOfDays / 7)))
-        this.detailsModel.clickedDay = moment(this.firstDate)
-          .add(week, 'weeks')
-          .add(day, 'days')
-      }
+      let day = Math.floor((e.x - calendarContainerRect.x) / (calendarContainerRect.width / this.amountOfDays))
+      this.detailsModel.clickedDay = moment(this.firstDate).add(day, 'days')
 
       setTimeout(() => {
         this.detailsModel.open = true
@@ -392,22 +326,10 @@ export default {
   },
   computed: {
     firstDate() {
-      if (this.calendarType === 'month') {
-        return moment(this.date, 'YYYY-MM-DD', 'de-ch')
-          .startOf('month')
-          .startOf('isoWeek')
-      } else {
-        return moment(this.date, 'YYYY-MM-DD', 'de-ch').startOf('isoWeek')
-      }
+      return this.$moment(this.dates[0], 'YYYY-MM-DD')
     },
     lastDate() {
-      if (this.calendarType === 'month') {
-        return moment(this.date, 'YYYY-MM-DD', 'de-ch')
-          .endOf('month')
-          .endOf('isoWeek')
-      } else {
-        return moment(this.date, 'YYYY-MM-DD', 'de-ch').endOf('isoWeek')
-      }
+      return this.$moment(this.dates[1], 'YYYY-MM-DD')
     },
     days() {
       let days = []
@@ -432,7 +354,7 @@ export default {
   },
   watch: {
     dates() {
-      this.drawReservations()
+      this.loadReservations()
     },
     reservations() {
       this.drawReservations()

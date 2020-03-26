@@ -45,16 +45,14 @@ export default {
   },
   methods: {
     updateRole() {
-      this.axios.put(`roles/${this.role.id}`, this.role).catch(() => {
+      this.$store.dispatch('updateRole', this.role).catch(() => {
         this.$swal('Fehler', 'Die Änderungen konnten nicht gespeichert werden', 'error')
       })
     },
     deleteRole() {
-      this.axios
-        .delete(`roles/${this.role.id}`)
-        .then(() => {
-          this.$router.push('/roles')
-        })
+      this.$store
+        .dispatch('deleteRole', this.role.id)
+        .then(() => this.$router.push('/roles'))
         .catch(error => {
           if (error.includes('Role still has one or more users')) {
             this.$swal('Rolle besitzt noch Benutzer', 'Stelle sicher, dass keine Benutzer diese Rolle besitzt, damit du sie löschen kannst.', 'error')
