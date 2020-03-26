@@ -6,8 +6,6 @@ use App\User;
 use App\UserType;
 use App\Mail\WorkerCreated;
 use Illuminate\Http\Request;
-use App\Enums\UserTypeEnum;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 

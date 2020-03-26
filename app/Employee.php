@@ -12,7 +12,7 @@ class Employee extends Model
 
     public $table = "employee";
 
-    protected $fillable = ['callname', 'firstname', 'lastname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
+    protected $fillable = ['callname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
 
     public function Rapportdetails()
     {
@@ -22,6 +22,11 @@ class Employee extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function name()
@@ -48,4 +53,36 @@ class Employee extends Model
             ->groupBy('date')
             ->count();
     }
+
+    // user accessors
+    // public function getFirstnameAttribute()
+    // {
+    //     return $this->user->firstname;
+    // }
+
+    // public function getLastnameAttribute()
+    // {
+    //     return $this->user->lastname;
+    // }
+
+    // public function getEmailAttribute()
+    // {
+    //     return $this->user->email;
+    // }
+
+    // user mutators
+    // public function setFirstnameAttribute($value)
+    // {
+    //     $this->user->firstname = $value;
+    // }
+
+    // public function setLastnameAttribute($value)
+    // {
+    //     $this->user->lastname = $value;
+    // }
+
+    // public function setEmailAttribute($value)
+    // {
+    //     $this->user->email = $value;
+    // }
 }

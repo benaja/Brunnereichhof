@@ -41,7 +41,12 @@ class User extends Authenticatable
 
     public function customer()
     {
-        return $this->hasOne('App\Customer');
+        return $this->hasOne(Customer::class);
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
     }
 
     public function timerecords()
