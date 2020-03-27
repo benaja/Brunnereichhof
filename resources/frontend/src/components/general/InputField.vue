@@ -6,10 +6,11 @@
     <v-col cols="12" :md="long ? 10 : 8" class="py-0">
       <edit-field
         :value="value"
-        @input="v => $emit('input', v)"
-        @change="$emit('change')"
+        @input="input"
+        @change="change"
         :readonly="readonly"
         :type="type"
+        :rules="rules"
       ></edit-field>
     </v-col>
   </v-row>
@@ -25,7 +26,28 @@ export default {
       default: 'text',
       type: String
     },
-    long: Boolean
+    long: Boolean,
+    rules: {
+      type: Array,
+      default: null
+    }
+  },
+  data() {
+    return {
+      hasValueChanged: false
+    }
+  },
+  methods: {
+    change(value) {
+      if (this.hasValueChanged) {
+        this.$emit('change', value)
+        this.hasValueChanged = false
+      }
+    },
+    input(value) {
+      this.$emit('input', value)
+      this.hasValueChanged = true
+    }
   }
 }
 </script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Utils;
 use App\User;
 use App\UserType;
 use App\Mail\WorkerCreated;
@@ -49,21 +50,7 @@ class WorkerController extends Controller
             'email' => 'required|email|unique:user'
         ]);
 
-        $username = strtolower($request->firstname) . "." . strtolower($request->lastname);
-
-        if ($this->checkIfUsernameExist($username)) {
-            $usernameIsUnique = false;
-            $counter = 1;
-
-            while (!$usernameIsUnique) {
-                if ($this->checkIfUsernameExist($username . $counter)) {
-                    $counter++;
-                } else {
-                    $username = $username . $counter;
-                    $usernameIsUnique = true;
-                }
-            }
-        }
+        $username = Utils::getUniqueUsername($request->firstname . "." . $request->lastname);
 
         $password = str_random(8);
         $usertype = UserType::where('name', 'worker')->first();
@@ -125,14 +112,5 @@ class WorkerController extends Controller
         $worker = User::find($id);
 
         $worker->delete();
-    }
-
-    //-- helpers --//
-    private function checkIfUsernameExist($username)
-    {
-        if (User::where('username', '=', $username)->count() > 0) {
-            return true;
-        }
-        return false;
     }
 }

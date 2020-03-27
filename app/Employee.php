@@ -14,6 +14,8 @@ class Employee extends Model
 
     protected $fillable = ['callname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
 
+    protected $appends = ['firstname', 'lastname', 'email'];
+
     public function Rapportdetails()
     {
         return $this->hasMany(Rapportdetail::class);
@@ -26,7 +28,7 @@ class Employee extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function name()
@@ -55,34 +57,34 @@ class Employee extends Model
     }
 
     // user accessors
-    // public function getFirstnameAttribute()
-    // {
-    //     return $this->user->firstname;
-    // }
+    public function getFirstnameAttribute()
+    {
+        return $this->user->firstname;
+    }
 
-    // public function getLastnameAttribute()
-    // {
-    //     return $this->user->lastname;
-    // }
+    public function getLastnameAttribute()
+    {
+        return $this->user->lastname;
+    }
 
-    // public function getEmailAttribute()
-    // {
-    //     return $this->user->email;
-    // }
+    public function getEmailAttribute()
+    {
+        return $this->user->email;
+    }
 
     // user mutators
-    // public function setFirstnameAttribute($value)
-    // {
-    //     $this->user->firstname = $value;
-    // }
+    public function setFirstnameAttribute($value)
+    {
+        $this->user->firstname = $value;
+    }
 
-    // public function setLastnameAttribute($value)
-    // {
-    //     $this->user->lastname = $value;
-    // }
+    public function setLastnameAttribute($value)
+    {
+        $this->user->lastname = $value;
+    }
 
-    // public function setEmailAttribute($value)
-    // {
-    //     $this->user->email = $value;
-    // }
+    public function setEmailAttribute($value)
+    {
+        $this->user->email = $value;
+    }
 }

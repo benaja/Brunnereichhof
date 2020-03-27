@@ -67,7 +67,7 @@ class UserController extends Controller
         $data['mail'] = $user->email;
         $data['password'] = $password;
 
-        \Mail::to($user->email)->send(new CustomerCreated($data));
+        $success = \Mail::to($user->email)->send(new CustomerCreated($data));
         return response('email send');
     }
 }

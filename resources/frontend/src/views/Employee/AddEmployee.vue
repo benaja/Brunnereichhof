@@ -1,20 +1,23 @@
 <template>
   <div>
     <h1 class="text-center my-4">Mitarbeiter erstellen</h1>
-    <v-form>
+    <v-form ref="form" @submit="save" onsubmit="return false;">
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
-            <v-text-field label="Vorname*" v-model="employee.firstname" :rules="nameRules"></v-text-field>
+            <v-text-field label="Vorname*" v-model="employee.firstname" :rules="[rules.required]"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field label="Nachname*" v-model="employee.lastname" :rules="nameRules"></v-text-field>
+            <v-text-field label="Nachname*" v-model="employee.lastname" :rules="[rules.required]"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field label="Rufname" v-model="employee.callname"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field label="Nationalität" v-model="employee.nationality"></v-text-field>
+          </v-col>
+          <v-col cols="12" md="12">
+            <v-text-field label="Email" v-model="employee.email" :rules="[rules.nullableEmail]"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
             <v-checkbox label="Intern" v-model="employee.isIntern"></v-checkbox>
@@ -55,7 +58,7 @@
             <v-switch v-model="employee.isGuest" label="Gast"></v-switch>
           </v-col>
           <v-col cols="12" class="text-center">
-            <v-btn @click="save" :disabled="!allValid" color="primary">
+            <v-btn type="submit" color="primary">
               Speichern
               <v-icon right>send</v-icon>
             </v-btn>
@@ -67,6 +70,8 @@
 </template>
 
 <script>
+import { rules } from '@/utils'
+
 export default {
   name: 'AddCustomer',
   data() {
@@ -76,7 +81,7 @@ export default {
         isGuest: !!this.$route.query.guest
       },
       apiUrl: process.env.VUE_APP_API_URL + 'employee',
-      nameRules: [v => !!v || 'Name muss vorhanden sein'],
+      rules,
       genders: [
         {
           value: 'man',
@@ -92,27 +97,35 @@ export default {
   },
   methods: {
     save() {
-      this.axios
-        .post(this.apiUrl, this.employee)
-        .then(response => {
-          if (this.$refs.profileImage.files.length === 1) {
-            let data = new FormData()
-            data.append('profileimage', this.$refs.profileImage.files[0])
-            this.axios
-              .post(this.apiUrl + '/' + response.data + '/editimage', data)
-              .then(response => {
-                this.redirect()
-              })
-              .catch(() => {
-                this.$swal('Fehler beim Speichern', 'Das Bild konnte nicht hochgeladen werden', 'error')
-              })
-          } else {
-            this.redirect()
-          }
-        })
-        .catch(() => {
-          this.$swal('Fehler beim Speichern', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
-        })
+      if (this.$refs.form.validate()) {
+        this.axios
+          .post(this.apiUrl, this.employee)
+          .then(response => {
+            if (this.$refs.profileImage.files.length === 1) {
+              let data = new FormData()
+              data.append('profileimage', this.$refs.profileImage.files[0])
+              this.axios
+                .post(this.apiUrl + '/' + response.data + '/editimage', data)
+                .then(response => {
+                  this.redirect()
+                })
+                .catch(() => {
+                  this.$swal('Fehler beim Speichern', 'Das Bild konnte nicht hochgeladen werden', 'error')
+                })
+            } else {
+              this.redirect()
+            }
+          })
+          .catch(error => {
+            if (error.includes('validation.unique')) {
+              this.$swal('Email existiert bereits', 'Es existiert bereits ein anderer User mit der selben Email', 'error')
+            } else {
+              this.$swal('Fehler beim Speichern', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+            }
+          })
+      } else {
+        this.$store.dispatch('alert', { text: 'Bitte fülle alle Felder korrekt aus', type: 'error' })
+      }
     },
     profileImageChanged() {
       if (this.$refs.profileImage.files.length === 1) {

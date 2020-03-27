@@ -15,6 +15,7 @@
       :disabled="disabled"
       :readonly="readonly"
       :rules="rules"
+      validate-on-blur
       @input="$emit('input', text)"
       @change="$emit('change')"
       @focus="outline = true"

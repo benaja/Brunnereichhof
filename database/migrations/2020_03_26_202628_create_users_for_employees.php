@@ -17,14 +17,39 @@ class CreateUsersForEmployees extends Migration
      */
     public function up()
     {
+        Schema::table('customer', function (Blueprint $table) {
+            $table->dropForeign('customer_ibfk_1');
+        });
+
+        Schema::table('timerecord', function (Blueprint $table) {
+            $table->dropForeign('timerecord_ibfk_1');
+        });
+
+        Schema::table('user', function (Blueprint $table) {
+            $table->bigIncrements('id')->change();
+        });
+
         Schema::table('employee', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('user');
         });
 
-        $employeeUserType = UserType::crate([
+        Schema::table('customer', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->change();
+            $table->foreign('user_id')->references('id')->on('user');
+        });
+
+        Schema::table('timerecord', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->change();
+            $table->foreign('user_id')->references('id')->on('user');
+        });
+
+        UserType::create([
+            'id' => 4,
             'name' => 'employee'
         ]);
+
+        $employeeUserType = UserType::find(4);
 
         $employees = Employee::withTrashed()->get();
         foreach ($employees as $employee) {
@@ -36,11 +61,11 @@ class CreateUsersForEmployees extends Migration
                 'password' => Hash::make($password),
                 'isPasswordChanged' => 0,
             ]);
+            $user->employee()->save($employee);
+            $employeeUserType->users()->save($user);
             if ($employee->deleted_at) {
                 $user->delete();
             }
-            $employee->user()->save($user);
-            $employee->$employeeUserType->users()->save($user);
         }
 
         Schema::table('employee', function (Blueprint $table) {

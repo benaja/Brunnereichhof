@@ -9,6 +9,10 @@ use App\Rapportdetail;
 use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
+use App\Helpers\Utils;
+use App\User;
+use App\UserType;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
@@ -25,10 +29,10 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', false)->orderBy('lastname')->get();
-        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
-        else $employees = Employee::where('isGuest', false)->orderBy('lastname')->get();
-        return $employees;
+        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
+        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
+        else $employees = Employee::with('user');
+        return $employees->where('isGuest', false)->get()->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)->values();
     }
 
     // GET guests
@@ -37,10 +41,10 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->where('isGuest', true)->orderBy('lastname')->get();
-        else if (isset($request->all)) $employees = Employee::withTrashed()->where('isGuest', true)->orderBy('lastname')->get();
-        else $employees = Employee::where('isGuest', true)->orderBy('lastname')->get();
-        return $employees;
+        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
+        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
+        else $employees = Employee::with('user');
+        return $employees->where('isGuest', false)->get()->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)->values();
     }
 
     // GET employeeswithguests
@@ -63,10 +67,11 @@ class EmployeeController extends Controller
             auth()->user()->authorize(['superadmin'], ['employee_write']);
         }
         $this->validate(request(), $this->validateArray);
+        $this->validate($request, [
+            'email' => 'unique:user'
+        ]);
 
         $employee = Employee::create([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
             'callname' => $request->callname,
             'nationality' => $request->nationality,
             'isIntern' => $request->isIntern,
@@ -80,6 +85,19 @@ class EmployeeController extends Controller
             'isGuest' => $request->isGuest,
             'allergy' => $request->allergy
         ]);
+
+        $user = User::create([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'username' => Utils::getUniqueUsername($request->firstname . "." . $request->lastname),
+            'email' => strtolower($request->email),
+            'password' => Hash::make(str_random(8)),
+            'isPasswordChanged' => 0,
+        ]);
+
+        $employeeUserType = UserType::where('name', 'employee')->first();
+        $user->employee()->save($employee);
+        $employeeUserType->users()->save($user);
 
         return $employee->id;
     }
@@ -106,16 +124,22 @@ class EmployeeController extends Controller
         if (isset($request->deleted_at)) {
             $employe = Employee::withTrashed()->find($id);
             $employe->restore();
+            $employe->user->restore();
             return response('success');
         }
 
         $this->validate($request, $this->validateArray);
 
-        $employe = Employee::find($id);
+        $employee = Employee::find($id);
 
-        $employe->update([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
+        $doesEmailExist = User::where('id', '!=', $employee->user_id)
+            ->where('email', strtolower($request->email))
+            ->first();
+        if ($doesEmailExist) {
+            return response('Email already exist', 400);
+        }
+
+        $employee->update([
             'callname' => $request->callname,
             'nationality' => $request->nationality,
             'isIntern' => $request->isIntern,
@@ -129,7 +153,14 @@ class EmployeeController extends Controller
             'isGuest' => $request->isGuest,
             'allergy' => $request->allergy
         ]);
-        $employe->save();
+        $employee->save();
+
+        $employee->user->update([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'email' => strtolower($request->email)
+        ]);
+        $employee->user->save();
     }
 
     // POST employee/{id}/editimage
@@ -206,6 +237,7 @@ class EmployeeController extends Controller
             }
         }
 
+        $employee->user->delete();
         $employee->delete();
     }
 
@@ -477,6 +509,7 @@ class EmployeeController extends Controller
         'firstname' => 'required|string|max:100',
         'lastname' => 'required|string|max:100',
         'callname' => 'nullable|max:100|string',
+        'email' => 'nullable|email',
         'sex' => 'required',
         'comment' => 'nullable|string|max:500',
         'experience' => 'nullable|string|max:100',

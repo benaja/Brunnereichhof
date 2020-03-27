@@ -265,7 +265,7 @@ export default new Vuex.Store({
     resetRooms(context) {
       resetContent(context, 'rooms')
     },
-    alert({ commit }, alert, time = 3) {
+    alert({ commit }, alert) {
       commit('addAlert', {
         ...alert,
         visible: true,
@@ -273,7 +273,7 @@ export default new Vuex.Store({
       })
       setTimeout(() => {
         commit('removeAlert')
-      }, time * 1000)
+      }, (alert.duration || 3) * 1000)
     }
   }
 })
