@@ -10,8 +10,10 @@ use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
+use App\Role;
 use App\User;
 use App\UserType;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
@@ -139,28 +141,43 @@ class EmployeeController extends Controller
             return response('Email already exist', 400);
         }
 
-        $employee->update([
-            'callname' => $request->callname,
-            'nationality' => $request->nationality,
-            'isIntern' => $request->isIntern,
-            'isDriver' => $request->isDriver,
-            'german_knowledge' => $request->german_knowledge,
-            'english_knowledge' => $request->english_knowledge,
-            'sex' => $request->sex,
-            'comment' => $request->comment,
-            'experience' => $request->experience,
-            'isActive' => $request->isActive,
-            'isGuest' => $request->isGuest,
-            'allergy' => $request->allergy
-        ]);
-        $employee->save();
+        DB::transaction(function () use ($request, $employee) {
 
-        $employee->user->update([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'email' => strtolower($request->email)
-        ]);
-        $employee->user->save();
+            $employee->update([
+                'callname' => $request->callname,
+                'nationality' => $request->nationality,
+                'isIntern' => $request->isIntern,
+                'isDriver' => $request->isDriver,
+                'german_knowledge' => $request->german_knowledge,
+                'english_knowledge' => $request->english_knowledge,
+                'sex' => $request->sex,
+                'comment' => $request->comment,
+                'experience' => $request->experience,
+                'isActive' => $request->isActive,
+                'isGuest' => $request->isGuest,
+                'allergy' => $request->allergy,
+                'isLoginActive' => $request->isLoginActive
+            ]);
+            $employee->save();
+
+            if ($request->isLoginActive && $employee->user->deleted_at) {
+                $employee->user->restore();
+            } else {
+                $employee->user->delete();
+            }
+
+            if ($request->user['role_id']) {
+                $role = Role::find($request->user['role_id']);
+                $role->users()->save($employee->user);
+            }
+
+            $employee->user->update([
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'email' => strtolower($request->email)
+            ]);
+            $employee->user->save();
+        });
     }
 
     // POST employee/{id}/editimage
@@ -515,6 +532,7 @@ class EmployeeController extends Controller
         'experience' => 'nullable|string|max:100',
         'allergy' => 'nullable|string|max:100',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'isGuest' => 'boolean'
+        'isGuest' => 'boolean',
+        'isLoginActive' => 'boolean'
     ];
 }

@@ -22,6 +22,7 @@
 <script>
 import Select from '@/components/general/Select'
 import CreateRole from '@/components/Authorization/CreateRole'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'SelectRole',
@@ -37,12 +38,12 @@ export default {
   },
   data() {
     return {
-      roles: [],
       isCreateRolePopupOpen: false,
       isDetailPopupOpen: false
     }
   },
   computed: {
+    ...mapGetters(['roles']),
     role: {
       get: function() {
         return this.value
@@ -60,14 +61,7 @@ export default {
     }
   },
   mounted() {
-    this.$store
-      .dispatch('roles')
-      .then(roles => {
-        this.roles = roles
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Die Rollen konnten nicht empfangen werden', 'error')
-      })
+    this.$store.dispatch('fetchRoles')
   }
 }
 </script>

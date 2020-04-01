@@ -92,6 +92,18 @@
         </v-col>
         <v-col cols="12" md="6">
           <v-checkbox
+            label="Login aktiviert"
+            v-model="employee.isLoginActive"
+            @change="changed"
+            color="primary"
+            :readonly="!isUserAllowedToEdit"
+          ></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="6">
+          <select-role v-model="employee.user.role_id" @change="changed"></select-role>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-checkbox
             label="Intern"
             v-model="employee.isIntern"
             @change="changed"
@@ -199,12 +211,14 @@
 </template>
 
 <script>
-import InputField from '@/components/general/InputField'
 import { rules } from '@/utils'
+import InputField from '@/components/general/InputField'
+import SelectRole from '@/components/Authorization/SelectRole'
 
 export default {
   components: {
-    InputField
+    InputField,
+    SelectRole
   },
   data() {
     return {

@@ -12,7 +12,22 @@ class Employee extends Model
 
     public $table = "employee";
 
-    protected $fillable = ['callname', 'nationality', 'isIntern', 'isDriver', 'german_knowledge', 'english_knowledge', 'sex', 'comment', 'experience', 'isActive', 'isGuest', 'profileimage', 'allergy'];
+    protected $fillable = [
+        'callname',
+        'nationality',
+        'isIntern',
+        'isDriver',
+        'german_knowledge',
+        'english_knowledge',
+        'sex',
+        'comment',
+        'experience',
+        'isActive',
+        'isGuest',
+        'profileimage',
+        'allergy',
+        'isLoginActive'
+    ];
 
     protected $appends = ['firstname', 'lastname', 'email'];
 
