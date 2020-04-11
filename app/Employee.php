@@ -71,21 +71,21 @@ class Employee extends Model
             ->count();
     }
 
-    // user accessors
-    public function getFirstnameAttribute()
-    {
-        return $this->user->firstname;
-    }
+    // // user accessors
+    // public function getFirstnameAttribute()
+    // {
+    //     return $this->user->firstname;
+    // }
 
-    public function getLastnameAttribute()
-    {
-        return $this->user->lastname;
-    }
+    // public function getLastnameAttribute()
+    // {
+    //     return $this->user->lastname;
+    // }
 
-    public function getEmailAttribute()
-    {
-        return $this->user->email;
-    }
+    // public function getEmailAttribute()
+    // {
+    //     return $this->user->email;
+    // }
 
     // // user mutators
     // public function setFirstnameAttribute($value)
