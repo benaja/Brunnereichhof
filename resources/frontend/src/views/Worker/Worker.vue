@@ -31,7 +31,11 @@
           ></edit-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <select-role v-model="worker.role_id" @change="change('role_id')"></select-role>
+          <select-role
+            v-model="worker.role_id"
+            @change="change('role_id')"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+          ></select-role>
         </v-col>
         <v-col cols="12">
           <v-switch

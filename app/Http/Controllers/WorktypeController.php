@@ -17,7 +17,7 @@ class WorktypeController extends Controller
     // GET worktypes
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin', 'worker'], ['timerecord_read_write', 'settings_read']);
+        auth()->user()->authorize(['superadmin', 'worker'], ['timerecord_read_write', 'settings_read', 'worker_write']);
 
         return Worktype::with('workInputTypes')->get();
     }

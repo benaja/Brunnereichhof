@@ -1,5 +1,17 @@
 export default [
   {
+    version: '1.10',
+    changes: [
+      `Mitarbeiter können sich auch anmelden. Wenn ein Mitarbeiter ein Email adresse hat, kann er auf
+        Passwort vergessen gehen und sich anschliessend anmelden.`,
+      `Release Notes sind im Menu verlinkt.`
+    ],
+    bugfixes: [
+      `Neue Rolle für das Bearbeiten von Rollen. Was bedeutet, dass nun die Rolle Admin auch Rollen
+        verwalten können.`
+    ]
+  },
+  {
     version: '1.9',
     changes: [
       `Zeitraum beim Roomdispositioner kann beliebig angepasst werden.`,

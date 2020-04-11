@@ -16,14 +16,14 @@ class RoleController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['superadmin'], ['worker_read']);
+        auth()->user()->authorize(['superadmin'], ['worker_read', 'employee_read', 'role_write']);
 
         return Role::all();
     }
 
     public function store(Request $request)
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $this->validate($request, [
             'name' => 'required|string|max:200'
@@ -45,7 +45,7 @@ class RoleController extends Controller
 
     public function show($id)
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $role = Role::with('authorizationRules')->find($id);
 
@@ -54,7 +54,7 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $this->validate($request, [
             'name' => 'required|string|max:200'
@@ -71,7 +71,7 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $role = Role::find($id);
 
@@ -84,7 +84,7 @@ class RoleController extends Controller
 
     public function getRules()
     {
-        auth()->user()->authorize(['superadmin']);
+        auth()->user()->authorize(['superadmin'], ['role_write']);
 
         return AuthorizationRule::orderBy('name_de')->get();
     }

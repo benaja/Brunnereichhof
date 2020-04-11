@@ -172,7 +172,7 @@ class EmployeeController extends Controller
 
             if ($request->isLoginActive && $employee->user->deleted_at) {
                 $employee->user->restore();
-            } else {
+            } else if (!$request->isLoginActive) {
                 $employee->user->delete();
             }
 

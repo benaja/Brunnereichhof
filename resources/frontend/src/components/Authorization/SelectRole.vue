@@ -6,13 +6,13 @@
       label="Rolle"
       item-text="name"
       item-value="id"
-      :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+      :readonly="readonly"
       @change="$emit('change')"
     ></Select>
     <CreateRole
       v-model="isCreateRolePopupOpen"
       @addRole="addRole"
-      v-if="$auth.user().hasPermission(['superadmin'])"
+      v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
     >
       <v-btn slot="activator" text color="primary">Neue Rolle erstellen</v-btn>
     </CreateRole>
@@ -34,6 +34,10 @@ export default {
     value: {
       type: Number,
       default: null
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

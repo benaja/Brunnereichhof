@@ -174,7 +174,14 @@
             to="/settings"
             v-if="$auth.user().hasPermission(['superadmin'], ['settings_read'])"
           >Einstellungen</v-list-item>
-          <v-list-item to="/roles" v-if="$auth.user().hasPermission(['superadmin'])">Rollen</v-list-item>
+          <v-list-item
+            to="/roles"
+            v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
+          >Rollen</v-list-item>
+          <v-list-item
+            to="/release-notes"
+            v-if="$auth.user().hasPermission(['superadmin'])"
+          >Release Notes</v-list-item>
           <v-list-item @click="$auth.logout(); $router.push('/login')">Abmelden</v-list-item>
         </v-list>
       </v-menu>

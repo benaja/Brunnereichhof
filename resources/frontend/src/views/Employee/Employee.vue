@@ -100,7 +100,11 @@
           ></v-checkbox>
         </v-col>
         <v-col cols="12" md="6">
-          <select-role v-model="employee.user.role_id" @change="changed"></select-role>
+          <select-role
+            v-model="employee.user.role_id"
+            @change="changed"
+            :readonly="!isUserAllowedToEdit"
+          ></select-role>
         </v-col>
         <v-col cols="12" md="6">
           <v-checkbox

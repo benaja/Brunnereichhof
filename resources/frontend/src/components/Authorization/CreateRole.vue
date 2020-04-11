@@ -23,7 +23,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" @click="saveRole">Speicher</v-btn>
+        <v-btn color="primary" @click="saveRole">Speichern</v-btn>
       </v-card-actions>
     </v-card>
   </v-menu>
