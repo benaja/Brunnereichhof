@@ -17,34 +17,34 @@ class CreateUsersForEmployees extends Migration
      */
     public function up()
     {
-        Schema::table('customer', function (Blueprint $table) {
-            $table->dropForeign('customer_ibfk_1');
-        });
+        // Schema::table('customer', function (Blueprint $table) {
+        //     $table->dropForeign('customer_ibfk_1');
+        // });
 
-        Schema::table('timerecord', function (Blueprint $table) {
-            $table->dropForeign('timerecord_ibfk_1');
-        });
+        // Schema::table('timerecord', function (Blueprint $table) {
+        //     $table->dropForeign('timerecord_ibfk_1');
+        // });
 
-        Schema::table('user', function (Blueprint $table) {
-            $table->bigIncrements('id')->change();
-        });
+        // Schema::table('user', function (Blueprint $table) {
+        //     $table->bigIncrements('id')->change();
+        // });
 
-        Schema::table('employee', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('user');
-        });
+        // Schema::table('employee', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('user_id')->nullable();
+        //     $table->foreign('user_id')->references('id')->on('user');
+        // });
 
-        Schema::table('customer', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->change();
-            $table->foreign('user_id')->references('id')->on('user');
-        });
+        // Schema::table('customer', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('user_id')->change();
+        //     $table->foreign('user_id')->references('id')->on('user');
+        // });
 
-        Schema::table('timerecord', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->change();
-            $table->foreign('user_id')->references('id')->on('user');
-        });
+        // Schema::table('timerecord', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('user_id')->change();
+        //     $table->foreign('user_id')->references('id')->on('user');
+        // });
 
-        UserType::create([
+        UserType::firstOrCreate([
             'id' => 4,
             'name' => 'employee'
         ]);
