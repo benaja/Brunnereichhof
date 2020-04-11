@@ -85,7 +85,8 @@ class EmployeeController extends Controller
             'experience' => $request->experience,
             'isActive' => 1,
             'isGuest' => $request->isGuest,
-            'allergy' => $request->allergy
+            'allergy' => $request->allergy,
+            'isLoginActive' => $request->isLoginActive || false
         ]);
 
         $user = User::create([
@@ -96,6 +97,15 @@ class EmployeeController extends Controller
             'password' => Hash::make(str_random(8)),
             'isPasswordChanged' => 0,
         ]);
+
+        if (!$request->isLoginActive) {
+            $user->delete();
+        }
+
+        if ($request->role_id) {
+            $role = Role::find($request->role_id);
+            $role->users()->save($user);
+        }
 
         $employeeUserType = UserType::where('name', 'employee')->first();
         $user->employee()->save($employee);

@@ -30,7 +30,7 @@ class SettingsController extends Controller
 
     public function timeSettings()
     {
-        auth()->user()->authorize(['superadmin', 'worker'], ['settings_read']);
+        auth()->user()->authorize(['superadmin', 'worker'], ['settings_read', 'timerecord_read_write']);
 
         $response = [
             'fullDayShortStart' => Settings::value('fullDayShortStart'),

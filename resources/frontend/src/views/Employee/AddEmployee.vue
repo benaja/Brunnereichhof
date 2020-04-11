@@ -20,6 +20,12 @@
             <v-text-field label="Email" v-model="employee.email" :rules="[rules.nullableEmail]"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
+            <v-checkbox label="Login aktiviert" v-model="employee.isLoginActive" color="primary"></v-checkbox>
+          </v-col>
+          <v-col cols="12" md="6">
+            <select-role v-model="employee.role_id"></select-role>
+          </v-col>
+          <v-col cols="12" md="6">
             <v-checkbox label="Intern" v-model="employee.isIntern"></v-checkbox>
           </v-col>
           <v-col cols="12" md="6">
@@ -71,9 +77,13 @@
 
 <script>
 import { rules } from '@/utils'
+import SelectRole from '@/components/Authorization/SelectRole'
 
 export default {
   name: 'AddCustomer',
+  components: {
+    SelectRole
+  },
   data() {
     return {
       employee: {
