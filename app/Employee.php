@@ -87,19 +87,19 @@ class Employee extends Model
         return $this->user->email;
     }
 
-    // user mutators
-    public function setFirstnameAttribute($value)
-    {
-        $this->user->firstname = $value;
-    }
+    // // user mutators
+    // public function setFirstnameAttribute($value)
+    // {
+    //     $this->user->firstname = $value;
+    // }
 
-    public function setLastnameAttribute($value)
-    {
-        $this->user->lastname = $value;
-    }
+    // public function setLastnameAttribute($value)
+    // {
+    //     $this->user->lastname = $value;
+    // }
 
-    public function setEmailAttribute($value)
-    {
-        $this->user->email = $value;
-    }
+    // public function setEmailAttribute($value)
+    // {
+    //     $this->user->email = $value;
+    // }
 }
