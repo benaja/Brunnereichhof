@@ -104,7 +104,12 @@ class RapportController extends Controller
             return $rapport;
         }
 
-        $employees = Employee::withTrashed()->where('isGuest', false)->orderBy('lastname')->get();
+        $employees = Employee::with('user')
+            ->withTrashed()
+            ->where('isGuest', false)
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         return [
             'rapport' => $rapport,

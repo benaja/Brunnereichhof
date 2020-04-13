@@ -72,11 +72,13 @@ class PdfController extends Controller
         $lastdate = clone $firstdate;
         $lastdate->modify('last day of this month');
 
-        $rapportdetails = Rapportdetail::where('date', '>=', $firstdate->format('Y-m-d'))
+        $rapportdetails = Rapportdetail::with('employee.user')
+            ->where('date', '>=', $firstdate->format('Y-m-d'))
             ->where('date', '<=', $lastdate->format('Y-m-d'))
             ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
-            ->orderBy('lastname')
-            ->get();
+            ->get()
+            ->sortBy('employee.user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         $this->pdf = new Pdf();
         $monthName = $this->monthNames[intval($firstdate->format('m')) - 1];

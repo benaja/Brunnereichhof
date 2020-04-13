@@ -34,7 +34,10 @@ class EmployeeController extends Controller
         if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
         else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
         else $employees = Employee::with('user');
-        return $employees->where('isGuest', false)->get()->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        return $employees->where('isGuest', false)
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     // GET guests
@@ -46,7 +49,10 @@ class EmployeeController extends Controller
         if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
         else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
         else $employees = Employee::with('user');
-        return $employees->where('isGuest', false)->get()->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        return $employees->where('isGuest', true)
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     // GET employeeswithguests
@@ -54,10 +60,13 @@ class EmployeeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read', 'evaluation_employee']);
 
-        if (isset($request->deleted)) $employees = Employee::onlyTrashed()->orderBy('lastname')->get();
-        else if (isset($request->all)) $employees = Employee::withTrashed()->orderBy('lastname')->get();
-        else $employees = Employee::orderBy('lastname')->get();
-        return $employees;
+        $employees = [];
+        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
+        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
+        else $employees = Employee::with('user');
+        return $employees->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     // POST employee

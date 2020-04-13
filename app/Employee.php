@@ -74,17 +74,17 @@ class Employee extends Model
     // user accessors
     public function getFirstnameAttribute()
     {
-        return $this->user->firstname;
+        return $this->user ? $this->user->firstname : '';
     }
 
     public function getLastnameAttribute()
     {
-        return $this->user->lastname;
+        return $this->user ? $this->user->lastname : '';
     }
 
     public function getEmailAttribute()
     {
-        return $this->user->email;
+        return $this->user ? $this->user->email : '';
     }
 
     // user mutators

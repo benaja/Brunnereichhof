@@ -26,7 +26,11 @@ class ReservationPdfController extends Controller
 
         $employees = Employee::withTrashed()->find($id);
         if (!$employees) {
-            $employees = Employee::withTrashed()->orderBy('lastname')->get();
+            $employees = Employee::with('user')
+                ->withTrashed()
+                ->get()
+                ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
         } else {
             $employees = [$employees];
         }
