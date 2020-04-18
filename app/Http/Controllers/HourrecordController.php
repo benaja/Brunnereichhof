@@ -42,7 +42,8 @@ class HourrecordController extends Controller
             }
             return Hourrecord::with('culture')
                 ->where('year', $date->format('Y'))
-                ->get()->groupBy('week');
+                ->get()
+                ->groupBy('week');
         }
     }
 
@@ -200,22 +201,18 @@ class HourrecordController extends Controller
         $year = new \DateTime($year);
         $this->pdf = new Pdf();
         if ($customer === 'all') {
-            $customers = Customer::withTrashed()->with(['Hourrecords' => function ($query) use ($year) {
-                $query->with('culture');
-                $query->where('year', $year->format('Y'))->orderBy('week');
-            }])->orderBy('lastname')->get();
+            $customers = Customer::withTrashed()->orderBy('lastname')->get();
             $addNewPage = false;
             foreach ($customers as $customer) {
-                if ($customer->hourrecords->count() > 0) {
+                $hourrecords = $customer->hourrecords->where('year', $year->format('Y'));
+                if ($hourrecords->count() > 0) {
                     $this->customerYearRapport($customer, $year, $addNewPage);
                     $addNewPage = true;
                 }
             }
             return $this->pdf->export("Stundenangaben {$year->format('Y')}.pdf");
         } else {
-            $customer = Customer::with(['hourrecords' => function ($query) use ($year) {
-                $query->where('year', $year->format('Y'))->orderBy('week');
-            }])->find($customer);
+            $customer = Customer::with('hourrecords')->find($customer);
             $this->customerYearRapport($customer, $year);
             return $this->pdf->export("Stundenangaben {$customer->lastname} {$customer->firstname} {$year->format('Y')}.pdf");
         }
@@ -260,14 +257,15 @@ class HourrecordController extends Controller
     private function customerYearRapport($customer, $year, $addNewPage = false)
     {
         if ($addNewPage) $this->pdf->addNewPage();
-        $totalHours = $customer->hourrecords->sum('hours');
+        $hourrecords = $customer->hourrecords->where('year', $year->format('Y'))->sortBy('week');
+        $totalHours = $hourrecords->sum('hours');
         $title = "{$customer->lastname} {$customer->firstname}\nJahr: {$year->format('Y')}\nTotale Stunden: {$totalHours}";
         $this->pdf->documentTitle($title);
         $this->pdf->textToInsertOnPageBreak = $title;
 
         $lines = [];
 
-        foreach ($customer->hourrecords as $hourrecord) {
+        foreach ($hourrecords as $hourrecord) {
             $date = new \DateTime();
             $date->setISODate(intval($year->format('Y')), $hourrecord->week);
             $weekStartDate = $date->format('d.m.Y');

@@ -1,7 +1,7 @@
 export default [
   {
     version: '1.10.1',
-    bugfixes: [`Bilder können auch bei der Erstellung des Raums hochgeladen werden.`]
+    bugfixes: [`Bilder können auch bei der Erstellung des Raums hochgeladen werden.`, `Stundenangaben Pdf generieren Bugs behoben.`]
   },
   {
     version: '1.10',

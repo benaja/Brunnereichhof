@@ -2,8 +2,8 @@
   <v-container>
     <h1 class="text-center mb-4">
       KW {{$route.params.week}}
-      ({{monday.toLocaleDateString()}} -
-      {{sunday.toLocaleDateString()}})
+      ({{monday.format('DD.MM.YYYY')}} -
+      {{sunday.format('DD.MM.YYYY')}})
       / {{totalHours}} Stunden
     </h1>
     <div v-if="customers.length > 0">
@@ -96,13 +96,14 @@ export default {
   },
   computed: {
     monday() {
-      let day = (this.$route.params.week - 1) * 7
-      return new Date(this.$route.params.year, 0, day)
+      return this.$moment(this.$route.params.year, 'YYYY')
+        .week(this.$route.params.week)
+        .startOf('week')
     },
     sunday() {
-      let monday = new Date(this.monday)
-      monday.setDate(monday.getDate() + 6)
-      return monday
+      return this.$moment(this.$route.params.year, 'YYYY')
+        .week(this.$route.params.week)
+        .endOf('week')
     },
     totalHours() {
       let hours = 0

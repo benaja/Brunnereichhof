@@ -31,8 +31,8 @@
             <v-list-item-content class="pt-2">
               <p class="mb-0 week-text">
                 <span class="font-weight-bold">KW {{hourrecord[0].week}}</span>
-                ({{getMondayOfWeek(hourrecord[0].week, hourrecord[0].year).toLocaleDateString()}} -
-                {{getSundayOfWeek(hourrecord[0].week, hourrecord[0].year).toLocaleDateString()}})
+                ({{$moment(hourrecord[0].year, 'YYYY').week(hourrecord[0].week).startOf('week').format('DD.MM.YYYY')}} -
+                {{$moment(hourrecord[0].year, 'YYYY').week(hourrecord[0].week).endOf('week').format('DD.MM.YYYY')}})
                 / {{calculateHours(hourrecord)}} Stunden
               </p>
             </v-list-item-content>
