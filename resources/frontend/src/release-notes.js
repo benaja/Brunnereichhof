@@ -1,5 +1,9 @@
 export default [
   {
+    version: '1.10.1',
+    bugfixes: [`Bilder können auch bei der Erstellung des Raums hochgeladen werden.`]
+  },
+  {
     version: '1.10',
     changes: [
       `Mitarbeiter können sich auch anmelden. Wenn ein Mitarbeiter ein Email adresse hat, kann er auf
