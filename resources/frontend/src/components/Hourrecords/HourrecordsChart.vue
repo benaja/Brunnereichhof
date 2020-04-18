@@ -7,13 +7,14 @@ export default {
   name: 'HourrecordsChart',
   extends: Bar,
   mixins: [reactiveProp],
+  props: {
+    options: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   mounted() {
-    return this.renderChart(this.chartData, {
-      height: '500px',
-      style: {
-        height: '500px'
-      }
-    })
+    return this.renderChart(this.chartData, this.options)
   }
 }
 </script>

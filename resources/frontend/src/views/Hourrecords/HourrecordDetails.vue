@@ -44,21 +44,32 @@
       <v-icon v-if="editMode">check</v-icon>
       <v-icon v-else>edit</v-icon>
     </v-btn>
-    <add-hourrecrod v-model="addHourrecord" :cultures="cultures" @add="h => applyHourrecord(h)"></add-hourrecrod>
+    <add-hourrecord
+      v-model="addHourrecord"
+      :cultures="cultures"
+      :year="$route.params.year"
+      :week="$route.params.week"
+      @add="h => applyHourrecord(h)"
+    ></add-hourrecord>
   </v-container>
 </template>
 
 <script>
 import HourrecordElement from '@/components/Hourrecords/HourrecordElement'
-import AddHourrecrod from '@/components/Hourrecords/AddHourrecord'
+import AddHourrecord from '@/components/Hourrecords/AddHourrecord'
 
 export default {
   name: 'HourrecordDetails',
   components: {
     HourrecordElement,
-    AddHourrecrod
+    AddHourrecord
   },
-  props: ['edit'],
+  props: {
+    edit: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       customers: [],

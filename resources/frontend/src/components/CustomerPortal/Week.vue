@@ -6,16 +6,6 @@
           <span class="font-weight-bold">KW {{culture.week}}</span>
           ({{getMondayOfWeek(culture.week, culture.year).toLocaleDateString()}} - {{getSundayOfWeek(culture.week, culture.year).toLocaleDateString()}})
         </p>
-        <v-btn
-          v-else-if="$store.getters.isEditTime"
-          text
-          icon
-          color="red"
-          class="my-0 float-right hidden-xs-only"
-          @click="deleteCulture(week, culture)"
-        >
-          <v-icon>delete</v-icon>
-        </v-btn>
       </v-col>
       <v-col cols="12" md="2" lg="1" class="px-1 py-0">
         <v-text-field
@@ -27,7 +17,7 @@
           :disabled="!$store.getters.isEditTime"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" md="4" class="px-1 py-0">
+      <v-col cols="12" :md="$store.getters.isEditTime || adminMode ? 3 : 4" class="px-1 py-0">
         <v-combobox
           :items="cultures"
           v-model="culture.culture"
@@ -51,12 +41,10 @@
           :disabled="!$store.getters.isEditTime"
         ></v-textarea>
       </v-col>
-      <v-col cols="12" class="hidden-md-and-up" v-if="index !== 0 && $store.getters.isEditTime">
-        <p class="text-center">
-          <v-btn text icon color="red" class="my-0" @click="deleteCulture(week, culture)">
-            <v-icon>delete</v-icon>
-          </v-btn>
-        </p>
+      <v-col cols="12" md="1" v-if="$store.getters.isEditTime || adminMode" class="pa-0">
+        <v-btn text icon color="red" class="my-0" @click="deleteCulture(week, culture)">
+          <v-icon>delete</v-icon>
+        </v-btn>
       </v-col>
     </v-row>
     <div v-else>
@@ -71,6 +59,7 @@
 
 <script>
 import Spinner from '@/components/general/Spinner'
+import moment from 'moment'
 
 export default {
   name: 'Week',
@@ -79,7 +68,16 @@ export default {
   },
   props: {
     week: Array,
-    cultures: Array
+    cultures: Array,
+    customer: Object,
+    year: {
+      type: String,
+      default: moment().format('YYYY')
+    },
+    adminMode: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     getMondayOfWeek(week, year) {
@@ -98,7 +96,9 @@ export default {
       }
       week.push(isLoading)
       this.axios
-        .post(process.env.VUE_APP_API_URL + 'hourrecord/week/' + week[0].week)
+        .post(`hourrecord/${this.year}/${week[0].week}`, {
+          customerId: this.customer ? this.customer.id : null
+        })
         .then(response => {
           week.splice(week.indexOf(isLoading), 1)
           week.push(response.data)

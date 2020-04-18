@@ -9,13 +9,15 @@
         <v-card-text>
           <v-form ref="form">
             <v-autocomplete
+              v-if="!customer"
+              v-model="hourrecord.customerId"
+              :items="customers"
               label="Kunde suchen"
               append-outer-icon="search"
-              v-model="hourrecord.customer"
-              :items="customers"
               item-value="id"
               item-text="name"
             ></v-autocomplete>
+            <date-picker v-if="!week" v-model="hourrecord.date" label="Datum"></date-picker>
             <v-row>
               <v-col cols="12" md="2">
                 <v-text-field
@@ -57,25 +59,45 @@
 </template>
 
 <script>
+import DatePicker from '@/components/general/DatePicker'
+
 export default {
-  name: 'EditEmployees',
-  components: {},
+  components: {
+    DatePicker
+  },
   props: {
-    value: Boolean
+    value: Boolean,
+    customer: {
+      type: Object,
+      default: null
+    },
+    year: {
+      type: String,
+      required: true
+    },
+    week: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
       customers: [],
       cultures: [],
-      hourrecord: {
-        customer: null
-      }
+      hourrecord: {}
     }
   },
   methods: {
     save() {
+      if (this.customer) {
+        this.hourrecord.customerId = this.customer.id
+      }
+      let week = this.week
+      if (!this.week) {
+        week = this.$moment(this.hourrecord.date).week()
+      }
       this.axios
-        .post(`hourrecord/${this.$route.params.year}/${this.$route.params.week}`, this.hourrecord)
+        .post(`hourrecord/${this.year}/${week}`, this.hourrecord)
         .then(response => {
           this.$emit('add', response.data)
           this.$emit('input', false)
@@ -88,7 +110,8 @@ export default {
     allValid() {
       if (!this.hourrecord.hours) return false
       if (!this.hourrecord.culture) return false
-      if (!this.hourrecord.customer) return false
+      if (!this.hourrecord.customerId && !this.customer) return false
+      if (!this.hourrecord.date && !this.week) return false
       return true
     }
   },

@@ -57,6 +57,15 @@ export default new Router({
       }
     },
     {
+      path: '/customers/:id/hourrecords',
+      name: 'CustomerHourrecords',
+      component: () => import('./views/Hourrecords/CustomerHourrecords'),
+      meta: {
+        auth: true
+      },
+      props: true
+    },
+    {
       path: '/employee',
       name: 'Employees',
       component: () => import('./views/Employee/Employees'),

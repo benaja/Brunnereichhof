@@ -1,38 +1,63 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12" sm="8" offset-sm="2">
-        <h2 class="text-center display-3">{{totalHours}}</h2>
-        <h2 class="text-center subheading mb-4">Stunden in disem Jahr</h2>
-      </v-col>
-    </v-row>
-    <hourrecords-chart v-if="!isLoading" :chartData="chartData" :height="250"></hourrecords-chart>
-    <v-row class="mt-4">
-      <v-col cols="12" md="5" lg="3" class="text-right">
+    <h1 class="text-center my-3">Stundenangaben</h1>
+    <div class="grid-layout">
+      <div class="chart-card bar-chart">
+        <h3 class="title my-2">Anzahl Stunden pro KW</h3>
+        <hourrecords-chart
+          v-if="!isLoading"
+          :chartData="chartData"
+          :height="250"
+          :options="chartOptions"
+        ></hourrecords-chart>
+      </div>
+      <div class="chart-card total-number">
+        <h2 class="body-1 mt-4">Stunden in disem Jahr</h2>
+        <h2 class="display-1 mb-4">{{totalHours}}</h2>
+      </div>
+      <div class="chart-card filter">
         <v-select
           v-model="sortType"
           :items="sortTypes"
           label="Sortieren nach"
-          outline
+          outlined
           prepend-inner-icon="sort"
+          class="mt-3"
         ></v-select>
-      </v-col>
-      <v-col cols="12" md="3" lg="2">
-        <date-picker v-model="selectedYear" type="year" label="Jahr"></date-picker>
-      </v-col>
-      <v-col cols="12" md="4" lg="7">
-        <v-btn color="primary" class="float-right" @click="generatePdf">Pdf Erstellen</v-btn>
-      </v-col>
-    </v-row>
-    <v-list class="mt-4 pa-0" v-if="sortType == 'week'">
+        <date-picker v-model="selectedYear" type="year" label="Jahr" outlined></date-picker>
+        <v-btn color="primary" class="full-width" depressed width="100%" @click="generatePdf">
+          <v-icon class="mr-3">picture_as_pdf</v-icon>Pdf Erstellen
+        </v-btn>
+        <v-btn
+          v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
+          outlined
+          color="primary"
+          width="100%"
+          class="my-2"
+          @click="datepicker = true"
+        >
+          <v-icon class="mr-3">today</v-icon>Erfassen nach KW
+        </v-btn>
+        <v-btn
+          v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
+          outlined
+          color="primary"
+          width="100%"
+          @click="selectCustomerDialog = true"
+        >
+          <v-icon class="mr-3">supervisor_account</v-icon>Erfassen nach Kunde
+        </v-btn>
+      </div>
+    </div>
+    <v-list class="mt-10 pa-0" v-if="sortType == 'week'">
       <template v-for="(hourrecord, index) of hourrecords">
         <div :key="index" class="week-item">
           <v-list-item :to="'/hourrecords/' + hourrecord[0].year + '/' + hourrecord[0].week">
             <v-list-item-content class="pt-2">
               <p class="mb-0 week-text">
                 <span class="font-weight-bold">KW {{hourrecord[0].week}}</span>
-                ({{$moment(hourrecord[0].year, 'YYYY').week(hourrecord[0].week).startOf('week').format('DD.MM.YYYY')}} -
-                {{$moment(hourrecord[0].year, 'YYYY').week(hourrecord[0].week).endOf('week').format('DD.MM.YYYY')}})
+                ({{$moment().year(hourrecord[0].year).week(hourrecord[0].week).startOf('week').format('DD.MM.YYYY')}} -
+                {{$moment().year(hourrecord[0].year).week(hourrecord[0].week).endOf('week').format('DD.MM.YYYY')}})
                 / {{calculateHours(hourrecord)}} Stunden
               </p>
             </v-list-item-content>
@@ -44,7 +69,7 @@
         </div>
       </template>
     </v-list>
-    <v-expansion-panels v-if="sortType === 'customer'">
+    <v-expansion-panels v-if="sortType === 'customer'" class="mt-10">
       <v-expansion-panel
         v-for="customer of hourrecrodsByCustomer.filter(c => c.hourrecords.length > 0)"
         :key="customer.id"
@@ -60,7 +85,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <v-expansion-panels v-if="sortType === 'project'">
+    <v-expansion-panels v-if="sortType === 'project'" class="mt-10">
       <v-expansion-panel
         v-for="project of hourrecrodsByProject.filter(p => p.hourrecords.length > 0)"
         :key="project.id"
@@ -76,15 +101,32 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <p class="text-center" v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])">
-      <v-btn text color="primary" @click="datepicker = true">Angabe hinzufügen</v-btn>
-    </p>
     <v-dialog width="unset" v-model="datepicker">
-      <v-date-picker v-model="newHourrecordDate" scrollable first-day-of-week="1" locale="ch-de">
+      <v-date-picker
+        v-model="newHourrecordDate"
+        scrollable
+        first-day-of-week="1"
+        locale="ch-de"
+        show-week
+      >
         <v-spacer></v-spacer>
         <v-btn text color="primary" @click="datepicker = false">Abbrechen</v-btn>
         <v-btn text color="primary" @click="addHourrecord">OK</v-btn>
       </v-date-picker>
+    </v-dialog>
+    <v-dialog width="500" v-model="selectCustomerDialog">
+      <v-card>
+        <v-card-title>Kunde Auswählen</v-card-title>
+        <v-card-text>
+          <v-select
+            label="Kunde"
+            :items="customers"
+            item-value="id"
+            item-text="name"
+            @input="selectCustomer"
+          ></v-select>
+        </v-card-text>
+      </v-card>
     </v-dialog>
   </v-container>
 </template>
@@ -92,7 +134,6 @@
 <script>
 import HourrecordWeekList from '@/components/Hourrecords/HourrecordWeekList'
 import HourrecordsChart from '@/components/Hourrecords/HourrecordsChart'
-import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
 import { downloadFile } from '@/utils'
 
@@ -115,7 +156,21 @@ export default {
           }
         ]
       },
-      selectedYear: moment().format('YYYY'),
+      chartOptions: {
+        legend: {
+          display: false
+        },
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                display: false
+              }
+            }
+          ]
+        }
+      },
+      selectedYear: this.$moment().format('YYYY'),
       hourrecords: {},
       hourrecrodsByCustomer: [],
       hourrecrodsByProject: [],
@@ -129,7 +184,9 @@ export default {
         { text: 'Kunde', value: 'customer' },
         { text: 'Projekt', value: 'project' }
       ],
-      sortType: 'week'
+      sortType: 'week',
+      selectCustomerDialog: false,
+      customers: []
     }
   },
   mounted() {
@@ -137,6 +194,9 @@ export default {
       this.totalHours = Math.floor(Math.random() * 100000)
     }, 10)
     this.getHourRecords()
+    this.$store.dispatch('customers').then(customers => {
+      this.customers = customers
+    })
   },
   methods: {
     getHourRecords(updateStats = false) {
@@ -212,9 +272,9 @@ export default {
     addHourrecord() {
       let newDate
       if (this.newHourrecordDate) {
-        newDate = moment(this.newHourrecordDate)
+        newDate = this.$moment(this.newHourrecordDate)
       } else {
-        newDate = moment()
+        newDate = this.$moment()
       }
       this.$router.push(`/hourrecords/${newDate.format('YYYY')}/${newDate.format('W')}?edit=true`)
     },
@@ -258,6 +318,9 @@ export default {
     },
     generatePdf() {
       downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
+    },
+    selectCustomer(customerId) {
+      this.$router.push(`/customers/${customerId}/hourrecords?year=${this.selectedYear}`)
     }
   },
   watch: {
@@ -272,6 +335,35 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.grid-layout {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 70% 30%;
+  grid-gap: 20px;
+  grid-template-areas:
+    'bar-chart total-number'
+    'bar-chart filter';
+}
+
+.bar-chart {
+  grid-area: bar-chart;
+}
+
+.total-number {
+  grid-area: total-number;
+}
+
+.filter {
+  grid-area: filter;
+}
+
+.chart-card {
+  background-color: white;
+  box-shadow: 0 0 30px lightgray;
+  border-radius: 20px;
+  padding: 10px 20px;
+}
+
 .week-item:last-child {
   .divider {
     display: none;
@@ -282,5 +374,19 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   width: 100%;
+}
+
+@media only screen and (max-width: 1264px) {
+  .grid-layout {
+    grid-template-columns: 65% 35%;
+  }
+}
+
+@media only screen and (max-width: 1264px) {
+  .grid-layout {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto auto;
+    grid-template-areas: 'total-number' 'bar-chart' 'filter';
+  }
 }
 </style>

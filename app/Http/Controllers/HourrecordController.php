@@ -98,10 +98,11 @@ class HourrecordController extends Controller
             abort(400, 'the week can not be greater than 52');
         }
 
+        $customer = null;
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
             $customer = auth()->user()->customer;
         } else {
-            $customer = Customer::find($request->customer);
+            $customer = Customer::find($request->customerId);
         }
 
         if (is_array($request->culture)) {
@@ -216,6 +217,16 @@ class HourrecordController extends Controller
             $this->customerYearRapport($customer, $year);
             return $this->pdf->export("Stundenangaben {$customer->lastname} {$customer->firstname} {$year->format('Y')}.pdf");
         }
+    }
+
+    public function getByCustomer(Request $request, $id)
+    {
+        auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
+
+        return Hourrecord::with('culture')->where([
+            'customer_id' => $id,
+            'year' => (new \DateTime($request->year))->format('Y')
+        ])->get()->groupBy('week');
     }
 
 

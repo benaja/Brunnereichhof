@@ -27,8 +27,8 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
 
-        if (isset($request->deleted)) $customers = Customer::onlyTrashed()->orderBy('lastname')->get();
-        else if (isset($request->all)) $customers = Customer::withTrashed()->orderBy('lastname')->get();
+        if (isset($request->deleted)) $customers = Customer::with('address')->onlyTrashed()->orderBy('lastname')->get();
+        else if (isset($request->all)) $customers = Customer::with('address')->withTrashed()->orderBy('lastname')->get();
         else $customers = Customer::with('address')->orderBy('lastname')->get();
 
         foreach ($customers as $customer) {

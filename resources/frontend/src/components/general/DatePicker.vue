@@ -11,12 +11,14 @@
       <v-text-field
         :value="formatedDate"
         :label="label"
-        prepend-icon="event"
+        :prepend-inner-icon="outlined ? 'event' : null"
+        :prepend-icon="outlined ? null : 'event'"
         readonly
         :rules="rules"
         :color="color"
         v-on="on"
         show-week
+        :outlined="outlined"
       ></v-text-field>
     </template>
     <v-date-picker
@@ -76,13 +78,13 @@ export default {
     }
   },
   methods: {
-    formatDate(format) {
-      return this.date ? this.$moment(this.date).format(format) : ''
+    formatDate(format, parseFormat = undefined) {
+      return this.date ? this.$moment(this.date, parseFormat).format(format) : ''
     },
     setFormatedDate() {
       if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
       else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
-      else this.formatedDate = this.formatDate('YYYY')
+      else this.formatedDate = this.formatDate('YYYY', 'YYYY')
     }
   },
   watch: {

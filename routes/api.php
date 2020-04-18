@@ -12,6 +12,7 @@ Route::group(['middleware' => 'jwt.refresh'], function () {
 // Customer
 Route::patch('customer/{id}/resetpassword', 'CustomerController@resetPassword');
 Route::get('customer/{id}/projects', 'CustomerController@projects');
+Route::get('customer/{id}/hourrecords', 'HourrecordController@getByCustomer');
 Route::resource('customer', 'CustomerController');
 
 // Employee
