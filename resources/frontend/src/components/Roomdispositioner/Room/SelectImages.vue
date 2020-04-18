@@ -36,7 +36,7 @@
     <v-dialog v-model="galleryDialog" fullscreen>
       <div class="black-background">
         <v-carousel v-model="selectedImage" height="100%" hide-delimiters>
-          <v-carousel-item v-for="(image, index) of value" :key="index">
+          <v-carousel-item v-for="(image, index) of filesToDisplay" :key="index">
             <v-row class="fill-height ma-0" align="center" justify="center">
               <v-img :src="`${image.url}`" max-height="100%" max-width="100%" contain></v-img>
             </v-row>
