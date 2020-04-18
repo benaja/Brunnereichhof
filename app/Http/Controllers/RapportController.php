@@ -194,7 +194,6 @@ class RapportController extends Controller
                 }
             }
         } else {
-            Log::info("start to update Rapport $rapport->id");
             $updatetKey = key($request->except('_token'));
 
             $updatedValue = (string) $request->$updatetKey;
@@ -203,7 +202,6 @@ class RapportController extends Controller
             }
             $rapport->$updatetKey = $updatedValue;
             $rapport->save();
-            Log::info("Updated Rapport $rapport->id with the key $updatetKey");
         }
 
         return $this->rapportWithDetails(Rapport::find($rapport->id));
@@ -212,8 +210,6 @@ class RapportController extends Controller
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
-
-        Log::info("start to update Rapportdetail $rapportdetail->id");
 
         $updatetKey = key($request->except('_token'));
 

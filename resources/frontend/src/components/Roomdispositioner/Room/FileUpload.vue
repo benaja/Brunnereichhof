@@ -22,46 +22,41 @@
 
 <script>
 export default {
-  name: 'FileUpload',
-  props: ['settings'],
+  props: {
+    value: {
+      type: Object,
+      default: null
+    },
+    uploadOnChange: {
+      type: Boolean,
+      default: false
+    },
+    uploadUrl: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
-      attachments: [],
       data: new FormData(),
       percentCompleted: 0,
       isLoading: false
     }
   },
-  watch: {},
-  computed: {},
   methods: {
-    validate() {
-      if (!this.attachments.length) {
-        return false
-      }
-      return true
-    },
-    prepareFields() {
-      this.data = new FormData()
-      for (let i = this.attachments.length - 1; i >= 0; i--) {
-        this.data.append('images[]', this.attachments[i])
-      }
-    },
     uploadFieldChange(e) {
       let files = e.target.files || e.dataTransfer.files
-      if (!files.length) {
-        return
+      if (!files.length) return
+      for (let i = 0; i < files.length; i++) {
+        this.data.append('images[]', files[i])
       }
-      for (let i = files.length - 1; i >= 0; i--) {
-        this.attachments.push(files[i])
+      if (this.uploadOnChange) {
+        this.uploadFiles()
+      } else {
+        this.$emit('input', files)
       }
-      this.submit()
     },
-    submit() {
-      this.prepareFields()
-      if (!this.validate()) {
-        return false
-      }
+    uploadFiles() {
       let config = {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: progressEvent => {
@@ -70,19 +65,17 @@ export default {
       }
       this.isLoading = true
       this.axios
-        .post(`/rooms/${this.$route.params.id}/images`, this.data, config)
+        .post(this.uploadUrl, this.data, config)
         .then(response => {
           this.$emit('uploaded', response.data)
-          this.resetData()
-          this.isLoading = false
+          this.data = new FormData()
         })
         .catch(() => {
           this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
         })
-    },
-    resetData() {
-      this.data = new FormData()
-      this.attachments = []
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   }
 }

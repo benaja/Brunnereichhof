@@ -49,14 +49,13 @@ class RoomController extends Controller
             'number' => $request->number
         ]);
 
+        $beds = json_decode($request->beds, true);
         $bedIds = array_map(function ($bed) {
             return $bed['id'];
-        }, $request->beds);
+        }, $beds);
+        $room->beds()->sync($bedIds);
 
-        foreach ($bedIds as $bedId) {
-            $bed = Bed::find($bedId);
-            $room->beds()->attach($bed);
-        }
+        $this->storeImages($request->file('images'), $room->id);
 
         return $room;
     }
@@ -94,18 +93,7 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
-        $images = $request->file('images');
-
-        $createdImages = [];
-        foreach ($images as $image) {
-            $imagePath = Storage::disk('s3')->put('rooms', $image);
-            $newImage = RoomImage::create([
-                'path' => $imagePath,
-                'room_id' => $roomId
-            ]);
-            array_push($createdImages, $newImage);
-        }
-        return $createdImages;
+        return $this->storeImages($request->file('images'), $roomId);
     }
 
     public function deleteImage($imageId)
@@ -427,5 +415,19 @@ class RoomController extends Controller
 
 
         return $rooms;
+    }
+
+    private function storeImages($images, $roomId)
+    {
+        $createdImages = [];
+        foreach ($images as $image) {
+            $imagePath = Storage::disk('s3')->put('rooms', $image);
+            $newImage = RoomImage::create([
+                'path' => $imagePath,
+                'room_id' => $roomId
+            ]);
+            array_push($createdImages, $newImage);
+        }
+        return $createdImages;
     }
 }

@@ -8,13 +8,20 @@
       >
         <p class="my-4">
           {{bed.name}}
-          <v-btn text icon color="red" class="float-right delete-bed-icon" @click="removeBed(bed)">
+          <v-btn
+            v-if="!disabled"
+            text
+            icon
+            color="red"
+            class="float-right delete-bed-icon"
+            @click="removeBed(bed)"
+          >
             <v-icon>delete</v-icon>
           </v-btn>
         </p>
       </div>
     </template>
-    <v-row>
+    <v-row v-if="!disabled">
       <v-col cols="12">
         <v-autocomplete
           v-model="selectedBed"
@@ -48,7 +55,11 @@ export default {
     AddBed
   },
   props: {
-    value: Array
+    value: Array,
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

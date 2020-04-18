@@ -29,9 +29,12 @@
         <v-col cols="12" class="px-4">
           <select-bed v-model="room.beds"></select-bed>
         </v-col>
+        <v-col cols="12" class="py-0">
+          <select-images v-model="room.images"></select-images>
+        </v-col>
         <v-col cols="12" class="mt-4">
           <v-btn text>Abbrechen</v-btn>
-          <v-btn text color="blue" class="float-right" @click="save">Speichern</v-btn>
+          <v-btn text color="blue" class="float-right" @click="save" :loading="isLoading">Speichern</v-btn>
         </v-col>
       </v-row>
     </v-form>
@@ -40,36 +43,57 @@
 
 <script>
 import SelectBed from '@/components/Roomdispositioner/Bed/SelectBed'
+import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
+
 export default {
   components: {
-    SelectBed
+    SelectBed,
+    SelectImages
   },
   data() {
     return {
       room: {
-        beds: []
+        beds: [],
+        images: []
       },
       rules: {
         required: [v => !!v || 'Dieses Feld muss vorhanden sein']
-      }
+      },
+      isLoading: false
     }
   },
   methods: {
     save() {
       if (this.$refs.form.validate()) {
+        this.isLoading = true
+        const formData = new FormData()
+        for (let image of this.room.images) {
+          formData.append('images[]', image)
+        }
+        formData.append('name', this.room.name)
+        formData.append('location', this.room.location)
+        formData.append('number', this.room.number)
+        formData.append('comment', this.room.comment)
+        formData.append('beds', JSON.stringify(this.room.beds))
+        const config = {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: progressEvent => {
+            this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          }
+        }
         this.axios
-          .post('/rooms', this.room)
+          .post('/rooms', formData, config)
           .then(response => {
             this.$router.push('/rooms')
           })
           .catch(() => {
             this.$swal('Fehler', 'Raum konnte nicht gespeichert werden.', 'error')
           })
+          .finally(() => {
+            this.isLoading = false
+          })
       }
     }
   }
 }
 </script>
-
-<style>
-</style>
