@@ -46,6 +46,10 @@ export default {
 </script>
 
 <style lang="scss">
+h1 {
+  margin: 12px 0;
+}
+
 body {
   background-color: rgb(238, 237, 237);
 }

@@ -11,12 +11,14 @@ import Vuetify from 'vuetify'
 import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
 import Vue2TouchEvents from 'vue2-touch-events'
+import VueSync from 'vue-sync'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.use(VueSweetalert2)
 Vue.use(chartist)
 Vue.use(Vue2TouchEvents)
+Vue.use(VueSync)
 
 moment.locale('de-ch')
 Vue.prototype.$moment = moment

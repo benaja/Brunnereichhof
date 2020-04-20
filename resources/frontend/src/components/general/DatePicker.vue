@@ -1,12 +1,5 @@
 <template>
-  <v-menu
-    v-model="model"
-    :nudge-right="40"
-    transition="scale-transition"
-    offset-y
-    min-width="290px"
-    :close-on-content-click="type === 'year'"
-  >
+  <v-menu v-model="model" :nudge-right="40" transition="scale-transition" offset-y min-width="290px" :close-on-content-click="type === 'year'">
     <template v-slot:activator="{ on }">
       <v-text-field
         :value="formatedDate"
@@ -19,6 +12,7 @@
         v-on="on"
         show-week
         :outlined="outlined"
+        :dense="dense"
       ></v-text-field>
     </template>
     <v-date-picker
@@ -29,7 +23,13 @@
       first-day-of-week="1"
       ref="picker"
       :type="type === 'year' ? 'date' : type"
-      :max="type === 'year' ? $moment().add(3, 'years').format('YYYY-MM-DD') : undefined"
+      :max="
+        type === 'year'
+          ? $moment()
+              .add(3, 'years')
+              .format('YYYY-MM-DD')
+          : undefined
+      "
       show-week
     ></v-date-picker>
   </v-menu>
@@ -54,6 +54,10 @@ export default {
       default: 'date'
     },
     outlined: {
+      type: Boolean,
+      default: false
+    },
+    dense: {
       type: Boolean,
       default: false
     }
@@ -106,5 +110,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

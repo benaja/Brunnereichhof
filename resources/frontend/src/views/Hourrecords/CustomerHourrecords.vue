@@ -1,6 +1,17 @@
 <template>
   <v-container>
-    <h1>Stundenangaben {{customer.lastname}} {{customer.firstname}} {{$route.query.year}}</h1>
+    <v-row>
+      <v-flex>
+        <h1>Stundenangaben {{ customer.lastname }} {{ customer.firstname }} {{ $route.query.year }}</h1>
+      </v-flex>
+      <v-flex shrink align-self="end" class="py-5 d-flex">
+        <date-picker :value="year.toString()" type="year" dense outlined @input="updateYear"></date-picker>
+        <div v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])" class="ml-2">
+          <v-btn v-if="edit" color="primary" outlined @click="addHourrecordDialog = true"> <v-icon class="mr-2">add</v-icon>Hinzufügen </v-btn>
+          <v-btn v-else color="primary" depressed @click="edit = !edit"> <v-icon class="mr-2">edit</v-icon>Bearbeiten </v-btn>
+        </div>
+      </v-flex>
+    </v-row>
     <week
       v-for="(week, index) of hourrecords"
       :week="week"
@@ -9,8 +20,14 @@
       :customer="customer"
       :year="$route.query.year"
       admin-mode
-      @input="w => week = w"
+      @input="w => (week = w)"
     ></week>
+    <v-row>
+      <v-flex align-self="end">
+        <v-btn v-if="edit" color="primary" class="float-right" depressed @click="edit = !edit"><v-icon class="mr-2">check</v-icon>Fertig</v-btn>
+      </v-flex>
+    </v-row>
+    <v-row> </v-row>
     <add-hourrecord
       v-model="addHourrecordDialog"
       :cultures="cultures"
@@ -18,26 +35,19 @@
       :year="$route.query.year"
       @add="addHourrecord"
     ></add-hourrecord>
-    <v-btn
-      fab
-      color="primary"
-      class="edit-button"
-      @click="addHourrecordDialog = true"
-      v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
-    >
-      <v-icon>add</v-icon>
-    </v-btn>
   </v-container>
 </template>
 
 <script>
 import Week from '@/components/CustomerPortal/Week'
 import AddHourrecord from '@/components/Hourrecords/AddHourrecord'
+import DatePicker from '@/components/general/DatePicker'
 
 export default {
   components: {
     Week,
-    AddHourrecord
+    AddHourrecord,
+    DatePicker
   },
   props: {
     id: {
@@ -50,7 +60,9 @@ export default {
       customer: {},
       hourrecords: [],
       cultures: [],
-      addHourrecordDialog: false
+      addHourrecordDialog: false,
+      edit: false,
+      year: this.$moment().format('YYYY')
     }
   },
   mounted() {
@@ -59,9 +71,7 @@ export default {
       this.axios.get(`/customer/${this.id}`).then(response => {
         this.customer = response.data
       }),
-      this.axios.get(`/customer/${this.id}/hourrecords?year=${this.$route.query.year}`).then(response => {
-        this.hourrecords = response.data
-      }),
+      this.getHourrecords(),
       this.axios.get('/culture').then(response => {
         this.cultures = response.data
       })
@@ -84,6 +94,28 @@ export default {
       } else {
         this.$set(this.hourrecords, hourrecord.week, [hourrecord])
       }
+    },
+    toggleEdit() {
+      this.$router.replace({ query: { ...this.$route.query, edit: this.edit ? 0 : 1 } })
+    },
+    getHourrecords() {
+      return this.axios.get(`/customer/${this.id}/hourrecords?year=${this.year}`).then(response => {
+        this.hourrecords = response.data
+      })
+    },
+    updateYear(value) {
+      this.year = value
+      this.getHourrecords()
+    }
+  },
+  url: {
+    edit: {
+      param: 'edit',
+      noHistory: true
+    },
+    year: {
+      param: 'year',
+      noHistory: true
     }
   }
 }
