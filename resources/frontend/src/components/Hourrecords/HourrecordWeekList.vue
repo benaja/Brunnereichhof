@@ -14,7 +14,7 @@
           <v-icon>send</v-icon>
         </v-list-item-action>
       </v-list-item>
-      <v-divider class="divider"></v-divider>
+      <v-divider class="divider" v-if="index < hourrecords.length -1"></v-divider>
     </div>
   </div>
 </template>

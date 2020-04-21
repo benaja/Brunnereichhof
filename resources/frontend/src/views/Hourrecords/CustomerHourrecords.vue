@@ -1,17 +1,47 @@
 <template>
   <v-container>
-    <v-row>
-      <v-flex>
-        <h1>Stundenangaben {{ customer.lastname }} {{ customer.firstname }} {{ $route.query.year }}</h1>
-      </v-flex>
-      <v-flex shrink align-self="end" class="py-5 d-flex">
-        <date-picker :value="year.toString()" type="year" dense outlined @input="updateYear"></date-picker>
-        <div v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])" class="ml-2">
-          <v-btn v-if="edit" color="primary" outlined @click="addHourrecordDialog = true"> <v-icon class="mr-2">add</v-icon>Hinzufügen </v-btn>
-          <v-btn v-else color="primary" depressed @click="edit = !edit"> <v-icon class="mr-2">edit</v-icon>Bearbeiten </v-btn>
-        </div>
-      </v-flex>
-    </v-row>
+    <h1
+      class="text-center"
+    >Stundenangaben {{ customer.lastname }} {{ customer.firstname }} {{ yearNumber }}</h1>
+    <div class="d-flex justify-end flex-wrap">
+      <div class="date-picker-container">
+        <date-picker
+          :value="year.toString()"
+          :full-width="$vuetify.breakpoint.xsOnly"
+          type="year"
+          dense
+          outlined
+          @input="updateYear"
+        ></date-picker>
+      </div>
+      <template v-if="edit">
+        <v-btn
+          :width="$vuetify.breakpoint.xsOnly ? '50%' : ''"
+          color="primary"
+          outlined
+          @click="addHourrecordDialog = true"
+        >
+          <v-icon class="mr-2">add</v-icon>Hinzufügen
+        </v-btn>
+        <v-btn
+          :width="$vuetify.breakpoint.xsOnly ? 'calc(50% - 12px)' : ''"
+          color="primary"
+          class="ml-2"
+          depressed
+          @click="edit = !edit"
+        >
+          <v-icon class="mr-2">check</v-icon>Fertig
+        </v-btn>
+      </template>
+      <v-btn
+        v-else-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
+        color="primary"
+        depressed
+        @click="edit = !edit"
+      >
+        <v-icon class="mr-2">edit</v-icon>Bearbeiten
+      </v-btn>
+    </div>
     <week
       v-for="(week, index) of hourrecords"
       :week="week"
@@ -19,15 +49,11 @@
       :key="index"
       :customer="customer"
       :year="$route.query.year"
+      :edit="edit"
       admin-mode
       @input="w => (week = w)"
+      @remove="removeWeek(index)"
     ></week>
-    <v-row>
-      <v-flex align-self="end">
-        <v-btn v-if="edit" color="primary" class="float-right" depressed @click="edit = !edit"><v-icon class="mr-2">check</v-icon>Fertig</v-btn>
-      </v-flex>
-    </v-row>
-    <v-row> </v-row>
     <add-hourrecord
       v-model="addHourrecordDialog"
       :cultures="cultures"
@@ -51,7 +77,7 @@ export default {
   },
   props: {
     id: {
-      type: String,
+      type: [String, Number],
       required: true
     }
   },
@@ -63,6 +89,11 @@ export default {
       addHourrecordDialog: false,
       edit: false,
       year: this.$moment().format('YYYY')
+    }
+  },
+  computed: {
+    yearNumber() {
+      return typeof this.year === 'number' ? this.year : this.$moment(this.year).format('YYYY')
     }
   },
   mounted() {
@@ -87,7 +118,7 @@ export default {
     addHourrecord(hourrecord) {
       if (this.hourrecords[hourrecord.week]) {
         this.hourrecords[hourrecord.week].push(hourrecord)
-      } else if (!this.hourrecords.lenght) {
+      } else if (!Object.keys(this.hourrecords).length) {
         this.hourrecords = {
           [hourrecord.week]: [hourrecord]
         }
@@ -106,6 +137,9 @@ export default {
     updateYear(value) {
       this.year = value
       this.getHourrecords()
+    },
+    removeWeek(weekNumber) {
+      delete this.hourrecords[weekNumber]
     }
   },
   url: {
@@ -115,6 +149,10 @@ export default {
     },
     year: {
       param: 'year',
+      noHistory: true
+    },
+    addHourrecordDialog: {
+      param: 'hourrecordDialog',
       noHistory: true
     }
   }
@@ -126,5 +164,16 @@ export default {
   position: fixed;
   bottom: 20px;
   right: 20px;
+}
+
+.date-picker-container {
+  padding-right: 8px;
+}
+
+@media (max-width: 600px) {
+  .date-picker-container {
+    width: 100%;
+    padding-right: 0;
+  }
 }
 </style>

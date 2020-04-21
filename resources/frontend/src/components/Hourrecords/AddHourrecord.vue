@@ -3,7 +3,7 @@
     <v-dialog :value="value" @input="v => $emit('input', v)" width="1000px" max-width="100%">
       <v-card width="1000px" max-width="100%">
         <v-card-title>
-          <h3>Kultur Hinzufügen</h3>
+          <h3>{{ title }}</h3>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
@@ -49,7 +49,7 @@
               </v-col>
             </v-row>
             <v-row justify="center" class="mt-4">
-              <v-btn color="primary" @click="save" :disabled="!allValid()">Speichern</v-btn>
+              <v-btn color="primary" depressed @click="save" :disabled="!allValid()">Speichern</v-btn>
             </v-row>
           </v-form>
         </v-card-text>
@@ -78,6 +78,10 @@ export default {
     week: {
       type: String,
       default: null
+    },
+    title: {
+      type: String,
+      default: 'Kultur hinzufügen'
     }
   },
   data() {
@@ -117,18 +121,17 @@ export default {
   },
   watch: {
     value() {
-      if (this.value && this.customers.length === 0) {
-        this.$store.dispatch('customers').then(customers => {
-          this.customers = customers
-        })
+      if (this.value && !this.cultures.length) {
         this.$store.dispatch('cultures').then(cultures => {
           this.cultures = cultures
+        })
+      }
+      if (this.value && !this.customers.length && !this.customer) {
+        this.$store.dispatch('customers').then(customers => {
+          this.customers = customers
         })
       }
     }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

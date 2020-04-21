@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import roles from './modules/roles'
+import moment from 'moment'
 
 Vue.use(Vuex)
 
@@ -147,7 +148,11 @@ export default new Vuex.Store({
       }
     },
     settings(state, settings) {
-      state.settings = settings
+      state.settings = {
+        ...settings,
+        welcomeText: settings.welcomeText.replace('{name}', Vue.auth.user().firstname + ' ' + Vue.auth.user().lastname),
+        hourrecordValid: settings.hourrecordValid.replace('{datum}', moment(settings.hourrecordEndDate).format('DD.MM.YYYY'))
+      }
     },
     customers(state, customers) {
       state.customers.items = getPeopleWithFullName(customers)

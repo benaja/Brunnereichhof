@@ -60,9 +60,7 @@ class HourrecordController extends Controller
             $weeks = array_filter(
                 $request->weeks,
                 function ($week) use ($hourrecord) {
-                    // abort(400, json_encode($hourrecord));
                     return $week['week'] == $hourrecord->week;
-                    // return true;
                 }
             );
             if (count($weeks) == 0) {
@@ -97,6 +95,7 @@ class HourrecordController extends Controller
         if ($week > 52) {
             abort(400, 'the week can not be greater than 52');
         }
+        $year = new \DateTime($year);
 
         $customer = null;
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
@@ -124,7 +123,7 @@ class HourrecordController extends Controller
             'hours' => $request->hours,
             'comment' => $request->comment,
             'week' => $week,
-            'year' => $year,
+            'year' => $year->format('Y'),
             'createdByAdmin' => !(auth()->user()->type_id == UserTypeEnum::Customer),
             'customer_id' => $customer->id
         ]);
@@ -143,31 +142,19 @@ class HourrecordController extends Controller
         auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
-        $hourrecord = Hourrecord::find($id);
-        $hourrecord->hours = $request->hours;
-        $hourrecord->comment = $request->comment;
+        return $this->updateHourrecordById($id, $request);
+    }
 
-        if (is_array($request->culture)) {
-            $culture = Culture::find($request->culture['id']);
-        } else if ($request->culture) {
-            $culture = Culture::firstOrCreate(
-                [
-                    'name' => $request->culture
-                ],
-                [
-                    'isAutocomplete' => 0
-                ]
-            );
-        } else {
-            $culture = null;
+    // PATCH /hourrecord
+    public function updateMultible(Request $request)
+    {
+        auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
+        $this->validateEditeDate();
+
+        $hourrecords = json_decode($request->getContent(), true);
+        foreach ($hourrecords as $hourrecord) {
+            $this->updateHourrecordById($hourrecord['id'], $hourrecord);
         }
-
-        $this->addProjectToCustomer($culture, $hourrecord);
-
-        $hourrecord->culture()->associate($culture);
-        $hourrecord->save();
-
-        return $hourrecord;
     }
 
     public function getByWeek($year, $week)
@@ -229,6 +216,42 @@ class HourrecordController extends Controller
         ])->get()->groupBy('week');
     }
 
+    // GET /pdf/hourrecord?week=23
+    public function pdfByWeek(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
+
+        $this->validate($request, [
+            'date' => 'required|date'
+        ]);
+        $date = new \DateTime($request->date);
+        $this->pdf = new Pdf();
+        $startOfWeek = (clone $date)->modify('monday this week');
+        $endOfWeek = (clone $date)->modify('sunday this week');
+        $headline = "Stundenangaben KW {$date->format('W')} ({$startOfWeek->format('d.m.Y')} - {$endOfWeek->format('d.m.Y')})";
+        $this->pdf->textToInsertOnPageBreak = $headline;
+        $hourrecords = Hourrecord::where('week', $date->format('W'))->where('year', $date->format('Y'));
+
+        $this->pdf->documentTitle($headline);
+        $this->pdf->documentTitle("Stunden: {$hourrecords->sum('hours')}");
+        $this->pdf->newLine();
+
+        $headers = ['Kunde', 'Stunden', 'Kultur', 'Bemerkung'];
+        $hourrecords = $hourrecords->get()->sortBy('customer.lastname', SORT_NATURAL | SORT_FLAG_CASE);
+        $columns = [];
+        foreach ($hourrecords as $hourrecord) {
+            array_push($columns, [
+                "{$hourrecord->customer->lastname} {$hourrecord->customer->firstname}",
+                $hourrecord->hours,
+                $hourrecord->culture ? $hourrecord->culture->name : '',
+                $hourrecord->comment
+            ]);
+        }
+        $this->pdf->table($headers, $columns, [1, 0.5, 1, 1.5]);
+
+        return $this->pdf->export("{$headline}.pdf");
+    }
+
 
     // --helpers--
     private function isEditDate()
@@ -287,5 +310,31 @@ class HourrecordController extends Controller
 
         $headers = ['Woche (Datum)', 'Stunden', 'Kultur', 'Kommentar'];
         $this->pdf->table($headers, $lines);
+    }
+
+    private function updateHourrecordById($id, $hourrecord)
+    {
+        $hourrecordInstance = Hourrecord::find($id);
+        $hourrecordInstance->hours = $hourrecord['hours'];
+        $hourrecordInstance->comment = $hourrecord['comment'];
+
+        if (is_array($hourrecord['culture'])) {
+            $culture = Culture::find($hourrecord['culture']['id']);
+        } else {
+            $culture = Culture::firstOrCreate(
+                [
+                    'name' => $hourrecord['culture']
+                ],
+                [
+                    'isAutocomplete' => 0
+                ]
+            );
+        }
+
+        $this->addProjectToCustomer($culture, $hourrecordInstance);
+        $hourrecordInstance->culture()->associate($culture);
+        $hourrecordInstance->save();
+
+        return $hourrecordInstance;
     }
 }

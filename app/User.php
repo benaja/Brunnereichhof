@@ -17,11 +17,11 @@ class User extends Authenticatable
     public $table = "user";
 
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive', 'passwordResetToken'
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'passwordResetToken',
     ];
 
     public function fullName()

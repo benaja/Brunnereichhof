@@ -1,18 +1,26 @@
 <template>
-  <v-menu v-model="model" :nudge-right="40" transition="scale-transition" offset-y min-width="290px" :close-on-content-click="type === 'year'">
+  <v-menu
+    v-model="model"
+    :nudge-right="40"
+    transition="scale-transition"
+    offset-y
+    min-width="290px"
+    :close-on-content-click="type === 'year'"
+  >
     <template v-slot:activator="{ on }">
       <v-text-field
+        v-on="on"
         :value="formatedDate"
         :label="label"
         :prepend-inner-icon="outlined ? 'event' : null"
         :prepend-icon="outlined ? null : 'event'"
-        readonly
         :rules="rules"
         :color="color"
-        v-on="on"
-        show-week
         :outlined="outlined"
         :dense="dense"
+        :full-width="fullWidth"
+        show-week
+        readonly
       ></v-text-field>
     </template>
     <v-date-picker
@@ -58,6 +66,10 @@ export default {
       default: false
     },
     dense: {
+      type: Boolean,
+      default: false
+    },
+    fullWidth: {
       type: Boolean,
       default: false
     }
@@ -109,5 +121,3 @@ export default {
   }
 }
 </script>
-
-<style></style>

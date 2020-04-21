@@ -20,7 +20,10 @@
 export default {
   props: {
     label: String,
-    value: [String, Number],
+    value: {
+      type: [String, Number],
+      default: ''
+    },
     readonly: Boolean,
     type: {
       default: 'text',
@@ -29,7 +32,7 @@ export default {
     long: Boolean,
     rules: {
       type: Array,
-      default: null
+      default: () => []
     }
   },
   data() {

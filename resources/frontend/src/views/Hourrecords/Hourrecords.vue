@@ -69,23 +69,31 @@
         </div>
       </template>
     </v-list>
-    <v-expansion-panels v-if="sortType === 'customer'" class="mt-10">
+    <v-expansion-panels v-if="sortType === 'customer'" class="mt-10" flat>
       <v-expansion-panel
         v-for="customer of hourrecrodsByCustomer.filter(c => c.hourrecords.length > 0)"
         :key="customer.id"
+        class="elevation-0"
       >
-        <v-expansion-panel-header>
+        <v-expansion-panel-header hide-actions>
           <p class="mb-1 week-text">
             <span class="font-weight-bold">{{customer.lastname}} {{customer.firstname}}</span>
             / {{ customer.hours }} Stunden
           </p>
+          <v-btn
+            max-width="100"
+            color="primary"
+            text
+            :to="`/customers/${customer.id}/hourrecords?year=${selectedYear}`"
+          >Details</v-btn>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <hourrecord-week-list :hourrecords="customer.hourrecords"></hourrecord-week-list>
         </v-expansion-panel-content>
+        <v-divider></v-divider>
       </v-expansion-panel>
     </v-expansion-panels>
-    <v-expansion-panels v-if="sortType === 'project'" class="mt-10">
+    <v-expansion-panels v-if="sortType === 'project'" class="mt-10" flat>
       <v-expansion-panel
         v-for="project of hourrecrodsByProject.filter(p => p.hourrecords.length > 0)"
         :key="project.id"
@@ -99,6 +107,7 @@
         <v-expansion-panel-content>
           <hourrecord-week-list :hourrecords="project.hourrecords"></hourrecord-week-list>
         </v-expansion-panel-content>
+        <v-divider></v-divider>
       </v-expansion-panel>
     </v-expansion-panels>
     <v-dialog width="unset" v-model="datepicker">
@@ -320,7 +329,15 @@ export default {
       downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
     },
     selectCustomer(customerId) {
-      this.$router.push(`/customers/${customerId}/hourrecords?year=${this.selectedYear}`)
+      this.$router.push({
+        name: 'CustomerHourrecords',
+        params: { id: customerId },
+        query: {
+          year: this.selectedYear,
+          edit: true,
+          hourrecordDialog: true
+        }
+      })
     }
   },
   watch: {
@@ -329,6 +346,16 @@ export default {
     },
     selectedYear() {
       this.getHourRecords(true)
+    }
+  },
+  url: {
+    selectedYear: {
+      param: 'year',
+      noHistory: true
+    },
+    sortType: {
+      param: 'sortType',
+      noHistory: true
     }
   }
 }

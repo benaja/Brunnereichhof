@@ -6,12 +6,30 @@
       {{sunday.format('DD.MM.YYYY')}})
       / {{totalHours}} Stunden
     </h1>
+    <div class="d-flex justify-sm-end flex-wrap justify-start">
+      <v-btn depressed color="primary mt-2 mr-2" @click="generatePdf">
+        <v-icon class="mr-2">picture_as_pdf</v-icon>Pdf generieren
+      </v-btn>
+      <template v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])">
+        <v-btn
+          v-if="editMode"
+          outlined
+          color="primary"
+          class="mt-2 mr-2"
+          @click="addHourrecord = true"
+        >
+          <v-icon class="mr-2">add</v-icon>Kultur/Kunde hinzufügen
+        </v-btn>
+        <v-btn v-else depressed color="primary" class="mt-2" @click="editMode = true">
+          <v-icon class="mr-2">edit</v-icon>Bearbeiten
+        </v-btn>
+        <v-btn v-if="editMode" depressed color="primary" class="mt-2" @click="editMode = false">
+          <v-icon class="mr-2">check</v-icon>Fertig
+        </v-btn>
+      </template>
+    </div>
     <div v-if="customers.length > 0">
-      <v-row
-        v-for="(customer, index) of customers.filter(c => !c.isDeleted && c.hourrecords.length > 0)"
-        :key="index"
-        class="mt-3"
-      >
+      <v-row v-for="(customer, index) of customersFiltered" :key="index" class="mt-3">
         <v-col cols="12" sm="4" md="3" v-if="customer.hourrecords.length > 0">
           <h3 class="mb-3">{{customer.lastname}} {{customer.firstname}}</h3>
         </v-col>
@@ -22,6 +40,7 @@
             :value="hourrecord"
             :editMode="editMode"
             :cultures="cultures"
+            admin-mode
             @input="h => hourrecord = h"
             @remove="removeHourrecord(customer, hourrecord)"
           ></hourrecord-element>
@@ -30,20 +49,7 @@
           <v-divider></v-divider>
         </v-col>
       </v-row>
-      <p class="text-center" v-if="editMode">
-        <v-btn text color="primary" @click="addHourrecord = true">Kultur/Kunde hinzufügen</v-btn>
-      </p>
     </div>
-    <v-btn
-      fab
-      color="primary"
-      class="edit-button"
-      @click="editMode = !editMode"
-      v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
-    >
-      <v-icon v-if="editMode">check</v-icon>
-      <v-icon v-else>edit</v-icon>
-    </v-btn>
     <add-hourrecord
       v-model="addHourrecord"
       :cultures="cultures"
@@ -57,6 +63,7 @@
 <script>
 import HourrecordElement from '@/components/Hourrecords/HourrecordElement'
 import AddHourrecord from '@/components/Hourrecords/AddHourrecord'
+import { downloadFile } from '@/utils'
 
 export default {
   name: 'HourrecordDetails',
@@ -103,6 +110,9 @@ export default {
         hourrecord.customer.hourrecords = [hourrecord]
         this.customers.push(hourrecord.customer)
       }
+    },
+    generatePdf() {
+      downloadFile(`/pdf/hourrecord?date=${this.monday.format('YYYY-MM-DD')}`)
     }
   },
   computed: {
@@ -124,6 +134,19 @@ export default {
         }
       }
       return hours
+    },
+    customersFiltered() {
+      return this.customers
+        .filter(c => !c.isDeleted && c.hourrecords.length > 0)
+        .sort((a, b) => {
+          if (a.lastname.toLowerCase() < b.lastname.toLowerCase()) {
+            return -1
+          }
+          if (a.lastname.toLowerCase() > b.lastname.toLowerCase()) {
+            return 1
+          }
+          return 0
+        })
     }
   },
   watch: {

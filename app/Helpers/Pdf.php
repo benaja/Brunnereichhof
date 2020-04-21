@@ -233,5 +233,6 @@ class Pdf extends TCPDF
     $this->SetDrawColor(200);
 
     $this->SetFont($this->fontName, '', $this->textSize);
+    $this->setCellPadding(1);
   }
 }

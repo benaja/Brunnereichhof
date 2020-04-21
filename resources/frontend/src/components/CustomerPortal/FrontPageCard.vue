@@ -2,7 +2,7 @@
   <v-col cols="12" md="4" class="text-center mb-5">
     <img :src="icon" class="card-icon" />
     <h3 class="headline mt-4 font-weight-bold mb-2">{{title}}</h3>
-    <p>{{text}}</p>
+    <p class="card-text">{{text}}</p>
     <v-btn text color="primary" :to="buttonLink" @click="$emit('clickLink')">{{buttonText}}</v-btn>
   </v-col>
 </template>
@@ -40,5 +40,10 @@ export default {
   width: 30%;
   margin: 0 auto;
   max-width: 80px;
+}
+
+.card-text {
+  white-space: pre-wrap;
+  text-overflow: inherit;
 }
 </style>

@@ -32,21 +32,14 @@
 
 <script>
 import FrontPageCard from '@/components/CustomerPortal/FrontPageCard'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
     FrontPageCard
   },
-  data() {
-    return {
-      settings: {}
-    }
-  },
   mounted() {
     this.axios.get('/settings/hourrecords').then(response => {
-      response.data.welcomeText = response.data.welcomeText.replace('{name}', this.$auth.user().firstname + ' ' + this.$auth.user().lastname)
-      this.settings = response.data
-      this.settings.hourrecordValid = this.settings.hourrecordValid.replace('{datum}', this.endDate.toLocaleDateString())
       this.$store.commit('settings', response.data)
     })
   },
@@ -56,6 +49,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['settings']),
     endDate() {
       return new Date(this.settings.hourrecordEndDate)
     }

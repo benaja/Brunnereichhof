@@ -33,12 +33,11 @@ export default {
           this.authorizationRules = authorizationRules
           this.$store.commit('isLoading', false)
         })
-        response.data.selectedAuthorizationRules = response.data.authorization_rules.flatMap(r => r.id)
+        response.data.selectedAuthorizationRules = response.data.authorization_rules.map(r => r.id)
 
         this.role = response.data
       })
-      .catch(err => {
-        console.log(err)
+      .catch(() => {
         this.$store.commit('isLoading', false)
         this.$swal('Fehler', 'Rolle konnte nicht abgerufen werden', 'error')
       })

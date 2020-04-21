@@ -1,11 +1,12 @@
 <template>
   <v-row>
-    <v-col cols="12" sm="2">
+    <v-col cols="12" sm="2" class="py-0">
       <v-text-field
         v-if="editMode"
-        type="number"
         v-model="value.hours"
-        label="Stunden"
+        :rules="[rules.required]"
+        type="number"
+        label="Stunden*"
         class="pa-1 ma-0"
         @change="update"
       />
@@ -14,24 +15,25 @@
         {{value.hours}}
       </p>
     </v-col>
-    <v-col cols="12" sm="4">
+    <v-col cols="12" sm="4" class="py-0">
       <v-combobox
         v-if="editMode"
         :items="cultures"
+        :rules="[rules.required]"
         v-model="value.culture"
         class="pa-1 ma-0"
         item-text="name"
         item-value="id"
-        label="Kultur/Arbeit"
-        @input="update"
+        label="Kultur/Arbeit*"
         autocomplete="off"
+        @input="update"
       />
       <p v-else class="body-2">
         <span class="body-1">Kultur:</span>
         {{value.culture ? value.culture.name : ''}}
       </p>
     </v-col>
-    <v-col cols="12" sm="4">
+    <v-col cols="12" :sm="commendWidth" class="py-0">
       <v-textarea
         v-if="editMode"
         v-model="value.comment"
@@ -46,32 +48,47 @@
         {{value.comment}}
       </p>
     </v-col>
-    <v-col cols="12" sm="1" offset-sm="1" v-if="editMode">
-      <p class="text-center">
-        <v-btn text icon color="red" @click="deleteHourrecord">
-          <v-icon>delete</v-icon>
-        </v-btn>
-      </p>
+    <v-col cols="12" sm="1" v-if="editMode" class="py-0" align-self="center">
+      <v-btn text icon color="red" class="mb-5" @click="deleteHourrecord">
+        <v-icon>delete</v-icon>
+      </v-btn>
     </v-col>
-    <v-col cols="12" sm="2" v-if="!editMode && value.createdByAdmin">
+    <v-col cols="12" sm="2" v-if="!editMode && value.createdByAdmin" class="py-0 mb-4 mb-md-auto">
       <p class="text-left text-sm-right grey--text pb-0">Von Admin erstellt</p>
     </v-col>
-    <v-col cols="12" class="hidden-sm-and-up mt-4"></v-col>
   </v-row>
 </template>
 
 <script>
+import { rules } from '@/utils'
+
 export default {
   name: 'HourrecrodElement',
   props: {
     value: Object,
     editMode: Boolean,
-    cultures: Array
+    cultures: Array,
+    adminMode: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      rules
+    }
+  },
+  computed: {
+    commendWidth() {
+      if (this.editMode) return 5
+      if (this.adminMode) return 4
+      return 6
+    }
   },
   methods: {
     update() {
       this.axios
-        .put(process.env.VUE_APP_API_URL + 'hourrecord/' + this.value.id, this.value)
+        .put('/hourrecord/' + this.value.id, this.value)
         .then(response => {
           this.$emit('input', response.data)
         })
@@ -81,12 +98,12 @@ export default {
     },
     deleteHourrecord() {
       this.axios
-        .delete(process.env.VUE_APP_API_URL + 'hourrecord/' + this.value.id)
+        .delete('/hourrecord/' + this.value.id)
         .then(() => {
           this.$emit('remove')
         })
         .catch(() => {
-          this.$swal('Fehler', 'Element konnte aus einem unbekannten Grund nicht gelöscht werden.', 'error')
+          this.$swal('Fehler', 'Element konnte aus einem unbekannten Grund nicht gelöscht werden. Bitter versuchen Sie es später erneut', 'error')
         })
     }
   }
