@@ -91,6 +91,9 @@ export default {
       hourrecord: {}
     }
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
     save() {
       if (this.customer) {
@@ -117,10 +120,8 @@ export default {
       if (!this.hourrecord.customerId && !this.customer) return false
       if (!this.hourrecord.date && !this.week) return false
       return true
-    }
-  },
-  watch: {
-    value() {
+    },
+    getData() {
       if (this.value && !this.cultures.length) {
         this.$store.dispatch('cultures').then(cultures => {
           this.cultures = cultures
@@ -131,6 +132,11 @@ export default {
           this.customers = customers
         })
       }
+    }
+  },
+  watch: {
+    value() {
+      this.getData()
     }
   }
 }

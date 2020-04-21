@@ -39,6 +39,7 @@
           : undefined
       "
       show-week
+      :locale-first-day-of-year="1"
     ></v-date-picker>
   </v-menu>
 </template>
