@@ -1,5 +1,14 @@
 export default [
   {
+    version: '1.11',
+    changes: [
+      `Stundenangaben können als Admin nun auch pro Kunde erfasst werden und nicht nur pro Woche.`,
+      `Bei den Stundenangaben kann nun ein PDF für jede Woche erstellt werden.`,
+      `Stundenangaben für Kunden verbessert.`
+    ],
+    bugfixes: [`Stundenangaben PDf über das ganze Jahr, fehlerhafte Einträge behoben.`, `Stundenangaben Bug für Kunde behoben`]
+  },
+  {
     version: '1.10.1',
     bugfixes: [`Bilder können auch bei der Erstellung des Raums hochgeladen werden.`, `Stundenangaben Pdf generieren Bugs behoben.`]
   },
