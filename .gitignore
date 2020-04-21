@@ -1,4 +1,6 @@
 public/profileimages/*
+public/*
+resources/views/index.html
 storage/pdfs/*
 .vscode/*
 
