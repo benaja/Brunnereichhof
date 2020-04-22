@@ -116,6 +116,12 @@ export default {
     navItems() {
       return [
         {
+          to: '/dashboard',
+          text: 'Dashboard',
+          icon: 'dashboard',
+          show: this.hasPermission(['superadmin'])
+        },
+        {
           to: '/time',
           text: 'Zeiterfassung',
           icon: 'access_time',
@@ -205,6 +211,12 @@ export default {
           text: 'Stundenangaben',
           icon: 'insert_chart',
           show: this.hasPermission(['superadmin'], ['hourrecord_read'])
+        },
+        {
+          to: '/roles',
+          text: 'Rollen',
+          icon: 'fingerprint',
+          show: this.hasPermission(['superadmin'], ['role_write'])
         },
         {
           to: '/settings',

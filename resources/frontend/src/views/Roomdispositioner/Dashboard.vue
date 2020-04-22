@@ -150,6 +150,7 @@ export default {
   mounted() {
     this.dayHeight = this.getDayHeight
     this.firstday = this.firstDate
+    this.loadReservations()
   },
   methods: {
     loadReservations() {
