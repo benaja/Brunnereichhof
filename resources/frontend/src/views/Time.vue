@@ -17,7 +17,14 @@
               <p class="text-center overline mb-0">{{ $moment(date).format('MMM') }}</p>
             </div>
           </template>
-          <v-date-picker v-model="date" scrollable first-day-of-week="1" locale="ch-de" @change="dateDialog = false" show-week></v-date-picker>
+          <v-date-picker
+            v-model="date"
+            scrollable
+            first-day-of-week="1"
+            locale="ch-de"
+            @change="dateDialog = false"
+            show-week
+          ></v-date-picker>
         </v-dialog>
       </v-col>
       <v-col cols="2">
@@ -31,7 +38,11 @@
         <v-divider></v-divider>
       </v-col>
       <v-col cols="12" class="py-0">
-        <v-row class="scroll-container" ref="scrollContainer" :style="{ overflowY: isScrolling ? 'hidden' : 'auto' }">
+        <v-row
+          class="scroll-container"
+          ref="scrollContainer"
+          :style="{ overflowY: isScrolling ? 'hidden' : 'auto' }"
+        >
           <v-col cols="2" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
               <p class="text-right caption">{{ timeString(index) }}</p>
@@ -64,7 +75,11 @@
     <v-row v-else wrap>
       <v-col cols="3" xl="2" class="py-0 px-0">
         <div class="overview-container">
-          <overview @change="newDate => (date = newDate)" ref="overview" :url-worker-param="urlWorkerParam"></overview>
+          <overview
+            @change="newDate => (date = newDate)"
+            ref="overview"
+            :url-worker-param="urlWorkerParam"
+          ></overview>
         </div>
       </v-col>
       <v-col cols="9" xl="10" class="py-0">
@@ -80,7 +95,11 @@
           </v-col>
         </v-row>
         <v-row class="scroll-container" ref="scrollContainer">
-          <time-card ref="timeCard" :url-worker-param="urlWorkerParam" @updated="$refs.overview.getStats()"></time-card>
+          <time-card
+            ref="timeCard"
+            :url-worker-param="urlWorkerParam"
+            @updated="$refs.overview.getStats()"
+          ></time-card>
           <v-col cols="1" class="time-numbers py-0">
             <div v-for="index in 23" :key="index" class="time-number">
               <p class="text-right">{{ timeString(index) }}</p>

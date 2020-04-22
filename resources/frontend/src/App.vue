@@ -1,19 +1,95 @@
 <template>
   <div id="app">
     <v-app>
-      <div v-if="$auth.ready()">
+      <template v-if="$auth.ready()">
+        <NavigationBar @openNavigation="navDrawerModel = true"></NavigationBar>
+        <v-navigation-drawer
+          v-if="$auth.check()"
+          v-model="navDrawerModel"
+          :permanent="$vuetify.breakpoint.mdAndUp"
+          :expand-on-hover="$vuetify.breakpoint.mdAndUp"
+          :absolute="$vuetify.breakpoint.smAndDown"
+          app
+          class="nav-drawer"
+          @transitionend="navDrawer = !navDrawer"
+          @update:mini-variant="navDrawerClosed"
+        >
+          <v-list>
+            <v-list-item link>
+              <v-list-item-content>
+                <v-list-item-title
+                  class="title"
+                >{{$auth.user().firstname}} {{$auth.user().lastname}}</v-list-item-title>
+                <v-list-item-subtitle>{{ $auth.user().email }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <v-divider></v-divider>
+
+          <v-list nav dense>
+            <template v-for="(navItem, index) of navItems">
+              <v-list-item
+                link
+                :key="index"
+                :to="navItem.to"
+                v-if="navItem.show && !navItem.items"
+                color="primary"
+              >
+                <v-list-item-icon>
+                  <v-icon>{{navItem.icon}}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>{{navItem.text}}</v-list-item-title>
+              </v-list-item>
+              <v-list-group v-else-if="navItem.show" :key="index">
+                <template v-slot:activator>
+                  <v-list-item link :to="navItem.to" :class="`ma-0 ${navItem.to ? '' : 'no-link'}`">
+                    <v-list-item-icon>
+                      <v-icon :class="navItem.to">{{navItem.icon}}</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>{{navItem.text}}</v-list-item-title>
+                  </v-list-item>
+                </template>
+                <v-list-item
+                  v-for="(navSubItem, i) of navItem.items.filter(item => item.show)"
+                  link
+                  :to="navSubItem.to"
+                  :key="`${index}-${i}`"
+                >
+                  <v-list-item-icon>
+                    <v-icon>{{navSubItem.icon}}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>{{navSubItem.text}}</v-list-item-title>
+                </v-list-item>
+              </v-list-group>
+            </template>
+          </v-list>
+          <template v-slot:append>
+            <div class="pa-2">
+              <v-btn
+                block
+                depressed
+                dark
+                class="px-2"
+                @click="$auth.logout(); $router.push('/login')"
+              >
+                <v-icon class="mr-0">exit_to_app</v-icon>
+                <span v-if="navDrawer" class="ml-2">Logout</span>
+              </v-btn>
+            </div>
+          </template>
+        </v-navigation-drawer>
+        <router-view class="router-view" />
         <loading-page v-if="$store.getters.isLoading"></loading-page>
-        <NavigationBar></NavigationBar>
-        <router-view />
-      </div>
-      <div class="alerts" v-if="$store">
-        <v-alert
-          class="ma-3"
-          v-for="alert of alerts"
-          :key="alert.key"
-          :type="alert.type || 'success'"
-        >{{ alert.text }}</v-alert>
-      </div>
+        <div class="alerts" v-if="$store">
+          <v-alert
+            class="ma-3"
+            v-for="alert of alerts"
+            :key="alert.key"
+            :type="alert.type || 'success'"
+          >{{ alert.text }}</v-alert>
+        </div>
+      </template>
     </v-app>
   </div>
 </template>
@@ -29,8 +105,121 @@ export default {
     NavigationBar,
     LoadingPage
   },
+  data() {
+    return {
+      navDrawer: false,
+      navDrawerModel: false
+    }
+  },
   computed: {
-    ...mapGetters(['alerts'])
+    ...mapGetters(['alerts']),
+    navItems() {
+      return [
+        {
+          to: '/time',
+          text: 'Zeiterfassung',
+          icon: 'access_time',
+          show: this.hasPermission([], ['timerecord_read_write'])
+        },
+        {
+          to: '/roomdispositioner',
+          text: 'Roomdispositioner',
+          icon: 'house',
+          show: this.hasPermission(['superadmin'], ['roomdispositioner_read']),
+          items: [
+            {
+              to: '/roomdispositioner/evaluation',
+              text: 'Auswertung',
+              icon: 'show_chart',
+              show: true
+            },
+            {
+              to: '/rooms',
+              text: 'Räume',
+              icon: 'apartment',
+              show: true
+            },
+            {
+              to: '/beds',
+              text: 'Betten',
+              icon: 'single_bed',
+              show: true
+            },
+            {
+              to: '/inventars',
+              text: 'Inventar',
+              icon: 'category',
+              show: true
+            }
+          ]
+        },
+        {
+          text: 'Benutzerverwaltung',
+          icon: 'mdi-account-multiple',
+          fixArrow: true,
+          show: this.hasPermission(
+            ['superadmin'],
+            ['customer_read', 'employee_read', 'employee_preview_read', 'worker_read', 'roomdispositioner_read']
+          ),
+          items: [
+            {
+              to: '/customer',
+              text: 'Kunden',
+              icon: 'supervisor_account',
+              show: this.hasPermission(['superadmin'], ['customer_read'])
+            },
+            {
+              to: '/employee',
+              text: 'Mitarbeiter',
+              icon: 'account_circle',
+              show: this.hasPermission(['superadmin'], ['employee_read', 'employee_preview_read'])
+            },
+            {
+              to: '/guests',
+              text: 'Gäste',
+              icon: 'account_box',
+              show: this.hasPermission(['superadmin'], ['roomdispositioner_read'])
+            },
+            {
+              to: '/worker',
+              text: 'Hofmitarbeiter',
+              icon: 'perm_identity',
+              show: this.hasPermission(['superadmin'], ['worker_read'])
+            }
+          ]
+        },
+        {
+          to: '/rapport',
+          text: 'Wochenrapport',
+          icon: 'event_note',
+          show: this.hasPermission(['superadmin'], ['rapport_read'])
+        },
+        {
+          to: '/evaluation',
+          text: 'Auswertung',
+          icon: 'show_chart',
+          show: this.hasPermission(['superadmin'], ['timerecord_stats', 'evaluation_employee', 'evaluation_customer'])
+        },
+        {
+          to: '/hourrecords',
+          text: 'Stundenangaben',
+          icon: 'insert_chart',
+          show: this.hasPermission(['superadmin'], ['hourrecord_read'])
+        },
+        {
+          to: '/settings',
+          text: 'Einstellungen',
+          icon: 'settings',
+          show: this.hasPermission(['superadmin'], ['settings_read'])
+        },
+        {
+          to: '/release-notes',
+          text: 'Release Notes',
+          icon: 'fiber_new',
+          show: this.hasPermission(['superadmin'])
+        }
+      ]
+    }
   },
   mounted() {
     this.setCssWindowHeight()
@@ -40,6 +229,15 @@ export default {
     setCssWindowHeight() {
       const vh = window.innerHeight * 0.01
       document.documentElement.style.setProperty('--vh', `${vh}px`)
+    },
+    hasPermission(urserTypes, rules) {
+      return this.$auth.check() && this.$auth.user().hasPermission(urserTypes, rules)
+    },
+    navDrawerClosed() {
+      // to prevent bug when nav drawer is openen only very quickly
+      setTimeout(() => {
+        this.navDrawer = false
+      }, 500)
     }
   }
 }
@@ -62,6 +260,10 @@ body {
   font-family: Roboto, sans-serif;
 }
 
+.router-view {
+  margin-left: 56px;
+}
+
 .no-select {
   user-select: none;
 }
@@ -71,5 +273,25 @@ body {
   bottom: 0;
   right: 0;
   z-index: 1000;
+}
+
+.v-navigation-drawer .v-list--nav {
+  .v-list-group__header {
+    padding-left: 0;
+
+    .no-link + * .v-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.v-navigation-drawer--absolute {
+  z-index: 10 !important;
+}
+
+@media only screen and (max-width: 960px) {
+  .router-view {
+    margin-left: 0;
+  }
 }
 </style>
