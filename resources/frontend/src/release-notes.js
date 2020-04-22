@@ -1,5 +1,9 @@
 export default [
   {
+    version: '1.11.1',
+    bugfixes: [`Raum erstellung ohne Bild.`, `Weitere kleine Raum erstellung Fixes.`]
+  },
+  {
     version: '1.11',
     changes: [
       `Stundenangaben können als Admin nun auch pro Kunde erfasst werden und nicht nur pro Woche.`,

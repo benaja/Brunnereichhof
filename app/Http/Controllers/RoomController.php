@@ -42,22 +42,28 @@ class RoomController extends Controller
             'comment' => 'nullable|string|max:1000'
         ]);
 
-        $room = Room::create([
-            'name' => $request->name,
-            'location' => $request->location,
-            'comment' => $request->comment,
-            'number' => $request->number
-        ]);
+        DB::transaction(function () use ($request) {
+            $room = Room::create([
+                'name' => $request->name,
+                'location' => $request->location,
+                'comment' => $request->comment,
+                'number' => $request->number || ''
+            ]);
 
-        $beds = json_decode($request->beds, true);
-        $bedIds = array_map(function ($bed) {
-            return $bed['id'];
-        }, $beds);
-        $room->beds()->sync($bedIds);
+            $beds = json_decode($request->beds, true);
+            $bedIds = array_map(function ($bed) {
+                return $bed['id'];
+            }, $beds);
 
-        $this->storeImages($request->file('images'), $room->id);
+            foreach ($bedIds as $bedId) {
+                $bed = Bed::find($bedId);
+                $room->beds()->attach($bed);
+            }
 
-        return $room;
+            $this->storeImages($request->file('images'), $room->id);
+
+            return $room;
+        });
     }
 
     public function show($id)
@@ -419,15 +425,17 @@ class RoomController extends Controller
 
     private function storeImages($images, $roomId)
     {
-        $createdImages = [];
-        foreach ($images as $image) {
-            $imagePath = Storage::disk('s3')->put('rooms', $image);
-            $newImage = RoomImage::create([
-                'path' => $imagePath,
-                'room_id' => $roomId
-            ]);
-            array_push($createdImages, $newImage);
+        if ($images) {
+            $createdImages = [];
+            foreach ($images as $image) {
+                $imagePath = Storage::disk('s3')->put('rooms', $image);
+                $newImage = RoomImage::create([
+                    'path' => $imagePath,
+                    'room_id' => $roomId
+                ]);
+                array_push($createdImages, $newImage);
+            }
+            return $createdImages;
         }
-        return $createdImages;
     }
 }

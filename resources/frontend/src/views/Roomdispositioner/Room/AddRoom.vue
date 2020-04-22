@@ -4,11 +4,11 @@
     <v-form lazy-validation ref="form">
       <v-row>
         <v-col cols="12" md="6" class="py-0">
-          <v-text-field label="Name" v-model="room.name" :rules="rules.required" color="blue"></v-text-field>
+          <v-text-field label="Name*" v-model="room.name" :rules="rules.required" color="blue"></v-text-field>
         </v-col>
         <v-col cols="12" md="6" class="py-0">
           <v-text-field
-            label="Nummer"
+            label="Nummer*"
             type="number"
             v-model="room.number"
             :rules="rules.required"
@@ -17,7 +17,7 @@
         </v-col>
         <v-col cols="12" class="py-0">
           <v-text-field
-            label="Standort"
+            label="Standort*"
             v-model="room.location"
             :rules="rules.required"
             color="blue"
@@ -33,8 +33,15 @@
           <select-images v-model="room.images"></select-images>
         </v-col>
         <v-col cols="12" class="mt-4">
-          <v-btn text>Abbrechen</v-btn>
-          <v-btn text color="blue" class="float-right" @click="save" :loading="isLoading">Speichern</v-btn>
+          <v-btn text to="/rooms" color="black">Abbrechen</v-btn>
+          <v-btn
+            depressed
+            dark
+            color="blue"
+            class="float-right"
+            @click="save"
+            :loading="isLoading"
+          >Speichern</v-btn>
         </v-col>
       </v-row>
     </v-form>
@@ -73,7 +80,7 @@ export default {
         formData.append('name', this.room.name)
         formData.append('location', this.room.location)
         formData.append('number', this.room.number)
-        formData.append('comment', this.room.comment)
+        formData.append('comment', this.room.comment || '')
         formData.append('beds', JSON.stringify(this.room.beds))
         const config = {
           headers: { 'Content-Type': 'multipart/form-data' },

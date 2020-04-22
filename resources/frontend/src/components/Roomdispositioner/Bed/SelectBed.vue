@@ -32,6 +32,7 @@
           item-text="name"
           @input="change"
           color="blue"
+          item-color="blue"
         ></v-autocomplete>
       </v-col>
       <v-col cols="12">
