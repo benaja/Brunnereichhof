@@ -79,7 +79,9 @@
             </div>
           </template>
         </v-navigation-drawer>
-        <router-view class="router-view" />
+        <div class="router-view">
+          <router-view />
+        </div>
         <loading-page v-if="$store.getters.isLoading"></loading-page>
         <div class="alerts" v-if="$store">
           <v-alert
