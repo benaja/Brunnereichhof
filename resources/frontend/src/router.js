@@ -204,7 +204,7 @@ export default new Router({
       }
     },
     {
-      path: '/kundenportal',
+      path: '/kundenportal/home',
       name: 'CustomerPortal',
       component: () => import('./views/CustomerPortal/CustomerPortal'),
       meta: {

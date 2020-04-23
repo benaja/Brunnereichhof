@@ -25,7 +25,13 @@
       </template>
     </v-row>
     <v-btn color="primary" class="mt-3" outlined @click="addInputType">Erfassungsart hinzufügen</v-btn>
-    <v-btn color="primary" class="mt-3 float-right" depressed @click="save">Speichern</v-btn>
+    <v-btn
+      color="primary"
+      class="mt-3 float-right"
+      depressed
+      @click="save"
+      :loading="isLoading"
+    >Speichern</v-btn>
   </v-form>
 </template>
 
@@ -45,7 +51,8 @@ export default {
         ...rules,
         maxHeight: v => v <= 24 || 'Maximal 24 Stunden',
         minHeight: v => v > 0 || 'Müssen mehr als 0 Studen sein'
-      }
+      },
+      isLoading: false
     }
   },
   methods: {
@@ -57,6 +64,7 @@ export default {
     },
     save() {
       if (this.$refs.form.validate()) {
+        this.isLoading = true
         this.axios
           .put(`/worktypes/${this.value.id}`, this.value)
           .then(() => {
@@ -66,6 +74,9 @@ export default {
           })
           .catch(() => {
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+          })
+          .finally(() => {
+            this.isLoading = false
           })
       }
     },

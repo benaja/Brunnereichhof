@@ -36,9 +36,15 @@ export default {
     ...mapGetters(['roles'])
   },
   mounted() {
-    this.$store.dispatch('fetchRoles').catch(() => {
-      this.$swal('Fehler', 'Rollen konnten nicht emfangen werden', 'error')
-    })
+    this.$store.commit('isLoading', true)
+    this.$store
+      .dispatch('fetchRoles')
+      .catch(() => {
+        this.$swal('Fehler', 'Rollen konnten nicht emfangen werden', 'error')
+      })
+      .finally(() => {
+        this.$store.commit('isLoading', false)
+      })
   }
 }
 </script>

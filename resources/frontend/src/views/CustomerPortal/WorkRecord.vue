@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'WorkRecord',
   data() {
@@ -36,6 +38,18 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('isLoading', true)
+    this.axios
+      .get('/settings/hourrecords')
+      .then(response => {
+        this.$store.commit('settings', response.data)
+        if (!this.$store.getters.isEditTime) {
+          this.$router.push('/kundenportal/erfassen/details')
+        }
+      })
+      .finally(() => {
+        this.$store.commit('isLoading', false)
+      })
     if (this.weeks.length === 0) {
       let monday = this.getMonday(this.date)
       for (let i = 1; i <= 52; i++) {
@@ -97,6 +111,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['settings']),
     activeWeeks() {
       return this.weeks.filter(w => w.active)
     },

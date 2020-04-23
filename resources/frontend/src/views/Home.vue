@@ -9,7 +9,7 @@ export default {
   mounted() {
     if (this.$auth.user().isPasswordChanged !== 1) this.$router.push('/profile/edit')
     else if (this.$auth.user().hasPermission(['superadmin'])) this.$router.push('/dashboard')
-    else if (this.$auth.user().type_id === 1) this.$router.push('/kundenportal')
+    else if (this.$auth.user().type_id === 1) this.$router.push('/kundenportal/home')
     else if (this.$auth.user().hasPermission([], ['timerecord_read_write'])) this.$router.push('/time')
     else if (this.$auth.user().hasPermission([], ['rapport_read'])) this.$router.push('/rapport')
     else if (this.$auth.user().hasPermission([], ['employee_preview_read', 'employee_read'])) this.$router.push('/employee')

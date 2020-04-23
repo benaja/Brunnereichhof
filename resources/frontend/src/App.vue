@@ -116,6 +116,24 @@ export default {
     navItems() {
       return [
         {
+          to: '/kundenportal/home',
+          text: 'Startseite',
+          icon: 'home',
+          show: this.hasPermission(['customer'])
+        },
+        {
+          to: '/kundenportal/erfassen',
+          text: 'Arbeiten erfassen',
+          icon: 'edit',
+          show: this.hasPermission(['customer'])
+        },
+        {
+          to: '/kundenportal/wochenrapport',
+          text: 'Wochenrapporte',
+          icon: 'event_note',
+          show: this.hasPermission(['customer'])
+        },
+        {
           to: '/dashboard',
           text: 'Dashboard',
           icon: 'dashboard',

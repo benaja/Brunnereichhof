@@ -3,7 +3,7 @@
     <template>
       <h1 class="display-1 mb-8">Passwort zurücksetzten</h1>
       <v-form
-        onSubmit="return false;"
+        onsubmit="return false;"
         ref="form"
         v-if="!emailSend"
         v-model="valid"
@@ -49,6 +49,9 @@ export default {
       isLoading: false,
       errorMessage: null
     }
+  },
+  mounted() {
+    this.email = this.$route.query.email
   },
   methods: {
     resetPassword() {

@@ -23,7 +23,7 @@
           :error-messages="loginError"
         ></v-text-field>
         <v-btn color="primary" class="login-button mt-4 mb-4" @click="login">Anmelden</v-btn>
-        <router-link tag="a" to="/reset-password">Passwort vergessen?</router-link>
+        <router-link tag="a" :to="`/reset-password?email=${email}`">Passwort vergessen?</router-link>
       </v-form>
     </template>
   </form-container>

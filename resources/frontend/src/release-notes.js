@@ -1,5 +1,10 @@
 export default [
   {
+    version: '1.11.2',
+    changes: ['Navigationsbar überarbeitet'],
+    bugfixes: [`Bug von Navigationsbar auf Mobile behoben.`, `Roomdispositioner: Einträge bei erstem Laden nicht angezeigt behoben.`]
+  },
+  {
     version: '1.11.1',
     bugfixes: [`Raum erstellung ohne Bild.`, `Weitere kleine Raum erstellung Fixes.`]
   },

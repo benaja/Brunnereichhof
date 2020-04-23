@@ -33,6 +33,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('isLoading', true)
     this.axios
       .get('/rapport')
       .then(response => {
@@ -40,6 +41,9 @@ export default {
       })
       .catch(() => {
         this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
+      })
+      .finally(() => {
+        this.$store.commit('isLoading', false)
       })
   },
   methods: {
