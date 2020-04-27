@@ -188,6 +188,7 @@ export default {
         } else if (this.rapport.rapportdetails.length === 0) {
           this.isEmployeePopupOpen = true
         }
+
         this.rapportLoaded = true
       })
       .catch(() => {
