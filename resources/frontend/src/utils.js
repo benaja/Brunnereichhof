@@ -13,6 +13,8 @@ function downloadFile(url) {
         return true
       }
 
+      console.log('sdfsd')
+
       // // For other browsers:
       // // Create a link pointing to the ObjectURL containing the blob.
       const data = window.URL.createObjectURL(newBlob)

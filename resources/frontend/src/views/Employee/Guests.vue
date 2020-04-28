@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Gäste-Übersicht</h1>
+    <h1>Gäste-Übersicht</h1>
     <search-bar
       name="guests"
       label="Gast suchen"

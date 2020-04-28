@@ -39,13 +39,17 @@ class DashboardController extends Controller
 
         $beds = BedRoomPivot::join('reservation', function ($join) {
             $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-        })->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
+        })
+            ->join('room', 'room.id', '=', 'bed_room.room_id')
+            ->where('room.deleted_at', null)
+            ->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.deleted_at', null)
             ->get();;
 
-        $allBeds = BedRoomPivot::with('bed')->get()->toArray();
+        $allBeds = BedRoomPivot::with(['bed', 'room'])->get()->toArray();
         $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
+            if ($bedRoomPivot['room']['deleted_at']) return 0;
             return $bedRoomPivot['bed']['places'];
         }, $allBeds));
         $stats = [

@@ -107,9 +107,24 @@
           ></select-role>
         </v-col>
         <v-col cols="12" md="6">
+          <input-field label="Arbeitseintrittsjahr">
+            <date-picker v-model="employee.entryDate" @input="changed" type="year"></date-picker>
+          </input-field>
+        </v-col>
+
+        <v-col cols="12" md="6">
           <v-checkbox
             label="Intern"
             v-model="employee.isIntern"
+            @change="changed"
+            color="primary"
+            :readonly="!isUserAllowedToEdit"
+          ></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-checkbox
+            label="Führerschein"
+            v-model="employee.drivingLicence"
             @change="changed"
             color="primary"
             :readonly="!isUserAllowedToEdit"
@@ -218,11 +233,13 @@
 import { rules } from '@/utils'
 import InputField from '@/components/general/InputField'
 import SelectRole from '@/components/Authorization/SelectRole'
+import DatePicker from '@/components/general/DatePicker'
 
 export default {
   components: {
     InputField,
-    SelectRole
+    SelectRole,
+    DatePicker
   },
   data() {
     return {

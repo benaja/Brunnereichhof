@@ -4,14 +4,16 @@
       <p class="description font-weight-bold subheading mb-0">{{label}}</p>
     </v-col>
     <v-col cols="12" :md="long ? 10 : 8" class="py-0">
-      <edit-field
-        :value="value"
-        @input="input"
-        @change="change"
-        :readonly="readonly"
-        :type="type"
-        :rules="rules"
-      ></edit-field>
+      <slot>
+        <edit-field
+          :value="value"
+          @input="input"
+          @change="change"
+          :readonly="readonly"
+          :type="type"
+          :rules="rules"
+        ></edit-field>
+      </slot>
     </v-col>
   </v-row>
 </template>

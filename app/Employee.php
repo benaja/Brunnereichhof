@@ -26,10 +26,14 @@ class Employee extends Model
         'isGuest',
         'profileimage',
         'allergy',
-        'isLoginActive'
+        'isLoginActive',
+        'entryDate',
+        'drivingLicence'
     ];
 
     protected $appends = ['firstname', 'lastname', 'email'];
+
+    protected $dates = ['entryDate'];
 
     public function Rapportdetails()
     {

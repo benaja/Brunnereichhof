@@ -1,5 +1,13 @@
 export default [
   {
+    version: '1.11.3',
+    changes: [
+      'Arbeitseintrittsjahr und Führerschein als neues Feld zu Mitarbeiter hinzugefügt.',
+      `Jahresauswertung der Übernachtungen aller Mitarbeiter`
+    ],
+    bugfixes: [`Roomdispositioner Statistik behoben.`, `Miterbeiter Erstellung nur noch mit der entsprechenden Berechtigung möglich.`]
+  },
+  {
     version: '1.11.2',
     changes: ['Navigationsbar überarbeitet'],
     bugfixes: [`Bug von Navigationsbar auf Mobile behoben.`, `Roomdispositioner: Einträge bei erstem Laden nicht angezeigt behoben.`]

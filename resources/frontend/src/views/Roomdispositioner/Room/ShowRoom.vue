@@ -113,7 +113,7 @@ export default {
         })
         .catch(error => {
           if (error.includes('Room is currently in use.')) {
-            this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan von einem Mitarbeiter belegt.', 'error')
+            this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan oder in Zukunft von einem Mitarbeiter belegt.', 'error')
           } else {
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
           }
