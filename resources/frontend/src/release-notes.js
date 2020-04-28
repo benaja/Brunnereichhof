@@ -1,6 +1,6 @@
 export default [
   {
-    version: '1.11.3',
+    version: '1.12',
     changes: [
       'Arbeitseintrittsjahr und Führerschein als neues Feld zu Mitarbeiter hinzugefügt.',
       `Jahresauswertung der Übernachtungen aller Mitarbeiter`
