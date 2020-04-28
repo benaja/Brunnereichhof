@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Mitarbeiter-Übersicht</h1>
+    <h1>Mitarbeiter-Übersicht</h1>
     <search-bar
       name="employees"
       label="Mitarbeiter suchen"
@@ -61,7 +61,15 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <v-btn to="/employee/add" fixed bottom right fab color="primary">
+    <v-btn
+      v-if="$auth.user().hasPermission(['superadmin'], ['employee_write'])"
+      to="/employee/add"
+      fixed
+      bottom
+      right
+      fab
+      color="primary"
+    >
       <v-icon>add</v-icon>
     </v-btn>
   </div>

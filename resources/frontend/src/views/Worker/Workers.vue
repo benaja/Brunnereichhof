@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Hofmitarbeiter-Übersicht</h1>
+    <h1>Hofmitarbeiter-Übersicht</h1>
     <search-bar
       name="workers"
       label="Hofmitarbeiter suchen"

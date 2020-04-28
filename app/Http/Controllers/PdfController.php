@@ -102,20 +102,30 @@ class PdfController extends Controller
         $this->pdf->documentTitle("Mitarbeiterliste");
         $this->pdf->documentTitle("Anzahl aktive Mitarbeiter: $numberOfEmployee");
 
-        $titles = ['Nachname', 'Vorname', 'Ruffname', 'Nationalität', 'Fahrer', 'Deutschkenntnis...', 'Geschlecht'];
+        $titles = [
+            'Nachname',
+            'Vorname',
+            'Ruffname',
+            'Fahrer',
+            'Führerschein',
+            'Deutschkenntnisse',
+            'Geschlecht',
+            'Arbeitseintrittsjahr'
+        ];
         $lines = [];
         foreach ($employees as $employee) {
             array_push($lines, [
                 $employee->lastname,
                 $employee->firstname,
                 $employee->callname,
-                $employee->nationality,
                 $employee->isDriver == 1 ? "Ja" : "Nein",
+                $employee->drivingLicence ? "Ja" : "Nein",
                 $employee->german_knowledge == 1 ? "Ja" : "Nein",
-                $employee->sex == "man" ? "Mann" : "Frau"
+                $employee->sex == "man" ? "Mann" : "Frau",
+                $employee->entryDate ? $employee->entryDate->format('Y') : ''
             ]);
         }
-        $this->pdf->table($titles, $lines);
+        $this->pdf->table($titles, $lines, [1, 1, 0.7, 0.4, 0.7, 0.9, 0.6, 1]);
         return $this->pdf->export("Mitarbeiterliste.pdf");
     }
 

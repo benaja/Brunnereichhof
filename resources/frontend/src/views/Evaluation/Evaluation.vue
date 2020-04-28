@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <h1>Auswertung</h1>
     <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
   </div>
 </template>
@@ -140,6 +141,7 @@ export default {
                   key: 'employee',
                   dispatch: 'employees',
                   label: 'Mitarbeiter',
+                  selectAll: true,
                   type: EVALUATION_INPUT_TYPES.COMBOBOX
                 },
                 {

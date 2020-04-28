@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1 class="text-center my-3">Stundenangaben</h1>
+    <h1 class="my-3">Stundenangaben</h1>
     <div class="grid-layout">
       <div class="chart-card bar-chart">
         <h3 class="title my-2">Anzahl Stunden pro KW</h3>

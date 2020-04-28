@@ -40,18 +40,20 @@
             </div>
           </div>
           <div class="reservations-container">
-            <div
-              v-for="(tag, index) of reservationTags"
-              :key="'r' + index"
-              :class="['reservation', 'blue', 'reservation-' + tag.reservation.id, ...tag.cssClass]"
-              :style="tag.style"
-              @click="e => openDetailsPopup(e, tag.reservation)"
-              @mouseover="hover(tag.reservation.id)"
-              @mouseleave="leave(tag.reservation.id)"
-            >
-              <p
-                class="white--text ml-2 mr-1 caption"
-              >{{ tag.reservation.employee.lastname }} {{ tag.reservation.employee.firstname }} | {{tag.reservation.bed_room_pivot.room.name}} / {{tag.reservation.bed_room_pivot.room.number}}</p>
+            <div class="reservations-scroll-wrapper">
+              <div
+                v-for="(tag, index) of reservationTags"
+                :key="'r' + index"
+                :class="['reservation', 'blue', 'reservation-' + tag.reservation.id, ...tag.cssClass]"
+                :style="tag.style"
+                @click="e => openDetailsPopup(e, tag.reservation)"
+                @mouseover="hover(tag.reservation.id)"
+                @mouseleave="leave(tag.reservation.id)"
+              >
+                <p
+                  class="white--text ml-2 mr-1 caption"
+                >{{ tag.reservation.employee.lastname }} {{ tag.reservation.employee.firstname }} | {{tag.reservation.bed_room_pivot.room.name}} / {{tag.reservation.bed_room_pivot.room.number}}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -245,11 +247,16 @@ export default {
       if (this.calendarSortType === 'number') {
         reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
       } else if (this.calendarSortType === 'lastname') {
-        reservations.sort((a, b) => a.employee.lastname.toLowerCase().localeCompare(b.employee.lastname.toLowerCase()))
+        reservations.sort((a, b) => {
+          const nameA = `${a.employee.lastname} ${a.employee.firstname}`
+          const nameB = `${b.employee.lastname} ${b.employee.firstname}`
+          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
+        })
       }
 
       this.reservationTags = []
       let top = 0
+      let previousReservation = null
       for (let reservation of reservations) {
         let marginLeft = 0
         let diffFromFirstDay = 0
@@ -270,9 +277,8 @@ export default {
           cssClass.push('border-radius-right')
         }
 
-        if (this.amountOfDays - diffFromLastDay - diffFromFirstDay === 20) {
-          console.log('width:', width)
-          // console.log('')
+        if (this.calendarSortType === 'lastname' && previousReservation && previousReservation.employee_id === reservation.employee_id) {
+          top -= 25
         }
 
         let tag = {
@@ -287,6 +293,7 @@ export default {
         this.reservationTags.push(tag)
 
         top += 25
+        previousReservation = reservation
       }
     },
     getFirstDayFromReservationAndWeek(reservation, week, monday) {
@@ -351,6 +358,15 @@ export default {
       } else {
         return this.$refs.background.clientHeight - 20
       }
+    },
+    datesUrlQuery: {
+      get() {
+        return [this.dates[0].format('YYYY-MM-DD'), this.dates[1].format('YYYY-MM-DD')]
+      },
+      set(value) {
+        this.dates[0] = this.$moment(value[0], 'YYYY-MM-DD')
+        this.dates[1] = this.$moment(value[1], 'YYYY-MM-DD')
+      }
     }
   },
   watch: {
@@ -363,6 +379,12 @@ export default {
     calendarSortType() {
       localStorage.setItem('calendarSortType', this.calendarSortType)
       this.drawReservations()
+    }
+  },
+  url: {
+    datesUrlQuery: {
+      param: 'dates',
+      noHistory: true
     }
   }
 }
@@ -432,13 +454,18 @@ export default {
   top: 80px;
   width: 100%;
   z-index: 2;
-  max-height: calc(100vh - 145px);
-  max-height: calc(var(--vh, 1vh) * 100 - 145px);
-  overflow-y: scroll;
-  overflow-x: hidden;
 
-  &::-webkit-scrollbar {
-    width: 0;
+  > .reservations-scroll-wrapper {
+    position: relative;
+    max-height: calc(100vh - 145px);
+    max-height: calc(var(--vh, 1vh) * 100 - 145px);
+    height: calc(var(--vh, 1vh) * 100 - 145px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      width: 0;
+    }
   }
 }
 
@@ -448,6 +475,7 @@ export default {
   // border-radius: 5px;
   margin-top: 5px;
   cursor: pointer;
+  position: absolute;
 
   &.border-radius-left {
     border-top-left-radius: 5px;

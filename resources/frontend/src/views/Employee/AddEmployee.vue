@@ -26,7 +26,13 @@
             <select-role v-model="employee.role_id"></select-role>
           </v-col>
           <v-col cols="12" md="6">
+            <date-picker v-model="employee.entryDate" label="Arbeitseintrittsjahr" type="year"></date-picker>
+          </v-col>
+          <v-col cols="12" md="6">
             <v-checkbox label="Intern" v-model="employee.isIntern"></v-checkbox>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-checkbox label="Führerschein" v-model="employee.drivingLicence"></v-checkbox>
           </v-col>
           <v-col cols="12" md="6">
             <v-checkbox label="Fahrer" v-model="employee.isDriver"></v-checkbox>
@@ -78,11 +84,13 @@
 <script>
 import { rules } from '@/utils'
 import SelectRole from '@/components/Authorization/SelectRole'
+import DatePicker from '@/components/general/DatePicker'
 
 export default {
   name: 'AddCustomer',
   components: {
-    SelectRole
+    SelectRole,
+    DatePicker
   },
   data() {
     return {

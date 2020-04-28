@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Kunden-Übersicht</h1>
+    <h1>Kunden-Übersicht</h1>
     <search-bar
       name="customers"
       label="Kunden suchen"
