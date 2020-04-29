@@ -299,7 +299,7 @@ export default {
   },
   mounted() {
     this.$store.commit('isLoading', true)
-    this.axios.get(this.apiUrl).then((response) => {
+    this.axios.get(this.apiUrl).then(response => {
       if (!response.data.billing_address) response.data.billing_address = {}
       this.customer = response.data
       this.$store.commit('isLoading', false)
@@ -316,7 +316,7 @@ export default {
             confirmButtonText: 'Ja',
             cancelButtonText: 'Nein',
             showCancelButton: true
-          }).then(async (result) => {
+          }).then(async result => {
             if (result.value) {
               this.update()
             }
@@ -327,7 +327,7 @@ export default {
       }
     }, 400),
     update() {
-      this.axios.put(this.apiUrl, this.customer).catch((error) => {
+      this.axios.put(this.apiUrl, this.customer).catch(error => {
         if (error.response.data.errors && error.response.data.errors.email.includes('validation.email')) {
           this.$swal('Email nicht korrekt', 'Bitte schaue, dass die email ein korrektes Format hat.', 'error')
         } else if (error.response.data.errors && error.response.data.errors.email.includes('validation.unique')) {
@@ -346,7 +346,7 @@ export default {
     resetPassword() {
       this.axios
         .patch(`${this.apiUrl}/resetpassword`)
-        .then((response) => {
+        .then(response => {
           this.customer.secret = response.data
         })
         .catch(() => {

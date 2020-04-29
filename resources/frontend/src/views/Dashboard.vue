@@ -99,7 +99,7 @@ export default {
   },
   mounted() {
     this.$store.commit('isLoading', true)
-    this.axios.get('stats').then((response) => {
+    this.axios.get('stats').then(response => {
       this.stats = response.data
       this.$store.commit('isLoading', false)
     }).catch(() => {

@@ -83,7 +83,7 @@ export default {
         .patch(`/rapport/${this.$route.params.id}`, {
           default_project_id: this.rapport.default_project_id
         })
-        .then((response) => {
+        .then(response => {
           this.rapport.default_project_id = response.data.default_project_id
         })
         .catch(() => {

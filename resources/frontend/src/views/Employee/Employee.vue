@@ -397,7 +397,7 @@ export default {
   },
   mounted() {
     this.$store.commit('isLoading', true)
-    this.axios.get(this.apiUrl).then((response) => {
+    this.axios.get(this.apiUrl).then(response => {
       this.employee = response.data
       this.$store.commit('isLoading', false)
       if (this.employee.isGuest) {
@@ -409,7 +409,7 @@ export default {
   methods: {
     changed() {
       if (this.$refs.form.validate()) {
-        this.axios.put(this.apiUrl, this.employee).catch((error) => {
+        this.axios.put(this.apiUrl, this.employee).catch(error => {
           if (error.includes('Email already exist')) {
             this.$store.dispatch('alert', { text: 'Email existiert bereits', type: 'error', duration: 6 })
           } else {
@@ -431,7 +431,7 @@ export default {
         data.append('profileimage', this.$refs.profileImage.files[0])
         this.axios
           .post(`${this.apiUrl}/editimage`, data)
-          .then((response) => {
+          .then(response => {
             this.employee.profileimage = response.data
           })
           .catch(() => {

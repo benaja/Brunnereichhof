@@ -96,16 +96,16 @@ export default {
     addBed(bed) {
       this.value.push(bed)
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then((response) => {
+        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then(response => {
           bed.pivot = response.data
         })
       }
     },
     change() {
-      const bed = { ...this.beds.find((b) => b.id === this.selectedBed) }
+      const bed = { ...this.beds.find(b => b.id === this.selectedBed) }
       this.value.push(bed)
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then((response) => {
+        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then(response => {
           bed.pivot = response.data
         })
       }
@@ -117,7 +117,7 @@ export default {
           .then(() => {
             this.value.splice(this.value.indexOf(bed), 1)
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('Bed is currently in use')) {
               this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error')
             } else {

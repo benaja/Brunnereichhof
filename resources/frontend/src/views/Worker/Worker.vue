@@ -132,7 +132,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(this.apiUrl).then((response) => {
+    this.axios.get(this.apiUrl).then(response => {
       this.worker = response.data
     })
   },
@@ -170,7 +170,7 @@ export default {
         .patch(this.apiUrl, {
           type_id: this.worker.type_id === 3 ? 2 : 3
         })
-        .then((response) => {
+        .then(response => {
           this.worker = response.data
         })
         .catch(() => {

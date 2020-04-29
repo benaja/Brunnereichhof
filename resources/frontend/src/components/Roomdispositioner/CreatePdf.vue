@@ -72,7 +72,7 @@ export default {
 
       this.isLoading = true
 
-      this.$store.dispatch('employees').then((employees) => {
+      this.$store.dispatch('employees').then(employees => {
         this.employees = employees
         this.employees.unshift({
           id: 0,

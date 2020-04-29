@@ -56,7 +56,7 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get('/rapport')
-      .then((response) => {
+      .then(response => {
         this.rapports = response.data
       })
       .catch(() => {

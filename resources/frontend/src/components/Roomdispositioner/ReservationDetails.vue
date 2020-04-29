@@ -238,9 +238,9 @@ export default {
     editMode() {
       if (this.editMode) {
         if (!this.originalRoomId) this.originalRoomId = this.value.bed_room_pivot.room_id
-        this.axios.get('/rooms').then((response) => {
+        this.axios.get('/rooms').then(response => {
           this.rooms = response.data
-          if (!this.rooms.find((r) => r.id === this.originalRoomId)) {
+          if (!this.rooms.find(r => r.id === this.originalRoomId)) {
             this.rooms.push(this.value.bed_room_pivot.room)
           }
           this.getBeds()
@@ -265,10 +265,10 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .put(`/reservations/${this.value.id}`, this.reservationBody)
-          .then((response) => {
+          .then(response => {
             this.updateExistingReservation(response)
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('Employee is already in an other bed at this time')) {
               this.$swal({
                 title: 'Achtung!',
@@ -277,14 +277,14 @@ export default {
                 showCancelButton: true,
                 confirmButtonText: 'Ja, umbuchen!',
                 cancelButtonText: 'Nein, abbrechen'
-              }).then((result) => {
+              }).then(result => {
                 if (result.value) {
                   this.axios
                     .put(`/reservations/${this.value.id}`, {
                       ...this.reservationBody,
                       force: true
                     })
-                    .then((response) => {
+                    .then(response => {
                       this.$emit('updateAll', response.data)
                     })
                     .catch(() => {
@@ -312,7 +312,7 @@ export default {
         showCancelButton: true,
         confirmButtonText: 'Ja, löschen!',
         cancelButtonText: 'Nein, abbrechen'
-      }).then((result) => {
+      }).then(result => {
         if (result.value) {
           this.axios.delete(`/reservations/${this.value.id}`).then(() => {
             this.$emit('delete', this.value)
@@ -322,8 +322,8 @@ export default {
     },
     getBeds() {
       if (this.editMode && !this.loadingBeds) {
-        this.axios.get(`/rooms/${this.value.bed_room_pivot.room_id}/beds?entry=${this.value.entry}&exit=${this.value.exit}`).then((response) => {
-          if (!response.data.find((b) => b.pivot.id === this.value.bed_room_pivot.id)
+        this.axios.get(`/rooms/${this.value.bed_room_pivot.room_id}/beds?entry=${this.value.entry}&exit=${this.value.exit}`).then(response => {
+          if (!response.data.find(b => b.pivot.id === this.value.bed_room_pivot.id)
             && this.value.bed_room_pivot.room_id === this.originalRoomId) {
             response.data.push({
               ...this.value.bed_room_pivot.bed,

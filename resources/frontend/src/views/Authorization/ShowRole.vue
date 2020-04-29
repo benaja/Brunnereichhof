@@ -38,13 +38,13 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get(`roles/${this.$route.params.id}`)
-      .then((response) => {
-        this.$store.dispatch('authorizationRules').then((authorizationRules) => {
+      .then(response => {
+        this.$store.dispatch('authorizationRules').then(authorizationRules => {
           this.authorizationRules = authorizationRules
           this.$store.commit('isLoading', false)
         })
         response.data.selectedAuthorizationRules = response.data.authorization_rules
-          .map((r) => r.id)
+          .map(r => r.id)
 
         this.role = response.data
       })
@@ -63,7 +63,7 @@ export default {
       this.$store
         .dispatch('deleteRole', this.role.id)
         .then(() => this.$router.push('/roles'))
-        .catch((error) => {
+        .catch(error => {
           if (error.includes('Role still has one or more users')) {
             this.$swal('Rolle besitzt noch Benutzer', 'Stelle sicher, dass keine Benutzer diese Rolle besitzt, damit du sie löschen kannst.', 'error')
           } else {

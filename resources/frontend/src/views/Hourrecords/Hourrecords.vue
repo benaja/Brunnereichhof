@@ -272,7 +272,7 @@ export default {
       this.totalHours = Math.floor(Math.random() * 100000)
     }, 10)
     this.getHourRecords()
-    this.$store.dispatch('customers').then((customers) => {
+    this.$store.dispatch('customers').then(customers => {
       this.customers = customers
     })
   },
@@ -291,7 +291,7 @@ export default {
       this.$store.commit('isLoading', true)
       this.axios
         .get(`hourrecord?year=${this.selectedYear}`)
-        .then((response) => {
+        .then(response => {
           this.hourrecords = response.data
           clearInterval(this.randomNumbersInterval)
           this.totalHours = 0
@@ -360,7 +360,7 @@ export default {
       this.$store.commit('isLoading', true)
       this.axios
         .get(`hourrecord?sortBy=customer&year=${this.selectedYear}`)
-        .then((response) => {
+        .then(response => {
           for (const customer of response.data) {
             customer.hours = 0
             for (const hourrecord of customer.hourrecords) {
@@ -379,7 +379,7 @@ export default {
       this.$store.commit('isLoading', true)
       this.axios
         .get(`hourrecord?sortBy=project&year=${this.selectedYear}`)
-        .then((response) => {
+        .then(response => {
           for (const project of response.data) {
             project.hours = 0
             for (const hourrecord of project.hourrecords) {

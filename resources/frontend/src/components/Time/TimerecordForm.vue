@@ -159,7 +159,7 @@ export default {
       timeDialogTo: false,
       rules: {
         ...rules,
-        greaterThanZero: (v) => v > 0 || 'Zahl muss positiv sein',
+        greaterThanZero: v => v > 0 || 'Zahl muss positiv sein',
         from: () => {
           const from = this.getDate(this.from)
           const to = this.getDate(this.to)
@@ -174,7 +174,7 @@ export default {
   },
   computed: {
     edittypes() {
-      const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
+      const worktype = this.worktypes.find(w => w.id === this.form.worktype)
       if (!worktype) return []
       if (worktype.manually) {
         return [
@@ -197,7 +197,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/worktypes').then((response) => {
+    this.axios.get('/worktypes').then(response => {
       this.worktypes = response.data
       if (this.timerecord) {
         this.setEditTypeByTime()
@@ -240,8 +240,8 @@ export default {
         const minutes = (endTime - Math.floor(endTime)) * 60
         this.form.to = `${this.getTimeString(hours)}:${this.getTimeString(minutes.toFixed(0))}`
       } else if (this.form.edittype) {
-        const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
-        const edittype = worktype.work_input_types.find((w) => w.id === this.form.edittype)
+        const worktype = this.worktypes.find(w => w.id === this.form.worktype)
+        const edittype = worktype.work_input_types.find(w => w.id === this.form.edittype)
         const endTime = startTime + Number(edittype.hours)
         const minutes = (endTime - Math.floor(endTime)) * 60
         this.form.to = `${this.getTimeString(Math.floor(endTime))}:${this.getTimeString(minutes.toFixed(0))}`
@@ -272,10 +272,10 @@ export default {
         if (this.form.id) {
           this.axios
             .patch(`time/${this.form.id}${this.urlWorkerParam}`, this.form)
-            .then((response) => {
+            .then(response => {
               this.$emit('updated', response.data)
             })
-            .catch((error) => {
+            .catch(error => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -288,11 +288,11 @@ export default {
               ...this.form,
               date: this.date
             })
-            .then((response) => {
+            .then(response => {
               localStorage.timerecordSettings = JSON.stringify(this.form)
               this.$emit('updated', response.data)
             })
-            .catch((error) => {
+            .catch(error => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -310,14 +310,14 @@ export default {
         showCancelButton: true,
         confirmButtonText: 'Ja, löschen!',
         cancelButtonText: 'Nein, abbrechen'
-      }).then((result) => {
+      }).then(result => {
         if (result.value) {
           this.axios
             .delete(`time/${this.timerecord.id}${this.urlWorkerParam}`)
-            .then((response) => {
+            .then(response => {
               this.$emit('updated', response.data)
             })
-            .catch((error) => {
+            .catch(error => {
               if (!error.status(403)) {
                 this.$swal('Fehler', 'Element konnte nicht gelöscht werden', 'error')
               }
@@ -348,10 +348,10 @@ export default {
       }
     },
     setEditTypeByTime() {
-      const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
+      const worktype = this.worktypes.find(w => w.id === this.form.worktype)
       if (worktype) {
         const hours = this.calculateHoursBetweenTime()
-        const inputType = worktype.work_input_types.find((w) => w.hours === hours)
+        const inputType = worktype.work_input_types.find(w => w.hours === hours)
         if (inputType) {
           this.form.edittype = inputType.id
         } else {

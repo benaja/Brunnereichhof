@@ -71,13 +71,13 @@ export default {
       if (this.isLoading) return
       this.isLoading = true
 
-      this.$store.dispatch('employeesWithGuests').then((employees) => {
+      this.$store.dispatch('employeesWithGuests').then(employees => {
         this.employees = [...employees]
         this.isLoading = false
         this.loaded = true
-        if (this.value && !this.employees.find((e) => e.id === this.value)) {
-          this.$store.dispatch('employeesWithGuests', { deleted: true }).then((employeesWithGuests) => {
-            const employee = employeesWithGuests.find((e) => e.id === this.value)
+        if (this.value && !this.employees.find(e => e.id === this.value)) {
+          this.$store.dispatch('employeesWithGuests', { deleted: true }).then(employeesWithGuests => {
+            const employee = employeesWithGuests.find(e => e.id === this.value)
             this.employees.push(employee)
           })
         }

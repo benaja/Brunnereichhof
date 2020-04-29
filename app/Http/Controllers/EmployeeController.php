@@ -292,92 +292,67 @@ class EmployeeController extends Controller
         return $employees;
     }
 
-    public function employeeDayTotalsByYear(Request $request, $employeeId, $year)
-    {
+    // GET pdf/day-total/employees/{employeeId}
+    public function dayTotalsPdf(Request $request, $employeeId) {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
-        $this->pdf = new Pdf('P');
         $employee = Employee::find($employeeId);
-
-        if (!$employee) {
-            $this->pdf->error("Mitarbeiter konne nicht gefunden werden");
-            return;
-        }
-
-        $year = new \DateTime($year);
-        $firstDayOfMonth = clone $year;
-        $firstDayOfMonth = $firstDayOfMonth->modify('first day of January this year');
+        if (!$employee) abort(400, 'Employee not found');
+        
+        $this->pdf = new Pdf('P');
+        $originalDate = Utils::firstDate($request->dateRangeType, new \DateTime($request->date));
+        $firstDayOfMonth = clone $originalDate;
+        $lastDayOfMonth = Utils::lastDate($request->dateRangeType, new \DateTime($request->date));
 
         $monthsAdded = 0;
         for ($i = 0; $i < 12; $i++) {
-            $lastDayOfMonth = clone $firstDayOfMonth;
-            $lastDayOfMonth->modify('last day of this month');
-
             $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
-            if (count($lines) > 0) {
+            if (count($lines) > 0 || $request->dateRangeType === 'month') {
                 if ($monthsAdded > 0) $this->pdf->addNewPage();
                 $monthsAdded++;
 
                 $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
             }
+            if ($request->dateRangeType === 'month') {
+                $monthName = Settings::getMonthName($firstDayOfMonth);
+                return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname 
+                    {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
+            }
             $firstDayOfMonth->modify('first day of next month');
+            $lastDayOfMonth->modify('last day of next month');
         }
         if ($monthsAdded == 0) {
-            $this->pdf->documentTitle("Keine Daten gefunden für dieses Jahr und diesen Mitarbeiter.");
+            abort(400, 'Employee has no entries');
         }
 
-        return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$year->format('Y')}.pdf");
+        return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$originalDate->format('Y')}.pdf");
+        
     }
 
-    public function employeeDayTotalsByMonth(Request $request, $employeeId, $month)
-    {
+    public function reservationsPdf(Request $request, $employeeId) {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
-
-        $this->pdf = new Pdf('P');
-        $employee = Employee::find($employeeId);
-        if (!$employee) {
-            $this->pdf->error("Mitarbeiter konne nicht gefunden werden");
-            return;
-        }
-
-        $month = new \DateTime($month);
-        $firstDayOfMonth = $month->modify('first day of this month');
-        $lastDayOfMonth = clone $month;
-        $lastDayOfMonth->modify('last day of this month');
-
-        $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
-        $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
-        $monthName = Settings::getMonthName($firstDayOfMonth);
-        return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
-    }
-
-    public function reservationsByYear(Request $request, $employeeId, $date)
-    {
-        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
-        $this->pdf = new Pdf();
-        $date = new \DateTime($date);
 
         if ($employeeId === 'all') {
-            $firstDayOfYear = clone $date;
-            $firstDayOfYear->modify('first day of january this year');
-            $lastDayOfYear = clone $firstDayOfYear;
-            $lastDayOfYear->modify('last day of december this year');
+            $firstDayOfYear = Utils::firstDate('year', new \DateTime($request->date));
+            $lastDayOfYear = Utils::lastDate('year', new \DateTime($request->date));
+    
             $reservationsThisYear = Reservation::where('entry', '<=', $lastDayOfYear->format('Y-m-d'))
                 ->where('exit', '>=', $firstDayOfYear->format('Y-m-d'))
                 ->orderBy('entry')
                 ->get();
             $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
-
-            $this->pdf->documentTitle("Übernachtungen im Jahr {$date->format('Y')}");
+    
+            $this->pdf->documentTitle("Übernachtungen im Jahr {$firstDayOfYear->format('Y')}");
             $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
-
+    
             $employees = Employee::withTrashed()->get();
             foreach ($employees as $employee) {
-                $sleepOverForEmployee = $this->reservationsByYearSingleEmployee($employee, $date, false);
+                $this->reservationsByYearSingleEmployee($employee, $firstDayOfYear, false);
             }
-            return $this->pdf->export("Übernachtungen im Jahr {$date->format('Y')}.pdf");
+            return $this->pdf->export("Übernachtungen im Jahr {$firstDayOfYear->format('Y')}.pdf");
         } else {
             $employee = Employee::find($employeeId);
+            $date = new \DateTime($request->date);
             $this->reservationsByYearSingleEmployee($employee, $date);
             return $this->pdf->export("Übernachtungen von {$employee->name()} {$date->format('Y')}.pdf");
         }
@@ -426,10 +401,9 @@ class EmployeeController extends Controller
 
     private function reservationsByYearSingleEmployee($employee, $date, $addWhenEmpty = true)
     {
-        $firstDayOfYear = clone $date;
-        $firstDayOfYear->modify('first day of january this year');
-        $lastDayOfYear = clone $firstDayOfYear;
-        $lastDayOfYear->modify('last day of december this year');
+        $firstDayOfYear = Utils::firstDate('year', $date);
+        $lastDayOfYear = Utils::lastDate('year', $date);
+
         $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
         $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
         if ($sleepOver > 0 || $addWhenEmpty) {

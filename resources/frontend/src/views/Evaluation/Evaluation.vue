@@ -39,7 +39,7 @@ export default {
               ],
               url: 'pdf/worker/{worker}/month/{month}',
               rules: {
-                month: (v) => !!v
+                month: v => !!v
               }
             },
             {
@@ -58,7 +58,7 @@ export default {
               ],
               url: 'pdf/worker/{worker}/year/{year}',
               rules: {
-                year: (v) => !!v
+                year: v => !!v
               }
             },
             {
@@ -71,7 +71,7 @@ export default {
               ],
               url: 'pdf/worker/meals/{date}',
               rules: {
-                date: (v) => !!v
+                date: v => !!v
               }
             }
           ]
@@ -91,7 +91,7 @@ export default {
               ],
               url: 'pdf/employee/month/{month}',
               rules: {
-                month: (v) => !!v
+                month: v => !!v
               }
             },
             {
@@ -110,8 +110,8 @@ export default {
               ],
               url: 'pdf/employee/{employee}/year/{year}',
               rules: {
-                year: (v) => !!v,
-                employee: (v) => !!v
+                year: v => !!v,
+                employee: v => !!v
               }
             },
             {
@@ -130,8 +130,8 @@ export default {
               ],
               url: 'employee/{employee}/evaluation/{date}',
               rules: {
-                date: (v) => !!v,
-                employee: (v) => !!v
+                date: v => !!v,
+                employee: v => !!v
               }
             },
             {
@@ -149,10 +149,10 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'employee/{employee}/reservations/year/{year}',
+              url: 'pdf/reservations/employees/{employee}?date={year}',
               rules: {
-                year: (v) => !!v,
-                employee: (v) => !!v
+                year: v => !!v,
+                employee: v => !!v
               }
             },
             {
@@ -165,7 +165,7 @@ export default {
               ],
               url: 'employee/food/{date}',
               rules: {
-                date: (v) => !!v
+                date: v => !!v
               }
             },
             {
@@ -198,7 +198,7 @@ export default {
               ],
               url: 'pdf/customer/{customer}/week/{date}',
               rules: {
-                date: (v) => !!v
+                date: v => !!v
               }
             },
             {
@@ -217,7 +217,7 @@ export default {
               ],
               url: 'pdf/customer/{customer}/year/{year}',
               rules: {
-                year: (v) => !!v
+                year: v => !!v
               }
             },
             {
@@ -237,7 +237,7 @@ export default {
               ],
               url: 'pdf/hourrecord/{year}/customer/{customer}',
               rules: {
-                year: (v) => !!v
+                year: v => !!v
               }
             },
             {
@@ -253,6 +253,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

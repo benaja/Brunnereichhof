@@ -50,7 +50,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/settings/hourrecords').then((response) => {
+    this.axios.get('/settings/hourrecords').then(response => {
       this.$store.commit('settings', response.data)
     })
   },

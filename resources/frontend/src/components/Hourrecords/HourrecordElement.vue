@@ -135,7 +135,7 @@ export default {
     update() {
       this.axios
         .put(`/hourrecord/${this.value.id}`, this.value)
-        .then((response) => {
+        .then(response => {
           this.$emit('input', response.data)
         })
         .catch(() => {

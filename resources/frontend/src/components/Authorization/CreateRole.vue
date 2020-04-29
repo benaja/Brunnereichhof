@@ -69,8 +69,8 @@ export default {
       },
       name: null,
       rules: {
-        required: (v) => !!v || 'Dieses Feld muss vorhanden sein',
-        minLenghtOne: (v) => v.length > 0 || 'Wähle mindestens ein Elment aus'
+        required: v => !!v || 'Dieses Feld muss vorhanden sein',
+        minLenghtOne: v => v.length > 0 || 'Wähle mindestens ein Elment aus'
       }
     }
   },
@@ -87,7 +87,7 @@ export default {
   mounted() {
     this.$store
       .dispatch('authorizationRules')
-      .then((authorizationRules) => {
+      .then(authorizationRules => {
         this.authorizationRules = authorizationRules
       })
       .catch(() => {
@@ -99,7 +99,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post('roles', this.role)
-          .then((response) => {
+          .then(response => {
             this.$store.commit('addRole', response.data)
             this.isOpen = false
             this.$refs.form.reset()

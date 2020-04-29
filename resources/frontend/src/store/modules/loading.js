@@ -2,11 +2,12 @@ export default {
   state: {
     isLoading: {
       rooms: false,
-      beds: false
+      beds: false,
+      employees: false
     }
   },
   getters: {
-    isLoading: (state) => state.isLoading
+    isLoading: state => state.isLoading
   },
   mutations: {
     loadingRooms(state, isLoading) {
@@ -14,6 +15,9 @@ export default {
     },
     loadingBeds(state, isLoading) {
       state.isLoading.beds = isLoading
+    },
+    loadingEmployees(state, isLoading) {
+      state.isLoading.employees = isLoading
     }
   }
 }

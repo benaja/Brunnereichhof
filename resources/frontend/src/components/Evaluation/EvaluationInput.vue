@@ -30,12 +30,25 @@ export default {
       searchString: null,
       isLoading: false,
       isLoaded: false,
-      items: []
+      EVALUATION_INPUT_TYPES
     }
   },
   computed: {
-    EVALUATION_INPUT_TYPES() {
-      return EVALUATION_INPUT_TYPES
+    items() {
+      const items = [...this.$store.getters[this.inputField.dispatch]]
+      console.log(items)
+      if (this.inputField.selectAll) {
+        items.unshift({
+          id: 'all',
+          name: 'Alle'
+        })
+      }
+      return items
+    },
+    dispatchName() {
+      const firstLetter = this.inputField.dispatch.slice(0, 1).toUpperCase()
+      const restOfName = this.inputField.dispatch.slice(1, this.inputField.dispatch.length)
+      return `${firstLetter}${restOfName}`
     }
   },
   watch: {
@@ -44,14 +57,7 @@ export default {
       if (this.isLoading) return
       this.isLoading = true
 
-      this.$store.dispatch(this.inputField.dispatch).then((items) => {
-        this.items = [...items]
-        if (this.inputField.selectAll) {
-          this.items.unshift({
-            id: 'all',
-            name: 'Alle'
-          })
-        }
+      this.$store.dispatch(`fetch${this.dispatchName}`).then(() => {
         this.isLoading = false
         this.isLoaded = true
       })
@@ -59,6 +65,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

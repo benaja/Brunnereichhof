@@ -104,7 +104,7 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get(`${process.env.VUE_APP_API_URL}rapport`)
-      .then((response) => {
+      .then(response => {
         this.rapports = response.data
         for (const rapport of this.rapports) {
           rapport.date = moment(rapport.date.date)

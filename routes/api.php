@@ -10,58 +10,56 @@ Route::group(['middleware' => 'jwt.refresh'], function () {
 });
 
 // Customer
-Route::patch('customer/{id}/resetpassword', 'CustomerController@resetPassword');
-Route::get('customer/{id}/projects', 'CustomerController@projects');
-Route::get('customer/{id}/hourrecords', 'HourrecordController@getByCustomer');
-Route::resource('customer', 'CustomerController');
+Route::patch('customers/{id}/resetpassword', 'CustomerController@resetPassword');
+Route::get('customers/{id}/projects', 'CustomerController@projects');
+Route::get('customers/{id}/hourrecords', 'HourrecordController@getByCustomer');
+Route::resource('customers', 'CustomerController');
 
 // Employee
-Route::get('/employee/{employeeId}/evaluation/year/{year}', 'EmployeeController@employeeDayTotalsByYear');
-Route::get('/employee/{employeeId}/evaluation/month/{month}', 'EmployeeController@employeeDayTotalsByMonth');
-Route::get('/employee/{employeeId}/reservations/year/{year}', 'EmployeeController@reservationsByYear');
-Route::get('/employee/{employeeId}/reservations/month/{month}', 'EmployeeController@reservationsByMonth');
-Route::get('/employee/food/year/{date}', 'EmployeeController@foodRapportByYear');
-Route::get('/employee/food/month/{date}', 'EmployeeController@foodRapportByMonth');
-Route::get('/guest', 'EmployeeController@guests');
-Route::patch('/guest/{id}', 'EmployeeController@update');
+Route::get('pdf/day-total/employees/{employeeId}', 'EmployeeController@dayTotalsPdf');
+Route::get('pdf/reservations/employees/{employeeId}', 'EmployeeController@reservationsPdf');
+Route::get('pdf/employees/food/year/{date}', 'EmployeeController@foodRapportByYear');
+Route::get('pdf/employees/food/month/{date}', 'EmployeeController@foodRapportByMonth');
+Route::get('/guests', 'EmployeeController@guests');
+Route::patch('/guests/{id}', 'EmployeeController@update');
 Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
-Route::delete('/employee/{employee}/editimage', 'EmployeeController@deleteImage');
-Route::post('/employee/{employee}/editimage', 'EmployeeController@uploadImage');
-Route::resource('employee', 'EmployeeController');
+Route::delete('/employees/{employee}/editimage', 'EmployeeController@deleteImage');
+Route::post('/employees/{employee}/editimage', 'EmployeeController@uploadImage');
+Route::resource('employees', 'EmployeeController');
 
 // Worker
-Route::resource('/worker', 'WorkerController');
+Route::resource('/workers', 'WorkerController');
 
 //Project
-Route::get('/project/exist/{name}', 'ProjectController@exist');
-Route::delete('/project/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
-Route::post('/project/add', 'ProjectController@addToCustomer');
-Route::resource('/project', 'ProjectController');
+Route::get('/projects/exist/{name}', 'ProjectController@exist');
+Route::delete('/projects/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
+Route::post('/projects/add', 'ProjectController@addToCustomer');
+Route::resource('/projects', 'ProjectController');
 
 //Rapport
 // Route::get('/rapport/choosecustomer', 'RapportController@chooseCustomer');
 // Route::get('/rapport/addcustomer/{customer}', 'RapportController@addCustomer');
 // Route::get('/rapport/show', 'RapportController@showAll');
 // Route::post('/rapport/convertdate', 'RapportController@convertDate');
-Route::get('/rapport/week/{week}', 'RapportController@showWeek');
-Route::get('/rapport/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
-Route::post('/rapport/{rapport}/employee', 'RapportController@addEmployee');
-Route::delete('/rapport/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
-Route::patch('/rapportdetail/{rapportdetail}', 'RapportController@updateRapportdetail');
+Route::get('/rapports/week/{week}', 'RapportController@showWeek');
+Route::get('/rapports/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
+Route::post('/rapports/{rapport}/employee', 'RapportController@addEmployee');
+Route::delete('/rapports/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
+Route::patch('/rapportdetails/{rapportdetail}', 'RapportController@updateRapportdetail');
 Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails');
-Route::get('/rapport/daytotal/{date}', 'RapportController@daytotal');
-Route::resource('/rapport', 'RapportController');
+Route::get('/rapports/daytotal/{date}', 'RapportController@daytotal');
+Route::resource('/rapports', 'RapportController');
 
-Route::get('/pdf/worker/meals/year/{year}', 'Evaluation\WorkerPdfController@mealsYearRapport');
-Route::get('/pdf/worker/meals/month/{month}', 'Evaluation\WorkerPdfController@mealsMonthRapport');
-Route::get('/pdf/worker/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
-Route::get('/pdf/worker/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
-Route::get('/pdf/employee/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
-Route::get('/pdf/employee/month/{month}', 'PdfController@employeeMonthRapport');
+Route::get('/pdf/workers/meals/year/{year}', 'Evaluation\WorkerPdfController@mealsYearRapport');
+Route::get('/pdf/workers/meals/month/{month}', 'Evaluation\WorkerPdfController@mealsMonthRapport');
+Route::get('/pdf/workers/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
+Route::get('/pdf/workers/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
+Route::get('/pdf/employees/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
+Route::get('/pdf/employees/month/{month}', 'PdfController@employeeMonthRapport');
 Route::get('/pdf/employees', 'PdfController@employeeList');
-Route::get('/pdf/customer/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
-Route::get('/pdf/customer/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
-Route::get('/pdf/reservation/employee/{id}', 'ReservationPdfController@pdfByEmployee');
+Route::get('/pdf/customers/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
+Route::get('/pdf/customers/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
+Route::get('/pdf/reservations/employee/{id}', 'ReservationPdfController@pdfByEmployee');
 Route::get('/pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
 Route::get('/pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
 Route::get('/customers/export', 'Evaluation\CustomerPdfController@csvExport');
@@ -69,10 +67,10 @@ Route::get('/customers/export', 'Evaluation\CustomerPdfController@csvExport');
 Route::post('/password/change', 'UserController@changePassword');
 Route::post('/resetpassword/{user}', 'UserController@resetPassword');
 
-Route::get('/time/{date}', 'TimeController@index');
-Route::get('/time/week/{date}', 'TimeController@week');
-Route::get('/time/stats/{date}', 'TimeController@stats');
-Route::resource('/time', 'TimeController');
+Route::get('/times/{date}', 'TimeController@index');
+Route::get('/times/week/{date}', 'TimeController@week');
+Route::get('/times/stats/{date}', 'TimeController@stats');
+Route::resource('/times', 'TimeController');
 
 Route::get('/stats/roomdispositioner', 'DashboardController@roomdispositioner');
 Route::get('/stats', 'DashboardController@allStats');
@@ -82,14 +80,14 @@ Route::get('/settings/time', 'SettingsController@timeSettings');
 Route::get('/settings', 'SettingsController@index');
 Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
 
-Route::resource('/culture', 'CultureController');
+Route::resource('/cultures', 'CultureController');
 
-Route::get('/hourrecord/{year}/{week}', 'HourrecordController@getByWeek');
-Route::get('/pdf/hourrecord/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
-Route::get('/pdf/hourrecord', 'HourrecordController@pdfByWeek');
-Route::post('/hourrecord/{year}/{week}', 'HourrecordController@createSingle');
-Route::patch('/hourrecord', 'HourrecordController@updateMultible');
-Route::resource('/hourrecord', 'HourrecordController');
+Route::get('/hourrecords/{year}/{week}', 'HourrecordController@getByWeek');
+Route::get('/pdf/hourrecords/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
+Route::get('/pdf/hourrecords', 'HourrecordController@pdfByWeek');
+Route::post('/hourrecords/{year}/{week}', 'HourrecordController@createSingle');
+Route::patch('/hourrecords', 'HourrecordController@updateMultible');
+Route::resource('/hourrecords', 'HourrecordController');
 
 Route::get('rules', 'RoleController@getRules');
 Route::resource('roles', 'RoleController');

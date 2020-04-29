@@ -25,7 +25,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/worktypes').then((response) => {
+    this.axios.get('/worktypes').then(response => {
       this.worktypes = response.data
     })
   }

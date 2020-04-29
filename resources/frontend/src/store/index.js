@@ -6,6 +6,7 @@ import roles from './modules/roles'
 import rooms from './modules/rooms'
 import loading from './modules/loading'
 import beds from './modules/beds'
+import employees from './modules/employees'
 
 Vue.use(Vuex)
 
@@ -33,7 +34,7 @@ const resolveContent = (context, getter, url, properties) => new Promise((resolv
     const fullUrl = `/${url}${urlParams}`
     axios
       .get(fullUrl)
-      .then((response) => {
+      .then(response => {
         context.commit('dynamicMutate', {
           getter,
           value,
@@ -42,7 +43,7 @@ const resolveContent = (context, getter, url, properties) => new Promise((resolv
         if (hasDeletedAttributes) resolve(context.getters[getter][value])
         else resolve(context.getters[getter])
       })
-      .catch((error) => reject(error))
+      .catch(error => reject(error))
   } else if (hasDeletedAttributes) resolve(context.getters[getter][value])
   else resolve(context.getters[getter])
 })
@@ -58,7 +59,7 @@ const resetContent = (context, getter) => {
   }
 }
 
-const getPeopleWithFullName = (people) => {
+const getPeopleWithFullName = people => {
   for (const person of people) {
     person.name = `${person.lastname} ${person.firstname}`
   }
@@ -81,7 +82,8 @@ export default new Vuex.Store({
     roles,
     rooms,
     loading,
-    beds
+    beds,
+    employees
   },
   state: {
     isMobile: false,
@@ -101,20 +103,12 @@ export default new Vuex.Store({
     cultures: {
       ...defaultValuesArray
     },
-    employees: {
-      ...defaultValuesArray
-    },
     workers: {
       ...defaultValuesArray
     },
     guests: {
       ...defaultValuesArray
     },
-    employeesWithGuests: {
-      ...defaultValuesArray
-    },
-    allEmployees: [],
-    employeesAndGuests: [],
     authorizationRules: [],
     alerts: []
   },
@@ -155,9 +149,6 @@ export default new Vuex.Store({
     cultures(state, cultures) {
       state.cultures.itmes = cultures
     },
-    employees(state, employees) {
-      state.employees.items = getPeopleWithFullName(employees)
-    },
     authorizationRules(state, authorizationRules) {
       state.authorizationRules = authorizationRules
     },
@@ -179,15 +170,15 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    isMobile: (state) => state.isMobile,
-    openPopups: (state) => state.openPopups,
-    dayShortNames: (state) => state.dayShortNames,
-    dayNames: (state) => state.dayNames,
-    recordWeeks: (state) => state.recordWeeks,
-    hourRecords: (state) => state.hourRecords,
-    saveState: (state) => state.saveState,
-    settings: (state) => state.settings,
-    isEditTime: (state) => {
+    isMobile: state => state.isMobile,
+    openPopups: state => state.openPopups,
+    dayShortNames: state => state.dayShortNames,
+    dayNames: state => state.dayNames,
+    recordWeeks: state => state.recordWeeks,
+    hourRecords: state => state.hourRecords,
+    saveState: state => state.saveState,
+    settings: state => state.settings,
+    isEditTime: state => {
       let startdate = new Date(state.settings.hourrecordStartDate)
       let endDate = new Date(state.settings.hourrecordEndDate)
 
@@ -201,14 +192,12 @@ export default new Vuex.Store({
       }
       return true
     },
-    customers: (state) => state.customers,
-    cultures: (state) => state.cultures,
-    employees: (state) => state.employees,
-    workers: (state) => state.workers,
-    employeesWithGuests: (state) => state.employeesWithGuests,
-    guests: (state) => state.guests,
-    authorizationRules: (state) => state.authorizationRules,
-    alerts: (state) => state.alerts
+    customers: state => state.customers,
+    cultures: state => state.cultures,
+    workers: state => state.workers,
+    guests: state => state.guests,
+    authorizationRules: state => state.authorizationRules,
+    alerts: state => state.alerts
   },
   actions: {
     closeAllPopups({ commit }) {
@@ -223,14 +212,8 @@ export default new Vuex.Store({
     workers(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'workers', 'worker', properties)
     },
-    employees(context, properties = defaultResolveProperties) {
-      return resolveContent(context, 'employees', 'employee', properties)
-    },
     guests(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'guests', 'guest', properties)
-    },
-    employeesWithGuests(context, properties = defaultResolveProperties) {
-      return resolveContent(context, 'employeesWithGuests', 'employeeswithguests', properties)
     },
     cultures(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'cultures', 'culture', properties)
@@ -240,9 +223,6 @@ export default new Vuex.Store({
     },
     resetCustomers(context) {
       resetContent(context, 'customers')
-    },
-    resetEmployees(context) {
-      resetContent(context, 'employees')
     },
     resetCultures(context) {
       resetContent(context, 'cultures')

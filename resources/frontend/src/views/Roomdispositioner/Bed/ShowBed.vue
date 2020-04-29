@@ -130,7 +130,7 @@ export default {
     this.isLoading = true
     this.axios
       .get(`/beds/${this.$route.params.id}`)
-      .then((response) => {
+      .then(response => {
         this.bed = response.data
       })
       .catch(() => {
@@ -152,7 +152,7 @@ export default {
         .then(() => {
           this.$router.push('/beds')
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.includes('Integrity constraint violation')) this.$swal('Fehler', 'Bett wird noch in einem Raum verwenden', 'error')
           else this.$swal('Fehler', 'Bett konnte aus einem unbekanntem Grund nicht gelöscht werden', 'error')
         })

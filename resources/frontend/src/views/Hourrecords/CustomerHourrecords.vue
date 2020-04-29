@@ -107,11 +107,11 @@ export default {
   mounted() {
     this.$store.commit('isLoading', true)
     Promise.all([
-      this.axios.get(`/customer/${this.id}`).then((response) => {
+      this.axios.get(`/customer/${this.id}`).then(response => {
         this.customer = response.data
       }),
       this.getHourrecords(),
-      this.axios.get('/culture').then((response) => {
+      this.axios.get('/culture').then(response => {
         this.cultures = response.data
       })
     ])
@@ -138,7 +138,7 @@ export default {
       this.$router.replace({ query: { ...this.$route.query, edit: this.edit ? 0 : 1 } })
     },
     getHourrecords() {
-      return this.axios.get(`/customer/${this.id}/hourrecords?year=${this.year}`).then((response) => {
+      return this.axios.get(`/customer/${this.id}/hourrecords?year=${this.year}`).then(response => {
         this.hourrecords = response.data
       })
     },

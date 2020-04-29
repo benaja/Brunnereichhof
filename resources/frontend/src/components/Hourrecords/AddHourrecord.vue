@@ -141,7 +141,7 @@ export default {
       }
       this.axios
         .post(`hourrecord/${this.year}/${week}`, this.hourrecord)
-        .then((response) => {
+        .then(response => {
           this.$emit('add', response.data)
           this.$emit('input', false)
           this.$refs.form.reset()
@@ -159,12 +159,12 @@ export default {
     },
     getData() {
       if (this.value && !this.cultures.length) {
-        this.$store.dispatch('cultures').then((cultures) => {
+        this.$store.dispatch('cultures').then(cultures => {
           this.cultures = cultures
         })
       }
       if (this.value && !this.customers.length && !this.customer) {
-        this.$store.dispatch('customers').then((customers) => {
+        this.$store.dispatch('customers').then(customers => {
           this.customers = customers
         })
       }

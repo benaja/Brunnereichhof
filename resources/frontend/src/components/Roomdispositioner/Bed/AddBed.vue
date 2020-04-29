@@ -74,7 +74,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post('/beds', this.bed)
-          .then((response) => {
+          .then(response => {
             this.$store.commit('addBed', response.data)
             this.$emit('add', response.data)
             this.$emit('input', false)

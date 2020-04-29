@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     getStats() {
-      this.axios.get('/stats/roomdispositioner').then((response) => {
+      this.axios.get('/stats/roomdispositioner').then(response => {
         this.stats = response.data
       })
     }

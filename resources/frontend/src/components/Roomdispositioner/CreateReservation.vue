@@ -97,7 +97,7 @@ export default {
       if (this.isLoadingEmployees) return
       this.isLoadingEmployees = true
 
-      this.$store.dispatch('employeesWithGuests').then((employees) => {
+      this.$store.dispatch('employeesWithGuests').then(employees => {
         this.employees = employees
         this.isLoadingEmployees = false
         this.employeesLoaded = true
@@ -135,7 +135,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/rooms').then((response) => {
+    this.axios.get('/rooms').then(response => {
       this.rooms = response.data
     })
   },
@@ -144,11 +144,11 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post('/reservations', this.reservation)
-          .then((response) => {
+          .then(response => {
             this.$emit('add', response.data)
             this.resetReservation()
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('Employee is already in an other bed at this time')) {
               this.$swal({
                 title: 'Achtung!',
@@ -157,14 +157,14 @@ export default {
                 showCancelButton: true,
                 confirmButtonText: 'Ja, umbuchen!',
                 cancelButtonText: 'Nein, abbrechen'
-              }).then((result) => {
+              }).then(result => {
                 if (result.value) {
                   this.axios
                     .post('/reservations', {
                       ...this.reservation,
                       force: true
                     })
-                    .then((response) => {
+                    .then(response => {
                       this.$emit('updateAll', response.data)
                       this.resetReservation()
                     })
@@ -189,7 +189,7 @@ export default {
     },
     getBeds() {
       if (this.reservation.room) {
-        this.axios.get(`/rooms/${this.reservation.room}/beds?entry=${this.reservation.entry}&exit=${this.reservation.exit}`).then((response) => {
+        this.axios.get(`/rooms/${this.reservation.room}/beds?entry=${this.reservation.entry}&exit=${this.reservation.exit}`).then(response => {
           this.beds = response.data
         })
       }

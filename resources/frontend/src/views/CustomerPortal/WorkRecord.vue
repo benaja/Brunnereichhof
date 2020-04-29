@@ -57,10 +57,10 @@ export default {
   computed: {
     ...mapGetters(['settings']),
     activeWeeks() {
-      return this.weeks.filter((w) => w.active)
+      return this.weeks.filter(w => w.active)
     },
     selectedWeeks() {
-      return this.weeks.filter((w) => w.isSelected)
+      return this.weeks.filter(w => w.isSelected)
     }
   },
   watch: {
@@ -75,7 +75,7 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get('/settings/hourrecords')
-      .then((response) => {
+      .then(response => {
         this.$store.commit('settings', response.data)
         if (!this.$store.getters.isEditTime) {
           this.$router.push('/kundenportal/erfassen/details')
@@ -103,7 +103,7 @@ export default {
     }
     if (this.hourRecords.length === 0) {
       this.$store.commit('isLoading', true)
-      this.axios.get('hourrecord').then((response) => {
+      this.axios.get('hourrecord').then(response => {
         this.hourRecords = response.data
         for (const key in this.hourRecords) {
           this.weeks[key - 1].isSelected = true
@@ -128,12 +128,12 @@ export default {
         .post('hourrecord', {
           weeks: this.selectedWeeks
         })
-        .then((response) => {
+        .then(response => {
           this.$store.commit('isLoading', false)
           this.$store.commit('hourRecords', response.data)
           this.$router.push('/kundenportal/erfassen/details')
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.includes('the edit duration is over')) {
             this.$store.commit('isLoading', false)
             this.$swal('Fehler', 'Die Bearbeitungszeit für dieses Jahr ist vorbei.', 'error')

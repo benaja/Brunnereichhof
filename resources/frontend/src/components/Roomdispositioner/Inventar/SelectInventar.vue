@@ -131,7 +131,7 @@ export default {
 
       this.isLoading = true
 
-      this.axios.get('/inventars').then((response) => {
+      this.axios.get('/inventars').then(response => {
         for (const inventar of response.data) {
           inventar.pivot = {
             amount: 0,
@@ -146,12 +146,12 @@ export default {
   },
   methods: {
     change() {
-      if (this.value.find((i) => i.id === this.searchItem)) {
-        const inventar = this.value.find((i) => i.id === this.searchItem)
+      if (this.value.find(i => i.id === this.searchItem)) {
+        const inventar = this.value.find(i => i.id === this.searchItem)
         inventar.pivot.amount++
         inventar.pivot.amount_2++
       } else {
-        const selectedInventar = this.inventars.find((i) => i.id === this.searchItem)
+        const selectedInventar = this.inventars.find(i => i.id === this.searchItem)
         if (selectedInventar) {
           selectedInventar.pivot.amount = 1
           selectedInventar.pivot.amount_2 = 1

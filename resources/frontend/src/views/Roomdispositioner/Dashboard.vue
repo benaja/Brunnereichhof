@@ -222,7 +222,7 @@ export default {
   },
   methods: {
     loadReservations() {
-      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then((response) => {
+      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
         this.reservations = response.data
       })
     },
@@ -280,14 +280,14 @@ export default {
       }, 100)
     },
     reservationsThisDay(day) {
-      return this.reservations.filter((r) => {
+      return this.reservations.filter(r => {
         const currentDay = this.firstday.clone().add(day - 1, 'days')
         return moment(r.entry).isSameOrBefore(currentDay, 'day') && moment(r.exit).isSameOrAfter(currentDay, 'day')
       })
     },
     getReservationsForSelectedTime() {
       return this.reservations.filter(
-        (r) => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.dates[1], 'day')
+        r => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.dates[1], 'day')
           && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.dates[0], 'day'),
       )
     },

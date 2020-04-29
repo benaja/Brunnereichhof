@@ -5,8 +5,8 @@ import store from './store'
 
 axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     error.includes = (string, key = null) => {
       if (!error.response) return false
       if (
@@ -28,7 +28,7 @@ axios.interceptors.response.use(
       return false
     }
 
-    error.status = (status) => error.response && error.response.status === status
+    error.status = status => error.response && error.response.status === status
 
     if (error.includes('token_not_provided')) {
       store.commit('isLoading', false)

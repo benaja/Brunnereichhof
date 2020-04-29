@@ -127,7 +127,7 @@ export default {
       this.$refs.searchBar.restoreItem(room)
     },
     activeBeds(room) {
-      return room.beds.filter((b) => !b.pivot || !b.pivot.deleted_at)
+      return room.beds.filter(b => !b.pivot || !b.pivot.deleted_at)
     }
   }
 }

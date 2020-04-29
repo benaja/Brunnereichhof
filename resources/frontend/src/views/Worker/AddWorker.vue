@@ -70,10 +70,10 @@ export default {
       worker: {},
       apiUrl: `${process.env.VUE_APP_API_URL}worker`,
       emailRegex: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      nameRules: [(v) => !!v || 'Name muss vorhanden sein'],
+      nameRules: [v => !!v || 'Name muss vorhanden sein'],
       emailRules: [
         // A Valid email or emtpy string
-        (v) => this.emailRegex.test(v) || 'Email nicht korrekt'
+        v => this.emailRegex.test(v) || 'Email nicht korrekt'
       ]
     }
   },
@@ -93,7 +93,7 @@ export default {
         .then(() => {
           this.$router.push('/worker')
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response.data.errors.email && error.response.data.errors.email.includes('validation.unique')) {
             this.$swal('Email existiert bereits', 'Diese Email wurde bereits verwendet', 'error')
           } else {

@@ -115,7 +115,7 @@ export default {
     getDayTotal() {
       this.axios
         .get(`rapport/daytotal/${this.date}`)
-        .then((response) => {
+        .then(response => {
           this.dayTotals = response.data
         })
         .catch(() => {

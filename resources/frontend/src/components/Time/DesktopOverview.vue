@@ -79,7 +79,7 @@ export default {
     getStats() {
       this.axios
         .get(`${process.env.VUE_APP_API_URL}time/stats/${this.date}?type=${this.type}`)
-        .then((response) => {
+        .then(response => {
           this.totalHours = response.data.totalHours
           this.holidayHours = response.data.holidayHours
         })

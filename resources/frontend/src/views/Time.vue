@@ -294,7 +294,7 @@ export default {
   mounted() {
     this.axios
       .get(`/settings/time${this.urlWorkerParam}`)
-      .then((response) => {
+      .then(response => {
         this.settings = response.data
       })
       .catch(() => {
@@ -322,7 +322,7 @@ export default {
       }
       this.axios
         .get(url + this.urlWorkerParam)
-        .then((response) => {
+        .then(response => {
           this.weekDays = response.data
         })
         .catch(() => {

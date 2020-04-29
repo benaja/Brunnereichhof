@@ -96,7 +96,7 @@ export default {
   },
   methods: {
     getReservations() {
-      this.axios.get(`/rooms/${this.$route.params.id}/reservations/${this.date}`).then((response) => {
+      this.axios.get(`/rooms/${this.$route.params.id}/reservations/${this.date}`).then(response => {
         this.reservations = response.data
       })
     },

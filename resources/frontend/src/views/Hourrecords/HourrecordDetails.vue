@@ -146,7 +146,7 @@ export default {
     },
     customersFiltered() {
       return this.customers
-        .filter((c) => !c.isDeleted && c.hourrecords.length > 0)
+        .filter(c => !c.isDeleted && c.hourrecords.length > 0)
         .sort((a, b) => {
           if (a.lastname.toLowerCase() < b.lastname.toLowerCase()) {
             return -1
@@ -161,7 +161,7 @@ export default {
   watch: {
     editMode() {
       if (this.editMode && this.cultures.length === 0) {
-        this.$store.dispatch('cultures').then((cultures) => {
+        this.$store.dispatch('cultures').then(cultures => {
           this.cultures = cultures
         })
       }
@@ -171,7 +171,7 @@ export default {
     this.editMode = this.edit
     this.addHourrecord = this.editMode
     this.$store.commit('isLoading', true)
-    this.axios.get(`hourrecord/${this.$route.params.year}/${this.$route.params.week}`).then((response) => {
+    this.axios.get(`hourrecord/${this.$route.params.year}/${this.$route.params.week}`).then(response => {
       this.customers = response.data
       this.$store.commit('isLoading', false)
     })
@@ -185,7 +185,7 @@ export default {
       }
     },
     applyHourrecord(hourrecord) {
-      const customer = this.customers.find((c) => c.id === hourrecord.customer_id)
+      const customer = this.customers.find(c => c.id === hourrecord.customer_id)
       if (customer) {
         customer.hourrecords.push(hourrecord)
       } else {

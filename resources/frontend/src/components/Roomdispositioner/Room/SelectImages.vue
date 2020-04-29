@@ -153,7 +153,7 @@ export default {
           showCancelButton: true,
           confirmButtonText: 'Ja, löschen!',
           cancelButtonText: 'Nein, abbrechen'
-        }).then((result) => {
+        }).then(result => {
           if (result.value) {
             this.axios
               .delete(`/images/${image.id}`)
@@ -181,7 +181,7 @@ export default {
       for (const file of files) {
         this.value.push(file)
         const reader = new FileReader()
-        reader.onload = (e) => {
+        reader.onload = e => {
           this.imageUrls.push(e.target.result)
         }
         reader.readAsDataURL(file)

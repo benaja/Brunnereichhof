@@ -56,7 +56,7 @@ export default {
       password: null,
       shake: false,
       rules: {
-        required: (v) => !!v || 'Dieses Feld muss vorhanden sein'
+        required: v => !!v || 'Dieses Feld muss vorhanden sein'
       },
       loginError: null
     }

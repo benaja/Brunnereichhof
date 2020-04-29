@@ -240,10 +240,10 @@ export default {
   mounted() {
     this.$store.commit('isLoading', true)
     Promise.all([
-      this.axios.get(`/rapport/${this.id}`).then((response) => {
+      this.axios.get(`/rapport/${this.id}`).then(response => {
         this.rapport = response.data
       }),
-      this.axios.get('/settings').then((response) => {
+      this.axios.get('/settings').then(response => {
         this.settings = response.data
       })
     ])

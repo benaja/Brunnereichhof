@@ -202,7 +202,7 @@ export default {
   },
   mounted() {
     this.$store.commit('isLoading', true)
-    this.axios.get(`${process.env.VUE_APP_API_URL}settings`).then((response) => {
+    this.axios.get(`${process.env.VUE_APP_API_URL}settings`).then(response => {
       this.settings = response.data
       this.$store.commit('isLoading', false)
     })

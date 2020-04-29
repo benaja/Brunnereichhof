@@ -55,13 +55,11 @@ export default {
   data() {
     return {
       datePickerModel: false,
-      isLoading: false
+      isLoading: false,
+      EVALUATION_INPUT_TYPES
     }
   },
   computed: {
-    EVALUATION_INPUT_TYPES() {
-      return EVALUATION_INPUT_TYPES
-    },
     allValid() {
       let allValid = true
       for (const key in this.evaluation.rules) {
@@ -100,7 +98,7 @@ export default {
       })
     },
     getValue(key) {
-      const inputField = this.evaluation.inputFields.find((i) => i.key === key)
+      const inputField = this.evaluation.inputFields.find(i => i.key === key)
       if (inputField.selectAll && !inputField.value) return 'all'
       if (!inputField.value) return null
       return inputField.value.id || inputField.value
@@ -125,6 +123,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

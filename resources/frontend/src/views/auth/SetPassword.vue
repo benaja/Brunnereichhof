@@ -65,8 +65,8 @@ export default {
       repeatPassword: '',
       rules: {
         ...rules,
-        password: (value) => value.length >= 6 || 'Passwort muss mindestens 6 Zeichen haben.',
-        repeat: (value) => value === this.password || 'Passwörter stimmen nicht überein',
+        password: value => value.length >= 6 || 'Passwort muss mindestens 6 Zeichen haben.',
+        repeat: value => value === this.password || 'Passwörter stimmen nicht überein',
         matchOldPassword: () => this.matchOldPassword || 'Passwort nicht korrekt'
       },
       isLoading: false,
@@ -79,7 +79,7 @@ export default {
         this.isLoading = true
         this.axios
           .post('auth/set-password', { password: this.password, token: this.token, userId: this.userId })
-          .then((response) => {
+          .then(response => {
             this.isLoading = false
             this.$auth.login({
               params: {
@@ -94,7 +94,7 @@ export default {
               fetchUser: true
             })
           })
-          .catch((error) => {
+          .catch(error => {
             this.isLoading = false
             if (error.includes('Token is invalid')) {
               this.errorMessage = 'Link ist ungültig. Versuche erneut das Passwort zurückzusetzten.'

@@ -1,7 +1,7 @@
 import axios from './axios'
 
 function downloadFile(url, params) {
-  return axios.get(url, { params, responseType: 'arraybuffer' }).then((response) => {
+  return axios.get(url, { params, responseType: 'arraybuffer' }).then(response => {
     const newBlob = new Blob([response.data], { type: 'application/pdf' })
 
     // IE doesn't allow using a blob object directly as link href
@@ -28,13 +28,13 @@ function downloadFile(url, params) {
 }
 
 const rules = {
-  required: (v) => !!v || 'Dieses Feld muss vorhanden sein',
-  nullableEmail: (v) => !v
+  required: v => !!v || 'Dieses Feld muss vorhanden sein',
+  nullableEmail: v => !v
     || /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
       v,
     )
     || 'Email nicht korrekt',
-  integer: (v) => Number.isInteger(v) || 'Muss eine ganzzahlige Zahl sein'
+  integer: v => Number.isInteger(v) || 'Muss eine ganzzahlige Zahl sein'
 }
 
 export { downloadFile, rules }

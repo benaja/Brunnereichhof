@@ -48,7 +48,7 @@ export default {
     return {
       email: '',
       rules: {
-        required: (v) => !!v || 'Dieses Feld muss vorhanden sein'
+        required: v => !!v || 'Dieses Feld muss vorhanden sein'
       },
       emailSend: false,
       valid: false,
@@ -69,7 +69,7 @@ export default {
             this.emailSend = true
             this.isLoading = false
           })
-          .catch((error) => {
+          .catch(error => {
             this.isLoading = false
             if (error.includes('Email does not exist')) {
               this.errorMessage = 'Email existiert nicht'

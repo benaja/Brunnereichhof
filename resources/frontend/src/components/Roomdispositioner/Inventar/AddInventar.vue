@@ -45,8 +45,8 @@ export default {
     return {
       inventar: {},
       rules: {
-        name: [(v) => !!v || 'Name muss vorhanden sein'],
-        price: [(v) => !!v || 'Geben Sie einen Preis an']
+        name: [v => !!v || 'Name muss vorhanden sein'],
+        price: [v => !!v || 'Geben Sie einen Preis an']
       },
       valid: false
     }
@@ -63,7 +63,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post('/inventars', this.inventar)
-          .then((response) => {
+          .then(response => {
             this.$refs.form.reset()
             this.$emit('input', false)
             this.$emit('add', response.data)

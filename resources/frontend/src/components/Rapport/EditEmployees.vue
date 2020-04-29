@@ -100,22 +100,22 @@ export default {
   methods: {
     addEmployee() {
       if (!this.selectedEmployees
-        .filter((employee) => employee.id === this.selectedEmployee).length) {
+        .filter(employee => employee.id === this.selectedEmployee).length) {
         this.selectedEmployees.push(this.employees
-          .filter((employee) => employee.id === this.selectedEmployee)[0])
+          .filter(employee => employee.id === this.selectedEmployee)[0])
         this.axios
           .post(`/rapport/${this.$route.params.id}/employee`, {
             employee_id: this.selectedEmployee,
             default_project_id: this.defaultProject
           })
-          .then((response) => {
+          .then(response => {
             this.$emit('addEmployee', response.data)
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.response.data.includes('employee already exists')) {
               this.$swal('Mitarbeiter ist bereits hinzugefügt worden', '', 'warning')
             } else {
-              const employee = this.selectedEmployees.filter((e) => e.id === this.selectedEmployee)
+              const employee = this.selectedEmployees.filter(e => e.id === this.selectedEmployee)
               this.selectedEmployees.splice(this.selectedEmployees.indexOf(employee), 1)
               this.selectedEmployees = [...this.selectedEmployees]
               this.$swal('Fehler', 'Es ist ein unbekannter Fehler beim Speichern aufgetreten', 'error')
@@ -131,7 +131,7 @@ export default {
         showCancelButton: true,
         confirmButtonText: 'Ja, entfernen!',
         cancelButtonText: 'Nein, abbrechen'
-      }).then((result) => {
+      }).then(result => {
         if (result.value) {
           this.selectedEmployees.splice(this.selectedEmployees.indexOf(employee), 1)
           this.selectedEmployees = [...this.selectedEmployees]
@@ -142,7 +142,7 @@ export default {
             })
             .catch(() => {
               this.selectedEmployees.push(this.employees
-                .filter((currentEmployee) => currentEmployee.id === employee.id)[0])
+                .filter(currentEmployee => currentEmployee.id === employee.id)[0])
               this.$swal('Fehler', 'Mitarbeiter konnte nicht entfernt werden', 'error')
             })
         }

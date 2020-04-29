@@ -64,7 +64,7 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get(`/rapport/week/${this.$route.params.week}`)
-      .then((response) => {
+      .then(response => {
         this.rapports = response.data
         this.$store.commit('isLoading', false)
       })
@@ -73,7 +73,7 @@ export default {
         this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
       })
 
-    this.$store.dispatch('customers').then((customers) => {
+    this.$store.dispatch('customers').then(customers => {
       this.customers = customers
     })
   },
@@ -85,7 +85,7 @@ export default {
             week: this.$route.params.week,
             customer_id: this.selectedCustomer
           })
-          .then((response) => {
+          .then(response => {
             this.$router.push(`/rapport/${response.data.id}`)
           })
           .catch(() => {

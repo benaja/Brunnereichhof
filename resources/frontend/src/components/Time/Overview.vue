@@ -114,7 +114,7 @@ export default {
     getStats() {
       this.axios
         .get(`/time/stats/${this.date}${this.urlWorkerParam}`)
-        .then((response) => {
+        .then(response => {
           this.totalHours = response.data.week.totalHours
           this.holidayHours = response.data.week.holidayHours
           if (response.data.month) {

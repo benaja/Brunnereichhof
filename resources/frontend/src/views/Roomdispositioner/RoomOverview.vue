@@ -100,7 +100,7 @@ export default {
       this.$store.commit('isLoading', true)
       this.axios
         .get(`/rooms/reservations/${this.date}`)
-        .then((response) => {
+        .then(response => {
           this.$store.commit('isLoading', false)
           this.roomsWithReservations = response.data
         })

@@ -69,7 +69,7 @@ export default {
       rules: {
         ...rules,
         password: () => this.passwordNew.length >= 6 || 'Passwort muss mindestens 6 Zeichen haben.',
-        repeat: (value) => value === this.passwordNew || 'Passwörter stimmen nicht überein',
+        repeat: value => value === this.passwordNew || 'Passwörter stimmen nicht überein',
         matchOldPassword: () => this.matchOldPassword || 'Passwort nicht korrekt'
       },
       matchOldPassword: true,
@@ -117,7 +117,7 @@ export default {
             this.$auth.user(user)
             this.$router.push('/')
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('password invalid')) {
               this.matchOldPassword = false
               this.$refs.passwordOld.focus()

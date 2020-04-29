@@ -129,7 +129,7 @@ export default {
   computed: {
     allValid() {
       if (this.weeks.length === 0) return false
-      if (this.weeks.find((week) => week.find((culture) => !culture.culture))) return false
+      if (this.weeks.find(week => week.find(culture => !culture.culture))) return false
       return true
     },
     isEditModeEnabled() {
@@ -139,7 +139,7 @@ export default {
       return Object.keys(this.weeks).length
     },
     weeksFlat() {
-      return Object.keys(this.weeks).flatMap((week) => this.weeks[week])
+      return Object.keys(this.weeks).flatMap(week => this.weeks[week])
     }
   },
   watch: {
@@ -152,18 +152,18 @@ export default {
   },
   mounted() {
     this.editMode = this.isEditModeEnabled
-    this.axios.get('/culture').then((response) => {
+    this.axios.get('/culture').then(response => {
       this.cultures = response.data
     })
     if (this.weeks.length === 0) {
       this.$store.commit('isLoading', true)
-      this.axios.get('/hourrecord').then((response) => {
+      this.axios.get('/hourrecord').then(response => {
         this.weeks = response.data
         this.$store.commit('isLoading', false)
       })
     }
     if (!this.$store.getters.settings.hourrecordStartDate) {
-      this.axios.get('/settings/hourrecords').then((response) => {
+      this.axios.get('/settings/hourrecords').then(response => {
         this.$store.commit('settings', response.data)
       })
     }

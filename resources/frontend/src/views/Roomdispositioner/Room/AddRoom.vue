@@ -128,7 +128,7 @@ export default {
         formData.append('beds', JSON.stringify(this.room.beds))
         const config = {
           headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
+          onUploadProgress: progressEvent => {
             this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           }
         }

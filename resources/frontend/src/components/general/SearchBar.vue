@@ -78,7 +78,7 @@ export default {
   computed: {
     filteredItems() {
       if (this.items.length === 0) return []
-      return this.items.filter((item) => {
+      return this.items.filter(item => {
         if (!!this.showDeleted !== !!item.deleted_at) return false
         if (this.customFilterFunction
           && !this.customFilterFunction(item)

@@ -60,7 +60,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/inventars').then((response) => {
+    this.axios.get('/inventars').then(response => {
       this.inventars = response.data
     })
   },

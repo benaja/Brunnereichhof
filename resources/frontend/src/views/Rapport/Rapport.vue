@@ -262,7 +262,7 @@ export default {
     this.$store.commit('isLoading', true)
     this.axios
       .get(`rapport/${this.$route.params.id}`)
-      .then((response) => {
+      .then(response => {
         this.rapport = response.data.rapport
         this.date = moment(this.rapport.startdate, 'YYYY-MM-DD', 'de-ch')
         this.employees = response.data.employees
@@ -286,7 +286,7 @@ export default {
         this.$swal('Fehler', 'Unbekannter Fehler ist aufgetreten', 'error')
       })
 
-    this.axios.get('/settings').then((response) => {
+    this.axios.get('/settings').then(response => {
       this.settings = response.data
     })
   },
@@ -302,13 +302,13 @@ export default {
       const employees = []
       for (const rapportdetail of this.rapport.rapportdetails) {
         employees.push(this.employees
-          .find((employee) => employee.id === rapportdetail[0].employee_id))
+          .find(employee => employee.id === rapportdetail[0].employee_id))
       }
       return employees
     },
     removeEmployee(employeeId) {
       const rapportdetail = this.rapport.rapportdetails
-        .find((r) => r[0].employee_id === employeeId)
+        .find(r => r[0].employee_id === employeeId)
       this.rapport.rapportdetails.splice(this.rapport.rapportdetails.indexOf(rapportdetail), 1)
       this.rapport.rapportdetails = [...this.rapport.rapportdetails]
     },
@@ -328,7 +328,7 @@ export default {
         .then(() => this.$store.commit('isSaving', false))
     },
     getProjects() {
-      this.axios.get(`/customer/${this.rapport.customer_id}/projects`).then((response) => {
+      this.axios.get(`/customer/${this.rapport.customer_id}/projects`).then(response => {
         this.projects = response.data
         this.$store.commit('isLoading', false)
       })
@@ -340,7 +340,7 @@ export default {
         showCancelButton: true,
         cancelButtonText: 'Nein',
         confirmButtonText: 'Ja, Löschen'
-      }).then((result) => {
+      }).then(result => {
         if (result.value) {
           this.axios
             .delete(`${process.env.VUE_APP_API_URL}rapport/${this.rapport.id}`)
@@ -357,7 +357,7 @@ export default {
       this.isSaving = true
       this.axios
         .put(`rapport/${this.rapport.id}`, this.rapport)
-        .then((response) => {
+        .then(response => {
           this.rapport = response.data
           this.isSaving = false
           this.savedSuccessful = true

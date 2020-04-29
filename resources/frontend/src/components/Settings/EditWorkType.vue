@@ -94,8 +94,8 @@ export default {
     return {
       rules: {
         ...rules,
-        maxHeight: (v) => v <= 24 || 'Maximal 24 Stunden',
-        minHeight: (v) => v > 0 || 'Müssen mehr als 0 Studen sein'
+        maxHeight: v => v <= 24 || 'Maximal 24 Stunden',
+        minHeight: v => v > 0 || 'Müssen mehr als 0 Studen sein'
       },
       isLoading: false
     }

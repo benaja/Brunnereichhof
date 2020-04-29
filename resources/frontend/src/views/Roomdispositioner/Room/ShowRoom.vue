@@ -144,7 +144,7 @@ export default {
     this.isLoading = true
     this.axios
       .get(`/rooms/${this.$route.params.id}`)
-      .then((response) => {
+      .then(response => {
         this.room = response.data
       })
       .catch(() => {
@@ -166,7 +166,7 @@ export default {
         .then(() => {
           this.$router.push('/rooms')
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.includes('Room is currently in use.')) {
             this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan oder in Zukunft von einem Mitarbeiter belegt.', 'error')
           } else {

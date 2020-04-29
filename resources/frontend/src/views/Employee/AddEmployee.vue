@@ -245,7 +245,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post(this.apiUrl, this.employee)
-          .then((response) => {
+          .then(response => {
             if (this.$refs.profileImage.files.length === 1) {
               const data = new FormData()
               data.append('profileimage', this.$refs.profileImage.files[0])
@@ -261,7 +261,7 @@ export default {
               this.redirect()
             }
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('validation.unique')) {
               this.$swal('Email existiert bereits', 'Es existiert bereits ein anderer User mit der selben Email', 'error')
             } else {

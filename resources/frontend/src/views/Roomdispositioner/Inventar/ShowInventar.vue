@@ -65,7 +65,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(`/inventars/${this.$route.params.id}`).then((response) => {
+    this.axios.get(`/inventars/${this.$route.params.id}`).then(response => {
       this.inventar = response.data
     })
   },
@@ -81,7 +81,7 @@ export default {
         .then(() => {
           this.$router.push('/inventars')
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.includes('Integrity constraint violation')) this.$swal('Fehler', 'Inventar wird noch in einem Bett verwenden', 'error')
           else this.$swal('Fehler', 'Inventar konnte aus einem unbekanntem Grund nicht gelöscht werden', 'error')
         })

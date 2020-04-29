@@ -122,7 +122,7 @@ export default {
             this.$store.dispatch('alert', { text: 'Erfolgreich gespeichert' })
             this.origialValue = { ...this.value }
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
               this.value.from = this.origialValue.from
               this.value.to = this.origialValue.to

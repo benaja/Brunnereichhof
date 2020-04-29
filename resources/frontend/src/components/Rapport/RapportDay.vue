@@ -187,7 +187,7 @@ export default {
         .patch('/rapportdetails', {
           rapportdetails: this.rapportdetails
         })
-        .then((response) => {
+        .then(response => {
           this.$store.commit('isSaving', false)
           for (let i = 0; i < this.rapportdetails.length; i++) {
             this.rapportdetails[i].foodtype_ok = response.data[i].foodtype_ok
@@ -214,7 +214,7 @@ export default {
         .patch(`rapportdetail/${rapportdetail.id}`, {
           [changedElement]: rapportdetail[changedElement]
         })
-        .then((response) => {
+        .then(response => {
           this.$store.commit('isSaving', false)
           if (changedElement === 'foodtype_id' || changedElement === 'hours') {
             rapportdetail.foodtype_ok = response.data.foodtype_ok
@@ -240,7 +240,7 @@ export default {
     },
     addEmployeeToRapportdetails() {
       for (const rapportdetail of this.rapportdetails) {
-        rapportdetail.employee = this.employees.find((e) => e.id === rapportdetail.employee_id)
+        rapportdetail.employee = this.employees.find(e => e.id === rapportdetail.employee_id)
       }
     }
   }

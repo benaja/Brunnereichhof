@@ -44,7 +44,7 @@ Vue.use(require('@websanova/vue-auth'), {
         if (!Array.isArray(types)) types = [types]
         if (types.includes(this.type.name)) return true
 
-        return this.role && !!this.role.authorization_rules.find((r) => roles.includes(r.name))
+        return this.role && !!this.role.authorization_rules.find(r => roles.includes(r.name))
       }
     }
     return user
@@ -70,5 +70,5 @@ App.store = Vue.store
 
 new Vue({
   vuetify: new Vuetify(vuetifyOpts),
-  render: (h) => h(App)
+  render: h => h(App)
 }).$mount('#app')

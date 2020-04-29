@@ -106,7 +106,7 @@ export default {
         .post(`hourrecord/${this.year}/${week[0].week}`, {
           customerId: this.customer ? this.customer.id : null
         })
-        .then((response) => {
+        .then(response => {
           week.push(response.data)
         })
         .catch(() => {

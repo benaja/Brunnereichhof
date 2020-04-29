@@ -74,14 +74,14 @@ export default {
     uploadFiles() {
       const config = {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent) => {
+        onUploadProgress: progressEvent => {
           this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
         }
       }
       this.isLoading = true
       this.axios
         .post(this.uploadUrl, this.data, config)
-        .then((response) => {
+        .then(response => {
           this.$emit('uploaded', response.data)
           this.data = new FormData()
         })

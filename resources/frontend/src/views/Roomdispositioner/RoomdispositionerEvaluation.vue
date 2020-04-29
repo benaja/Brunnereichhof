@@ -134,7 +134,7 @@ export default {
       },
       set(value) {
         if (value) {
-          this.selectedRooms = this.rooms.map((r) => r.id)
+          this.selectedRooms = this.rooms.map(r => r.id)
         } else {
           this.selectedRooms = []
         }
@@ -171,7 +171,7 @@ export default {
       }
     },
     getStats(url, name) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         this.isLoadingStats = true
         this.axios
           .get(url, {
@@ -180,7 +180,7 @@ export default {
               date: this.date
             }
           })
-          .then((response) => {
+          .then(response => {
             resolve(response.data)
           })
           .catch(() => {

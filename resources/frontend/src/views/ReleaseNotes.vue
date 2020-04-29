@@ -45,7 +45,7 @@ export default {
   },
   computed: {
     selectedRelease() {
-      return this.releases.find((r) => r.version === this.value)
+      return this.releases.find(r => r.version === this.value)
     }
   }
 }

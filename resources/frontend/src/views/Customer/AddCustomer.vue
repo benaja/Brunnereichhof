@@ -186,7 +186,7 @@ export default {
       nameRules: [rules.required],
       emailRules: [
         // A Valid email or emtpy string
-        (v) => /^(?:[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,6})?$/.test(v) || 'Email nicht korrekt'
+        v => /^(?:[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,6})?$/.test(v) || 'Email nicht korrekt'
       ]
     }
   },
@@ -198,7 +198,7 @@ export default {
           .then(() => {
             this.$router.push('/customer')
           })
-          .catch((error) => {
+          .catch(error => {
             if (error.includes('validation.unique', 'email')) {
               this.$swal('Email existiert bereits', 'Diese Email wurde bereits verwendet', 'error')
             } else if (error.includes('validation.unique', 'customer_number')) {

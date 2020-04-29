@@ -72,10 +72,10 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(`/customer/${this.customerId}/projects`).then((response) => {
+    this.axios.get(`/customer/${this.customerId}/projects`).then(response => {
       this.chips = response.data
     })
-    this.axios.get(this.apiUrl).then((response) => {
+    this.axios.get(this.apiUrl).then(response => {
       this.items = response.data
     })
   },
@@ -83,7 +83,7 @@ export default {
     chipAdded() {
       const addedProjectname = this.chipsInstance
         .chipsData[this.chipsInstance.chipsData.length - 1].tag
-      this.axios.get(`${this.apiUrl}/exist/${addedProjectname}`).then((response) => {
+      this.axios.get(`${this.apiUrl}/exist/${addedProjectname}`).then(response => {
         if (response.data === 1) {
           this.axios
             .post(`${this.apiUrl}/add`, {
@@ -132,7 +132,7 @@ export default {
           .catch(() => {
             console.error('error while adding project to customer')
           })
-      } else if (this.items.find((i) => i.name.toLowerCase() === item.toLowerCase())) {
+      } else if (this.items.find(i => i.name.toLowerCase() === item.toLowerCase())) {
         this.remove(item)
       } else {
         this.createProject(item)
@@ -145,7 +145,7 @@ export default {
         confirmButtonText: 'Ja',
         cancelButtonText: 'Nein',
         showCancelButton: true
-      }).then(async (result) => {
+      }).then(async result => {
         if (result.value) {
           const description = await this.$swal({
             title: 'Geben sie doch eine Beschreibung ein!',
@@ -160,7 +160,7 @@ export default {
               description: description.value,
               customerId: this.customerId
             })
-            .then((response) => {
+            .then(response => {
               const newProject = {
                 name: title,
                 id: response.data
