@@ -1,7 +1,11 @@
 <template>
   <v-container>
-    <h1 class="display-1 my-4 text-center text-md-left">{{settings.welcomeText}}</h1>
-    <h2 class="mb-4 headline text-center text-md-left">{{settings.subtitle}}</h2>
+    <h1 class="display-1 my-4 text-center text-md-left">
+      {{ settings.welcomeText }}
+    </h1>
+    <h2 class="mb-4 headline text-center text-md-left">
+      {{ settings.subtitle }}
+    </h2>
     <div :class="{card: $vuetify.breakpoint.mdAndUp}">
       <v-row>
         <front-page-card
@@ -9,7 +13,8 @@
           :title="settings.hourrecordTitle"
           :text="$store.getters.isEditTime ? settings.hourrecordValid : settings.hourrecordInvalid"
           :button-text="$store.getters.isEditTime ? 'Arbeiten Erfassen' : 'Arbeiten Anschauen'"
-          :button-link="$store.getters.isEditTime ? '/kundenportal/erfassen' : '/kundenportal/erfassen/details'"
+          :button-link="$store.getters.isEditTime ? '/kundenportal/erfassen'
+            : '/kundenportal/erfassen/details'"
         ></front-page-card>
         <front-page-card
           icon="/icons/see.svg"
@@ -38,20 +43,20 @@ export default {
   components: {
     FrontPageCard
   },
+  computed: {
+    ...mapGetters(['settings']),
+    endDate() {
+      return new Date(this.settings.hourrecordEndDate)
+    }
+  },
   mounted() {
-    this.axios.get('/settings/hourrecords').then(response => {
+    this.axios.get('/settings/hourrecords').then((response) => {
       this.$store.commit('settings', response.data)
     })
   },
   methods: {
     openSurvey() {
       window.open('https://html.brunnereichhof.ch/domains/lohnjaeterei.ch/kundenumfrage/', '_blank')
-    }
-  },
-  computed: {
-    ...mapGetters(['settings']),
-    endDate() {
-      return new Date(this.settings.hourrecordEndDate)
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <v-menu
-    v-model="menu"
     ref="menu"
+    v-model="menu"
     transition="scale-transition"
     offset-y
     min-width="290px"
@@ -15,23 +15,35 @@
         prepend-icon="event"
         readonly
         color="blue"
-        v-on="on"
         show-week
+        v-on="on"
       ></v-text-field>
     </template>
     <v-date-picker
+      ref="picker"
       v-model="dates"
       locale="ch-de"
       color="blue"
       first-day-of-week="1"
-      ref="picker"
       show-week
       range
       no-title
     >
       <v-spacer></v-spacer>
-      <v-btn text color="blue" @click="menu = false">Cancel</v-btn>
-      <v-btn text color="blue" @click="$refs.menu.save(dates); save()">OK</v-btn>
+      <v-btn
+        text
+        color="blue"
+        @click="menu = false"
+      >
+        Cancel
+      </v-btn>
+      <v-btn
+        text
+        color="blue"
+        @click="$refs.menu.save(dates); save()"
+      >
+        OK
+      </v-btn>
     </v-date-picker>
   </v-menu>
 </template>

@@ -1,20 +1,37 @@
 <template>
-  <v-menu :close-on-content-click="false" :nudge-width="300" offset-x v-model="isOpen">
+  <v-menu
+    v-model="isOpen"
+    :close-on-content-click="false"
+    :nudge-width="300"
+    offset-x
+  >
     <template v-slot:activator="{ on }">
-      <v-btn text v-on="on" color="primary">Neue Rolle Erstellen</v-btn>
+      <v-btn
+        text
+        color="primary"
+        v-on="on"
+      >
+        Neue Rolle Erstellen
+      </v-btn>
     </template>
     <v-card>
-      <v-card-title class="headline">Rolle erstellen</v-card-title>
+      <v-card-title class="headline">
+        Rolle erstellen
+      </v-card-title>
       <v-card-text>
         <v-form ref="form">
-          <edit-field label="Name" v-model="role.name" :rules="[rules.required]"></edit-field>
+          <edit-field
+            v-model="role.name"
+            label="Name"
+            :rules="[rules.required]"
+          ></edit-field>
           <div class="scroll-container">
             <v-checkbox
               v-for="authorizationRule of authorizationRules"
+              :key="authorizationRule.id"
               v-model="role.authorizationRules"
               :value="authorizationRule.id"
               :label="authorizationRule.name_de"
-              :key="authorizationRule.id"
               class="ma-0"
               height="10"
             ></v-checkbox>
@@ -23,7 +40,12 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" @click="saveRole">Speichern</v-btn>
+        <v-btn
+          color="primary"
+          @click="saveRole"
+        >
+          Speichern
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-menu>
@@ -47,17 +69,17 @@ export default {
       },
       name: null,
       rules: {
-        required: v => !!v || 'Dieses Feld muss vorhanden sein',
-        minLenghtOne: v => v.length > 0 || 'Wähle mindestens ein Elment aus'
+        required: (v) => !!v || 'Dieses Feld muss vorhanden sein',
+        minLenghtOne: (v) => v.length > 0 || 'Wähle mindestens ein Elment aus'
       }
     }
   },
   computed: {
     isOpen: {
-      get: function() {
+      get() {
         return this.value
       },
-      set: function(value) {
+      set(value) {
         this.$emit('input', value)
       }
     }
@@ -65,7 +87,7 @@ export default {
   mounted() {
     this.$store
       .dispatch('authorizationRules')
-      .then(authorizationRules => {
+      .then((authorizationRules) => {
         this.authorizationRules = authorizationRules
       })
       .catch(() => {
@@ -77,7 +99,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.axios
           .post('roles', this.role)
-          .then(response => {
+          .then((response) => {
             this.$store.commit('addRole', response.data)
             this.isOpen = false
             this.$refs.form.reset()

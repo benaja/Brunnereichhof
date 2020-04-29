@@ -9,20 +9,22 @@
     :search-input.sync="searchString"
     no-data-text="keine Daten"
     autocomplete="off"
-    @focus="searchString = ''"
     :rules="rules"
     color="blue"
+    @focus="searchString = ''"
   >
     <template v-slot:item="data">
       <p class="autocomplete-item-text">
-        {{data.item.name}}
+        {{ data.item.name }}
         <v-chip
           v-if="data.item.isGuest"
           color="blue"
           text-color="white"
           class="float-right"
           small
-        >Gast</v-chip>
+        >
+          Gast
+        </v-chip>
       </p>
     </template>
   </v-autocomplete>
@@ -33,9 +35,11 @@ export default {
   name: 'SelectEmployee',
   props: {
     value: {
+      type: Number,
       required: true
     },
     rules: {
+      type: Array,
       default: () => []
     },
     selectAll: {
@@ -51,9 +55,6 @@ export default {
       loaded: false
     }
   },
-  mounted() {
-    if (this.value) this.searchString = ''
-  },
   computed: {
     employee: {
       get() {
@@ -64,24 +65,19 @@ export default {
       }
     }
   },
-  methods: {
-    getDeletedEmployees() {
-      this.$store.dispatch('employeesWithGuests', { deleted: true })
-    }
-  },
   watch: {
     searchString() {
       if (this.loaded) return
       if (this.isLoading) return
       this.isLoading = true
 
-      this.$store.dispatch('employeesWithGuests').then(employees => {
+      this.$store.dispatch('employeesWithGuests').then((employees) => {
         this.employees = [...employees]
         this.isLoading = false
         this.loaded = true
-        if (this.value && !this.employees.find(e => e.id === this.value)) {
-          this.$store.dispatch('employeesWithGuests', { deleted: true }).then(employees => {
-            let employee = employees.find(e => e.id === this.value)
+        if (this.value && !this.employees.find((e) => e.id === this.value)) {
+          this.$store.dispatch('employeesWithGuests', { deleted: true }).then((employeesWithGuests) => {
+            const employee = employeesWithGuests.find((e) => e.id === this.value)
             this.employees.push(employee)
           })
         }
@@ -92,6 +88,14 @@ export default {
           })
         }
       })
+    }
+  },
+  mounted() {
+    if (this.value) this.searchString = ''
+  },
+  methods: {
+    getDeletedEmployees() {
+      this.$store.dispatch('employeesWithGuests', { deleted: true })
     }
   }
 }

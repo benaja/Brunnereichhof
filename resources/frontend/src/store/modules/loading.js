@@ -6,7 +6,7 @@ export default {
     }
   },
   getters: {
-    isLoading: state => state.isLoading
+    isLoading: (state) => state.isLoading
   },
   mutations: {
     loadingRooms(state, isLoading) {

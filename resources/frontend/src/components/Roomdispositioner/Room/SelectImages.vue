@@ -6,11 +6,27 @@
       class="d-flex child-flex"
       cols="4"
     >
-      <v-card flat tile class="d-flex image-card">
-        <v-img :src="image.url" aspect-ratio="1" class="grey lighten-2" @click="selectImage(index)">
+      <v-card
+        flat
+        tile
+        class="d-flex image-card"
+      >
+        <v-img
+          :src="image.url"
+          aspect-ratio="1"
+          class="grey lighten-2"
+          @click="selectImage(index)"
+        >
           <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+            <v-row
+              class="fill-height ma-0"
+              align="center"
+              justify="center"
+            >
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
             </v-row>
           </template>
         </v-img>
@@ -33,16 +49,39 @@
       @input="displayImages"
       @uploaded="addImages"
     ></file-upload>
-    <v-dialog v-model="galleryDialog" fullscreen>
+    <v-dialog
+      v-model="galleryDialog"
+      fullscreen
+    >
       <div class="black-background">
-        <v-carousel v-model="selectedImage" height="100%" hide-delimiters>
-          <v-carousel-item v-for="(image, index) of filesToDisplay" :key="index">
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-img :src="`${image.url}`" max-height="100%" max-width="100%" contain></v-img>
+        <v-carousel
+          v-model="selectedImage"
+          height="100%"
+          hide-delimiters
+        >
+          <v-carousel-item
+            v-for="(image, index) of filesToDisplay"
+            :key="index"
+          >
+            <v-row
+              class="fill-height ma-0"
+              align="center"
+              justify="center"
+            >
+              <v-img
+                :src="`${image.url}`"
+                max-height="100%"
+                max-width="100%"
+                contain
+              ></v-img>
             </v-row>
           </v-carousel-item>
           <div class="close-button">
-            <v-btn @click="galleryDialog = false" text icon>
+            <v-btn
+              text
+              icon
+              @click="galleryDialog = false"
+            >
               <v-icon>close</v-icon>
             </v-btn>
           </div>
@@ -100,7 +139,7 @@ export default {
     },
     addImages(newImages) {
       const images = [...this.value]
-      for (let image of newImages) {
+      for (const image of newImages) {
         images.push(image)
       }
       this.$emit('input', images)
@@ -114,7 +153,7 @@ export default {
           showCancelButton: true,
           confirmButtonText: 'Ja, löschen!',
           cancelButtonText: 'Nein, abbrechen'
-        }).then(result => {
+        }).then((result) => {
           if (result.value) {
             this.axios
               .delete(`/images/${image.id}`)
@@ -139,10 +178,10 @@ export default {
       this.$emit('input', newImages)
     },
     displayImages(files) {
-      for (let file of files) {
+      for (const file of files) {
         this.value.push(file)
-        let reader = new FileReader()
-        reader.onload = e => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
           this.imageUrls.push(e.target.result)
         }
         reader.readAsDataURL(file)

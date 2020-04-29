@@ -1,53 +1,91 @@
 <template>
   <v-container>
-    <progress-linear :loading="isLoading" color="blue"></progress-linear>
+    <progress-linear
+      :loading="isLoading"
+      color="blue"
+    ></progress-linear>
     <v-row class="px-4 py-2">
-      <v-col cols="12" md="2">
-        <p class="mt-3 font-weight-bold subheading">Name</p>
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <p class="mt-3 font-weight-bold subheading">
+          Name
+        </p>
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col
+        cols="12"
+        md="4"
+      >
         <edit-field
           v-model="room.name"
-          @change="change('name')"
           color="blue"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+          @change="change('name')"
         ></edit-field>
       </v-col>
-      <v-col cols="12" md="2">
-        <p class="mt-3 font-weight-bold subheading">Nummer</p>
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <p class="mt-3 font-weight-bold subheading">
+          Nummer
+        </p>
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col
+        cols="12"
+        md="4"
+      >
         <edit-field
           v-model="room.number"
-          @change="change('number')"
           type="number"
           color="blue"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+          @change="change('number')"
         ></edit-field>
       </v-col>
-      <v-col cols="12" md="2">
-        <p class="mt-3 font-weight-bold subheading">Standort</p>
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <p class="mt-3 font-weight-bold subheading">
+          Standort
+        </p>
       </v-col>
-      <v-col cols="12" md="10">
+      <v-col
+        cols="12"
+        md="10"
+      >
         <edit-field
           v-model="room.location"
-          @change="change('location')"
           color="blue"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+          @change="change('location')"
         ></edit-field>
       </v-col>
-      <v-col cols="12" md="2">
-        <p class="mt-3 font-weight-bold subheading">Kommentar</p>
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <p class="mt-3 font-weight-bold subheading">
+          Kommentar
+        </p>
       </v-col>
-      <v-col cols="12" md="10">
+      <v-col
+        cols="12"
+        md="10"
+      >
         <edit-field
           v-model="room.comment"
-          @change="change('comment')"
           color="blue"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+          @change="change('comment')"
         ></edit-field>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col
+        cols="12"
+        md="6"
+      >
         <select-bed
           v-model="room.beds"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
@@ -55,20 +93,26 @@
       </v-col>
       <v-col cols="12">
         <select-images
+          v-model="room.images"
           upload-on-change
           :upload-url="`/rooms/${$route.params.id}/images`"
-          v-model="room.images"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
         ></select-images>
       </v-col>
       <v-col cols="12"></v-col>
       <v-col
+        v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
         cols="12"
         class="mt-2"
-        v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
       >
         <v-divider class="mb-2"></v-divider>
-        <v-btn color="red" class="white--text" @click="deleteRoom">Raum Löschen</v-btn>
+        <v-btn
+          color="red"
+          class="white--text"
+          @click="deleteRoom"
+        >
+          Raum Löschen
+        </v-btn>
       </v-col>
       <v-col cols="12">
         <h1>Statistiken</h1>
@@ -99,8 +143,8 @@ export default {
   mounted() {
     this.isLoading = true
     this.axios
-      .get('/rooms/' + this.$route.params.id)
-      .then(response => {
+      .get(`/rooms/${this.$route.params.id}`)
+      .then((response) => {
         this.room = response.data
       })
       .catch(() => {
@@ -112,17 +156,17 @@ export default {
   },
   methods: {
     change(key) {
-      this.axios.patch('/rooms/' + this.$route.params.id, {
+      this.axios.patch(`/rooms/${this.$route.params.id}`, {
         [key]: this.room[key]
       })
     },
     deleteRoom() {
       this.axios
-        .delete('/rooms/' + this.$route.params.id)
+        .delete(`/rooms/${this.$route.params.id}`)
         .then(() => {
           this.$router.push('/rooms')
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.includes('Room is currently in use.')) {
             this.$swal('Raum wird momentan gebraucht', 'Der Raum ist momentan oder in Zukunft von einem Mitarbeiter belegt.', 'error')
           } else {

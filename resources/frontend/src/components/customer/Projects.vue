@@ -11,7 +11,11 @@
     :readonly="readonly"
   >
     <template v-slot:selection="data">
-      <v-chip :input-value="data.selected" close @update:active="remove(data.item)">
+      <v-chip
+        :input-value="data.selected"
+        close
+        @update:active="remove(data.item)"
+      >
         <strong>{{ data.item.name }}</strong>&nbsp;
       </v-chip>
     </template>
@@ -20,38 +24,69 @@
 
 <script>
 export default {
-  name: 'home',
+  name: 'Home',
   props: {
     customerId: {
+      type: Number,
       required: true
     },
     readonly: {
+      type: Boolean,
       default: false
     }
   },
   data() {
     return {
-      apiUrl: process.env.VUE_APP_API_URL + 'project',
+      apiUrl: `${process.env.VUE_APP_API_URL}project`,
       chips: [],
       items: [],
       areItemsLoaded: false
     }
   },
+  watch: {
+    chips(chips, oldChips) {
+      if (!this.areItemsLoaded) {
+        this.areItemsLoaded = true
+        return
+      }
+      if (chips.length < oldChips.length) {
+        for (const chip of oldChips) {
+          const index = chips.indexOf(chip)
+          if (index < 0) {
+            if (chip.name !== 'Allgemein') {
+              this.removeProject(chip)
+              return
+            }
+            this.chips.push(chip)
+          }
+        }
+      } else if (chips.length > oldChips.length) {
+        for (const chip of chips) {
+          const index = oldChips.indexOf(chip)
+          if (index < 0) {
+            this.addProject(chip)
+            return
+          }
+        }
+      }
+    }
+  },
   mounted() {
-    this.axios.get(`/customer/${this.customerId}/projects`).then(response => {
+    this.axios.get(`/customer/${this.customerId}/projects`).then((response) => {
       this.chips = response.data
     })
-    this.axios.get(this.apiUrl).then(response => {
+    this.axios.get(this.apiUrl).then((response) => {
       this.items = response.data
     })
   },
   methods: {
     chipAdded() {
-      let addedProjectname = this.chipsInstance.chipsData[this.chipsInstance.chipsData.length - 1].tag
-      this.axios.get(this.apiUrl + '/exist/' + addedProjectname).then(response => {
+      const addedProjectname = this.chipsInstance
+        .chipsData[this.chipsInstance.chipsData.length - 1].tag
+      this.axios.get(`${this.apiUrl}/exist/${addedProjectname}`).then((response) => {
         if (response.data === 1) {
           this.axios
-            .post(this.apiUrl + '/add', {
+            .post(`${this.apiUrl}/add`, {
               title: addedProjectname,
               customerId: this.customerId
             })
@@ -75,7 +110,7 @@ export default {
     removeProject(item) {
       if (item.id) {
         this.axios
-          .delete(this.apiUrl + '/' + item.id + '/customer/' + this.customerId)
+          .delete(`${this.apiUrl}/${item.id}/customer/${this.customerId}`)
           .catch(() => {
             console.error('could no delete')
           })
@@ -87,7 +122,7 @@ export default {
     addProject(item) {
       if (item.id) {
         this.axios
-          .post(this.apiUrl + '/add', {
+          .post(`${this.apiUrl}/add`, {
             projectId: item.id,
             customerId: this.customerId
           })
@@ -97,7 +132,7 @@ export default {
           .catch(() => {
             console.error('error while adding project to customer')
           })
-      } else if (this.items.find(i => i.name.toLowerCase() === item.toLowerCase())) {
+      } else if (this.items.find((i) => i.name.toLowerCase() === item.toLowerCase())) {
         this.remove(item)
       } else {
         this.createProject(item)
@@ -105,14 +140,14 @@ export default {
     },
     createProject(title) {
       this.$swal({
-        title: '"' + title + '" existiert noch nicht!',
+        title: `"${title}" existiert noch nicht!`,
         text: 'Wollen sie ein neues Projekt erstellen',
         confirmButtonText: 'Ja',
         cancelButtonText: 'Nein',
         showCancelButton: true
-      }).then(async result => {
+      }).then(async (result) => {
         if (result.value) {
-          let description = await this.$swal({
+          const description = await this.$swal({
             title: 'Geben sie doch eine Beschreibung ein!',
             input: 'text',
             inputPlaceholder: 'Beschreibung',
@@ -121,12 +156,12 @@ export default {
           })
           this.axios
             .post(this.apiUrl, {
-              title: title,
+              title,
               description: description.value,
               customerId: this.customerId
             })
-            .then(response => {
-              let newProject = {
+            .then((response) => {
+              const newProject = {
                 name: title,
                 id: response.data
               }
@@ -140,35 +175,6 @@ export default {
         }
         this.remove(title)
       })
-    }
-  },
-  watch: {
-    chips(chips, oldChips) {
-      if (!this.areItemsLoaded) {
-        this.areItemsLoaded = true
-        return
-      }
-      if (chips.length < oldChips.length) {
-        for (let chip of oldChips) {
-          let index = chips.indexOf(chip)
-          if (index < 0) {
-            if (chip.name !== 'Allgemein') {
-              this.removeProject(chip)
-              return
-            } else {
-              this.chips.push(chip)
-            }
-          }
-        }
-      } else if (chips.length > oldChips.length) {
-        for (let chip of chips) {
-          let index = oldChips.indexOf(chip)
-          if (index < 0) {
-            this.addProject(chip)
-            return
-          }
-        }
-      }
     }
   }
 }

@@ -1,32 +1,58 @@
 <template>
   <div>
     <h3>Inventar Gegenstände</h3>
-    <div v-for="inventar of value" :key="inventar.id">
+    <div
+      v-for="inventar of value"
+      :key="inventar.id"
+    >
       <v-row>
         <v-col cols="6">
           <p class="my-3">
-            {{inventar.name}}
-            <span class="caption">CHF{{inventar.price}}</span>
+            {{ inventar.name }}
+            <span class="caption">CHF{{ inventar.price }}</span>
           </p>
         </v-col>
         <v-col cols="6">
           <p class="text-right my-0">
             <span v-if="bed.places >= 2">1er Belegung</span>
-            <v-btn text icon color="red" @click="remove(inventar)">
+            <v-btn
+              text
+              icon
+              color="red"
+              @click="remove(inventar)"
+            >
               <v-icon>remove</v-icon>
             </v-btn>
-            {{inventar.pivot.amount}}
-            <v-btn text icon color="primary" @click="addAmount(inventar, false)">
+            {{ inventar.pivot.amount }}
+            <v-btn
+              text
+              icon
+              color="primary"
+              @click="addAmount(inventar, false)"
+            >
               <v-icon>add</v-icon>
             </v-btn>
           </p>
-          <p class="text-right my-0" v-if="bed.places >= 2">
+          <p
+            v-if="bed.places >= 2"
+            class="text-right my-0"
+          >
             2er Belegung
-            <v-btn text icon color="red" @click="remove(inventar, true)">
+            <v-btn
+              text
+              icon
+              color="red"
+              @click="remove(inventar, true)"
+            >
               <v-icon>remove</v-icon>
             </v-btn>
-            {{inventar.pivot.amount_2}}
-            <v-btn text icon color="primary" @click="addAmount(inventar, true)">
+            {{ inventar.pivot.amount_2 }}
+            <v-btn
+              text
+              icon
+              color="primary"
+              @click="addAmount(inventar, true)"
+            >
               <v-icon>add</v-icon>
             </v-btn>
           </p>
@@ -42,15 +68,29 @@
       item-text="name"
       :loading="isLoading"
       :search-input.sync="search"
+      color="blue"
       @change="change"
       @focus="search = ''"
-      color="blue"
     ></v-autocomplete>
-    <v-menu :close-on-content-click="false" :nudge-width="200" offset-x v-model="addInventarModel">
+    <v-menu
+      v-model="addInventarModel"
+      :close-on-content-click="false"
+      :nudge-width="200"
+      offset-x
+    >
       <template v-slot:activator="{ on }">
-        <v-btn color="blue" class="white--text" v-on="on">Neues Inventar erstellen</v-btn>
+        <v-btn
+          color="blue"
+          class="white--text"
+          v-on="on"
+        >
+          Neues Inventar erstellen
+        </v-btn>
       </template>
-      <add-inventar v-model="addInventarModel" @add="inventar => add(inventar)"></add-inventar>
+      <add-inventar
+        v-model="addInventarModel"
+        @add="inventar => add(inventar)"
+      ></add-inventar>
     </v-menu>
   </div>
 </template>
@@ -64,8 +104,14 @@ export default {
     AddInventar
   },
   props: {
-    value: Array,
-    bed: Object
+    value: {
+      type: Array,
+      default: () => []
+    },
+    bed: {
+      type: Object,
+      default: null
+    }
   },
   data() {
     return {
@@ -78,14 +124,34 @@ export default {
       inventarsLoaded: false
     }
   },
+  watch: {
+    search() {
+      if (this.inventarsLoaded) return
+      if (this.isLoading) return
+
+      this.isLoading = true
+
+      this.axios.get('/inventars').then((response) => {
+        for (const inventar of response.data) {
+          inventar.pivot = {
+            amount: 0,
+            amount_2: 0
+          }
+          this.inventars.push(inventar)
+        }
+        this.isLoading = false
+        this.inventarsLoaded = true
+      })
+    }
+  },
   methods: {
     change() {
-      if (this.value.find(i => i.id === this.searchItem)) {
-        let inventar = this.value.find(i => i.id === this.searchItem)
+      if (this.value.find((i) => i.id === this.searchItem)) {
+        const inventar = this.value.find((i) => i.id === this.searchItem)
         inventar.pivot.amount++
         inventar.pivot.amount_2++
       } else {
-        let selectedInventar = this.inventars.find(i => i.id === this.searchItem)
+        const selectedInventar = this.inventars.find((i) => i.id === this.searchItem)
         if (selectedInventar) {
           selectedInventar.pivot.amount = 1
           selectedInventar.pivot.amount_2 = 1
@@ -133,26 +199,6 @@ export default {
           addAmount2
         })
       }
-    }
-  },
-  watch: {
-    search() {
-      if (this.inventarsLoaded) return
-      if (this.isLoading) return
-
-      this.isLoading = true
-
-      this.axios.get('/inventars').then(response => {
-        for (let inventar of response.data) {
-          inventar.pivot = {
-            amount: 0,
-            amount_2: 0
-          }
-          this.inventars.push(inventar)
-        }
-        this.isLoading = false
-        this.inventarsLoaded = true
-      })
     }
   }
 }

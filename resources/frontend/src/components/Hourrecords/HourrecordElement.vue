@@ -1,6 +1,10 @@
 <template>
   <v-row>
-    <v-col cols="12" sm="2" class="py-0">
+    <v-col
+      cols="12"
+      sm="2"
+      class="py-0"
+    >
       <v-text-field
         v-if="editMode"
         v-model="value.hours"
@@ -10,17 +14,24 @@
         class="pa-1 ma-0"
         @change="update"
       />
-      <p v-else class="body-2">
+      <p
+        v-else
+        class="body-2"
+      >
         <span class="body-1">Stunden:</span>
-        {{value.hours}}
+        {{ value.hours }}
       </p>
     </v-col>
-    <v-col cols="12" sm="4" class="py-0">
+    <v-col
+      cols="12"
+      sm="4"
+      class="py-0"
+    >
       <v-combobox
         v-if="editMode"
+        v-model="value.culture"
         :items="cultures"
         :rules="[rules.required]"
-        v-model="value.culture"
         class="pa-1 ma-0"
         item-text="name"
         item-value="id"
@@ -28,12 +39,19 @@
         autocomplete="off"
         @input="update"
       />
-      <p v-else class="body-2">
+      <p
+        v-else
+        class="body-2"
+      >
         <span class="body-1">Kultur:</span>
-        {{value.culture ? value.culture.name : ''}}
+        {{ value.culture ? value.culture.name : '' }}
       </p>
     </v-col>
-    <v-col cols="12" :sm="commendWidth" class="py-0">
+    <v-col
+      cols="12"
+      :sm="commendWidth"
+      class="py-0"
+    >
       <v-textarea
         v-if="editMode"
         v-model="value.comment"
@@ -43,18 +61,40 @@
         auto-grow
         @change="update"
       />
-      <p v-else class="body-2">
+      <p
+        v-else
+        class="body-2"
+      >
         <span class="body-1">Kommentar:</span>
-        {{value.comment}}
+        {{ value.comment }}
       </p>
     </v-col>
-    <v-col cols="12" sm="1" v-if="editMode" class="py-0" align-self="center">
-      <v-btn text icon color="red" class="mb-5" @click="deleteHourrecord">
+    <v-col
+      v-if="editMode"
+      cols="12"
+      sm="1"
+      class="py-0"
+      align-self="center"
+    >
+      <v-btn
+        text
+        icon
+        color="red"
+        class="mb-5"
+        @click="deleteHourrecord"
+      >
         <v-icon>delete</v-icon>
       </v-btn>
     </v-col>
-    <v-col cols="12" sm="2" v-if="!editMode && value.createdByAdmin" class="py-0 mb-4 mb-md-auto">
-      <p class="text-left text-sm-right grey--text pb-0">Von Admin erstellt</p>
+    <v-col
+      v-if="!editMode && value.createdByAdmin"
+      cols="12"
+      sm="2"
+      class="py-0 mb-4 mb-md-auto"
+    >
+      <p class="text-left text-sm-right grey--text pb-0">
+        Von Admin erstellt
+      </p>
     </v-col>
   </v-row>
 </template>
@@ -65,9 +105,15 @@ import { rules } from '@/utils'
 export default {
   name: 'HourrecrodElement',
   props: {
-    value: Object,
+    value: {
+      type: Object,
+      default: null
+    },
     editMode: Boolean,
-    cultures: Array,
+    cultures: {
+      type: Array,
+      default: null
+    },
     adminMode: {
       type: Boolean,
       default: false
@@ -88,8 +134,8 @@ export default {
   methods: {
     update() {
       this.axios
-        .put('/hourrecord/' + this.value.id, this.value)
-        .then(response => {
+        .put(`/hourrecord/${this.value.id}`, this.value)
+        .then((response) => {
           this.$emit('input', response.data)
         })
         .catch(() => {
@@ -98,7 +144,7 @@ export default {
     },
     deleteHourrecord() {
       this.axios
-        .delete('/hourrecord/' + this.value.id)
+        .delete(`/hourrecord/${this.value.id}`)
         .then(() => {
           this.$emit('remove')
         })

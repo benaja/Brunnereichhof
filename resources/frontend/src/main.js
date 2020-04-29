@@ -1,10 +1,6 @@
 import 'core-js/es'
 
 import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import axios from './axios'
 import moment from 'moment'
 import VueAxios from 'vue-axios'
 import VueSweetalert2 from 'vue-sweetalert2'
@@ -15,6 +11,13 @@ import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VueSync from 'vue-sync'
+import vueAuth from '@websanova/vue-auth/drivers/auth/bearer'
+import vueAuthAxios from '@websanova/vue-auth/drivers/http/axios.1.x'
+import vueAuthRouter from '@websanova/vue-auth/drivers/router/vue-router.2.x'
+import axios from './axios'
+import store from './store'
+import router from './router'
+import App from './App.vue'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
@@ -31,17 +34,17 @@ Vue.router = router
 Vue.store = store
 
 Vue.use(require('@websanova/vue-auth'), {
-  auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
-  http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
-  router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
-  parseUserData: function(body) {
-    let user = body.data
+  auth: vueAuth,
+  http: vueAuthAxios,
+  router: vueAuthRouter,
+  parseUserData(body) {
+    const user = body.data
     if (user) {
       user.hasPermission = function(types, roles = []) {
         if (!Array.isArray(types)) types = [types]
         if (types.includes(this.type.name)) return true
 
-        return this.role && !!this.role.authorization_rules.find(r => roles.includes(r.name))
+        return this.role && !!this.role.authorization_rules.find((r) => roles.includes(r.name))
       }
     }
     return user
@@ -67,5 +70,5 @@ App.store = Vue.store
 
 new Vue({
   vuetify: new Vuetify(vuetifyOpts),
-  render: h => h(App)
+  render: (h) => h(App)
 }).$mount('#app')

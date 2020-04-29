@@ -1,7 +1,14 @@
 <template>
   <div :style="{ gridArea }">
-    <p v-if="$vuetify.breakpoint.smAndDown" class="overline mb-0">Kommentar</p>
-    <p class="mb-8">{{text}}</p>
+    <p
+      v-if="$vuetify.breakpoint.smAndDown"
+      class="overline mb-0"
+    >
+      Kommentar
+    </p>
+    <p class="mb-8">
+      {{ text }}
+    </p>
   </div>
 </template>
 

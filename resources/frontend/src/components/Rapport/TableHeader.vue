@@ -1,25 +1,77 @@
 <template>
   <v-row>
-    <v-col cols="2" xl="1" class="hidden-sm-and-down pl-2 pt-3">
-      <p class="font-weight-bold">Wochentag</p>
+    <v-col
+      cols="2"
+      xl="1"
+      class="hidden-sm-and-down pl-2 pt-3"
+    >
+      <p class="font-weight-bold">
+        Wochentag
+      </p>
     </v-col>
-    <v-col 1 cols="10" xl="1" class="hidden-sm-and-down">
+    <v-col
+      1
+      cols="10"
+      xl="1"
+      class="hidden-sm-and-down"
+    >
       <v-row class="pt-3">
-        <v-col cols="2" class="font-weight-bold">Montag</v-col>
-        <v-col cols="2" class="font-weight-bold">Dienstag</v-col>
-        <v-col cols="2" class="font-weight-bold">Mittwoch</v-col>
-        <v-col cols="2" class="font-weight-bold">Donnerstag</v-col>
-        <v-col cols="2" class="font-weight-bold">Freitag</v-col>
-        <v-col cols="2" class="font-weight-bold">Samstag</v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Montag
+        </v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Dienstag
+        </v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Mittwoch
+        </v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Donnerstag
+        </v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Freitag
+        </v-col>
+        <v-col
+          cols="2"
+          class="font-weight-bold"
+        >
+          Samstag
+        </v-col>
       </v-row>
     </v-col>
     <v-col cols="12">
       <v-divider></v-divider>
     </v-col>
-    <v-col cols="2" xl="1" class="hidden-sm-and-down pl-2 pt-3">
-      <p class="font-weight-bold mt-3">Kommentar</p>
+    <v-col
+      cols="2"
+      xl="1"
+      class="hidden-sm-and-down pl-2 pt-3"
+    >
+      <p class="font-weight-bold mt-3">
+        Kommentar
+      </p>
     </v-col>
-    <v-col 1 cols="10" xl="1" class="hidden-sm-and-down">
+    <v-col
+      1
+      cols="10"
+      xl="1"
+      class="hidden-sm-and-down"
+    >
       <v-row class="pt-3">
         <v-col cols="2">
           <v-textarea
@@ -96,7 +148,12 @@
 export default {
   name: 'TableHeader',
   components: {},
-  props: ['rapport'],
+  props: {
+    rapport: {
+      type: Object,
+      default: null
+    }
+  },
   mounted() {},
   methods: {
     change(changedElement) {

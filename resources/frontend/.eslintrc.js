@@ -7,7 +7,7 @@ module.exports = {
     'vuetify',
     'vue'
   ],
-  'extends': [
+  extends: [
     'plugin:vue/recommended',
     'airbnb-base'
   ],
@@ -17,19 +17,27 @@ module.exports = {
     'space-before-function-paren': 'off',
     'vuetify/no-deprecated-classes': 'error',
     'linebreak-style': ['error', 'windows'],
-    "vue/html-self-closing": ["error", {
-      "html": {
-        "void": "any",
-        "normal": "any",
-        "component": "any"
+    'vue/html-self-closing': ['error', {
+      html: {
+        void: 'any',
+        normal: 'any',
+        component: 'any'
       },
-      "svg": "always",
-      "math": "always"
+      svg: 'always',
+      math: 'always'
     }],
     'import/no-unresolved': 0,
-    'no-param-reassign': 0
+    'no-param-reassign': 0,
+    'no-plusplus': 0,
+    'no-restricted-syntax': 0,
+    semi: ['error', 'never'],
+    'func-names': 0,
+    'guard-for-in': 0,
+    'no-restricted-globals': ['error', 'event', 'fdescribe'],
+    'comma-dangle': ['error', 'never'],
+    'prefer-destructuring': ['error', { object: true, array: false }]
   },
   parserOptions: {
     parser: 'babel-eslint'
-  },
+  }
 }

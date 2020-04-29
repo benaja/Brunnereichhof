@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: 'home',
+  name: 'Home',
   components: {},
   mounted() {
     if (this.$auth.user().isPasswordChanged !== 1) this.$router.push('/profile/edit')

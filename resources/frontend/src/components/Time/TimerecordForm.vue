@@ -1,8 +1,8 @@
 <template>
   <v-form ref="form">
     <v-select
-      label="Leistungsart"
       v-model="form.worktype"
+      label="Leistungsart"
       :items="worktypes"
       item-text="name_de"
       item-value="id"
@@ -11,8 +11,8 @@
       @change="setEditTypeByTime"
     ></v-select>
     <v-select
-      label="Erfassungsart"
       v-model="form.edittype"
+      label="Erfassungsart"
       item-text="name"
       item-value="id"
       :items="edittypes"
@@ -21,47 +21,93 @@
       @change="applyTime"
     ></v-select>
     <div v-if="form.edittype !== 'manually'">
-      <v-dialog v-model="timeDialogFrom" width="290px">
+      <v-dialog
+        v-model="timeDialogFrom"
+        width="290px"
+      >
         <template v-slot:activator="{ on }">
           <v-text-field
-            v-on="on"
             v-model="form.from"
             readonly
             label="Zeit von"
             :error-messages="rules.from()"
             disabled
+            v-on="on"
           ></v-text-field>
         </template>
-        <v-time-picker v-if="timeDialogFrom" v-model="form.from" format="24hr" disabled>
+        <v-time-picker
+          v-if="timeDialogFrom"
+          v-model="form.from"
+          format="24hr"
+          disabled
+        >
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="timeDialogFrom = false">OK</v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="timeDialogFrom = false"
+          >
+            OK
+          </v-btn>
         </v-time-picker>
       </v-dialog>
-      <v-dialog v-model="timeDialogTo" width="290px">
+      <v-dialog
+        v-model="timeDialogTo"
+        width="290px"
+      >
         <template v-slot:activator="{ on }">
-          <v-text-field v-on="on" v-model="form.to" readonly label="Zeit bis" disabled></v-text-field>
+          <v-text-field
+            v-model="form.to"
+            readonly
+            label="Zeit bis"
+            disabled
+            v-on="on"
+          ></v-text-field>
         </template>
-        <v-time-picker v-if="timeDialogTo" v-model="form.to" format="24hr" disabled>
+        <v-time-picker
+          v-if="timeDialogTo"
+          v-model="form.to"
+          format="24hr"
+          disabled
+        >
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="timeDialogTo = false">OK</v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="timeDialogTo = false"
+          >
+            OK
+          </v-btn>
         </v-time-picker>
       </v-dialog>
     </div>
     <div v-else>
       <v-text-field
-        type="number"
         v-model="form.hours"
+        type="number"
         :rules="[rules.required, rules.greaterThanZero]"
         label="Stunden"
         @change="applyTime"
       ></v-text-field>
     </div>
-    <v-checkbox v-model="form.breakfast" label="Frühstück auf dem Eichhof" class="ma-0 pa-0"></v-checkbox>
-    <v-checkbox v-model="form.lunch" label="Mitagessen auf dem Eichhof" class="ma-0 pa-0"></v-checkbox>
-    <v-checkbox v-model="form.dinner" label="Abendessen auf dem Eichhof" class="ma-0 pa-0"></v-checkbox>
+    <v-checkbox
+      v-model="form.breakfast"
+      label="Frühstück auf dem Eichhof"
+      class="ma-0 pa-0"
+    ></v-checkbox>
+    <v-checkbox
+      v-model="form.lunch"
+      label="Mitagessen auf dem Eichhof"
+      class="ma-0 pa-0"
+    ></v-checkbox>
+    <v-checkbox
+      v-model="form.dinner"
+      label="Abendessen auf dem Eichhof"
+      class="ma-0 pa-0"
+    ></v-checkbox>
     <v-textarea
-      auto-grow
       v-model="form.comment"
+      auto-grow
       rows="1"
       label="Bemerkung"
       class="comment-textarea"
@@ -99,7 +145,7 @@ export default {
       default: null
     },
     urlWorkerParam: {
-      tpye: String,
+      type: String,
       default: ''
     }
   },
@@ -113,23 +159,22 @@ export default {
       timeDialogTo: false,
       rules: {
         ...rules,
-        greaterThanZero: v => v > 0 || 'Zahl muss positiv sein',
+        greaterThanZero: (v) => v > 0 || 'Zahl muss positiv sein',
         from: () => {
-          let from = this.getDate(this.from)
-          let to = this.getDate(this.to)
+          const from = this.getDate(this.from)
+          const to = this.getDate(this.to)
 
           if (from < to || (from <= to && this.worktype === 'holidays')) {
             return []
-          } else {
-            return 'Zeit muss vor der Endzeit sein'
           }
+          return 'Zeit muss vor der Endzeit sein'
         }
       }
     }
   },
   computed: {
     edittypes() {
-      let worktype = this.worktypes.find(w => w.id === this.form.worktype)
+      const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
       if (!worktype) return []
       if (worktype.manually) {
         return [
@@ -143,8 +188,16 @@ export default {
       return worktype.work_input_types
     }
   },
+  watch: {
+    timerecord() {
+      this.editTimerecrod()
+    },
+    startTime() {
+      this.applyTime()
+    }
+  },
   mounted() {
-    this.axios.get('/worktypes').then(response => {
+    this.axios.get('/worktypes').then((response) => {
       this.worktypes = response.data
       if (this.timerecord) {
         this.setEditTypeByTime()
@@ -168,36 +221,36 @@ export default {
   methods: {
     getDate(timeString) {
       if (!timeString) return new Date()
-      let date = new Date()
-      let timeSplits = timeString.split(':')
+      const date = new Date()
+      const timeSplits = timeString.split(':')
       date.setHours(timeSplits[0])
       date.setMinutes(timeSplits[1])
       return date
     },
     applyTime() {
-      let startTime = this.startTime
+      let { startTime } = this
       if (this.form.from) {
-        let startDate = this.$moment(this.form.from, 'HH:mm')
+        const startDate = this.$moment(this.form.from, 'HH:mm')
         startTime = startDate.hour() + startDate.minutes() / 60
       }
       this.setTimeFrom(startTime)
       if (this.form.edittype === 'manually') {
-        let endTime = startTime + Number(this.form.hours)
+        const endTime = startTime + Number(this.form.hours)
         const hours = Math.floor(endTime)
         const minutes = (endTime - Math.floor(endTime)) * 60
         this.form.to = `${this.getTimeString(hours)}:${this.getTimeString(minutes.toFixed(0))}`
       } else if (this.form.edittype) {
-        let worktype = this.worktypes.find(w => w.id === this.form.worktype)
-        let edittype = worktype.work_input_types.find(w => w.id === this.form.edittype)
-        let endTime = startTime + Number(edittype.hours)
+        const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
+        const edittype = worktype.work_input_types.find((w) => w.id === this.form.edittype)
+        const endTime = startTime + Number(edittype.hours)
         const minutes = (endTime - Math.floor(endTime)) * 60
         this.form.to = `${this.getTimeString(Math.floor(endTime))}:${this.getTimeString(minutes.toFixed(0))}`
       }
-      let toHour = this.getHoursFromTime(this.form.to)
+      const toHour = this.getHoursFromTime(this.form.to)
       if (toHour > 24) {
         const hoursBetweenTime = this.calculateHoursBetweenTime()
         this.setTimeFrom(24 - hoursBetweenTime)
-        this.form.to = `24:00`
+        this.form.to = '24:00'
       }
     },
     setTimeFrom(startTime) {
@@ -218,11 +271,11 @@ export default {
       if (this.$refs.form.validate()) {
         if (this.form.id) {
           this.axios
-            .patch('time/' + this.form.id + this.urlWorkerParam, this.form)
-            .then(response => {
+            .patch(`time/${this.form.id}${this.urlWorkerParam}`, this.form)
+            .then((response) => {
               this.$emit('updated', response.data)
             })
-            .catch(error => {
+            .catch((error) => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -231,15 +284,15 @@ export default {
             })
         } else {
           this.axios
-            .post('/time' + this.urlWorkerParam, {
+            .post(`/time${this.urlWorkerParam}`, {
               ...this.form,
               date: this.date
             })
-            .then(response => {
+            .then((response) => {
               localStorage.timerecordSettings = JSON.stringify(this.form)
               this.$emit('updated', response.data)
             })
-            .catch(error => {
+            .catch((error) => {
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -257,14 +310,14 @@ export default {
         showCancelButton: true,
         confirmButtonText: 'Ja, löschen!',
         cancelButtonText: 'Nein, abbrechen'
-      }).then(result => {
+      }).then((result) => {
         if (result.value) {
           this.axios
-            .delete('time/' + this.timerecord.id + this.urlWorkerParam)
-            .then(response => {
+            .delete(`time/${this.timerecord.id}${this.urlWorkerParam}`)
+            .then((response) => {
               this.$emit('updated', response.data)
             })
-            .catch(error => {
+            .catch((error) => {
               if (!error.status(403)) {
                 this.$swal('Fehler', 'Element konnte nicht gelöscht werden', 'error')
               }
@@ -276,8 +329,10 @@ export default {
       if (this.timerecord) {
         this.form = {
           id: this.timerecord.id,
-          from: this.timerecord.from.length === 8 ? this.timerecord.from.slice(0, -3) : this.timerecord.from,
-          to: this.timerecord.to.length === 8 ? this.timerecord.to.slice(0, -3) : this.timerecord.to,
+          from: this.timerecord.from.length === 8 ? this.timerecord.from.slice(0, -3)
+            : this.timerecord.from,
+          to: this.timerecord.to.length === 8 ? this.timerecord.to.slice(0, -3)
+            : this.timerecord.to,
           worktype: this.timerecord.worktype_id,
           breakfast: this.timerecord.breakfast,
           lunch: this.timerecord.lunch,
@@ -293,10 +348,10 @@ export default {
       }
     },
     setEditTypeByTime() {
-      const worktype = this.worktypes.find(w => w.id === this.form.worktype)
+      const worktype = this.worktypes.find((w) => w.id === this.form.worktype)
       if (worktype) {
         const hours = this.calculateHoursBetweenTime()
-        const inputType = worktype.work_input_types.find(w => w.hours === hours)
+        const inputType = worktype.work_input_types.find((w) => w.hours === hours)
         if (inputType) {
           this.form.edittype = inputType.id
         } else {
@@ -309,18 +364,10 @@ export default {
       }
     },
     calculateHoursBetweenTime() {
-      let from = this.getDate(this.form.from)
-      let to = this.getDate(this.form.to)
-      let timeDiff = Math.abs(from.getTime() - to.getTime())
+      const from = this.getDate(this.form.from)
+      const to = this.getDate(this.form.to)
+      const timeDiff = Math.abs(from.getTime() - to.getTime())
       return Math.round((timeDiff / 1000 / 60 / 60) * 100) / 100
-    }
-  },
-  watch: {
-    timerecord() {
-      this.editTimerecrod()
-    },
-    startTime() {
-      this.applyTime()
     }
   }
 }

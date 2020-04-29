@@ -1,7 +1,15 @@
 <template>
-  <v-card max-width="100%" class="card" color="primary" dark min-height="260">
+  <v-card
+    max-width="100%"
+    class="card"
+    color="primary"
+    dark
+    min-height="260"
+  >
     <v-card-text>
-      <div class="display-1 font-weight-thin text-center mb-2">Geleistete Stunden pro Monat</div>
+      <div class="display-1 font-weight-thin text-center mb-2">
+        Geleistete Stunden pro Monat
+      </div>
     </v-card-text>
     <v-card-text>
       <v-sheet color="primary">
@@ -16,7 +24,12 @@
           auto-draw
           show-labels
         >
-          <template slot="label" slot-scope="item">{{item.value}}</template>
+          <template
+            slot="label"
+            slot-scope="item"
+          >
+            {{ item.value }}
+          </template>
         </v-sparkline>
       </v-sheet>
     </v-card-text>
@@ -28,7 +41,8 @@ export default {
   name: 'HoursByMonth',
   props: {
     stats: {
-      default: () => {}
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
@@ -41,7 +55,7 @@ export default {
     stats() {
       this.values = []
       this.labels = []
-      for (let month of this.stats) {
+      for (const month of this.stats) {
         this.values.push(month.hours)
         this.labels.push(month.name)
       }

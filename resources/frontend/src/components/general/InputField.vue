@@ -1,17 +1,27 @@
 <template>
   <v-row>
-    <v-col cols="12" :md="long ? 2 : 4" class="py-0">
-      <p class="description font-weight-bold subheading mb-0">{{label}}</p>
+    <v-col
+      cols="12"
+      :md="long ? 2 : 4"
+      class="py-0"
+    >
+      <p class="description font-weight-bold subheading mb-0">
+        {{ label }}
+      </p>
     </v-col>
-    <v-col cols="12" :md="long ? 10 : 8" class="py-0">
+    <v-col
+      cols="12"
+      :md="long ? 10 : 8"
+      class="py-0"
+    >
       <slot>
         <edit-field
           :value="value"
-          @input="input"
-          @change="change"
           :readonly="readonly"
           :type="type"
           :rules="rules"
+          @input="input"
+          @change="change"
         ></edit-field>
       </slot>
     </v-col>
@@ -21,7 +31,10 @@
 <script>
 export default {
   props: {
-    label: String,
+    label: {
+      type: String,
+      default: null
+    },
     value: {
       type: [String, Number],
       default: ''

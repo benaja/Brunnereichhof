@@ -28,7 +28,7 @@ export default new Router({
     },
     {
       path: '/set-password',
-      props: route => ({ token: route.query.token, userId: route.query.userId }),
+      props: (route) => ({ token: route.query.token, userId: route.query.userId }),
       name: 'SetPassword',
       component: () => import('./views/auth/SetPassword')
     },
@@ -190,7 +190,7 @@ export default new Router({
       path: '/hourrecords/:year/:week',
       name: 'HourrecordDetails',
       component: () => import('./views/Hourrecords/HourrecordDetails'),
-      props: route => ({ edit: route.query.edit === 'true' }),
+      props: (route) => ({ edit: route.query.edit === 'true' }),
       meta: {
         auth: true
       }

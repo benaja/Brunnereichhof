@@ -6,13 +6,20 @@
       <v-col cols="12">
         <edit-work-types />
       </v-col>
-      <v-col cols="12" class="mt-4">
+      <v-col
+        cols="12"
+        class="mt-4"
+      >
         <h2>Stundenangaben der Kunden</h2>
       </v-col>
-      <v-col cols="12" sm6 class="px-2">
+      <v-col
+        cols="12"
+        sm6
+        class="px-2"
+      >
         <v-menu
-          :close-on-content-click="false"
           v-model="menu1"
+          :close-on-content-click="false"
           offset-y
           transition="scale-transition"
           min-width="290px"
@@ -29,17 +36,21 @@
           </template>
           <v-date-picker
             v-model="settings.hourrecordStartDate"
-            @input="menu1 = false; update('hourrecordStartDate')"
             locale="ch-de"
             first-day-of-week="1"
             :readonly="!isUserAllowedToEdit"
+            @input="menu1 = false; update('hourrecordStartDate')"
           ></v-date-picker>
         </v-menu>
       </v-col>
-      <v-col cols="12" sm6 class="px-2">
+      <v-col
+        cols="12"
+        sm6
+        class="px-2"
+      >
         <v-menu
-          :close-on-content-click="false"
           v-model="menu2"
+          :close-on-content-click="false"
           offset-y
           transition="scale-transition"
           min-width="290px"
@@ -56,101 +67,109 @@
           </template>
           <v-date-picker
             v-model="settings.hourrecordEndDate"
-            @input="menu2 = false; update('hourrecordEndDate')"
             locale="ch-de"
             first-day-of-week="1"
             :readonly="!isUserAllowedToEdit"
+            @input="menu2 = false; update('hourrecordEndDate')"
           ></v-date-picker>
         </v-menu>
       </v-col>
-      <v-col cols="12" class="mt-4">
+      <v-col
+        cols="12"
+        class="mt-4"
+      >
         <h2>Kundenportal</h2>
         <p>
-          Für einen Wert, welcher sich ändern kann, muss folgende Schreibweise verwendet werden: {name}
-          <br />Welche Werte verwendet werden können, ist immer in der Klammer angegeben. Achte auch auf Gross- und Kleinschreibung.
+          Für einen Wert, welcher sich ändern kann, muss folgende
+          Schreibweise verwendet werden: {name}
+          <br />Welche Werte verwendet werden können, ist immer in der Klammer angegeben.
+          Achte auch auf Gross- und Kleinschreibung.
         </p>
       </v-col>
       <v-col cols="12">
         <v-text-field
-          label="Willkommenstext {name}"
           v-model="settings.welcomeText"
-          @change="update('welcomeText')"
+          label="Willkommenstext {name}"
           :readonly="!isUserAllowedToEdit"
+          @change="update('welcomeText')"
         ></v-text-field>
         <v-textarea
-          label="Untertitel"
           v-model="settings.subtitle"
+          label="Untertitel"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('subtitle')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Arbeiten-Karte Titel"
           v-model="settings.hourrecordTitle"
+          label="Arbeiten-Karte Titel"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('hourrecordTitle')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Arbeiten-Karte text {datum}"
           v-model="settings.hourrecordValid"
+          label="Arbeiten-Karte text {datum}"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('hourrecordValid')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Arbeiten-Karte Zeit abgeloffen text"
           v-model="settings.hourrecordInvalid"
+          label="Arbeiten-Karte Zeit abgeloffen text"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('hourrecordInvalid')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Umfrage-Karte Titel"
           v-model="settings.surveyTitle"
+          label="Umfrage-Karte Titel"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('surveyTitle')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Umfrage-Karte Text"
           v-model="settings.surveyText"
+          label="Umfrage-Karte Text"
+          auto-grow
+          rows="1"
+          :readonly="!isUserAllowedToEdit"
           @change="update('surveyText')"
-          auto-grow
-          rows="1"
-          :readonly="!isUserAllowedToEdit"
         ></v-textarea>
         <v-textarea
-          label="Wochenrapport-Karte Titel"
           v-model="settings.weekRapportTitle"
-          @change="update('weekRapportTitle')"
+          label="Wochenrapport-Karte Titel"
           auto-grow
           rows="1"
           :readonly="!isUserAllowedToEdit"
+          @change="update('weekRapportTitle')"
         ></v-textarea>
         <v-textarea
-          label="Wochenrapport-Karte Text"
           v-model="settings.weekRapportText"
-          @change="update('weekRapportText')"
+          label="Wochenrapport-Karte Text"
           auto-grow
           rows="1"
           :readonly="!isUserAllowedToEdit"
+          @change="update('weekRapportText')"
         ></v-textarea>
       </v-col>
-      <v-col cols="12" class="mt-4">
+      <v-col
+        cols="12"
+        class="mt-4"
+      >
         <h2>Sonstige Einstellungen</h2>
       </v-col>
       <v-col cols="12">
         <v-switch
           v-model="settings.rapportFoodTypeEnabled"
           label="Verpflegung bei Wochenrapport"
-          @change="update('rapportFoodTypeEnabled')"
           :readonly="!isUserAllowedToEdit"
+          @change="update('rapportFoodTypeEnabled')"
         ></v-switch>
       </v-col>
     </v-row>
@@ -173,9 +192,17 @@ export default {
       isUserAllowedToEdit: false
     }
   },
+  computed: {
+    hourrecordStartDateFormated() {
+      return new Date(this.settings.hourrecordStartDate).toLocaleDateString()
+    },
+    hourrecordEndDateFormated() {
+      return new Date(this.settings.hourrecordEndDate).toLocaleDateString()
+    }
+  },
   mounted() {
     this.$store.commit('isLoading', true)
-    this.axios.get(process.env.VUE_APP_API_URL + 'settings').then(response => {
+    this.axios.get(`${process.env.VUE_APP_API_URL}settings`).then((response) => {
       this.settings = response.data
       this.$store.commit('isLoading', false)
     })
@@ -184,20 +211,12 @@ export default {
   methods: {
     update(key) {
       this.axios
-        .patch(process.env.VUE_APP_API_URL + 'settings', {
+        .patch(`${process.env.VUE_APP_API_URL}settings`, {
           [key]: this.settings[key]
         })
         .catch(() => {
           this.$swal('Fehler', 'Einstellungen konnten nicht gespeichert werden', 'error')
         })
-    }
-  },
-  computed: {
-    hourrecordStartDateFormated() {
-      return new Date(this.settings.hourrecordStartDate).toLocaleDateString()
-    },
-    hourrecordEndDateFormated() {
-      return new Date(this.settings.hourrecordEndDate).toLocaleDateString()
     }
   }
 }

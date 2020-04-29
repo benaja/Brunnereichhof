@@ -1,29 +1,42 @@
 <template>
   <form-container :class="{shake}">
     <template>
-      <h1 class="center-align text-center display-2 mb-8">Login</h1>
+      <h1 class="center-align text-center display-2 mb-8">
+        Login
+      </h1>
       <v-form ref="form">
         <v-text-field
+          v-model="email"
           label="Email oder Kundennummer"
           class="mt-4"
-          v-model="email"
           name="email"
           outlined
           :rules="[rules.required]"
         ></v-text-field>
         <v-text-field
+          v-model="password"
           label="Passwort"
           outlined
           class="mt-4"
-          v-model="password"
           type="password"
           name="password"
-          @keyup.13="login"
           :rules="[rules.required]"
           :error-messages="loginError"
+          @keyup.13="login"
         ></v-text-field>
-        <v-btn color="primary" class="login-button mt-4 mb-4" @click="login">Anmelden</v-btn>
-        <router-link tag="a" :to="`/reset-password?email=${email}`">Passwort vergessen?</router-link>
+        <v-btn
+          color="primary"
+          class="login-button mt-4 mb-4"
+          @click="login"
+        >
+          Anmelden
+        </v-btn>
+        <router-link
+          tag="a"
+          :to="`/reset-password?email=${email}`"
+        >
+          Passwort vergessen?
+        </router-link>
       </v-form>
     </template>
   </form-container>
@@ -43,7 +56,7 @@ export default {
       password: null,
       shake: false,
       rules: {
-        required: v => !!v || 'Dieses Feld muss vorhanden sein'
+        required: (v) => !!v || 'Dieses Feld muss vorhanden sein'
       },
       loginError: null
     }
@@ -56,7 +69,7 @@ export default {
             email: this.email,
             password: this.password
           },
-          error: function() {
+          error() {
             this.shake = true
             setTimeout(() => {
               this.shake = false

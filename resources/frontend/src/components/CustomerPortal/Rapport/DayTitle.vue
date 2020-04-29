@@ -3,7 +3,9 @@
     class="font-weight-bold"
     :style="{ gridArea }"
     :class="{'display-1': $vuetify.breakpoint.smAndDown }"
-  >{{text}}</p>
+  >
+    {{ text }}
+  </p>
 </template>
 
 <script>

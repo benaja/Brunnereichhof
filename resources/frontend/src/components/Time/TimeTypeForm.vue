@@ -1,16 +1,38 @@
 <template>
   <transition name="move">
-    <div class="time-type-form" v-if="open">
+    <div
+      v-if="open"
+      class="time-type-form"
+    >
       <div class="min-height-px">
         <div class="min-height-100">
           <div class="header py-3">
-            <v-btn icon small class="ml-3 mt-1" @click="$emit('cancel')">
+            <v-btn
+              icon
+              small
+              class="ml-3 mt-1"
+              @click="$emit('cancel')"
+            >
               <v-icon>close</v-icon>
             </v-btn>
-            <v-btn icon small class="ml-3 mt-1" @click="$emit('deleteTimerecord')" v-if="edit">
+            <v-btn
+              v-if="edit"
+              icon
+              small
+              class="ml-3 mt-1"
+              @click="$emit('deleteTimerecord')"
+            >
               <v-icon>delete</v-icon>
             </v-btn>
-            <v-btn color="primary" depressed medium class="float-right mr-3" @click="$emit('save')">{{ edit ? 'Aktualisieren' : 'Speichern' }}</v-btn>
+            <v-btn
+              color="primary"
+              depressed
+              medium
+              class="float-right mr-3"
+              @click="$emit('save')"
+            >
+              {{ edit ? 'Aktualisieren' : 'Speichern' }}
+            </v-btn>
           </div>
           <v-divider></v-divider>
           <div class="pa-3 content">

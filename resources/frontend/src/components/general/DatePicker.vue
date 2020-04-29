@@ -9,7 +9,6 @@
   >
     <template v-slot:activator="{ on }">
       <v-text-field
-        v-on="on"
         :value="formatedDate"
         :label="label"
         :prepend-inner-icon="outlined ? 'event' : null"
@@ -21,25 +20,26 @@
         :full-width="fullWidth"
         show-week
         readonly
+        v-on="on"
       ></v-text-field>
     </template>
     <v-date-picker
+      ref="picker"
       v-model="date"
-      @input="model = false"
       locale="ch-de"
       :color="color"
       first-day-of-week="1"
-      ref="picker"
       :type="type === 'year' ? 'date' : type"
       :max="
         type === 'year'
           ? $moment()
-              .add(3, 'years')
-              .format('YYYY-MM-DD')
+            .add(3, 'years')
+            .format('YYYY-MM-DD')
           : undefined
       "
       show-week
       :locale-first-day-of-year="1"
+      @input="model = false"
     ></v-date-picker>
   </v-menu>
 </template>
@@ -48,8 +48,14 @@
 export default {
   name: 'DatePicker',
   props: {
-    value: [String, Number],
-    label: String,
+    value: {
+      type: [String, Number],
+      default: null
+    },
+    label: {
+      type: String,
+      default: null
+    },
     rules: {
       type: Array,
       default: () => []
@@ -81,33 +87,20 @@ export default {
       formatedDate: ''
     }
   },
-  mounted() {
-    this.setFormatedDate()
-  },
   computed: {
     date: {
-      get: function() {
+      get() {
         return this.value
       },
-      set: function(value) {
+      set(value) {
         this.$emit('input', value)
       }
-    }
-  },
-  methods: {
-    formatDate(format, parseFormat = undefined) {
-      return this.date ? this.$moment(this.date, parseFormat).format(format) : ''
-    },
-    setFormatedDate() {
-      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
-      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
-      else this.formatedDate = this.formatDate('YYYY', 'YYYY')
     }
   },
   watch: {
     model(val) {
       if (this.type === 'year') {
-        val && this.$nextTick(() => (this.$refs.picker.activePicker = 'YEAR'))
+        this.$nextTick(() => { this.$refs.picker.activePicker = 'YEAR' })
         if (!val) {
           this.$emit('input', `${this.$refs.picker.inputYear}-01-01`)
         }
@@ -118,6 +111,19 @@ export default {
     },
     type() {
       this.setFormatedDate()
+    }
+  },
+  mounted() {
+    this.setFormatedDate()
+  },
+  methods: {
+    formatDate(format, parseFormat = undefined) {
+      return this.date ? this.$moment(this.date, parseFormat).format(format) : ''
+    },
+    setFormatedDate() {
+      if (this.type === 'date') this.formatedDate = this.formatDate('DD.MM.YYYY')
+      else if (this.type === 'month') this.formatedDate = this.formatDate('MM.YYYY')
+      else this.formatedDate = this.formatDate('YYYY', 'YYYY')
     }
   }
 }

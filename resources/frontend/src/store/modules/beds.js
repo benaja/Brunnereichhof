@@ -6,9 +6,9 @@ export default {
     beds: []
   },
   getters: {
-    beds: state => state.beds.filter(b => !b.deleted_at),
-    allBeds: state => state.beds,
-    deletedBeds: state => state.beds.filter(b => b.deleted_at)
+    beds: (state) => state.beds.filter((b) => !b.deleted_at),
+    allBeds: (state) => state.beds,
+    deletedBeds: (state) => state.beds.filter((b) => b.deleted_at)
   },
   mutations: {
     setBeds(state, beds) {
@@ -18,12 +18,12 @@ export default {
       state.beds.push(bed)
     },
     updateBed(state, updatedBed) {
-      const bed = state.beds.find(b => b.id === updatedBed.id)
+      const bed = state.beds.find((b) => b.id === updatedBed.id)
       const index = state.beds.indexOf(bed)
       state.beds[index] = updatedBed
     },
     deleteBed(state, bedId) {
-      const bed = state.beds.find(b => b.id === bedId)
+      const bed = state.beds.find((b) => b.id === bedId)
       const index = state.beds.indexOf(bed)
       bed.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
       state.beds[index] = bed
@@ -35,11 +35,11 @@ export default {
         commit('loadingBeds', true)
         axios
           .get('/beds?all=true')
-          .then(response => {
+          .then((response) => {
             commit('setBeds', response.data)
             resolve(getters.beds)
           })
-          .catch(error => {
+          .catch((error) => {
             dispatch('error', 'Fehler beim Laden der Betten.')
             reject(error)
           })
@@ -52,11 +52,11 @@ export default {
       return new Promise((resolve, reject) => {
         axios
           .put(`beds/${bed.id}`, bed)
-          .then(response => {
+          .then(() => {
             commit('updateBed', bed)
             resolve(bed)
           })
-          .catch(error => reject(error))
+          .catch((error) => reject(error))
       })
     },
     deleteBed({ commit }, bedId) {
@@ -67,7 +67,7 @@ export default {
             commit('deleteBed', bedId)
             resolve()
           })
-          .catch(error => reject(error))
+          .catch((error) => reject(error))
       })
     }
   }

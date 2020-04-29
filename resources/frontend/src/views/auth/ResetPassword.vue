@@ -1,30 +1,36 @@
 <template>
   <form-container>
     <template>
-      <h1 class="display-1 mb-8">Passwort zurücksetzten</h1>
+      <h1 class="display-1 mb-8">
+        Passwort zurücksetzten
+      </h1>
       <v-form
-        onsubmit="return false;"
-        ref="form"
         v-if="!emailSend"
+        ref="form"
         v-model="valid"
+        onsubmit="return false;"
         @submit="resetPassword"
       >
         <v-text-field
+          v-model="email"
           outlined
           label="Email"
-          v-model="email"
           :rules="[rules.required]"
           :error-messages="errorMessage"
         ></v-text-field>
         <v-btn
           class="reset-button"
           color="primary"
-          @click="resetPassword"
           :loading="isLoading"
-        >Zurücksetzten</v-btn>
+          @click="resetPassword"
+        >
+          Zurücksetzten
+        </v-btn>
       </v-form>
       <div v-else>
-        <p class="primary--text">Email erfolgreich gesendet.</p>
+        <p class="primary--text">
+          Email erfolgreich gesendet.
+        </p>
         <p>Folgen Sie den Anweisungen auf der erhaltenen Email.</p>
       </div>
     </template>
@@ -42,7 +48,7 @@ export default {
     return {
       email: '',
       rules: {
-        required: v => !!v || 'Dieses Feld muss vorhanden sein'
+        required: (v) => !!v || 'Dieses Feld muss vorhanden sein'
       },
       emailSend: false,
       valid: false,
@@ -63,7 +69,7 @@ export default {
             this.emailSend = true
             this.isLoading = false
           })
-          .catch(error => {
+          .catch((error) => {
             this.isLoading = false
             if (error.includes('Email does not exist')) {
               this.errorMessage = 'Email existiert nicht'

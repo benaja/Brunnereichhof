@@ -1,20 +1,41 @@
 <template>
   <div class="time-container">
-    <v-row wrap v-if="$vuetify.breakpoint.smAndDown" class="pa-0 ma-0">
+    <v-row
+      v-if="$vuetify.breakpoint.smAndDown"
+      wrap
+      class="pa-0 ma-0"
+    >
       <v-col cols="2">
         <p class="mx-0 mt-4 text-center">
-          <v-btn text icon @click="previousDay">
+          <v-btn
+            text
+            icon
+            @click="previousDay"
+          >
             <v-icon>keyboard_arrow_left</v-icon>
           </v-btn>
         </p>
       </v-col>
       <v-col cols="8">
-        <v-dialog v-model="dateDialog" width="290px" class="text-center">
+        <v-dialog
+          v-model="dateDialog"
+          width="290px"
+          class="text-center"
+        >
           <template v-slot:activator="{ on }">
-            <div v-on="on" class="mobile-day-label">
-              <p class="text-center overline mb-0">{{ $moment(date).format('dddd') }}</p>
-              <p class="text-center display-1 mb-0">{{ $moment(date).format('DD') }}</p>
-              <p class="text-center overline mb-0">{{ $moment(date).format('MMM') }}</p>
+            <div
+              class="mobile-day-label"
+              v-on="on"
+            >
+              <p class="text-center overline mb-0">
+                {{ $moment(date).format('dddd') }}
+              </p>
+              <p class="text-center display-1 mb-0">
+                {{ $moment(date).format('DD') }}
+              </p>
+              <p class="text-center overline mb-0">
+                {{ $moment(date).format('MMM') }}
+              </p>
             </div>
           </template>
           <v-date-picker
@@ -22,104 +43,186 @@
             scrollable
             first-day-of-week="1"
             locale="ch-de"
-            @change="dateDialog = false"
             show-week
+            @change="dateDialog = false"
           ></v-date-picker>
         </v-dialog>
       </v-col>
       <v-col cols="2">
         <p class="mx-0 mt-4 text-center">
-          <v-btn text icon @click="nextDay">
+          <v-btn
+            text
+            icon
+            @click="nextDay"
+          >
             <v-icon>keyboard_arrow_right</v-icon>
           </v-btn>
         </p>
       </v-col>
-      <v-col cols="12" class="pa-0">
+      <v-col
+        cols="12"
+        class="pa-0"
+      >
         <v-divider></v-divider>
       </v-col>
-      <v-col cols="12" class="py-0">
+      <v-col
+        cols="12"
+        class="py-0"
+      >
         <v-row
-          class="scroll-container"
           ref="scrollContainer"
+          class="scroll-container"
           :style="{ overflowY: isScrolling ? 'hidden' : 'auto' }"
         >
-          <v-col cols="2" class="time-numbers py-0">
-            <div v-for="index in 23" :key="index" class="time-number">
-              <p class="text-right caption">{{ timeString(index) }}</p>
+          <v-col
+            cols="2"
+            class="time-numbers py-0"
+          >
+            <div
+              v-for="index in 23"
+              :key="index"
+              class="time-number"
+            >
+              <p class="text-right caption">
+                {{ timeString(index) }}
+              </p>
             </div>
           </v-col>
-          <v-col cols="10" class="py-0 pr-0">
-            <div class="days" v-touch:swipe.left="nextDay" v-touch:swipe.right="previousDay">
+          <v-col
+            cols="10"
+            class="py-0 pr-0"
+          >
+            <div
+              v-touch:swipe.left="nextDay"
+              v-touch:swipe.right="previousDay"
+              class="days"
+            >
               <div class="lines">
-                <div v-for="index in 24" :key="index" class="time-number">
+                <div
+                  v-for="index in 24"
+                  :key="index"
+                  class="time-number"
+                >
                   <v-divider v-if="index !== 1"></v-divider>
                 </div>
               </div>
               <day
                 v-if="weekDays.length > 0"
-                :date="date"
                 v-model="weekDays[0].hours"
+                :date="date"
                 :settings="settings"
+                :url-worker-param="urlWorkerParam"
                 @update="props => openTimePopup({ day: weekDays[0], ...props })"
                 @openOveriew="isOverviewOpen = true"
                 @scrolling="scrolling => (isScrolling = scrolling)"
-                :url-worker-param="urlWorkerParam"
               ></day>
             </div>
           </v-col>
         </v-row>
       </v-col>
-      <overview v-model="isOverviewOpen" :url-worker-param="urlWorkerParam"></overview>
-      <time-popup ref="timeCard" :url-worker-param="urlWorkerParam"></time-popup>
+      <overview
+        v-model="isOverviewOpen"
+        :url-worker-param="urlWorkerParam"
+      ></overview>
+      <time-popup
+        ref="timeCard"
+        :url-worker-param="urlWorkerParam"
+      ></time-popup>
     </v-row>
-    <v-row v-else wrap>
-      <v-col cols="3" xl="2" class="py-0 px-0">
+    <v-row
+      v-else
+      wrap
+    >
+      <v-col
+        cols="3"
+        xl="2"
+        class="py-0 px-0"
+      >
         <div class="overview-container">
           <overview
-            @change="newDate => (date = newDate)"
             ref="overview"
             :url-worker-param="urlWorkerParam"
+            @change="newDate => (date = newDate)"
           ></overview>
         </div>
       </v-col>
-      <v-col cols="9" xl="10" class="py-0">
+      <v-col
+        cols="9"
+        xl="10"
+        class="py-0"
+      >
         <v-row>
-          <v-col cols="11" offset="1" class="day-labels">
-            <div class="day-label" v-for="(day, index) of weekDays" :key="index">
-              <p class="text-center overline mb-0">{{ $moment(day.date).format('dd') }}</p>
-              <p class="text-center display-1 mb-0">{{ $moment(day.date).format('DD') }}</p>
+          <v-col
+            cols="11"
+            offset="1"
+            class="day-labels"
+          >
+            <div
+              v-for="(day, index) of weekDays"
+              :key="index"
+              class="day-label"
+            >
+              <p class="text-center overline mb-0">
+                {{ $moment(day.date).format('dd') }}
+              </p>
+              <p class="text-center display-1 mb-0">
+                {{ $moment(day.date).format('DD') }}
+              </p>
             </div>
           </v-col>
-          <v-col cols="11" offset="1" class="pa-0">
+          <v-col
+            cols="11"
+            offset="1"
+            class="pa-0"
+          >
             <v-divider></v-divider>
           </v-col>
         </v-row>
-        <v-row class="scroll-container" ref="scrollContainer">
+        <v-row
+          ref="scrollContainer"
+          class="scroll-container"
+        >
           <time-card
             ref="timeCard"
             :url-worker-param="urlWorkerParam"
             @updated="$refs.overview.getStats()"
           ></time-card>
-          <v-col cols="1" class="time-numbers py-0">
-            <div v-for="index in 23" :key="index" class="time-number">
-              <p class="text-right">{{ timeString(index) }}</p>
+          <v-col
+            cols="1"
+            class="time-numbers py-0"
+          >
+            <div
+              v-for="index in 23"
+              :key="index"
+              class="time-number"
+            >
+              <p class="text-right">
+                {{ timeString(index) }}
+              </p>
             </div>
           </v-col>
-          <v-col cols="11" class="py-0 pr-0">
+          <v-col
+            cols="11"
+            class="py-0 pr-0"
+          >
             <div class="days">
               <div class="lines">
-                <div v-for="index in 24" :key="index" class="time-number">
+                <div
+                  v-for="index in 24"
+                  :key="index"
+                  class="time-number"
+                >
                   <v-divider v-if="index !== 1"></v-divider>
                 </div>
               </div>
               <template v-for="(day, index) of weekDays">
                 <day
                   :key="index"
-                  :date="new Date(day.date).toISOString().substr(0, 10)"
                   v-model="day.hours"
+                  :date="new Date(day.date).toISOString().substr(0, 10)"
                   :settings="settings"
-                  @update="props => openTimePopup({ day, index, ...props })"
                   :url-worker-param="urlWorkerParam"
+                  @update="props => openTimePopup({ day, index, ...props })"
                 ></day>
               </template>
             </div>
@@ -167,57 +270,9 @@ export default {
       isScrolling: false
     }
   },
-  mounted() {
-    this.axios
-      .get(`/settings/time${this.urlWorkerParam}`)
-      .then(response => {
-        this.settings = response.data
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Einstellungen konnten nicht abgeruffen werden', 'error')
-      })
-    this.date = new Date().toISOString().substr(0, 10)
-    this.getDay()
-    this.$refs.scrollContainer.scroll(0, 270)
-  },
-  methods: {
-    nextDay() {
-      let tomorrow = this.$moment(this.date, 'YYYY-MM-DD').add(1, 'day')
-      this.date = tomorrow.format('YYYY-MM-DD')
-    },
-    previousDay() {
-      let yesterday = this.$moment(this.date, 'YYYY-MM-DD').subtract(1, 'day')
-      this.date = yesterday.format('YYYY-MM-DD')
-    },
-    openAddTimePopup(date) {
-      this.isAddTimeOpen = true
-    },
-    getDay() {
-      let url = ''
-      if (this.$store.getters.isMobile) {
-        url = '/time/' + this.date
-      } else {
-        url = '/time/week/' + this.date
-      }
-      this.axios
-        .get(url + this.urlWorkerParam)
-        .then(response => {
-          this.weekDays = response.data
-        })
-        .catch(() => {
-          this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
-        })
-    },
-    openTimePopup(props) {
-      this.$refs.timeCard.openNewTimerecord(props)
-    },
-    timeString(index) {
-      return index < 10 ? `0${index}:00` : `${index}:00`
-    }
-  },
   computed: {
     dayName() {
-      let date = new Date(this.date)
+      const date = new Date(this.date)
       // set sunday as last day of month
       let day = date.getDay() === 0 ? 7 : date.getDay()
       day--
@@ -234,6 +289,51 @@ export default {
   watch: {
     date() {
       this.getDay()
+    }
+  },
+  mounted() {
+    this.axios
+      .get(`/settings/time${this.urlWorkerParam}`)
+      .then((response) => {
+        this.settings = response.data
+      })
+      .catch(() => {
+        this.$swal('Fehler', 'Einstellungen konnten nicht abgeruffen werden', 'error')
+      })
+    this.date = new Date().toISOString().substr(0, 10)
+    this.getDay()
+    this.$refs.scrollContainer.scroll(0, 270)
+  },
+  methods: {
+    nextDay() {
+      const tomorrow = this.$moment(this.date, 'YYYY-MM-DD').add(1, 'day')
+      this.date = tomorrow.format('YYYY-MM-DD')
+    },
+    previousDay() {
+      const yesterday = this.$moment(this.date, 'YYYY-MM-DD').subtract(1, 'day')
+      this.date = yesterday.format('YYYY-MM-DD')
+    },
+    getDay() {
+      let url = ''
+      if (this.$store.getters.isMobile) {
+        url = `/time/${this.date}`
+      } else {
+        url = `/time/week/${this.date}`
+      }
+      this.axios
+        .get(url + this.urlWorkerParam)
+        .then((response) => {
+          this.weekDays = response.data
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
+        })
+    },
+    openTimePopup(props) {
+      this.$refs.timeCard.openNewTimerecord(props)
+    },
+    timeString(index) {
+      return index < 10 ? `0${index}:00` : `${index}:00`
     }
   }
 }

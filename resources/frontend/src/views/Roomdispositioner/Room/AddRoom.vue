@@ -1,47 +1,92 @@
 <template>
   <v-container>
     <h1>Raum erstellen</h1>
-    <v-form lazy-validation ref="form">
+    <v-form
+      ref="form"
+      lazy-validation
+    >
       <v-row>
-        <v-col cols="12" md="6" class="py-0">
-          <v-text-field label="Name*" v-model="room.name" :rules="[rules.required]" color="blue"></v-text-field>
-        </v-col>
-        <v-col cols="12" md="6" class="py-0">
+        <v-col
+          cols="12"
+          md="6"
+          class="py-0"
+        >
           <v-text-field
-            label="Nummer*"
-            type="number"
-            v-model.number="room.number"
-            :rules="[rules.required, rules.integer]"
-            color="blue"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" class="py-0">
-          <v-text-field
-            label="Standort*"
-            v-model="room.location"
+            v-model="room.name"
+            label="Name*"
             :rules="[rules.required]"
             color="blue"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" class="py-0">
-          <v-textarea label="Kommentar" v-model="room.comment" rows="1" auto-grow color="blue"></v-textarea>
+        <v-col
+          cols="12"
+          md="6"
+          class="py-0"
+        >
+          <v-text-field
+            v-model.number="room.number"
+            label="Nummer*"
+            type="number"
+            :rules="[rules.required, rules.integer]"
+            color="blue"
+          ></v-text-field>
         </v-col>
-        <v-col cols="12" class="px-4">
+        <v-col
+          cols="12"
+          class="py-0"
+        >
+          <v-text-field
+            v-model="room.location"
+            label="Standort*"
+            :rules="[rules.required]"
+            color="blue"
+          ></v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          class="py-0"
+        >
+          <v-textarea
+            v-model="room.comment"
+            label="Kommentar"
+            rows="1"
+            auto-grow
+            color="blue"
+          ></v-textarea>
+        </v-col>
+        <v-col
+          cols="12"
+          class="px-4"
+        >
           <select-bed v-model="room.beds"></select-bed>
         </v-col>
-        <v-col cols="12" class="py-0">
+        <v-col
+          cols="12"
+          class="py-0"
+        >
           <select-images v-model="room.images"></select-images>
         </v-col>
-        <v-col cols="12" class="mt-4">
-          <v-btn text to="/rooms" color="black">Abbrechen</v-btn>
+        <v-col
+          cols="12"
+          class="mt-4"
+        >
+          <v-btn
+            text
+            to="/rooms"
+            color="black"
+          >
+            Abbrechen
+          </v-btn>
           <v-btn
             depressed
             dark
             color="blue"
             class="float-right"
-            @click="save"
             :loading="isLoading"
-          >Speichern</v-btn>
+            @click="save"
+          >
+            Speichern
+          </v-btn>
         </v-col>
       </v-row>
     </v-form>
@@ -73,7 +118,7 @@ export default {
       if (this.$refs.form.validate()) {
         this.isLoading = true
         const formData = new FormData()
-        for (let image of this.room.images) {
+        for (const image of this.room.images) {
           formData.append('images[]', image)
         }
         formData.append('name', this.room.name)
@@ -83,13 +128,13 @@ export default {
         formData.append('beds', JSON.stringify(this.room.beds))
         const config = {
           headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: progressEvent => {
+          onUploadProgress: (progressEvent) => {
             this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           }
         }
         this.axios
           .post('/rooms', formData, config)
-          .then(response => {
+          .then(() => {
             this.$router.push('/rooms')
           })
           .catch(() => {

@@ -1,58 +1,54 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import moment from 'moment'
 import roles from './modules/roles'
 import rooms from './modules/rooms'
 import loading from './modules/loading'
 import beds from './modules/beds'
-import moment from 'moment'
 
 Vue.use(Vuex)
 
-const resolveContent = (context, getter, url, properties) => {
-  return new Promise((resolve, reject) => {
-    let hasDeletedAttributes = !Array.isArray(context.getters[getter])
-    let urlParams = ''
-    let value
-    let getterValues
-    if (hasDeletedAttributes) {
-      if (properties.deleted) {
-        value = 'deleted'
-        urlParams = '?deleted=true' + (properties.urlParams ? `&${properties.urlParams}` : '')
-      } else if (properties.all) {
-        value = 'all'
-        urlParams = '?all=true' + (properties.urlParams ? `&${properties.urlParams}` : '')
-      } else {
-        value = 'items'
-        urlParams = properties.urlParams ? `?${properties.urlParams}` : ''
-      }
-      getterValues = context.getters[getter][value]
+const resolveContent = (context, getter, url, properties) => new Promise((resolve, reject) => {
+  const hasDeletedAttributes = !Array.isArray(context.getters[getter])
+  let urlParams = ''
+  let value
+  let getterValues
+  if (hasDeletedAttributes) {
+    if (properties.deleted) {
+      value = 'deleted'
+      urlParams = `?deleted=true${properties.urlParams ? `&${properties.urlParams}` : ''}`
+    } else if (properties.all) {
+      value = 'all'
+      urlParams = `?all=true${properties.urlParams ? `&${properties.urlParams}` : ''}`
     } else {
-      getterValues = context.getters[getter]
+      value = 'items'
+      urlParams = properties.urlParams ? `?${properties.urlParams}` : ''
     }
-    if (getterValues.length === 0 || properties.update) {
-      const fullUrl = `/${url}${urlParams}`
-      axios
-        .get(fullUrl)
-        .then(response => {
-          context.commit('dynamicMutate', {
-            getter,
-            value,
-            items: response.data
-          })
-          if (hasDeletedAttributes) resolve(context.getters[getter][value])
-          else resolve(context.getters[getter])
+    getterValues = context.getters[getter][value]
+  } else {
+    getterValues = context.getters[getter]
+  }
+  if (getterValues.length === 0 || properties.update) {
+    const fullUrl = `/${url}${urlParams}`
+    axios
+      .get(fullUrl)
+      .then((response) => {
+        context.commit('dynamicMutate', {
+          getter,
+          value,
+          items: response.data
         })
-        .catch(error => reject(error))
-    } else {
-      if (hasDeletedAttributes) resolve(context.getters[getter][value])
-      else resolve(context.getters[getter])
-    }
-  })
-}
+        if (hasDeletedAttributes) resolve(context.getters[getter][value])
+        else resolve(context.getters[getter])
+      })
+      .catch((error) => reject(error))
+  } else if (hasDeletedAttributes) resolve(context.getters[getter][value])
+  else resolve(context.getters[getter])
+})
 
 const resetContent = (context, getter) => {
-  let values = ['deleted', 'all', 'items']
+  const values = ['deleted', 'all', 'items']
   for (let i = 0; i < values.length; i++) {
     context.commit('dynamicMutate', {
       getter,
@@ -62,9 +58,9 @@ const resetContent = (context, getter) => {
   }
 }
 
-const getPeopleWithFullName = people => {
-  for (let person of people) {
-    person.name = person.lastname + ' ' + person.firstname
+const getPeopleWithFullName = (people) => {
+  for (const person of people) {
+    person.name = `${person.lastname} ${person.firstname}`
   }
   return people
 }
@@ -149,7 +145,7 @@ export default new Vuex.Store({
     settings(state, settings) {
       state.settings = {
         ...settings,
-        welcomeText: settings.welcomeText.replace('{name}', Vue.auth.user().firstname + ' ' + Vue.auth.user().lastname),
+        welcomeText: settings.welcomeText.replace('{name}', `${Vue.auth.user().firstname} ${Vue.auth.user().lastname}`),
         hourrecordValid: settings.hourrecordValid.replace('{datum}', moment(settings.hourrecordEndDate).format('DD.MM.YYYY'))
       }
     },
@@ -183,15 +179,15 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    isMobile: state => state.isMobile,
-    openPopups: state => state.openPopups,
-    dayShortNames: state => state.dayShortNames,
-    dayNames: state => state.dayNames,
-    recordWeeks: state => state.recordWeeks,
-    hourRecords: state => state.hourRecords,
-    saveState: state => state.saveState,
-    settings: state => state.settings,
-    isEditTime: state => {
+    isMobile: (state) => state.isMobile,
+    openPopups: (state) => state.openPopups,
+    dayShortNames: (state) => state.dayShortNames,
+    dayNames: (state) => state.dayNames,
+    recordWeeks: (state) => state.recordWeeks,
+    hourRecords: (state) => state.hourRecords,
+    saveState: (state) => state.saveState,
+    settings: (state) => state.settings,
+    isEditTime: (state) => {
       let startdate = new Date(state.settings.hourrecordStartDate)
       let endDate = new Date(state.settings.hourrecordEndDate)
 
@@ -202,18 +198,17 @@ export default new Vuex.Store({
         endDate = new Date(endDate.toDateString())
         startdate = new Date(startdate.toDateString())
         return startdate <= today && endDate >= today
-      } else {
-        return true
       }
+      return true
     },
-    customers: state => state.customers,
-    cultures: state => state.cultures,
-    employees: state => state.employees,
-    workers: state => state.workers,
-    employeesWithGuests: state => state.employeesWithGuests,
-    guests: state => state.guests,
-    authorizationRules: state => state.authorizationRules,
-    alerts: state => state.alerts
+    customers: (state) => state.customers,
+    cultures: (state) => state.cultures,
+    employees: (state) => state.employees,
+    workers: (state) => state.workers,
+    employeesWithGuests: (state) => state.employeesWithGuests,
+    guests: (state) => state.guests,
+    authorizationRules: (state) => state.authorizationRules,
+    alerts: (state) => state.alerts
   },
   actions: {
     closeAllPopups({ commit }) {

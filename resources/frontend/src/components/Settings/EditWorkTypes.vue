@@ -1,6 +1,9 @@
 <template>
   <v-expansion-panels>
-    <v-expansion-panel v-for="worktype of worktypes" :key="worktype.id">
+    <v-expansion-panel
+      v-for="worktype of worktypes"
+      :key="worktype.id"
+    >
       <v-expansion-panel-header>{{ worktype.name_de }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <edit-work-type :value="worktype"></edit-work-type>
@@ -22,7 +25,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/worktypes').then(response => {
+    this.axios.get('/worktypes').then((response) => {
       this.worktypes = response.data
     })
   }

@@ -1,15 +1,34 @@
 <template>
-  <v-card v-if="card" class="pa-3">
+  <v-card
+    v-if="card"
+    class="pa-3"
+  >
     <slot></slot>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text @click="$emit('cancel')">Abbrechen</v-btn>
-      <v-btn :color="color" text @click="$emit('save')">Speichern</v-btn>
+      <v-btn
+        text
+        @click="$emit('cancel')"
+      >
+        Abbrechen
+      </v-btn>
+      <v-btn
+        :color="color"
+        text
+        @click="$emit('save')"
+      >
+        Speichern
+      </v-btn>
     </v-card-actions>
   </v-card>
   <div v-else>
     <slot></slot>
-    <v-btn :color="color" @click="$emit('save')">Speichern</v-btn>
+    <v-btn
+      :color="color"
+      @click="$emit('save')"
+    >
+      Speichern
+    </v-btn>
   </div>
 </template>
 

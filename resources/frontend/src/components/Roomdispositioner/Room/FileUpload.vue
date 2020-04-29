@@ -1,18 +1,33 @@
 <template>
-  <v-col class="d-flex child-flex" cols="4">
+  <v-col
+    class="d-flex child-flex"
+    cols="4"
+  >
     <div class="upload-container">
       <div class="file-upload">
         <p class="text-center file-upload-text">
-          <v-progress-circular v-if="isLoading" indeterminate color="grey lighten-5"></v-progress-circular>
-          <v-btn v-else text x-large class="center upload-button" @click="$refs.fileInput.click()">
-            <v-icon x-large>add</v-icon>Bild hinzufügen
+          <v-progress-circular
+            v-if="isLoading"
+            indeterminate
+            color="grey lighten-5"
+          ></v-progress-circular>
+          <v-btn
+            v-else
+            text
+            x-large
+            class="center upload-button"
+            @click="$refs.fileInput.click()"
+          >
+            <v-icon x-large>
+              add
+            </v-icon>Bild hinzufügen
           </v-btn>
         </p>
         <input
-          type="file"
-          multiple="multiple"
           id="attachments"
           ref="fileInput"
+          type="file"
+          multiple="multiple"
           @change="uploadFieldChange"
         />
       </div>
@@ -45,7 +60,7 @@ export default {
   },
   methods: {
     uploadFieldChange(e) {
-      let files = e.target.files || e.dataTransfer.files
+      const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
       for (let i = 0; i < files.length; i++) {
         this.data.append('images[]', files[i])
@@ -57,16 +72,16 @@ export default {
       }
     },
     uploadFiles() {
-      let config = {
+      const config = {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: progressEvent => {
+        onUploadProgress: (progressEvent) => {
           this.percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
         }
       }
       this.isLoading = true
       this.axios
         .post(this.uploadUrl, this.data, config)
-        .then(response => {
+        .then((response) => {
           this.$emit('uploaded', response.data)
           this.data = new FormData()
         })

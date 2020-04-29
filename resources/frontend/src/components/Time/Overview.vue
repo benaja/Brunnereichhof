@@ -1,8 +1,15 @@
 <template>
   <transition name="move">
-    <div :class="['overview', { desktop: !$vuetify.breakpoint.smAndDown }]" v-if="value || !$vuetify.breakpoint.smAndDown">
+    <div
+      v-if="value || !$vuetify.breakpoint.smAndDown"
+      :class="['overview', { desktop: !$vuetify.breakpoint.smAndDown }]"
+    >
       <div class="header py-3 hidden-md-and-up">
-        <v-btn icon class="ml-3" @click="$emit('input', false)">
+        <v-btn
+          icon
+          class="ml-3"
+          @click="$emit('input', false)"
+        >
           <v-icon>close</v-icon>
         </v-btn>
       </div>
@@ -19,22 +26,46 @@
           no-title
         ></v-date-picker>
         <p class="text-center hidden-md-and-up">
-          <v-btn :color="monthColor" depressed @click="type = 'month'">Monat</v-btn>
-          <v-btn :color="weekColor" depressed @click="type = 'date'">Woche</v-btn>
+          <v-btn
+            :color="monthColor"
+            depressed
+            @click="type = 'month'"
+          >
+            Monat
+          </v-btn>
+          <v-btn
+            :color="weekColor"
+            depressed
+            @click="type = 'date'"
+          >
+            Woche
+          </v-btn>
         </p>
         <v-divider></v-divider>
         <div class="px-3 pt-3 hidden-md-and-up">
-          <h2 class="mb-1">Bezogene Stunden {{ type === 'month' ? 'diesen Monat' : 'diese Woche' }}</h2>
-          <p class="mb-0">Total: {{ totalHours }}h</p>
-          <p class="mb-0">Ferien: {{ holidayHours }}h</p>
+          <h2 class="mb-1">
+            Bezogene Stunden {{ type === 'month' ? 'diesen Monat' : 'diese Woche' }}
+          </h2>
+          <p class="mb-0">
+            Total: {{ totalHours }}h
+          </p>
+          <p class="mb-0">
+            Ferien: {{ holidayHours }}h
+          </p>
         </div>
         <div class="pl-6 pt-3 hidden-sm-and-down">
-          <h2 class="mb-1">Bezogene Stunden</h2>
+          <h2 class="mb-1">
+            Bezogene Stunden
+          </h2>
           <h3>Diese Woche</h3>
           <p>Total: {{ totalHours }}h</p>
           <h3>Diesen Monat</h3>
-          <p class="mb-0">Total: {{ totalHoursMonth }}h</p>
-          <p class="mb-0">Ferien: {{ holidayHoursMonth }}h</p>
+          <p class="mb-0">
+            Total: {{ totalHoursMonth }}h
+          </p>
+          <p class="mb-0">
+            Ferien: {{ holidayHoursMonth }}h
+          </p>
         </div>
       </div>
     </div>
@@ -45,37 +76,21 @@
 export default {
   name: 'Overview',
   props: {
-    urlWorkerParam: String,
+    urlWorkerParam: {
+      type: String,
+      default: null
+    },
     value: Boolean
   },
   data() {
     return {
-      date: this.$store.getters.isMobile ? new Date().toISOString().substr(0, 7) : new Date().toISOString().substring(0, 10),
+      date: this.$store.getters.isMobile ? new Date().toISOString().substr(0, 7)
+        : new Date().toISOString().substring(0, 10),
       totalHours: 0,
       holidayHours: 0,
       totalHoursMonth: 0,
       holidayHoursMonth: 0,
       type: window.innerWidth < 960 ? 'month' : 'date'
-    }
-  },
-  mounted() {
-    this.getStats()
-  },
-  methods: {
-    getStats() {
-      this.axios
-        .get(`/time/stats/${this.date}${this.urlWorkerParam}`)
-        .then(response => {
-          this.totalHours = response.data.week.totalHours
-          this.holidayHours = response.data.week.holidayHours
-          if (response.data.month) {
-            this.totalHoursMonth = response.data.month.totalHours
-            this.holidayHoursMonth = response.data.month.holidayHours
-          }
-        })
-        .catch(() => {
-          this.$swal('Fehler', 'Statistiken konnten nicht geladen werden', 'error')
-        })
     }
   },
   computed: {
@@ -90,6 +105,26 @@ export default {
     date() {
       this.$emit('change', this.date)
       this.getStats()
+    }
+  },
+  mounted() {
+    this.getStats()
+  },
+  methods: {
+    getStats() {
+      this.axios
+        .get(`/time/stats/${this.date}${this.urlWorkerParam}`)
+        .then((response) => {
+          this.totalHours = response.data.week.totalHours
+          this.holidayHours = response.data.week.holidayHours
+          if (response.data.month) {
+            this.totalHoursMonth = response.data.month.totalHours
+            this.holidayHoursMonth = response.data.month.holidayHours
+          }
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Statistiken konnten nicht geladen werden', 'error')
+        })
     }
   }
 }

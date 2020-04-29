@@ -9,33 +9,38 @@
       >
         <v-list-item-content>
           <p class="mt-3">
-            <strong>{{inventar.name}}</strong>
-            CHF {{inventar.price}}
+            <strong>{{ inventar.name }}</strong>
+            CHF {{ inventar.price }}
           </p>
         </v-list-item-content>
       </v-list-item>
     </v-list>
     <v-menu
-      :close-on-content-click="false"
       v-model="addModel"
+      :close-on-content-click="false"
       right
       max-width="400"
       min-width="400"
     >
       <template v-slot:activator="{ on }">
         <v-btn
+          v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
           fixed
           bottom
           right
           fab
           color="blue"
           v-on="on"
-          v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
         >
-          <v-icon color="white">add</v-icon>
+          <v-icon color="white">
+            add
+          </v-icon>
         </v-btn>
       </template>
-      <add-inventar v-model="addModel" @add="add"></add-inventar>
+      <add-inventar
+        v-model="addModel"
+        @add="add"
+      ></add-inventar>
     </v-menu>
   </v-container>
 </template>
@@ -55,7 +60,7 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/inventars').then(response => {
+    this.axios.get('/inventars').then((response) => {
       this.inventars = response.data
     })
   },

@@ -3,38 +3,38 @@ export default [
     version: '1.12',
     changes: [
       'Arbeitseintrittsjahr und Führerschein als neues Feld zu Mitarbeiter hinzugefügt.',
-      `Jahresauswertung der Übernachtungen aller Mitarbeiter`
+      'Jahresauswertung der Übernachtungen aller Mitarbeiter'
     ],
-    bugfixes: [`Roomdispositioner Statistik behoben.`, `Miterbeiter Erstellung nur noch mit der entsprechenden Berechtigung möglich.`]
+    bugfixes: ['Roomdispositioner Statistik behoben.', 'Miterbeiter Erstellung nur noch mit der entsprechenden Berechtigung möglich.']
   },
   {
     version: '1.11.2',
     changes: ['Navigationsbar überarbeitet'],
-    bugfixes: [`Bug von Navigationsbar auf Mobile behoben.`, `Roomdispositioner: Einträge bei erstem Laden nicht angezeigt behoben.`]
+    bugfixes: ['Bug von Navigationsbar auf Mobile behoben.', 'Roomdispositioner: Einträge bei erstem Laden nicht angezeigt behoben.']
   },
   {
     version: '1.11.1',
-    bugfixes: [`Raum erstellung ohne Bild.`, `Weitere kleine Raum erstellung Fixes.`]
+    bugfixes: ['Raum erstellung ohne Bild.', 'Weitere kleine Raum erstellung Fixes.']
   },
   {
     version: '1.11',
     changes: [
-      `Stundenangaben können als Admin nun auch pro Kunde erfasst werden und nicht nur pro Woche.`,
-      `Bei den Stundenangaben kann nun ein PDF für jede Woche erstellt werden.`,
-      `Stundenangaben für Kunden verbessert.`
+      'Stundenangaben können als Admin nun auch pro Kunde erfasst werden und nicht nur pro Woche.',
+      'Bei den Stundenangaben kann nun ein PDF für jede Woche erstellt werden.',
+      'Stundenangaben für Kunden verbessert.'
     ],
-    bugfixes: [`Stundenangaben PDf über das ganze Jahr, fehlerhafte Einträge behoben.`, `Stundenangaben Bug für Kunde behoben`]
+    bugfixes: ['Stundenangaben PDf über das ganze Jahr, fehlerhafte Einträge behoben.', 'Stundenangaben Bug für Kunde behoben']
   },
   {
     version: '1.10.1',
-    bugfixes: [`Bilder können auch bei der Erstellung des Raums hochgeladen werden.`, `Stundenangaben Pdf generieren Bugs behoben.`]
+    bugfixes: ['Bilder können auch bei der Erstellung des Raums hochgeladen werden.', 'Stundenangaben Pdf generieren Bugs behoben.']
   },
   {
     version: '1.10',
     changes: [
       `Mitarbeiter können sich auch anmelden. Wenn ein Mitarbeiter ein Email adresse hat, kann er auf
         Passwort vergessen gehen und sich anschliessend anmelden.`,
-      `Release Notes sind im Menu verlinkt.`
+      'Release Notes sind im Menu verlinkt.'
     ],
     bugfixes: [
       `Neue Rolle für das Bearbeiten von Rollen. Was bedeutet, dass nun die Rolle Admin auch Rollen
@@ -44,55 +44,55 @@ export default [
   {
     version: '1.9',
     changes: [
-      `Zeitraum beim Roomdispositioner kann beliebig angepasst werden.`,
-      `Mobile Ansicht verbessert.`,
-      `Standort des Raums wird auf dem Export angezeigt.`
+      'Zeitraum beim Roomdispositioner kann beliebig angepasst werden.',
+      'Mobile Ansicht verbessert.',
+      'Standort des Raums wird auf dem Export angezeigt.'
     ]
   },
   {
     version: '1.8',
     changes: [
-      `In den Einstellungen kann für jede Leistungsart die Erfassungsarten angepasst werden.`,
-      `Überarbeitung des Designs vom Erfassen der Zeit für die Hofmitarbeiter.`,
-      `Die Zeit-Elemente können per Drag-n-Drp verschoben werden.`,
-      `Es können meherere Zeit-Elemente am gleichen Tag erstellt werden.`
+      'In den Einstellungen kann für jede Leistungsart die Erfassungsarten angepasst werden.',
+      'Überarbeitung des Designs vom Erfassen der Zeit für die Hofmitarbeiter.',
+      'Die Zeit-Elemente können per Drag-n-Drp verschoben werden.',
+      'Es können meherere Zeit-Elemente am gleichen Tag erstellt werden.'
     ]
   },
   {
     version: '1.7',
     changes: [
-      `Abweichende Rechnungsadresse für Kunden erfassen.`,
-      `Rechnungsadresse wird auf Wochenrapport ausgegeben.`,
-      `Kalenderwochen werden bei einem Datum-Eingabefeld angezeigt.`
+      'Abweichende Rechnungsadresse für Kunden erfassen.',
+      'Rechnungsadresse wird auf Wochenrapport ausgegeben.',
+      'Kalenderwochen werden bei einem Datum-Eingabefeld angezeigt.'
     ]
   },
   {
     version: '1.6',
-    changes: [`Kunden können ihre Rapporte einsehen`, `Neues Kundenporal Design.`]
+    changes: ['Kunden können ihre Rapporte einsehen', 'Neues Kundenporal Design.']
   },
   {
     version: '1.5',
     changes: [
-      `Pdf Erstellung von den Stundenangaben`,
-      `Stundenangaben des letzten Jahres können angesehen werden.`,
-      `Bilder hinzufügen zu Räume.`,
+      'Pdf Erstellung von den Stundenangaben',
+      'Stundenangaben des letzten Jahres können angesehen werden.',
+      'Bilder hinzufügen zu Räume.',
       'Gelöschte Räume anzeigen und wiederherstellen.'
     ]
   },
   {
     version: '1.4.3',
     changes: [
-      `Auswertung von Verpflegungen der Mitarbeiter pro Monat.`,
-      `Auswertung von Verpflegungen der Hofmitarbeiter pro Monat.`,
-      `Genauere Angaben für Frühstück, Mittagessen und Abendessen bei der Auswertung von Verpflegungen der Hofmitarbeiter.`
+      'Auswertung von Verpflegungen der Mitarbeiter pro Monat.',
+      'Auswertung von Verpflegungen der Hofmitarbeiter pro Monat.',
+      'Genauere Angaben für Frühstück, Mittagessen und Abendessen bei der Auswertung von Verpflegungen der Hofmitarbeiter.'
     ]
   },
   {
     version: '1.4.2',
-    changes: [`Bei den Auswertungen kann das Kundenverzeichnis als CSV-Datei exportiert werden.`],
+    changes: ['Bei den Auswertungen kann das Kundenverzeichnis als CSV-Datei exportiert werden.'],
     bugfixes: [
-      `PDFs können auch auf Mobile richtig erstellt und direkt im Browser geöffnet werden.`,
-      `Styling fixes für Zeiterfassung auf Mobile Geräten.`
+      'PDFs können auch auf Mobile richtig erstellt und direkt im Browser geöffnet werden.',
+      'Styling fixes für Zeiterfassung auf Mobile Geräten.'
     ]
   },
   {
@@ -107,33 +107,33 @@ export default [
     changes: [
       `Bei jedem Raum sieht man nun direkt von wann bis wann er belegt ist. Dies kann entweder pro Monat oder
        Jahr ausgewählt werden. Die Tabelle kann auch als Pdf exportiert werden.`,
-      `Auswertung der Verpflegungen für Mitarbeiter und Hofmitarbeiter über ein ganzes Jahr.`,
-      `Auswertung der Übernachtungen für jeden Mitarbeiter über ein ganzes Jahr.`
+      'Auswertung der Verpflegungen für Mitarbeiter und Hofmitarbeiter über ein ganzes Jahr.',
+      'Auswertung der Übernachtungen für jeden Mitarbeiter über ein ganzes Jahr.'
     ]
   },
   {
     version: '1.3.1',
     bugfixes: [
-      `Das Datum bei den Reservationen kann wieder bearbeitet werden.`,
-      `Reservations Statistiken stimmen wieder.`,
-      `Bug mit gelöschten Reservationen behoben`
+      'Das Datum bei den Reservationen kann wieder bearbeitet werden.',
+      'Reservations Statistiken stimmen wieder.',
+      'Bug mit gelöschten Reservationen behoben'
     ]
   },
   {
     version: '1.3.0',
     changes: [
-      `Es kann nun eine Jahresauswertung für einen Hofmitarbeiter erstellt werden.`,
-      `Als Admin sieht man nun bei jedem Hofmitarbeiter seine Stundenangaben und kann diese auch direkt ändern.`
+      'Es kann nun eine Jahresauswertung für einen Hofmitarbeiter erstellt werden.',
+      'Als Admin sieht man nun bei jedem Hofmitarbeiter seine Stundenangaben und kann diese auch direkt ändern.'
     ],
-    bugfixes: [`Betten werden wieder freigegeben, wenn eine Reservation gelöscht wird.`]
+    bugfixes: ['Betten werden wieder freigegeben, wenn eine Reservation gelöscht wird.']
   },
   {
     version: '1.2.1',
     changes: [
-      `Neues Design beim Dashboard.`,
-      `Die Daten des Dashboards werden nun nur noch einmal pro Stunde aktualisiert. Dafür ist die Ladezeit deutlich besser.`
+      'Neues Design beim Dashboard.',
+      'Die Daten des Dashboards werden nun nur noch einmal pro Stunde aktualisiert. Dafür ist die Ladezeit deutlich besser.'
     ],
-    bugfixes: [`Mahlzeiten bei Kunde wird nun auch auf dem Mitarbeiter Monatsrapport angezeigt.`]
+    bugfixes: ['Mahlzeiten bei Kunde wird nun auch auf dem Mitarbeiter Monatsrapport angezeigt.']
   },
   {
     version: '1.2.0',
@@ -145,8 +145,8 @@ export default [
           dem Raum gelöscht, sonder ist dort weiterhin ersichtlich.`,
       `Im Raumplaner gibt es nun eine optische Unterscheidung bei Auswählen des Mitarbeiters, zwischen
           einem Mitarbeiter und einem Gast.`,
-      `Neue Änderungen werden von nun an immer in einem Popup wie diesem hier angezeigt.`
+      'Neue Änderungen werden von nun an immer in einem Popup wie diesem hier angezeigt.'
     ],
-    bugfixes: [`Es können wieder Mitarbeiter zu einer Reservation hinzugefügt werden.`]
+    bugfixes: ['Es können wieder Mitarbeiter zu einer Reservation hinzugefügt werden.']
   }
 ]

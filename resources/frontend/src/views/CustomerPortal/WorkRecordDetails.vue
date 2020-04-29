@@ -1,7 +1,9 @@
 <template>
   <v-container>
     <div class="d-flex flex-wrap">
-      <h1 class="display-1">Arbeiten im {{(new Date()).getFullYear()}}</h1>
+      <h1 class="display-1">
+        Arbeiten im {{ (new Date()).getFullYear() }}
+      </h1>
       <v-btn
         v-if="!editMode && $store.getters.isEditTime"
         color="primary"
@@ -9,18 +11,23 @@
         class="ml-auto mt-3"
         @click="toggleEditMode"
       >
-        <v-icon class="mr-2">edit</v-icon>Bearbeiten
+        <v-icon class="mr-2">
+          edit
+        </v-icon>Bearbeiten
       </v-btn>
     </div>
     <h2
       class="mb-4 headline pre-wrap-text"
-    >{{ $store.getters.isEditTime ? $store.getters.settings.hourrecordValid : $store.getters.settings.hourrecordInvalid}}</h2>
+    >
+      {{ $store.getters.isEditTime ? $store.getters.settings.hourrecordValid :
+        $store.getters.settings.hourrecordInvalid }}
+    </h2>
     <v-form ref="form">
       <week
         v-for="(week, index) of weeks"
+        :key="index"
         :week="week"
         :cultures="cultures"
-        :key="index"
         :year="$moment().format('YYYY')"
         :edit="editMode"
         @input="w => (week = w)"
@@ -28,28 +35,54 @@
       ></week>
     </v-form>
     <v-row class="px-3">
-      <v-col cols="12" class="pa-2">
+      <v-col
+        cols="12"
+        class="pa-2"
+      >
         <v-alert
           :value="!allValid && trySave"
           type="error"
-        >Überprüffen sie ob überall eine Kultur/Arbeit ausgewählt wurde.</v-alert>
+        >
+          Überprüffen sie ob überall eine Kultur/Arbeit ausgewählt wurde.
+        </v-alert>
       </v-col>
     </v-row>
-    <div v-if="editMode || $store.getters.isEditTime" class="d-flex flex-wrap">
-      <v-btn v-if="editMode" class="mb-4" to="/kundenportal/erfassen" color="primary" depressed>
-        <v-icon class="mr-2">keyboard_arrow_left</v-icon>Zur Wochenauswahl
+    <div
+      v-if="editMode || $store.getters.isEditTime"
+      class="d-flex flex-wrap"
+    >
+      <v-btn
+        v-if="editMode"
+        class="mb-4"
+        to="/kundenportal/erfassen"
+        color="primary"
+        depressed
+      >
+        <v-icon class="mr-2">
+          keyboard_arrow_left
+        </v-icon>Zur Wochenauswahl
       </v-btn>
       <v-btn
+        v-if="editMode"
         color="primary"
         class="mb-4 mr-2 ml-sm-auto ml-0"
         outlined
         @click="addHourrecordDialog = true"
-        v-if="editMode"
       >
-        <v-icon class="mr-2">add</v-icon>Woche/Kultur hinzufügen
+        <v-icon class="mr-2">
+          add
+        </v-icon>Woche/Kultur hinzufügen
       </v-btn>
-      <v-btn v-if="editMode" class="mb-4" color="primary" depressed @click="saveAll">
-        <v-icon class="mr-2">check</v-icon>Fertig
+      <v-btn
+        v-if="editMode"
+        class="mb-4"
+        color="primary"
+        depressed
+        @click="saveAll"
+      >
+        <v-icon class="mr-2">
+          check
+        </v-icon>Fertig
       </v-btn>
       <v-btn
         v-else-if="weeksLength > 6"
@@ -58,7 +91,9 @@
         class="mb-4 ml-auto"
         @click="toggleEditMode"
       >
-        <v-icon class="mr-2">edit</v-icon>Bearbeiten
+        <v-icon class="mr-2">
+          edit
+        </v-icon>Bearbeiten
       </v-btn>
     </div>
     <add-hourrecord
@@ -94,12 +129,7 @@ export default {
   computed: {
     allValid() {
       if (this.weeks.length === 0) return false
-      for (let week in this.weeks) {
-        for (let culture of week) {
-          // if (!culture.hours) return false
-          if (!culture.culture) return false
-        }
-      }
+      if (this.weeks.find((week) => week.find((culture) => !culture.culture))) return false
       return true
     },
     isEditModeEnabled() {
@@ -109,7 +139,7 @@ export default {
       return Object.keys(this.weeks).length
     },
     weeksFlat() {
-      return Object.keys(this.weeks).flatMap(week => this.weeks[week])
+      return Object.keys(this.weeks).flatMap((week) => this.weeks[week])
     }
   },
   watch: {
@@ -122,18 +152,18 @@ export default {
   },
   mounted() {
     this.editMode = this.isEditModeEnabled
-    this.axios.get('/culture').then(response => {
+    this.axios.get('/culture').then((response) => {
       this.cultures = response.data
     })
     if (this.weeks.length === 0) {
       this.$store.commit('isLoading', true)
-      this.axios.get('/hourrecord').then(response => {
+      this.axios.get('/hourrecord').then((response) => {
         this.weeks = response.data
         this.$store.commit('isLoading', false)
       })
     }
     if (!this.$store.getters.settings.hourrecordStartDate) {
-      this.axios.get('/settings/hourrecords').then(response => {
+      this.axios.get('/settings/hourrecords').then((response) => {
         this.$store.commit('settings', response.data)
       })
     }
@@ -166,7 +196,7 @@ export default {
               'Fehler beim Speichern',
               `Leider ist beim Speichern ein unbekannter Fehler aufgetreten.
                 Bitte versuchen Sie es später erneut oder melden Sie sich bei uns.`,
-              'error'
+              'error',
             )
           })
       } else {

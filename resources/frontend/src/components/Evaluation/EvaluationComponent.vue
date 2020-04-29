@@ -6,15 +6,17 @@
     >
       <v-expansion-panel-header>
         <p class="header-text mb-1">
-          <v-icon class="account-icon mr-2">{{evaluationGroup.icon}}</v-icon>
-          {{evaluationGroup.name}}
+          <v-icon class="account-icon mr-2">
+            {{ evaluationGroup.icon }}
+          </v-icon>
+          {{ evaluationGroup.name }}
         </p>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <div>
           <evaluation-element
-            v-for="(evaluation, index) of evaluationGroup.evaluations"
-            :key="`e-${index}`"
+            v-for="(evaluation, i) of evaluationGroup.evaluations"
+            :key="`e-${i}`"
             :evaluation="evaluation"
           ></evaluation-element>
         </div>

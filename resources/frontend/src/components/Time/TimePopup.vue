@@ -1,11 +1,11 @@
 <template>
   <time-type-form
     :open="open"
+    class="no-select"
+    :edit="!!timerecord"
     @save="$refs.form.save()"
     @cancel="open = false"
     @deleteTimerecord="$refs.form.deleteTimerecord()"
-    class="no-select"
-    :edit="!!timerecord"
   >
     <timerecord-form
       v-if="open"
@@ -30,10 +30,19 @@ export default {
     TimerecordForm
   },
   props: {
-    date: String,
+    date: {
+      type: String,
+      default: null
+    },
     value: Boolean,
-    settings: Object,
-    urlWorkerParam: String
+    settings: {
+      type: Object,
+      default: null
+    },
+    urlWorkerParam: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {

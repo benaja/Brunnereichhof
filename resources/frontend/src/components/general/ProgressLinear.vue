@@ -1,6 +1,10 @@
 <template>
   <div class="progress-bar-container">
-    <v-progress-linear v-if="loading" indeterminate :color="color"></v-progress-linear>
+    <v-progress-linear
+      v-if="loading"
+      indeterminate
+      :color="color"
+    ></v-progress-linear>
   </div>
 </template>
 

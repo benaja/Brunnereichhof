@@ -1,17 +1,41 @@
 <template>
-  <v-card class="release-notes-card" elevation="7" v-if="open">
+  <v-card
+    v-if="open"
+    class="release-notes-card"
+    elevation="7"
+  >
     <p class="headline">
       Neue Version
-      <span class="green--text">{{release.version}}</span>
-      <v-btn text icon small class="float-right" @click="closeReleaseNotes">
+      <span class="green--text">{{ release.version }}</span>
+      <v-btn
+        text
+        icon
+        small
+        class="float-right"
+        @click="closeReleaseNotes"
+      >
         <v-icon>close</v-icon>
       </v-btn>
     </p>
     <template v-if="release.changes && release.changes.length">
-      <p class="title">Änderungen</p>
-      <p v-for="(change, index) of release.changes" :key="index">{{change}}</p>
+      <p class="title">
+        Änderungen
+      </p>
+      <p
+        v-for="(change, index) of release.changes"
+        :key="index"
+      >
+        {{ change }}
+      </p>
     </template>
-    <v-btn class="float-right" text color="primary" to="/release-notes">Mehr infos</v-btn>
+    <v-btn
+      class="float-right"
+      text
+      color="primary"
+      to="/release-notes"
+    >
+      Mehr infos
+    </v-btn>
   </v-card>
 </template>
 
@@ -20,22 +44,24 @@ import releases from '@/release-notes'
 
 export default {
   name: 'ReleaseNotes',
-  mounted() {
-    let releaseNotesCard = JSON.parse(localStorage.getItem('releaseNotesCard'))
-    if (releaseNotesCard && releaseNotesCard.closed && releaseNotesCard.version === this.release.version) {
-      this.open = false
-    }
-  },
   data() {
     return {
       open: true,
       release: releases[0]
     }
   },
+  mounted() {
+    const releaseNotesCard = JSON.parse(localStorage.getItem('releaseNotesCard'))
+    if (releaseNotesCard
+      && releaseNotesCard.closed
+      && releaseNotesCard.version === this.release.version) {
+      this.open = false
+    }
+  },
   methods: {
     closeReleaseNotes() {
       this.open = false
-      let releaseNotesCard = {
+      const releaseNotesCard = {
         closed: true,
         version: this.release.version
       }

@@ -1,26 +1,52 @@
 <template>
   <v-row>
-    <v-col cols="12" md="6" class="py-0">
+    <v-col
+      cols="12"
+      md="6"
+      class="py-0"
+    >
       <input-field
-        label="Strasse + Nr"
         v-model="value.street"
-        @input="$emit('change')"
+        label="Strasse + Nr"
         :readonly="readonly"
+        @input="$emit('change')"
       ></input-field>
     </v-col>
-    <v-col cols="12" md="6" class="py-0">
+    <v-col
+      cols="12"
+      md="6"
+      class="py-0"
+    >
       <input-field
-        label="Zusatz"
         v-model="value.addition"
-        @input="$emit('change')"
+        label="Zusatz"
         :readonly="readonly"
+        @input="$emit('change')"
       ></input-field>
     </v-col>
-    <v-col cols="12" md="6" class="py-0">
-      <input-field label="PLZ" v-model="value.plz" @input="$emit('change')" :readonly="readonly"></input-field>
+    <v-col
+      cols="12"
+      md="6"
+      class="py-0"
+    >
+      <input-field
+        v-model="value.plz"
+        label="PLZ"
+        :readonly="readonly"
+        @input="$emit('change')"
+      ></input-field>
     </v-col>
-    <v-col cols="12" md="6" class="py-0">
-      <input-field label="Ort" v-model="value.place" @input="$emit('change')" :readonly="readonly"></input-field>
+    <v-col
+      cols="12"
+      md="6"
+      class="py-0"
+    >
+      <input-field
+        v-model="value.place"
+        label="Ort"
+        :readonly="readonly"
+        @input="$emit('change')"
+      ></input-field>
     </v-col>
   </v-row>
 </template>
@@ -33,15 +59,11 @@ export default {
     InputField
   },
   props: {
-    value: Object,
+    value: {
+      type: Object,
+      default: () => ({})
+    },
     readonly: Boolean
-  },
-  methods: {
-    test() {
-      console.log('test')
-    }
   }
 }
 </script>
-
-<style></style>

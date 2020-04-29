@@ -47,27 +47,27 @@
 </template>
 
 <script>
-import CardLayout from '@/components/general/CardLayout';
-import SelectInventar from '@/components/Roomdispositioner/Inventar/SelectInventar';
-import { rules } from '@/utils';
+import CardLayout from '@/components/general/CardLayout'
+import SelectInventar from '@/components/Roomdispositioner/Inventar/SelectInventar'
+import { rules } from '@/utils'
 
 export default {
   name: 'AddBed',
   components: {
     CardLayout,
-    SelectInventar,
+    SelectInventar
   },
   props: {
-    value: Boolean,
+    value: Boolean
   },
   data() {
     return {
       bed: {
-        inventars: [],
+        inventars: []
       },
       rules,
-      isLoading: false,
-    };
+      isLoading: false
+    }
   },
   methods: {
     save() {
@@ -75,15 +75,15 @@ export default {
         this.axios
           .post('/beds', this.bed)
           .then((response) => {
-            this.$store.commit('addBed', response.data);
-            this.$emit('add', response.data);
-            this.$emit('input', false);
+            this.$store.commit('addBed', response.data)
+            this.$emit('add', response.data)
+            this.$emit('input', false)
           })
           .catch(() => {
-            this.$swal('Fehler', 'Es ist ein unbekannter Fehler beim Speichern aufgetreten.', 'error');
-          });
+            this.$swal('Fehler', 'Es ist ein unbekannter Fehler beim Speichern aufgetreten.', 'error')
+          })
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>

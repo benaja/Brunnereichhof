@@ -19,7 +19,9 @@
               <v-list-item-content>
                 <v-list-item-title
                   class="title"
-                >{{$auth.user().firstname}} {{$auth.user().lastname}}</v-list-item-title>
+                >
+                  {{ $auth.user().firstname }} {{ $auth.user().lastname }}
+                </v-list-item-title>
                 <v-list-item-subtitle>{{ $auth.user().email }}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -27,39 +29,51 @@
 
           <v-divider></v-divider>
 
-          <v-list nav dense>
+          <v-list
+            nav
+            dense
+          >
             <template v-for="(navItem, index) of navItems">
               <v-list-item
-                link
-                :key="index"
-                :to="navItem.to"
                 v-if="navItem.show && !navItem.items"
+                :key="index"
+                link
+                :to="navItem.to"
                 color="primary"
               >
                 <v-list-item-icon>
-                  <v-icon>{{navItem.icon}}</v-icon>
+                  <v-icon>{{ navItem.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>{{navItem.text}}</v-list-item-title>
+                <v-list-item-title>{{ navItem.text }}</v-list-item-title>
               </v-list-item>
-              <v-list-group v-else-if="navItem.show" :key="index">
+              <v-list-group
+                v-else-if="navItem.show"
+                :key="index"
+              >
                 <template v-slot:activator>
-                  <v-list-item link :to="navItem.to" :class="`ma-0 ${navItem.to ? '' : 'no-link'}`">
+                  <v-list-item
+                    link
+                    :to="navItem.to"
+                    :class="`ma-0 ${navItem.to ? '' : 'no-link'}`"
+                  >
                     <v-list-item-icon>
-                      <v-icon :class="navItem.to">{{navItem.icon}}</v-icon>
+                      <v-icon :class="navItem.to">
+                        {{ navItem.icon }}
+                      </v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>{{navItem.text}}</v-list-item-title>
+                    <v-list-item-title>{{ navItem.text }}</v-list-item-title>
                   </v-list-item>
                 </template>
                 <v-list-item
                   v-for="(navSubItem, i) of navItem.items.filter(item => item.show)"
+                  :key="`${index}-${i}`"
                   link
                   :to="navSubItem.to"
-                  :key="`${index}-${i}`"
                 >
                   <v-list-item-icon>
-                    <v-icon>{{navSubItem.icon}}</v-icon>
+                    <v-icon>{{ navSubItem.icon }}</v-icon>
                   </v-list-item-icon>
-                  <v-list-item-title>{{navSubItem.text}}</v-list-item-title>
+                  <v-list-item-title>{{ navSubItem.text }}</v-list-item-title>
                 </v-list-item>
               </v-list-group>
             </template>
@@ -73,8 +87,13 @@
                 class="px-2"
                 @click="$auth.logout(); $router.push('/login')"
               >
-                <v-icon class="mr-0">exit_to_app</v-icon>
-                <span v-if="navDrawer" class="ml-2">Logout</span>
+                <v-icon class="mr-0">
+                  exit_to_app
+                </v-icon>
+                <span
+                  v-if="navDrawer"
+                  class="ml-2"
+                >Logout</span>
               </v-btn>
             </div>
           </template>
@@ -82,14 +101,18 @@
         <div class="router-view">
           <router-view />
         </div>
-        <!-- <loading-page v-if="$store.getters.isLoading"></loading-page> -->
-        <div class="alerts" v-if="$store">
+        <div
+          v-if="$store"
+          class="alerts"
+        >
           <v-alert
-            class="ma-3"
             v-for="alert of alerts"
             :key="alert.key"
+            class="ma-3"
             :type="alert.type || 'success'"
-          >{{ alert.text }}</v-alert>
+          >
+            {{ alert.text }}
+          </v-alert>
         </div>
       </template>
     </v-app>
@@ -98,14 +121,12 @@
 
 <script>
 import NavigationBar from '@/components/NavigationBar'
-import LoadingPage from '@/components/general/LoadingPage'
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
-    NavigationBar,
-    LoadingPage
+    NavigationBar
   },
   data() {
     return {
@@ -191,7 +212,7 @@ export default {
           fixArrow: true,
           show: this.hasPermission(
             ['superadmin'],
-            ['customer_read', 'employee_read', 'employee_preview_read', 'worker_read', 'roomdispositioner_read']
+            ['customer_read', 'employee_read', 'employee_preview_read', 'worker_read', 'roomdispositioner_read'],
           ),
           items: [
             {

@@ -4,15 +4,15 @@
     <v-divider class="mb-2"></v-divider>
     <p>
       <span class="font-weight-bold">Freie Plätze:</span>
-      <span class="float-right">{{stats.freePlaces}}</span>
+      <span class="float-right">{{ stats.freePlaces }}</span>
     </p>
     <p>
       <span class="font-weight-bold">Besetzte Plätze:</span>
-      <span class="float-right">{{stats.usedPlaces}}</span>
+      <span class="float-right">{{ stats.usedPlaces }}</span>
     </p>
     <p>
       <span class="font-weight-bold">Totale Plätze:</span>
-      <span class="float-right">{{stats.totalPlaces}}</span>
+      <span class="float-right">{{ stats.totalPlaces }}</span>
     </p>
   </div>
 </template>
@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     getStats() {
-      this.axios.get('/stats/roomdispositioner').then(response => {
+      this.axios.get('/stats/roomdispositioner').then((response) => {
         this.stats = response.data
       })
     }

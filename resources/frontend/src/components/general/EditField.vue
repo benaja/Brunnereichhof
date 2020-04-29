@@ -1,6 +1,11 @@
 <template>
   <div class="px-1">
-    <p v-if="label" class="label grey--text text--darken-3">{{ label }}</p>
+    <p
+      v-if="label"
+      class="label grey--text text--darken-3"
+    >
+      {{ label }}
+    </p>
     <v-text-field
       v-model="text"
       :class="['no-label', classes, {'fix-height': !outline}]"

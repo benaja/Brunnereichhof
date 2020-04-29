@@ -1,6 +1,11 @@
 <template>
   <div class="edit-select px-1 pt-1">
-    <p v-if="label" class="mb-0">{{ label }}</p>
+    <p
+      v-if="label"
+      class="mb-0"
+    >
+      {{ label }}
+    </p>
     <v-select
       v-model="selectedItem"
       :items="items"
@@ -67,10 +72,10 @@ export default {
   },
   computed: {
     selectedItem: {
-      get: function() {
+      get() {
         return this.value
       },
-      set: function(value) {
+      set(value) {
         this.$emit('input', value)
       }
     },

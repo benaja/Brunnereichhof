@@ -1,38 +1,34 @@
 import axios from 'axios'
+import Vue from 'vue'
 import router from './router'
 import store from './store'
-import Vue from 'vue'
 
 axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.interceptors.response.use(
-  response => {
-    return response
-  },
-  error => {
+  (response) => response,
+  (error) => {
     error.includes = (string, key = null) => {
       if (!error.response) return false
       if (
-        key &&
-        error.response.data &&
-        error.response.data.errors &&
-        error.response.data.errors[key] &&
-        error.response.data.errors[key].includes(string)
+        key
+        && error.response.data
+        && error.response.data.errors
+        && error.response.data.errors[key]
+        && error.response.data.errors[key].includes(string)
       ) {
         return true
-      } else {
-        for (let err in error.response.data.errors) {
-          if (error.response.data.errors[err].includes(string)) return true
-        }
       }
+      for (const err in error.response.data.errors) {
+        if (error.response.data.errors[err].includes(string)) return true
+      }
+
       if (error.response.data.error && error.response.data.error.includes(string)) return true
       if (error.response.data.message && error.response.data.message.includes(string)) return true
       if (error.response.data && typeof error.response.data !== 'object' && error.response.data.includes(string)) return true
       return false
     }
 
-    error.status = status => {
-      return error.response && error.response.status === status
-    }
+    error.status = (status) => error.response && error.response.status === status
 
     if (error.includes('token_not_provided')) {
       store.commit('isLoading', false)
@@ -48,7 +44,7 @@ axios.interceptors.response.use(
       Vue.swal(
         'Benuter deaktiviert',
         'Dein Benutzer wurde deaktiviert. Bitte kontaktiere Steffan Brunner um deinen Benutzer wieder zu aktivieren.',
-        'error'
+        'error',
       )
       store.commit('isLoading', false)
     } else if (error.status(403)) {
@@ -57,7 +53,7 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 export default axios

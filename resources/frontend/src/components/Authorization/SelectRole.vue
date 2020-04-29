@@ -1,8 +1,8 @@
 <template>
   <div>
     <Select
-      :items="roles"
       v-model="role"
+      :items="roles"
       label="Rolle"
       item-text="name"
       item-value="id"
@@ -10,11 +10,17 @@
       @change="$emit('change')"
     ></Select>
     <CreateRole
+      v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
       v-model="isCreateRolePopupOpen"
       @addRole="addRole"
-      v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
     >
-      <v-btn slot="activator" text color="primary">Neue Rolle erstellen</v-btn>
+      <v-btn
+        slot="activator"
+        text
+        color="primary"
+      >
+        Neue Rolle erstellen
+      </v-btn>
     </CreateRole>
   </div>
 </template>
@@ -49,13 +55,16 @@ export default {
   computed: {
     ...mapGetters(['roles']),
     role: {
-      get: function() {
+      get() {
         return this.value
       },
-      set: function(value) {
+      set(value) {
         this.$emit('input', value)
       }
     }
+  },
+  mounted() {
+    this.$store.dispatch('fetchRoles')
   },
   methods: {
     addRole(role) {
@@ -63,9 +72,6 @@ export default {
       this.role = role.id
       this.$emit('change')
     }
-  },
-  mounted() {
-    this.$store.dispatch('fetchRoles')
   }
 }
 </script>

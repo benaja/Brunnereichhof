@@ -2,67 +2,109 @@
   <div>
     <v-container class="form">
       <v-row>
-        <v-col cols="12" class="mb-3">
-          <h2 class="text-left display-1">Informationen</h2>
+        <v-col
+          cols="12"
+          class="mb-3"
+        >
+          <h2 class="text-left display-1">
+            Informationen
+          </h2>
           <v-divider></v-divider>
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <edit-field
-            label="Vorname"
             v-model="worker.firstname"
+            label="Vorname"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
             @change="change('firstname')"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
           ></edit-field>
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <edit-field
-            label="Nachname"
             v-model="worker.lastname"
+            label="Nachname"
+            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
             @change="change('lastname')"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
           ></edit-field>
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <edit-field
-            label="Email"
             v-model="worker.email"
-            @change="change('email')"
+            label="Email"
             :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+            @change="change('email')"
           ></edit-field>
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <select-role
             v-model="worker.role_id"
-            @change="change('role_id')"
             :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+            @change="change('role_id')"
           ></select-role>
         </v-col>
         <v-col cols="12">
           <v-switch
+            v-model="worker.isActive"
             :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
             label="Aktiv"
-            v-model="worker.isActive"
             @change="change('isActive')"
           ></v-switch>
         </v-col>
         <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
-          <v-col cols="12" class="mb-3">
-            <h2 class="text-left display-1">Aktionen</h2>
+          <v-col
+            cols="12"
+            class="mb-3"
+          >
+            <h2 class="text-left display-1">
+              Aktionen
+            </h2>
             <v-divider></v-divider>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-btn color="primary" @click="resetPassword" text>Passwort zurücksetzten</v-btn>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-btn
+              color="primary"
+              text
+              @click="resetPassword"
+            >
+              Passwort zurücksetzten
+            </v-btn>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col
+            cols="12"
+            md="6"
+          >
             <p class="text-left">
-              <v-btn color="red" class="white--text" @click="deleteWorker">Hofmitarbeiter Löschen</v-btn>
+              <v-btn
+                color="red"
+                class="white--text"
+                @click="deleteWorker"
+              >
+                Hofmitarbeiter Löschen
+              </v-btn>
             </p>
           </v-col>
         </template>
       </v-row>
     </v-container>
     <div class="time-form">
-      <h2 class="text-center display-1 time-title py-4">Stundenangaben bearbeiten</h2>
+      <h2 class="text-center display-1 time-title py-4">
+        Stundenangaben bearbeiten
+      </h2>
       <TimeView :worker-id="this.$route.params.id"></TimeView>
     </div>
   </div>
@@ -73,7 +115,7 @@ import SelectRole from '@/components/Authorization/SelectRole'
 import TimeView from '@/views/Time'
 
 export default {
-  name: 'worker',
+  name: 'Worker',
   components: {
     SelectRole,
     TimeView
@@ -81,7 +123,7 @@ export default {
   data() {
     return {
       worker: {},
-      apiUrl: '/worker/' + this.$route.params.id,
+      apiUrl: `/worker/${this.$route.params.id}`,
       outline: {
         firstname: true,
         lastname: false,
@@ -90,14 +132,14 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(this.apiUrl).then(response => {
+    this.axios.get(this.apiUrl).then((response) => {
       this.worker = response.data
     })
   },
   methods: {
     change(key) {
       this.axios
-        .patch('/worker/' + this.$route.params.id, {
+        .patch(`/worker/${this.$route.params.id}`, {
           [key]: this.worker[key]
         })
         .catch(() => {
@@ -106,12 +148,12 @@ export default {
     },
     resetPassword() {
       this.axios
-        .post(process.env.VUE_APP_API_URL + 'resetpassword/' + this.$route.params.id)
+        .post(`${process.env.VUE_APP_API_URL}resetpassword/${this.$route.params.id}`)
         .then(() => {
           this.$swal(
             'Passwort wurde zurückgesetzt',
             `${this.worker.firstname} ${this.worker.lastname} hat eine Email mit dem neuen Passwort erhalten.`,
-            'success'
+            'success',
           )
         })
         .catch(() => {
@@ -128,7 +170,7 @@ export default {
         .patch(this.apiUrl, {
           type_id: this.worker.type_id === 3 ? 2 : 3
         })
-        .then(response => {
+        .then((response) => {
           this.worker = response.data
         })
         .catch(() => {

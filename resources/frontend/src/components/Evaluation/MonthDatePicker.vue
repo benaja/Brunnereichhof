@@ -1,6 +1,9 @@
 <template>
   <v-row>
-    <v-col cols="12" md="8">
+    <v-col
+      cols="12"
+      md="8"
+    >
       <date-picker
         v-model="date"
         :type="selectYear ? 'year': 'month'"
@@ -8,8 +11,15 @@
         :color="color"
       ></date-picker>
     </v-col>
-    <v-col cols="12" md="4">
-      <v-switch v-model="selectYear" label="Ganzes Jahr" :color="color"></v-switch>
+    <v-col
+      cols="12"
+      md="4"
+    >
+      <v-switch
+        v-model="selectYear"
+        label="Ganzes Jahr"
+        :color="color"
+      ></v-switch>
     </v-col>
   </v-row>
 </template>
@@ -22,7 +32,10 @@ export default {
     DatePicker
   },
   props: {
-    value: String,
+    value: {
+      type: String,
+      default: null
+    },
     color: {
       type: String,
       default: 'primary'
@@ -32,6 +45,14 @@ export default {
     return {
       selectYear: false,
       date: null
+    }
+  },
+  watch: {
+    selectYear() {
+      this.submitInput()
+    },
+    date() {
+      this.submitInput()
     }
   },
   mounted() {
@@ -44,17 +65,6 @@ export default {
     submitInput() {
       this.$emit('input', `${this.selectYear ? 'year' : 'month'}/${this.date}`)
     }
-  },
-  watch: {
-    selectYear() {
-      this.submitInput()
-    },
-    date() {
-      this.submitInput()
-    }
   }
 }
 </script>
-
-<style>
-</style>

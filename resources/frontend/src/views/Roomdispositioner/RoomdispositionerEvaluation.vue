@@ -1,10 +1,25 @@
 <template>
   <v-container>
     <h1>Auswertung</h1>
-    <v-radio-group v-model="dateType" row>
-      <v-radio label="Woche" value="date" color="blue"></v-radio>
-      <v-radio label="Monat" value="month" color="blue"></v-radio>
-      <v-radio label="Jahr" value="year" color="blue"></v-radio>
+    <v-radio-group
+      v-model="dateType"
+      row
+    >
+      <v-radio
+        label="Woche"
+        value="date"
+        color="blue"
+      ></v-radio>
+      <v-radio
+        label="Monat"
+        value="month"
+        color="blue"
+      ></v-radio>
+      <v-radio
+        label="Jahr"
+        value="year"
+        color="blue"
+      ></v-radio>
     </v-radio-group>
     <date-picker
       v-model="date"
@@ -15,18 +30,31 @@
       @input="updateStats"
     ></date-picker>
 
-    <v-tabs v-model="tab" color="blue">
+    <v-tabs
+      v-model="tab"
+      color="blue"
+    >
       <v-tab>Übernachtungen</v-tab>
       <v-tab>Einquartierungen</v-tab>
       <v-tab>Zimmerwechsel</v-tab>
     </v-tabs>
-    <progress-linear :loading="isLoading.rooms || isLoadingStats" indeterminate color="blue"></progress-linear>
+    <progress-linear
+      :loading="isLoading.rooms || isLoadingStats"
+      indeterminate
+      color="blue"
+    ></progress-linear>
 
     <v-tabs-items v-model="tab">
       <v-tab-item>
-        <p class="subtitle-1 mt-3">Wähle die gewünschten Zimmer aus</p>
+        <p class="subtitle-1 mt-3">
+          Wähle die gewünschten Zimmer aus
+        </p>
         <v-row>
-          <v-col cols="12" md="6" lg="4">
+          <v-col
+            cols="12"
+            md="6"
+            lg="4"
+          >
             <v-checkbox
               v-model="selectAllRooms"
               label="Alle auswählen"
@@ -34,7 +62,13 @@
               class="pt-0 mt-0"
             ></v-checkbox>
           </v-col>
-          <v-col v-for="room of rooms" :key="room.id" cols="12" md="6" lg="4">
+          <v-col
+            v-for="room of rooms"
+            :key="room.id"
+            cols="12"
+            md="6"
+            lg="4"
+          >
             <v-checkbox
               v-model="selectedRooms"
               :label="`${room.name} | ${room.number}`"
@@ -52,14 +86,20 @@
           class="white--text"
           @click="generateRoomPdf"
         >
-          <v-icon class="mr-2">picture_as_pdf</v-icon>PDF generieren
+          <v-icon class="mr-2">
+            picture_as_pdf
+          </v-icon>PDF generieren
         </v-btn>
       </v-tab-item>
       <v-tab-item>
-        <p class="headline">{{quartering}}</p>
+        <p class="headline">
+          {{ quartering }}
+        </p>
       </v-tab-item>
       <v-tab-item>
-        <p class="headline">{{roomChanges}}</p>
+        <p class="headline">
+          {{ roomChanges }}
+        </p>
       </v-tab-item>
     </v-tabs-items>
   </v-container>
@@ -94,7 +134,7 @@ export default {
       },
       set(value) {
         if (value) {
-          this.selectedRooms = this.rooms.map(r => r.id)
+          this.selectedRooms = this.rooms.map((r) => r.id)
         } else {
           this.selectedRooms = []
         }
@@ -115,7 +155,7 @@ export default {
   methods: {
     generateRoomPdf() {
       this.isLoadingPdf = true
-      downloadFile(`pdf/sleep-over/rooms`, { rooms: this.selectedRooms, type: this.dateType, date: this.date })
+      downloadFile('pdf/sleep-over/rooms', { rooms: this.selectedRooms, type: this.dateType, date: this.date })
         .catch(() => {
           this.$store.dispatch('error', 'Fehler bei der Erstellung des PDFs.')
         })
@@ -131,7 +171,7 @@ export default {
       }
     },
     getStats(url, name) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this.isLoadingStats = true
         this.axios
           .get(url, {
@@ -140,7 +180,7 @@ export default {
               date: this.date
             }
           })
-          .then(response => {
+          .then((response) => {
             resolve(response.data)
           })
           .catch(() => {

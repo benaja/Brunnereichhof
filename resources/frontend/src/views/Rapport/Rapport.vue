@@ -1,61 +1,102 @@
 <template>
-  <div v-if="rapport.customer" class="px-3">
+  <div
+    v-if="rapport.customer"
+    class="px-3"
+  >
     <h1
       class="text-center my-4"
-    >Rapport für "{{rapport.customer.firstname}} {{rapport.customer.lastname}}" der Woche {{getFormatedWeek()}}</h1>
+    >
+      Rapport für "{{ rapport.customer.firstname }} {{ rapport.customer.lastname }}"
+      der Woche {{ getFormatedWeek() }}
+    </h1>
     <v-row>
       <!-- Controls -->
-      <v-col cols="12" md="3" class="text-center">
+      <v-col
+        cols="12"
+        md="3"
+        class="text-center"
+      >
         <v-btn
           color="primary"
-          @click="isEmployeePopupOpen = true"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          @click="isEmployeePopupOpen = true"
         >
           <v-icon>edit</v-icon>
           <span class="ml-3">Mitarbeiter bearbeiten</span>
         </v-btn>
       </v-col>
-      <v-col cols="12" md="3" class="text-center">
+      <v-col
+        cols="12"
+        md="3"
+        class="text-center"
+      >
         <v-btn
-          color="primary"
           slot="activator"
-          @click="selectProjectsModel = true"
+          color="primary"
           :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          @click="selectProjectsModel = true"
         >
           <v-icon>edit</v-icon>
           <span class="ml-3">Projekte bearbeiten</span>
         </v-btn>
       </v-col>
-      <v-col cols="12" md="2" class="text-center">
-        <v-btn color="primary" @click="generatePdf">
+      <v-col
+        cols="12"
+        md="2"
+        class="text-center"
+      >
+        <v-btn
+          color="primary"
+          @click="generatePdf"
+        >
           <v-icon>picture_as_pdf</v-icon>
           <span class="ml-3">PDF generieren</span>
         </v-btn>
       </v-col>
-      <v-col cols="12" md="2" class="text-center">
+      <v-col
+        cols="12"
+        md="2"
+        class="text-center"
+      >
         <day-total v-model="dayTotalModel"></day-total>
       </v-col>
-      <v-col cols="12" md="2">
+      <v-col
+        cols="12"
+        md="2"
+      >
         <v-checkbox
-          label="Abgeschlossen"
           v-model="rapport.isFinished"
-          @change="change('isFinished')"
+          label="Abgeschlossen"
           class="is-finished ma-0"
           justify="center"
           :readonly="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          @change="change('isFinished')"
         ></v-checkbox>
       </v-col>
 
       <!-- Table -->
-      <v-col cols="12" class="elevation-1 table">
+      <v-col
+        cols="12"
+        class="elevation-1 table"
+      >
         <v-row>
-          <v-col cols="12" md="2" class="pl-2 d-none d-md-block">
-            <p class="font-weight-bold">Wochentag</p>
-            <p class="font-weight-bold pt-3 mt-4">Kommentar</p>
+          <v-col
+            cols="12"
+            md="2"
+            class="pl-2 d-none d-md-block"
+          >
+            <p class="font-weight-bold">
+              Wochentag
+            </p>
+            <p class="font-weight-bold pt-3 mt-4">
+              Kommentar
+            </p>
             <p
               class="font-weight-bold all-employees"
               :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
-            >Alle</p>
+            >
+              Alle
+            </p>
             <div
               v-for="rapportdetail of rapport.rapportdetails"
               :key="'e-' + rapportdetail[0].id"
@@ -64,18 +105,31 @@
             >
               <p
                 class="font-weight-bold"
-              >{{employees.find(e => e.id == rapportdetail[0].employee_id).lastname}} {{employees.find(e => e.id == rapportdetail[0].employee_id).firstname}}</p>
+              >
+                {{ employees.find(e => e.id == rapportdetail[0].employee_id).lastname }}
+                {{ employees.find(e => e.id == rapportdetail[0].employee_id).firstname }}
+              </p>
             </div>
-            <p class="font-weight-bold">Total</p>
+            <p class="font-weight-bold">
+              Total
+            </p>
           </v-col>
-          <v-col cols="12" md="10" class="pt-0">
-            <v-row row wrap v-if="rapportLoaded && rapport.rapportdetails.length > 0">
+          <v-col
+            cols="12"
+            md="10"
+            class="pt-0"
+          >
+            <v-row
+              v-if="rapportLoaded && rapport.rapportdetails.length > 0"
+              row
+              wrap
+            >
               <v-col
+                v-for="(rapportdetail, key) in rapportdetailsFiltered"
+                :key="key"
                 cols="12"
                 md="2"
                 class="pt-0"
-                v-for="(rapportdetail, key) in rapportdetailsFiltered"
-                :key="key"
               >
                 <rapport-day
                   :date="date.clone().add(rapportdetail[0].day, 'days')"
@@ -93,11 +147,21 @@
       </v-col>
       <v-col cols="12">
         <p
-          class="text-center mt-4"
           v-if="$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          class="text-center mt-4"
         >
-          <v-btn color="red" class="white--text mr-4" @click="deleteRapport">Löschen</v-btn>
-          <v-btn color="primary" class="save-button ml-4" @click="saveAll">
+          <v-btn
+            color="red"
+            class="white--text mr-4"
+            @click="deleteRapport"
+          >
+            Löschen
+          </v-btn>
+          <v-btn
+            color="primary"
+            class="save-button ml-4"
+            @click="saveAll"
+          >
             Speichern
             <loading-dots v-if="isSaving"></loading-dots>
           </v-btn>
@@ -110,21 +174,23 @@
         color="success"
         icon="check_circle"
         transition="slide-y-reverse-transition"
-      >Rapport erfolgreich gespeichert.</v-alert>
+      >
+        Rapport erfolgreich gespeichert.
+      </v-alert>
     </div>
     <edit-employees
       :employees="employees"
       :open="isEmployeePopupOpen"
-      :selectedEmployeesProp="selectedEmployees()"
-      :defaultProject="rapport.default_project_id"
+      :selected-employees-prop="selectedEmployees()"
+      :default-project="rapport.default_project_id"
       @removeEmployee="employeeId => removeEmployee(employeeId)"
       @addEmployee="rapportdetail => rapport.rapportdetails.push(rapportdetail)"
       @close="isEmployeePopupOpen = false"
     ></edit-employees>
     <select-projects
+      v-model="selectProjectsModel"
       :projects="projects"
       :rapport="rapport"
-      v-model="selectProjectsModel"
       @updatedProjects="updatedProjects => projects = updatedProjects"
     ></select-projects>
   </div>
@@ -167,19 +233,44 @@ export default {
       settings: {}
     }
   },
+  computed: {
+    totalHours() {
+      const days = [0, 0, 0, 0, 0, 0]
+      for (const rapportdetail of this.rapportdetails) {
+        for (const [index, day] of rapportdetail.entries()) {
+          days[index] += Number(day.hours)
+        }
+      }
+      return days
+    }
+  },
+  watch: {
+    selectProjectsModel() {
+      if (!this.selectProjectsModel && this.rapport.rapportdetails.length === 0) {
+        this.isEmployeePopupOpen = true
+      }
+    },
+    'rapport.rapportdetails': function () {
+      const allrapportdetails = this.rapport.rapportdetails.flat()
+      this.rapportdetailsFiltered = allrapportdetails.reduce((rv, x) => {
+        (rv[x.day] = rv[x.day] || []).push(x)
+        return rv
+      }, {})
+    }
+  },
   mounted() {
     this.$store.commit('isLoading', true)
     this.axios
-      .get('rapport/' + this.$route.params.id)
-      .then(response => {
+      .get(`rapport/${this.$route.params.id}`)
+      .then((response) => {
         this.rapport = response.data.rapport
         this.date = moment(this.rapport.startdate, 'YYYY-MM-DD', 'de-ch')
         this.employees = response.data.employees
         this.rapport.startdate = new Date(this.rapport.startdate)
         this.getProjects()
 
-        for (let employee of this.employees) {
-          employee.name = employee.lastname + ' ' + employee.firstname
+        for (const employee of this.employees) {
+          employee.name = `${employee.lastname} ${employee.firstname}`
           employee.nameWithCallName = employee.name + (employee.callname ? ` (${employee.callname})` : '')
         }
 
@@ -195,27 +286,29 @@ export default {
         this.$swal('Fehler', 'Unbekannter Fehler ist aufgetreten', 'error')
       })
 
-    this.axios.get('/settings').then(response => {
+    this.axios.get('/settings').then((response) => {
       this.settings = response.data
     })
   },
   methods: {
     getFormatedWeek() {
-      let date = moment(this.rapport.startdate, 'YYYY-MM-DD', 'de-ch')
+      const date = moment(this.rapport.startdate, 'YYYY-MM-DD', 'de-ch')
       return `${date.format('W (DD.MM.YYYY')} - ${date
         .clone()
         .add(6, 'days')
         .format('DD.MM.YYYY')})`
     },
     selectedEmployees() {
-      let employees = []
-      for (let rapportdetail of this.rapport.rapportdetails) {
-        employees.push(this.employees.find(employee => employee.id === rapportdetail[0].employee_id))
+      const employees = []
+      for (const rapportdetail of this.rapport.rapportdetails) {
+        employees.push(this.employees
+          .find((employee) => employee.id === rapportdetail[0].employee_id))
       }
       return employees
     },
     removeEmployee(employeeId) {
-      let rapportdetail = this.rapport.rapportdetails.find(rapportdetail => rapportdetail[0].employee_id === employeeId)
+      const rapportdetail = this.rapport.rapportdetails
+        .find((r) => r[0].employee_id === employeeId)
       this.rapport.rapportdetails.splice(this.rapport.rapportdetails.indexOf(rapportdetail), 1)
       this.rapport.rapportdetails = [...this.rapport.rapportdetails]
     },
@@ -235,7 +328,7 @@ export default {
         .then(() => this.$store.commit('isSaving', false))
     },
     getProjects() {
-      this.axios.get(`/customer/${this.rapport.customer_id}/projects`).then(response => {
+      this.axios.get(`/customer/${this.rapport.customer_id}/projects`).then((response) => {
         this.projects = response.data
         this.$store.commit('isLoading', false)
       })
@@ -247,10 +340,10 @@ export default {
         showCancelButton: true,
         cancelButtonText: 'Nein',
         confirmButtonText: 'Ja, Löschen'
-      }).then(result => {
+      }).then((result) => {
         if (result.value) {
           this.axios
-            .delete(process.env.VUE_APP_API_URL + 'rapport/' + this.rapport.id)
+            .delete(`${process.env.VUE_APP_API_URL}rapport/${this.rapport.id}`)
             .then(() => {
               this.$router.push('/rapport')
             })
@@ -263,8 +356,8 @@ export default {
     saveAll() {
       this.isSaving = true
       this.axios
-        .put('rapport/' + this.rapport.id, this.rapport)
-        .then(response => {
+        .put(`rapport/${this.rapport.id}`, this.rapport)
+        .then((response) => {
           this.rapport = response.data
           this.isSaving = false
           this.savedSuccessful = true
@@ -276,31 +369,6 @@ export default {
           this.isSaving = false
           this.$swal('Fehler', 'Rapport konnte nicht gespeichet werden.', 'error')
         })
-    }
-  },
-  computed: {
-    totalHours() {
-      let days = [0, 0, 0, 0, 0, 0]
-      for (let rapportdetail of this.rapportdetails) {
-        for (const [index, day] of rapportdetail.entries()) {
-          days[index] += Number(day.hours)
-        }
-      }
-      return days
-    }
-  },
-  watch: {
-    selectProjectsModel() {
-      if (!this.selectProjectsModel && this.rapport.rapportdetails.length === 0) {
-        this.isEmployeePopupOpen = true
-      }
-    },
-    'rapport.rapportdetails'() {
-      let allrapportdetails = this.rapport.rapportdetails.flat()
-      this.rapportdetailsFiltered = allrapportdetails.reduce(function(rv, x) {
-        ;(rv[x['day']] = rv[x['day']] || []).push(x)
-        return rv
-      }, {})
     }
   }
 }

@@ -1,35 +1,60 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Rapportübersicht</h1>
-    <v-row justify="center" class="mt-4">
-      <v-col cols="12" lg="6" sm10>
-        <v-list class="pa-0 elevation-1" :two-line="$store.getters.isMobile">
+    <h1 class="text-center">
+      Rapportübersicht
+    </h1>
+    <v-row
+      justify="center"
+      class="mt-4"
+    >
+      <v-col
+        cols="12"
+        lg="6"
+        sm10
+      >
+        <v-list
+          class="pa-0 elevation-1"
+          :two-line="$store.getters.isMobile"
+        >
           <template v-for="(rapport, index) of rapports">
-            <v-divider v-if="index != 0" :key="index"></v-divider>
+            <v-divider
+              v-if="index != 0"
+              :key="index"
+            ></v-divider>
             <v-list-item
               :key="-index"
               :to="'/rapport/week/' + rapport.date.format('DD.MM.YYYY')"
               color="primary"
             >
-              <v-list-item-content>{{getFormatedWeek(rapport.date)}} | {{rapport.hours}} Stunden</v-list-item-content>
+              <v-list-item-content>
+                {{ getFormatedWeek(rapport.date) }} | {{ rapport.hours }} Stunden
+              </v-list-item-content>
               <v-list-item-avatar>
-                <v-icon v-if="rapport.isFinished" color="primary">check_circle</v-icon>
+                <v-icon
+                  v-if="rapport.isFinished"
+                  color="primary"
+                >
+                  check_circle
+                </v-icon>
               </v-list-item-avatar>
             </v-list-item>
           </template>
         </v-list>
       </v-col>
     </v-row>
-    <v-dialog width="unset" v-model="datepicker">
+    <v-dialog
+      v-model="datepicker"
+      width="unset"
+    >
       <template v-slot:activator="{ on }">
         <v-btn
+          v-if="$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          slot="activator"
           fixed
           bottom
           right
           fab
           color="primary"
-          slot="activator"
-          v-if="$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
           v-on="on"
         >
           <v-icon>add</v-icon>
@@ -43,8 +68,20 @@
         show-week
       >
         <v-spacer></v-spacer>
-        <v-btn text color="primary" @click="datepicker = false">Abbrechen</v-btn>
-        <v-btn text color="primary" @click="addRapport">OK</v-btn>
+        <v-btn
+          text
+          color="primary"
+          @click="datepicker = false"
+        >
+          Abbrechen
+        </v-btn>
+        <v-btn
+          text
+          color="primary"
+          @click="addRapport"
+        >
+          OK
+        </v-btn>
       </v-date-picker>
     </v-dialog>
   </div>
@@ -66,10 +103,10 @@ export default {
   mounted() {
     this.$store.commit('isLoading', true)
     this.axios
-      .get(process.env.VUE_APP_API_URL + 'rapport')
-      .then(response => {
+      .get(`${process.env.VUE_APP_API_URL}rapport`)
+      .then((response) => {
         this.rapports = response.data
-        for (let rapport of this.rapports) {
+        for (const rapport of this.rapports) {
           rapport.date = moment(rapport.date.date)
         }
         this.$store.commit('isLoading', false)
@@ -87,8 +124,8 @@ export default {
         .format('DD.MM.YYYY')})`
     },
     addRapport() {
-      let newRapportDate = moment(this.newRapportDate, 'YYYY-MM-DD', 'de-ch')
-      this.$router.push('/rapport/week/' + newRapportDate.format('DD.MM.YYYY'))
+      const newRapportDate = moment(this.newRapportDate, 'YYYY-MM-DD', 'de-ch')
+      this.$router.push(`/rapport/week/${newRapportDate.format('DD.MM.YYYY')}`)
     }
   }
 }

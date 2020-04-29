@@ -1,7 +1,13 @@
 <template>
   <form-container>
-    <h1 class="display-1 mb-8">Passwort setzen</h1>
-    <v-form onSubmit="return false;" ref="form" @submit="setPassword">
+    <h1 class="display-1 mb-8">
+      Passwort setzen
+    </h1>
+    <v-form
+      ref="form"
+      on-submit="return false;"
+      @submit="setPassword"
+    >
       <v-text-field
         v-model="password"
         outlined
@@ -27,13 +33,16 @@
         color="primary"
         class="set-password-button"
         :loading="isLoading"
-      >Speichern</v-btn>
+      >
+        Speichern
+      </v-btn>
     </v-form>
   </form-container>
 </template>
 
 <script>
 import FormContainer from '@/components/general/FormContainer'
+import { rules } from '@/utils'
 
 export default {
   name: 'SetPassword',
@@ -54,13 +63,11 @@ export default {
     return {
       password: '',
       repeatPassword: '',
-      emailRegex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       rules: {
-        required: value => !!value || 'Dieses Feld muss vorhanden sein',
-        password: value => value.length >= 6 || 'Passwort muss mindestens 6 Zeichen haben.',
-        email: value => this.emailRegex.test(value) || 'Keine gültige Email',
-        repeat: value => value === this.password || 'Passwörter stimmen nicht überein',
-        matchOldPassword: value => this.matchOldPassword || 'Passwort nicht korrekt'
+        ...rules,
+        password: (value) => value.length >= 6 || 'Passwort muss mindestens 6 Zeichen haben.',
+        repeat: (value) => value === this.password || 'Passwörter stimmen nicht überein',
+        matchOldPassword: () => this.matchOldPassword || 'Passwort nicht korrekt'
       },
       isLoading: false,
       errorMessage: null
@@ -72,14 +79,14 @@ export default {
         this.isLoading = true
         this.axios
           .post('auth/set-password', { password: this.password, token: this.token, userId: this.userId })
-          .then(response => {
+          .then((response) => {
             this.isLoading = false
             this.$auth.login({
               params: {
                 email: response.data.email,
                 password: this.password
               },
-              error: function() {
+              error() {
                 this.$swal('Unbekannter Fehler', 'Es ist ein unbekannter Fehler aufgetreten. Bitte versuche es später erneut.', 'error')
               },
               rememberMe: true,
@@ -87,7 +94,7 @@ export default {
               fetchUser: true
             })
           })
-          .catch(error => {
+          .catch((error) => {
             this.isLoading = false
             if (error.includes('Token is invalid')) {
               this.errorMessage = 'Link ist ungültig. Versuche erneut das Passwort zurückzusetzten.'

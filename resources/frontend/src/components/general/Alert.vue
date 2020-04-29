@@ -1,7 +1,13 @@
 <template>
   <div class="alert">
-    <v-snackbar :value="value" :color="color" icon="check_circle" right transition="slide-y-reverse-transition"
-      ><span class="white--text">{{ text }}</span>
+    <v-snackbar
+      :value="value"
+      :color="color"
+      icon="check_circle"
+      right
+      transition="slide-y-reverse-transition"
+    >
+      <span class="white--text">{{ text }}</span>
     </v-snackbar>
   </div>
 </template>
@@ -11,7 +17,10 @@ export default {
   name: 'Alert',
   props: {
     value: Boolean,
-    text: String,
+    text: {
+      type: String,
+      default: null
+    },
     color: {
       type: String,
       default: 'success'

@@ -5,19 +5,19 @@ export default {
     roles: []
   },
   getters: {
-    roles: state => state.roles
+    roles: (state) => state.roles
   },
   mutations: {
     setRoles(state, roles) {
       state.roles = roles
     },
     updateRole(state, updatedRole) {
-      const role = state.roles.find(r => r.id === updatedRole.id)
+      const role = state.roles.find((r) => r.id === updatedRole.id)
       const index = state.roles.indexOf(role)
       state.roles[index] = updatedRole
     },
     removeRole(state, roleId) {
-      const role = state.roles.find(r => r.id === roleId)
+      const role = state.roles.find((r) => r.id === roleId)
       const index = state.roles.indexOf(role)
       state.roles.splice(index, 1)
     },
@@ -31,11 +31,11 @@ export default {
         if (getters.roles.length === 0) {
           axios
             .get('/roles')
-            .then(response => {
+            .then((response) => {
               commit('setRoles', response.data)
               resolve(getters.roles)
             })
-            .catch(error => {
+            .catch((error) => {
               reject(error)
             })
         } else {
@@ -47,11 +47,11 @@ export default {
       return new Promise((resolve, reject) => {
         axios
           .put(`roles/${role.id}`, role)
-          .then(response => {
+          .then(() => {
             commit('updateRole', role)
             resolve(role)
           })
-          .catch(error => reject(error))
+          .catch((error) => reject(error))
       })
     },
     deleteRole({ commit }, roleId) {
@@ -62,7 +62,7 @@ export default {
             commit('removeRole', roleId)
             resolve()
           })
-          .catch(error => reject(error))
+          .catch((error) => reject(error))
       })
     }
   }

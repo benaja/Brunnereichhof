@@ -1,7 +1,15 @@
 <template>
   <v-row justify="center">
-    <v-dialog :value="value" @input="v => $emit('input', v)" width="1000px" max-width="100%">
-      <v-card width="1000px" max-width="100%">
+    <v-dialog
+      :value="value"
+      width="1000px"
+      max-width="100%"
+      @input="v => $emit('input', v)"
+    >
+      <v-card
+        width="1000px"
+        max-width="100%"
+      >
         <v-card-title>
           <h3>{{ title }}</h3>
         </v-card-title>
@@ -17,20 +25,30 @@
               item-value="id"
               item-text="name"
             ></v-autocomplete>
-            <date-picker v-if="!week" v-model="hourrecord.date" label="Datum"></date-picker>
+            <date-picker
+              v-if="!week"
+              v-model="hourrecord.date"
+              label="Datum"
+            ></date-picker>
             <v-row>
-              <v-col cols="12" md="2">
+              <v-col
+                cols="12"
+                md="2"
+              >
                 <v-text-field
+                  v-model="hourrecord.hours"
                   label="Stunden"
                   type="number"
-                  v-model="hourrecord.hours"
                   class="pa-1 ma-0"
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" md="4">
+              <v-col
+                cols="12"
+                md="4"
+              >
                 <v-combobox
-                  :items="cultures"
                   v-model="hourrecord.culture"
+                  :items="cultures"
                   class="pa-1 ma-0"
                   item-text="name"
                   item-value="id"
@@ -38,7 +56,10 @@
                   autocomplete="off"
                 />
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col
+                cols="12"
+                md="6"
+              >
                 <v-textarea
                   v-model="hourrecord.comment"
                   label="Kommentar"
@@ -48,8 +69,18 @@
                 />
               </v-col>
             </v-row>
-            <v-row justify="center" class="mt-4">
-              <v-btn color="primary" depressed @click="save" :disabled="!allValid()">Speichern</v-btn>
+            <v-row
+              justify="center"
+              class="mt-4"
+            >
+              <v-btn
+                color="primary"
+                depressed
+                :disabled="!allValid()"
+                @click="save"
+              >
+                Speichern
+              </v-btn>
             </v-row>
           </v-form>
         </v-card-text>
@@ -91,6 +122,11 @@ export default {
       hourrecord: {}
     }
   },
+  watch: {
+    value() {
+      this.getData()
+    }
+  },
   mounted() {
     this.getData()
   },
@@ -99,13 +135,13 @@ export default {
       if (this.customer) {
         this.hourrecord.customerId = this.customer.id
       }
-      let week = this.week
+      let { week } = this
       if (!this.week) {
         week = this.$moment(this.hourrecord.date).week()
       }
       this.axios
         .post(`hourrecord/${this.year}/${week}`, this.hourrecord)
-        .then(response => {
+        .then((response) => {
           this.$emit('add', response.data)
           this.$emit('input', false)
           this.$refs.form.reset()
@@ -123,20 +159,15 @@ export default {
     },
     getData() {
       if (this.value && !this.cultures.length) {
-        this.$store.dispatch('cultures').then(cultures => {
+        this.$store.dispatch('cultures').then((cultures) => {
           this.cultures = cultures
         })
       }
       if (this.value && !this.customers.length && !this.customer) {
-        this.$store.dispatch('customers').then(customers => {
+        this.$store.dispatch('customers').then((customers) => {
           this.customers = customers
         })
       }
-    }
-  },
-  watch: {
-    value() {
-      this.getData()
     }
   }
 }

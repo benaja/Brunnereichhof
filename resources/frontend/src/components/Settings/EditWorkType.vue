@@ -1,15 +1,41 @@
 <template>
-  <v-form @submit="save" ref="form">
-    <v-text-field label="Name" v-model="value.name_de" :rules="[rules.required]"></v-text-field>
-    <v-checkbox v-model="value.manually" label="Stunden manuell eingeben"></v-checkbox>
+  <v-form
+    ref="form"
+    @submit="save"
+  >
+    <v-text-field
+      v-model="value.name_de"
+      label="Name"
+      :rules="[rules.required]"
+    ></v-text-field>
+    <v-checkbox
+      v-model="value.manually"
+      label="Stunden manuell eingeben"
+    ></v-checkbox>
     <h4>Erfassungsarten</h4>
-    <p v-if="value.work_input_types.length === 0">Noch keine Erfassungsart hinzugefügt</p>
+    <p v-if="value.work_input_types.length === 0">
+      Noch keine Erfassungsart hinzugefügt
+    </p>
     <v-row>
       <template v-for="(inputType, index) of value.work_input_types">
-        <v-col cols="12" sm="8" :key="`${index}-name`" class="py-0">
-          <v-text-field v-model="inputType.name" label="Name" :rules="[rules.required]"></v-text-field>
+        <v-col
+          :key="`${index}-name`"
+          cols="12"
+          sm="8"
+          class="py-0"
+        >
+          <v-text-field
+            v-model="inputType.name"
+            label="Name"
+            :rules="[rules.required]"
+          ></v-text-field>
         </v-col>
-        <v-col cols="10" sm="3" :key="`${index}-hours`" class="py-0">
+        <v-col
+          :key="`${index}-hours`"
+          cols="10"
+          sm="3"
+          class="py-0"
+        >
           <v-text-field
             v-model="inputType.hours"
             label="Stunden"
@@ -17,21 +43,40 @@
             :rules="[rules.required, rules.maxHeight, rules.minHeight]"
           ></v-text-field>
         </v-col>
-        <v-col cols="2" sm="1" :key="`${index}-delete`" class="py-0">
-          <v-btn icon color="red" class="float-right mt-4" @click="removeWorkInputType(index)">
+        <v-col
+          :key="`${index}-delete`"
+          cols="2"
+          sm="1"
+          class="py-0"
+        >
+          <v-btn
+            icon
+            color="red"
+            class="float-right mt-4"
+            @click="removeWorkInputType(index)"
+          >
             <v-icon>delete</v-icon>
           </v-btn>
         </v-col>
       </template>
     </v-row>
-    <v-btn color="primary" class="mt-3" outlined @click="addInputType">Erfassungsart hinzufügen</v-btn>
+    <v-btn
+      color="primary"
+      class="mt-3"
+      outlined
+      @click="addInputType"
+    >
+      Erfassungsart hinzufügen
+    </v-btn>
     <v-btn
       color="primary"
       class="mt-3 float-right"
       depressed
-      @click="save"
       :loading="isLoading"
-    >Speichern</v-btn>
+      @click="save"
+    >
+      Speichern
+    </v-btn>
   </v-form>
 </template>
 
@@ -49,8 +94,8 @@ export default {
     return {
       rules: {
         ...rules,
-        maxHeight: v => v <= 24 || 'Maximal 24 Stunden',
-        minHeight: v => v > 0 || 'Müssen mehr als 0 Studen sein'
+        maxHeight: (v) => v <= 24 || 'Maximal 24 Stunden',
+        minHeight: (v) => v > 0 || 'Müssen mehr als 0 Studen sein'
       },
       isLoading: false
     }

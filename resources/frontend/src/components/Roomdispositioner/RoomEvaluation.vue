@@ -1,6 +1,9 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="isOpen" max-width="600px">
+    <v-dialog
+      v-model="isOpen"
+      max-width="600px"
+    >
       <v-card max-width="600px">
         <v-card-title>
           <h3>Auswertung</h3>

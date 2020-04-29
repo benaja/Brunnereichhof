@@ -1,19 +1,31 @@
 <template>
   <div class="day">
-    <v-divider vertical class="float-left"></v-divider>
+    <v-divider
+      vertical
+      class="float-left"
+    ></v-divider>
     <div class="time-elements">
-      <div class="time-elements-container" ref="timeElementsCointainer" @click.self="openTimePopup">
+      <div
+        ref="timeElementsCointainer"
+        class="time-elements-container"
+        @click.self="openTimePopup"
+      >
         <time-element
           v-for="timerecord of value"
           :key="timerecord.id"
           :value="timerecord"
+          :url-worker-param="urlWorkerParam"
           @edit="$emit('update', { timerecord, pixelPerHour })"
           @scrolling="isScrolling => $emit('scrolling', isScrolling)"
-          :url-worker-param="urlWorkerParam"
         ></time-element>
       </div>
     </div>
-    <v-btn fab color="primary" class="overview-button hidden-md-and-up" @click="$emit('openOveriew')">
+    <v-btn
+      fab
+      color="primary"
+      class="overview-button hidden-md-and-up"
+      @click="$emit('openOveriew')"
+    >
       <v-icon>assessment</v-icon>
     </v-btn>
   </div>
@@ -28,10 +40,22 @@ export default {
     TimeElement
   },
   props: {
-    date: String,
-    settings: Object,
-    value: Array,
-    urlWorkerParam: String
+    date: {
+      type: String,
+      default: null
+    },
+    settings: {
+      type: Object,
+      default: null
+    },
+    value: {
+      type: Array,
+      default: null
+    },
+    urlWorkerParam: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
@@ -40,6 +64,11 @@ export default {
       time: '07:00',
       currentTimeRecord: {},
       numbers: [3, 4, 5, 6, 7, 8, 9, 10]
+    }
+  },
+  computed: {
+    pixelPerHour() {
+      return this.$refs.timeElementsCointainer.clientHeight / 24
     }
   },
   methods: {
@@ -53,11 +82,6 @@ export default {
       const hour = relativeHeight / this.pixelPerHour
       const selectedStartHour = Math.floor(hour * 2) / 2
       this.$emit('update', { selectedStartHour, event, pixelPerHour: this.pixelPerHour })
-    }
-  },
-  computed: {
-    pixelPerHour() {
-      return this.$refs.timeElementsCointainer.clientHeight / 24
     }
   }
 }

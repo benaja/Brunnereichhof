@@ -6,12 +6,12 @@
     :loading="isLoading"
     :search-input.sync="searchString"
     no-data-text="keine Daten"
-    @focus="searchString = ''"
     :label="inputField.label"
     prepend-icon="search"
     autocomplete="off"
     :item-text="inputField.itemText || 'name'"
     :item-value="inputField.itemValue || 'id'"
+    @focus="searchString = ''"
   ></v-combobox>
 </template>
 
@@ -25,11 +25,6 @@ export default {
       required: true
     }
   },
-  computed: {
-    EVALUATION_INPUT_TYPES() {
-      return EVALUATION_INPUT_TYPES
-    }
-  },
   data() {
     return {
       searchString: null,
@@ -38,13 +33,18 @@ export default {
       items: []
     }
   },
+  computed: {
+    EVALUATION_INPUT_TYPES() {
+      return EVALUATION_INPUT_TYPES
+    }
+  },
   watch: {
     searchString() {
       if (this.isLoaded) return
       if (this.isLoading) return
       this.isLoading = true
 
-      this.$store.dispatch(this.inputField.dispatch).then(items => {
+      this.$store.dispatch(this.inputField.dispatch).then((items) => {
         this.items = [...items]
         if (this.inputField.selectAll) {
           this.items.unshift({

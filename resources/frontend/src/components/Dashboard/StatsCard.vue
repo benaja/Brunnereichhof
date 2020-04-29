@@ -1,19 +1,29 @@
 <template>
   <v-card class="mt-4">
     <v-card-title>
-      <div class="chart elevation-5" :class="color">
-        <chartist ratio="ct-major-second" type="Line" :data="chartData" :options="options"></chartist>
+      <div
+        class="chart elevation-5"
+        :class="color"
+      >
+        <chartist
+          ratio="ct-major-second"
+          type="Line"
+          :data="chartData"
+          :options="options"
+        ></chartist>
       </div>
-      <h3 class="headline">{{title}}</h3>
+      <h3 class="headline">
+        {{ title }}
+      </h3>
     </v-card-title>
     <v-card-text>
-      <p>{{text}}</p>
+      <p>{{ text }}</p>
       <v-divider></v-divider>
     </v-card-text>
     <v-card-actions>
       <p class="caption ml-2">
         <v-icon>schedule</v-icon>
-        Vor {{lastUpdatedInMinutes}} Minuten aktualisiert
+        Vor {{ lastUpdatedInMinutes }} Minuten aktualisiert
       </p>
     </v-card-actions>
   </v-card>
@@ -27,12 +37,18 @@ export default {
       type: String,
       required: true
     },
-    text: String,
+    text: {
+      type: String,
+      default: null
+    },
     color: {
       type: String,
       default: 'primary'
     },
-    updatedAt: String,
+    updatedAt: {
+      type: String,
+      default: null
+    },
     dataset: {
       type: Array,
       default: () => []
@@ -54,12 +70,12 @@ export default {
   },
   computed: {
     lastUpdatedInMinutes() {
-      let date = this.$moment(this.updatedAt).add(1, 'hour')
+      const date = this.$moment(this.updatedAt).add(1, 'hour')
       return this.$moment().diff(date, 'minutes')
     },
     chartData() {
-      let labels = []
-      let series = []
+      const labels = []
+      const series = []
       for (let i = 0; i < this.dataset.length; i++) {
         labels.push(this.dataset[i].name)
         series.push(this.dataset[i].hours)
@@ -74,7 +90,7 @@ export default {
     stats() {
       this.values = []
       this.labels = []
-      for (let month of this.stats) {
+      for (const month of this.stats) {
         this.values.push(month.hours)
         this.labels.push(month.name)
       }

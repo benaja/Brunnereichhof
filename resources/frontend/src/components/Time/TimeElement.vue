@@ -1,14 +1,16 @@
 <template>
   <div
-    :class="['time-element', value.worktype.color, { moving }]"
-    :style="{ height, top }"
     ref="timeElement"
     v-touch:touchhold="startTouchMove"
+    :class="['time-element', value.worktype.color, { moving }]"
+    :style="{ height, top }"
     @mousedown="startMouseMove"
     @click="edit"
   >
     <div class="time-element-content">
-      <p class="white--text ml-1">{{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)</p>
+      <p class="white--text ml-1">
+        {{ formatTime(value.from) }} - {{ formatTime(value.to) }} ({{ difference.toFixed(2) }}h)
+      </p>
     </div>
   </div>
 </template>
@@ -17,7 +19,10 @@
 export default {
   name: 'TimeElement',
   props: {
-    value: Object,
+    value: {
+      type: Object,
+      default: null
+    },
     urlWorkerParam: {
       type: String,
       default: ''
@@ -36,6 +41,27 @@ export default {
       hide: false,
       mousedown: false,
       moving: false
+    }
+  },
+  computed: {
+    difference() {
+      const from = this.getDate(this.value.from)
+      const to = this.getDate(this.value.to)
+
+      const timeDiff = Math.abs(from.getTime() - to.getTime())
+      const hoursDiff = timeDiff / 1000 / 60 / 60
+
+      return hoursDiff
+    },
+    pixelPerHour() {
+      const hoursDiff = this.maxStartHour - this.minStartHour
+      return this.$refs.timeElement.parentElement.clientHeight / hoursDiff
+    }
+  },
+  watch: {
+    value() {
+      this.updateTimeElemenPosition()
+      this.origialValue = { ...this.value }
     }
   },
   mounted() {
@@ -72,14 +98,14 @@ export default {
     },
     move(event) {
       const positionY = event.touches ? event.touches[0].clientY : event.clientY
-      let hoursToAdd = (positionY - this.lastPosition) / this.pixelPerHour
+      const hoursToAdd = (positionY - this.lastPosition) / this.pixelPerHour
       if (hoursToAdd >= 0.075 || hoursToAdd <= -0.075) {
         this.moving = true
         this.hasDragged = true
-        let minutes = (this.startHour + hoursToAdd) * 60
+        const minutes = (this.startHour + hoursToAdd) * 60
         this.startHour = (Math.round(minutes / 5) * 5) / 60
         this.lastPosition = positionY
-        let difference = this.difference
+        const { difference } = this
         this.value.from = this.getTimeString(this.startHour)
         this.value.to = this.getTimeString(this.startHour + difference)
         this.updateTimeElemenPosition()
@@ -96,7 +122,7 @@ export default {
             this.$store.dispatch('alert', { text: 'Erfolgreich gespeichert' })
             this.origialValue = { ...this.value }
           })
-          .catch(error => {
+          .catch((error) => {
             if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
               this.value.from = this.origialValue.from
               this.value.to = this.origialValue.to
@@ -115,7 +141,7 @@ export default {
           })
       }
     },
-    edit(event) {
+    edit() {
       if (!this.hasDragged) {
         this.$emit('edit')
         this.mousedown = false
@@ -125,8 +151,8 @@ export default {
       return (this.startHour - this.minStartHour) * this.pixelPerHour
     },
     getDate(timeString) {
-      let date = new Date()
-      let timeSplits = timeString.split(':')
+      const date = new Date()
+      const timeSplits = timeString.split(':')
       date.setHours(timeSplits[0])
       date.setMinutes(timeSplits[1])
       return date
@@ -137,9 +163,9 @@ export default {
       return time
     },
     setStartHour() {
-      let from = this.getDate(this.value.from)
+      const from = this.getDate(this.value.from)
       let hours = from.getHours()
-      let minutes = from.getMinutes()
+      const minutes = from.getMinutes()
       hours += minutes / 60
       this.startHour = hours
     },
@@ -157,29 +183,8 @@ export default {
     },
     updateTimeElemenPosition() {
       this.setStartHour()
-      this.top = this.getPixelsFromTop() + 'px'
-      this.height = this.pixelPerHour * this.difference + 'px'
-    }
-  },
-  computed: {
-    difference() {
-      let from = this.getDate(this.value.from)
-      let to = this.getDate(this.value.to)
-
-      let timeDiff = Math.abs(from.getTime() - to.getTime())
-      let hoursDiff = timeDiff / 1000 / 60 / 60
-
-      return hoursDiff
-    },
-    pixelPerHour() {
-      let hoursDiff = this.maxStartHour - this.minStartHour
-      return this.$refs.timeElement.parentElement.clientHeight / hoursDiff
-    }
-  },
-  watch: {
-    value() {
-      this.updateTimeElemenPosition()
-      this.origialValue = { ...this.value }
+      this.top = `${this.getPixelsFromTop()}px`
+      this.height = `${this.pixelPerHour * this.difference}px`
     }
   }
 }

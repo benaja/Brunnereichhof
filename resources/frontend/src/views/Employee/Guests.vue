@@ -2,38 +2,52 @@
   <div class="container">
     <h1>Gäste-Übersicht</h1>
     <search-bar
+      ref="searchBar"
+      v-model="guestsFiltered"
       name="guests"
       label="Gast suchen"
-      v-model="guestsFiltered"
       @showDeleted="s => showDeleted = s"
-      ref="searchBar"
     ></search-bar>
     <v-expansion-panels>
-      <v-expansion-panel v-for="guest in guestsFiltered" :key="guest.id">
+      <v-expansion-panel
+        v-for="guest in guestsFiltered"
+        :key="guest.id"
+      >
         <v-expansion-panel-header hide-actions>
           <p class="pt-2 mt-1 header-text">
-            <v-icon class="float-left">account_circle</v-icon>
-            <span class="font-weight-bold pl-2">{{guest.name}}</span>
-            <span class="font-italic hidden-xs-only">&nbsp; {{guest.callname}}</span>
+            <v-icon class="float-left">
+              account_circle
+            </v-icon>
+            <span class="font-weight-bold pl-2">{{ guest.name }}</span>
+            <span class="font-italic hidden-xs-only">&nbsp; {{ guest.callname }}</span>
           </p>
           <v-btn
             v-if="showDeleted"
             color="primary"
             max-width="200"
             @click="$refs.searchBar.restoreItem(guest)"
-          >Wiederherstellen</v-btn>
-          <v-btn v-else color="primary" max-width="100" :to="'/guest/' + guest.id">Details</v-btn>
+          >
+            Wiederherstellen
+          </v-btn>
+          <v-btn
+            v-else
+            color="primary"
+            max-width="100"
+            :to="'/guest/' + guest.id"
+          >
+            Details
+          </v-btn>
         </v-expansion-panel-header>
       </v-expansion-panel>
     </v-expansion-panels>
     <v-btn
+      v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
       to="/employee/add?guest=true"
       fixed
       bottom
       right
       fab
       color="primary"
-      v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
     >
       <v-icon>add</v-icon>
     </v-btn>
@@ -44,7 +58,7 @@
 import SearchBar from '@/components/general/SearchBar'
 
 export default {
-  name: 'guests',
+  name: 'Guests',
   components: {
     SearchBar
   },

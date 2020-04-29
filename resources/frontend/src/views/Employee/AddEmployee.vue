@@ -1,78 +1,198 @@
 <template>
   <div>
-    <h1 class="text-center my-4">Mitarbeiter erstellen</h1>
-    <v-form ref="form" @submit="save" onsubmit="return false;">
+    <h1 class="text-center my-4">
+      Mitarbeiter erstellen
+    </h1>
+    <v-form
+      ref="form"
+      onsubmit="return false;"
+      @submit="save"
+    >
       <v-container>
         <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field label="Vorname*" v-model="employee.firstname" :rules="[rules.required]"></v-text-field>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="employee.firstname"
+              label="Vorname*"
+              :rules="[rules.required]"
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field label="Nachname*" v-model="employee.lastname" :rules="[rules.required]"></v-text-field>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="employee.lastname"
+              label="Nachname*"
+              :rules="[rules.required]"
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field label="Rufname" v-model="employee.callname"></v-text-field>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="employee.callname"
+              label="Rufname"
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field label="Nationalität" v-model="employee.nationality"></v-text-field>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="employee.nationality"
+              label="Nationalität"
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="12">
-            <v-text-field label="Email" v-model="employee.email" :rules="[rules.nullableEmail]"></v-text-field>
+          <v-col
+            cols="12"
+            md="12"
+          >
+            <v-text-field
+              v-model="employee.email"
+              label="Email"
+              :rules="[rules.nullableEmail]"
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Login aktiviert" v-model="employee.isLoginActive" color="primary"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.isLoginActive"
+              label="Login aktiviert"
+              color="primary"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col
+            cols="12"
+            md="6"
+          >
             <select-role v-model="employee.role_id"></select-role>
           </v-col>
-          <v-col cols="12" md="6">
-            <date-picker v-model="employee.entryDate" label="Arbeitseintrittsjahr" type="year"></date-picker>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <date-picker
+              v-model="employee.entryDate"
+              label="Arbeitseintrittsjahr"
+              type="year"
+            ></date-picker>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Intern" v-model="employee.isIntern"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.isIntern"
+              label="Intern"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Führerschein" v-model="employee.drivingLicence"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.drivingLicence"
+              label="Führerschein"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Fahrer" v-model="employee.isDriver"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.isDriver"
+              label="Fahrer"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Deutschkenntnisse" v-model="employee.german_knowledge"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.german_knowledge"
+              label="Deutschkenntnisse"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-checkbox label="Englischkenntnisse" v-model="employee.english_knowledge"></v-checkbox>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-checkbox
+              v-model="employee.english_knowledge"
+              label="Englischkenntnisse"
+            ></v-checkbox>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-select :items="genders" label="Geschlecht" v-model="employee.sex"></v-select>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-select
+              v-model="employee.sex"
+              :items="genders"
+              label="Geschlecht"
+            ></v-select>
           </v-col>
           <v-col cols="12">
-            <v-text-field label="Kommentar" v-model="employee.comment"></v-text-field>
+            <v-text-field
+              v-model="employee.comment"
+              label="Kommentar"
+            ></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-text-field label="Erfahrung" v-model="employee.experience"></v-text-field>
+            <v-text-field
+              v-model="employee.experience"
+              label="Erfahrung"
+            ></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-text-field label="Allergie" v-model="employee.allergy"></v-text-field>
+            <v-text-field
+              v-model="employee.allergy"
+              label="Allergie"
+            ></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-btn color="primary left" @click="$refs.profileImage.click()">Profilebild</v-btn>
-            <p class="mt-3">{{filename}}</p>
+            <v-btn
+              color="primary left"
+              @click="$refs.profileImage.click()"
+            >
+              Profilebild
+            </v-btn>
+            <p class="mt-3">
+              {{ filename }}
+            </p>
             <input
-              class="hidden"
               ref="profileImage"
+              class="hidden"
               accept="image/*"
               type="file"
               @change="profileImageChanged"
             />
           </v-col>
           <v-col cols="12">
-            <v-switch v-model="employee.isGuest" label="Gast"></v-switch>
+            <v-switch
+              v-model="employee.isGuest"
+              label="Gast"
+            ></v-switch>
           </v-col>
-          <v-col cols="12" class="text-center">
-            <v-btn type="submit" color="primary">
+          <v-col
+            cols="12"
+            class="text-center"
+          >
+            <v-btn
+              type="submit"
+              color="primary"
+            >
               Speichern
-              <v-icon right>send</v-icon>
+              <v-icon right>
+                send
+              </v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -98,7 +218,7 @@ export default {
         sex: 'man',
         isGuest: !!this.$route.query.guest
       },
-      apiUrl: process.env.VUE_APP_API_URL + 'employee',
+      apiUrl: `${process.env.VUE_APP_API_URL}employee`,
       rules,
       genders: [
         {
@@ -113,18 +233,25 @@ export default {
       filename: ''
     }
   },
+  computed: {
+    allValid() {
+      if (!this.employee.firstname) return false
+      if (!this.employee.lastname) return false
+      return true
+    }
+  },
   methods: {
     save() {
       if (this.$refs.form.validate()) {
         this.axios
           .post(this.apiUrl, this.employee)
-          .then(response => {
+          .then((response) => {
             if (this.$refs.profileImage.files.length === 1) {
-              let data = new FormData()
+              const data = new FormData()
               data.append('profileimage', this.$refs.profileImage.files[0])
               this.axios
-                .post(this.apiUrl + '/' + response.data + '/editimage', data)
-                .then(response => {
+                .post(`${this.apiUrl}/${response.data}/editimage`, data)
+                .then(() => {
                   this.redirect()
                 })
                 .catch(() => {
@@ -134,7 +261,7 @@ export default {
               this.redirect()
             }
           })
-          .catch(error => {
+          .catch((error) => {
             if (error.includes('validation.unique')) {
               this.$swal('Email existiert bereits', 'Es existiert bereits ein anderer User mit der selben Email', 'error')
             } else {
@@ -147,7 +274,7 @@ export default {
     },
     profileImageChanged() {
       if (this.$refs.profileImage.files.length === 1) {
-        let file = this.$refs.profileImage.files[0]
+        const file = this.$refs.profileImage.files[0]
         this.filename = file.name
       } else {
         this.filename = ''
@@ -159,13 +286,6 @@ export default {
       } else {
         this.$router.push('/employee')
       }
-    }
-  },
-  computed: {
-    allValid() {
-      if (!this.employee.firstname) return false
-      if (!this.employee.lastname) return false
-      return true
     }
   }
 }

@@ -1,6 +1,12 @@
 <template>
-  <div class="white background" ref="background">
-    <v-row wrap class="ma-0">
+  <div
+    ref="background"
+    class="white background"
+  >
+    <v-row
+      wrap
+      class="ma-0"
+    >
       <v-col class="side-bar">
         <range-picker v-model="dates"></range-picker>
         <div class="px-2">
@@ -19,22 +25,27 @@
         </div>
       </v-col>
       <v-col class="content pa-0">
-        <div class="callendar-container" ref="callendarContainer">
+        <div
+          ref="callendarContainer"
+          class="callendar-container"
+        >
           <div
-            class="day"
             v-for="(day, index) in days"
             :key="day.format('YYYY-MM-DD')"
+            class="day"
             :style="{ width: `${100 / amountOfDays}%` }"
             @click="e => openReservationPopup(e, index)"
           >
             <div class="day-border"></div>
             <div class="day-content pt-2">
-              <p class="text-center mb-0 overline">{{day.format('ddd')}}</p>
+              <p class="text-center mb-0 overline">
+                {{ day.format('ddd') }}
+              </p>
               <p class="text-center font-weight-bold">
                 <span
                   v-if="day.format('D') == 1 || index === 0"
-                >{{day.format('D')}}. {{day.format('MMM')}}</span>
-                <span v-else>{{day.format('D')}}</span>
+                >{{ day.format('D') }}. {{ day.format('MMM') }}</span>
+                <span v-else>{{ day.format('D') }}</span>
               </p>
               <!-- <v-divider></v-divider> -->
             </div>
@@ -44,7 +55,9 @@
               <div
                 v-for="(tag, index) of reservationTags"
                 :key="'r' + index"
-                :class="['reservation', 'blue', 'reservation-' + tag.reservation.id, ...tag.cssClass]"
+                :class="['reservation',
+                         'blue',
+                         'reservation-' + tag.reservation.id, ...tag.cssClass]"
                 :style="tag.style"
                 @click="e => openDetailsPopup(e, tag.reservation)"
                 @mouseover="hover(tag.reservation.id)"
@@ -52,7 +65,12 @@
               >
                 <p
                   class="white--text ml-2 mr-1 caption"
-                >{{ tag.reservation.employee.lastname }} {{ tag.reservation.employee.firstname }} | {{tag.reservation.bed_room_pivot.room.name}} / {{tag.reservation.bed_room_pivot.room.number}}</p>
+                >
+                  {{ tag.reservation.employee.lastname }}
+                  {{ tag.reservation.employee.firstname }} |
+                  {{ tag.reservation.bed_room_pivot.room.name }} /
+                  {{ tag.reservation.bed_room_pivot.room.number }}
+                </p>
               </div>
             </div>
           </div>
@@ -60,9 +78,9 @@
       </v-col>
     </v-row>
     <v-menu
+      v-model="reservationModel.open"
       :close-on-content-click="false"
       :nudge-width="300"
-      v-model="reservationModel.open"
       obsolute
       :position-x="reservationModel.x"
       :position-y="reservationModel.y"
@@ -76,8 +94,8 @@
       ></create-reservation>
     </v-menu>
     <v-menu
-      :close-on-content-click="false"
       v-model="detailsModel.open"
+      :close-on-content-click="false"
       :position-x="detailsModel.x"
       :position-y="detailsModel.y"
       z-index="4"
@@ -87,7 +105,7 @@
     >
       <reservation-details
         v-model="detailsModel.reservation"
-        :selectedDay="detailsModel.clickedDay"
+        :selected-day="detailsModel.clickedDay"
         @close="detailsModel.open = false"
         @update="drawReservations"
         @delete="deleteReservation"
@@ -149,189 +167,6 @@ export default {
       ]
     }
   },
-  mounted() {
-    this.dayHeight = this.getDayHeight
-    this.firstday = this.firstDate
-    this.loadReservations()
-  },
-  methods: {
-    loadReservations() {
-      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
-        this.reservations = response.data
-      })
-    },
-    isCurrentMonth(day) {
-      return (
-        moment(this.date).format('MM') ===
-        this.firstday
-          .clone()
-          .add(day - 1, 'days')
-          .format('MM')
-      )
-    },
-    openReservationPopup(e, day) {
-      if (!this.detailsModel.open && this.$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])) {
-        e.preventDefault()
-        let targetElement = e.target
-        while (!targetElement.classList.contains('day')) {
-          targetElement = targetElement.parentNode
-        }
-        let position = targetElement.getBoundingClientRect()
-
-        this.reservationModel.open = false
-        this.reservationModel.x = position.x + position.width
-        this.reservationModel.y = event.clientY
-        let selectedDate = this.dates[0].clone().add(day, 'days')
-        setTimeout(() => {
-          this.reservationModel.open = true
-          this.$nextTick(() => {
-            this.reservation.entry = selectedDate.format('YYYY-MM-DD')
-          })
-        }, 100)
-      }
-    },
-    openDetailsPopup(e, reservation) {
-      e.preventDefault()
-      this.detailsModel.open = false
-      let position = e.target.getBoundingClientRect()
-
-      this.detailsModel.y = position.top
-      let calendarContainerRect = this.$refs.callendarContainer.getBoundingClientRect()
-      let x = calendarContainerRect.left
-      while (x < e.clientX) {
-        x += calendarContainerRect.width / this.amountOfDays
-      }
-      this.detailsModel.x = x
-      reservation.employee.name = `${reservation.employee.lastname} ${reservation.employee.firstname}`
-      this.detailsModel.reservation = reservation
-
-      let day = Math.floor((e.x - calendarContainerRect.x) / (calendarContainerRect.width / this.amountOfDays))
-      this.detailsModel.clickedDay = moment(this.firstDate).add(day, 'days')
-
-      setTimeout(() => {
-        this.detailsModel.open = true
-      }, 100)
-    },
-    reservationsThisDay(day) {
-      return this.reservations.filter(r => {
-        let currentDay = this.firstday.clone().add(day - 1, 'days')
-        return moment(r.entry).isSameOrBefore(currentDay, 'day') && moment(r.exit).isSameOrAfter(currentDay, 'day')
-      })
-    },
-    getReservationsForSelectedTime() {
-      return this.reservations.filter(
-        r =>
-          this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.dates[1], 'day') &&
-          this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.dates[0], 'day')
-      )
-    },
-    isFirstDay(day, reservation) {
-      if ((day - 1) % 7 === 0) return true
-      if (
-        this.firstday
-          .clone()
-          .add(day - 1, 'days')
-          .isSame(reservation.entry, 'day')
-      ) {
-        return true
-      }
-      return false
-    },
-    drawReservations() {
-      if (this.initialLoad) {
-        this.$refs.stats.getStats()
-      } else {
-        this.initialLoad = true
-      }
-      let reservations = this.getReservationsForSelectedTime()
-      if (this.calendarSortType === 'number') {
-        reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
-      } else if (this.calendarSortType === 'lastname') {
-        reservations.sort((a, b) => {
-          const nameA = `${a.employee.lastname} ${a.employee.firstname}`
-          const nameB = `${b.employee.lastname} ${b.employee.firstname}`
-          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
-        })
-      }
-
-      this.reservationTags = []
-      let top = 0
-      let previousReservation = null
-      for (let reservation of reservations) {
-        let marginLeft = 0
-        let diffFromFirstDay = 0
-        const isReservationEntrySameOrAfterTimeSelected = this.$moment(reservation.entry).isSameOrAfter(this.dates[0], 'day')
-        const cssClass = []
-        if (isReservationEntrySameOrAfterTimeSelected) {
-          diffFromFirstDay = this.$moment(reservation.entry).diff(this.dates[0], 'days')
-          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 5px)`
-          cssClass.push('border-radius-left')
-        }
-
-        let width = '100%'
-        let diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
-        if (this.$moment(reservation.exit).isSameOrBefore(this.dates[1], 'day')) {
-          // const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
-          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 10 : 5
-          width = `calc(${(100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay - diffFromFirstDay)}% - ${pixelsToAdd}px)`
-          cssClass.push('border-radius-right')
-        }
-
-        if (this.calendarSortType === 'lastname' && previousReservation && previousReservation.employee_id === reservation.employee_id) {
-          top -= 25
-        }
-
-        let tag = {
-          style: {
-            marginLeft,
-            width,
-            top: `${top}px`
-          },
-          cssClass,
-          reservation
-        }
-        this.reservationTags.push(tag)
-
-        top += 25
-        previousReservation = reservation
-      }
-    },
-    getFirstDayFromReservationAndWeek(reservation, week, monday) {
-      if (moment(reservation.entry).diff(monday, 'days') < 0) {
-        reservation.firstDayOfWeek = monday
-        return monday
-      } else {
-        reservation.firstDayOfWeek = moment(reservation.entry, 'YYYY-MM-DD', 'de-ch')
-        return reservation.firstDayOfWeek
-      }
-    },
-    getLastDayFromReservationAndWeek(reservation, week, sunday) {
-      if (moment(reservation.exit).diff(sunday, 'days') >= 0) {
-        reservation.lastDayOfWeek = sunday
-        return sunday
-      } else {
-        reservation.lastDayOfWeek = moment(reservation.exit, 'YYYY-MM-DD', 'de-ch')
-        return reservation.lastDayOfWeek
-      }
-    },
-    deleteReservation(reservation) {
-      this.reservations.splice(this.reservations.indexOf(reservation), 1)
-      this.reservations = [...this.reservations]
-      this.drawReservations()
-    },
-    hover(reservationId) {
-      let reservations = document.getElementsByClassName('reservation-' + reservationId)
-      for (let reservation of reservations) {
-        reservation.style.filter = 'brightness(85%)'
-      }
-    },
-    leave(reservationId) {
-      let reservations = document.getElementsByClassName('reservation-' + reservationId)
-      for (let reservation of reservations) {
-        reservation.style.filter = 'unset'
-      }
-    }
-  },
   computed: {
     firstDate() {
       return this.$moment(this.dates[0], 'YYYY-MM-DD')
@@ -340,10 +175,10 @@ export default {
       return this.$moment(this.dates[1], 'YYYY-MM-DD')
     },
     days() {
-      let days = []
-      let day = this.dates[0].clone()
+      const days = []
+      const day = this.dates[0].clone()
       for (let i = 0; i < this.amountOfDays; i++) {
-        let currentDay = day.clone().add(i, 'days')
+        const currentDay = day.clone().add(i, 'days')
         days.push(currentDay)
       }
       return days
@@ -353,11 +188,10 @@ export default {
     },
     getDayHeight() {
       if (this.calendarType === 'month') {
-        let weeks = this.amountOfDays / 7
+        const weeks = this.amountOfDays / 7
         return (this.$refs.background.clientHeight - 20) / weeks
-      } else {
-        return this.$refs.background.clientHeight - 20
       }
+      return this.$refs.background.clientHeight - 20
     },
     datesUrlQuery: {
       get() {
@@ -379,6 +213,187 @@ export default {
     calendarSortType() {
       localStorage.setItem('calendarSortType', this.calendarSortType)
       this.drawReservations()
+    }
+  },
+  mounted() {
+    this.dayHeight = this.getDayHeight
+    this.firstday = this.firstDate
+    this.loadReservations()
+  },
+  methods: {
+    loadReservations() {
+      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then((response) => {
+        this.reservations = response.data
+      })
+    },
+    isCurrentMonth(day) {
+      return (
+        moment(this.date).format('MM')
+        === this.firstday
+          .clone()
+          .add(day - 1, 'days')
+          .format('MM')
+      )
+    },
+    openReservationPopup(e, day) {
+      if (!this.detailsModel.open && this.$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])) {
+        e.preventDefault()
+        let targetElement = e.target
+        while (!targetElement.classList.contains('day')) {
+          targetElement = targetElement.parentNode
+        }
+        const position = targetElement.getBoundingClientRect()
+
+        this.reservationModel.open = false
+        this.reservationModel.x = position.x + position.width
+        this.reservationModel.y = e.clientY
+        const selectedDate = this.dates[0].clone().add(day, 'days')
+        setTimeout(() => {
+          this.reservationModel.open = true
+          this.$nextTick(() => {
+            this.reservation.entry = selectedDate.format('YYYY-MM-DD')
+          })
+        }, 100)
+      }
+    },
+    openDetailsPopup(e, reservation) {
+      e.preventDefault()
+      this.detailsModel.open = false
+      const position = e.target.getBoundingClientRect()
+
+      this.detailsModel.y = position.top
+      const calendarContainerRect = this.$refs.callendarContainer.getBoundingClientRect()
+      let x = calendarContainerRect.left
+      while (x < e.clientX) {
+        x += calendarContainerRect.width / this.amountOfDays
+      }
+      this.detailsModel.x = x
+      reservation.employee.name = `${reservation.employee.lastname} ${reservation.employee.firstname}`
+      this.detailsModel.reservation = reservation
+
+      const day = Math.floor((e.x - calendarContainerRect.x)
+        / (calendarContainerRect.width / this.amountOfDays))
+      this.detailsModel.clickedDay = moment(this.firstDate).add(day, 'days')
+
+      setTimeout(() => {
+        this.detailsModel.open = true
+      }, 100)
+    },
+    reservationsThisDay(day) {
+      return this.reservations.filter((r) => {
+        const currentDay = this.firstday.clone().add(day - 1, 'days')
+        return moment(r.entry).isSameOrBefore(currentDay, 'day') && moment(r.exit).isSameOrAfter(currentDay, 'day')
+      })
+    },
+    getReservationsForSelectedTime() {
+      return this.reservations.filter(
+        (r) => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.dates[1], 'day')
+          && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.dates[0], 'day'),
+      )
+    },
+    isFirstDay(day, reservation) {
+      if ((day - 1) % 7 === 0) return true
+      if (
+        this.firstday
+          .clone()
+          .add(day - 1, 'days')
+          .isSame(reservation.entry, 'day')
+      ) {
+        return true
+      }
+      return false
+    },
+    drawReservations() {
+      if (this.initialLoad) {
+        this.$refs.stats.getStats()
+      } else {
+        this.initialLoad = true
+      }
+      const reservations = this.getReservationsForSelectedTime()
+      if (this.calendarSortType === 'number') {
+        reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
+      } else if (this.calendarSortType === 'lastname') {
+        reservations.sort((a, b) => {
+          const nameA = `${a.employee.lastname} ${a.employee.firstname}`
+          const nameB = `${b.employee.lastname} ${b.employee.firstname}`
+          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
+        })
+      }
+
+      this.reservationTags = []
+      let top = 0
+      let previousReservation = null
+      for (const reservation of reservations) {
+        let marginLeft = 0
+        let diffFromFirstDay = 0
+        const isReservationEntrySameOrAfterTimeSelected = this.$moment(reservation.entry).isSameOrAfter(this.dates[0], 'day')
+        const cssClass = []
+        if (isReservationEntrySameOrAfterTimeSelected) {
+          diffFromFirstDay = this.$moment(reservation.entry).diff(this.dates[0], 'days')
+          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 5px)`
+          cssClass.push('border-radius-left')
+        }
+
+        let width = '100%'
+        const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
+        if (this.$moment(reservation.exit).isSameOrBefore(this.dates[1], 'day')) {
+          // const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
+          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 10 : 5
+          width = `calc(${(100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay - diffFromFirstDay)}% - ${pixelsToAdd}px)`
+          cssClass.push('border-radius-right')
+        }
+
+        if (this.calendarSortType === 'lastname' && previousReservation && previousReservation.employee_id === reservation.employee_id) {
+          top -= 25
+        }
+
+        const tag = {
+          style: {
+            marginLeft,
+            width,
+            top: `${top}px`
+          },
+          cssClass,
+          reservation
+        }
+        this.reservationTags.push(tag)
+
+        top += 25
+        previousReservation = reservation
+      }
+    },
+    getFirstDayFromReservationAndWeek(reservation, week, monday) {
+      if (moment(reservation.entry).diff(monday, 'days') < 0) {
+        reservation.firstDayOfWeek = monday
+        return monday
+      }
+      reservation.firstDayOfWeek = moment(reservation.entry, 'YYYY-MM-DD', 'de-ch')
+      return reservation.firstDayOfWeek
+    },
+    getLastDayFromReservationAndWeek(reservation, week, sunday) {
+      if (moment(reservation.exit).diff(sunday, 'days') >= 0) {
+        reservation.lastDayOfWeek = sunday
+        return sunday
+      }
+      reservation.lastDayOfWeek = moment(reservation.exit, 'YYYY-MM-DD', 'de-ch')
+      return reservation.lastDayOfWeek
+    },
+    deleteReservation(reservation) {
+      this.reservations.splice(this.reservations.indexOf(reservation), 1)
+      this.reservations = [...this.reservations]
+      this.drawReservations()
+    },
+    hover(reservationId) {
+      const reservations = document.getElementsByClassName(`reservation-${reservationId}`)
+      for (const reservation of reservations) {
+        reservation.style.filter = 'brightness(85%)'
+      }
+    },
+    leave(reservationId) {
+      const reservations = document.getElementsByClassName(`reservation-${reservationId}`)
+      for (const reservation of reservations) {
+        reservation.style.filter = 'unset'
+      }
     }
   },
   url: {

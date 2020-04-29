@@ -1,18 +1,28 @@
 <template>
   <div class="week">
     <v-row class="mt-4">
-      <v-col cols="12" md="3" xl="2" class="py-0">
+      <v-col
+        cols="12"
+        md="3"
+        xl="2"
+        class="py-0"
+      >
         <p class="text-center text-md-left">
           <span class="font-weight-bold">KW {{ week[0].week }}</span>
           ({{ getMondayOfWeek(week[0].week, week[0].year).format('DD.MM.YYYY') }} -
           {{ getSundayOfWeek(week[0].week, week[0].year).format('DD.MM.YYYY') }})
         </p>
       </v-col>
-      <v-col cols="12" md="9" xl="12" class="py-0">
+      <v-col
+        cols="12"
+        md="9"
+        xl="12"
+        class="py-0"
+      >
         <hourrecord-element
           v-for="(culture, index) of week"
-          v-model="week[index]"
           :key="index"
+          v-model="week[index]"
           :edit-mode="edit"
           :cultures="cultures"
           :admin-mode="adminMode"
@@ -21,8 +31,16 @@
       </v-col>
     </v-row>
 
-    <p class="text-right mb-0" v-if="edit">
-      <v-btn :loading="isAddCultureLoading" outlined color="primary" @click="addCulture(week)">
+    <p
+      v-if="edit"
+      class="text-right mb-0"
+    >
+      <v-btn
+        :loading="isAddCultureLoading"
+        outlined
+        color="primary"
+        @click="addCulture(week)"
+      >
         <v-icon>add</v-icon>Kultur/Arbeit hinzufügen
       </v-btn>
     </p>
@@ -39,9 +57,18 @@ export default {
     HourrecordElement
   },
   props: {
-    week: Array,
-    cultures: Array,
-    customer: Object,
+    week: {
+      type: Array,
+      default: null
+    },
+    cultures: {
+      type: Array,
+      default: null
+    },
+    customer: {
+      type: Object,
+      default: null
+    },
     year: {
       type: String,
       default: moment().format('YYYY')
@@ -79,7 +106,7 @@ export default {
         .post(`hourrecord/${this.year}/${week[0].week}`, {
           customerId: this.customer ? this.customer.id : null
         })
-        .then(response => {
+        .then((response) => {
           week.push(response.data)
         })
         .catch(() => {

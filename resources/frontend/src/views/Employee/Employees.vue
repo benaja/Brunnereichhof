@@ -2,59 +2,85 @@
   <div class="container">
     <h1>Mitarbeiter-Übersicht</h1>
     <search-bar
+      ref="searchBar"
+      v-model="employeesFiltered"
       name="employees"
       label="Mitarbeiter suchen"
       :custom-filter-function="filterActive"
-      v-model="employeesFiltered"
       @showDeleted="s => showDeleted = s"
-      ref="searchBar"
     >
-      <v-switch v-model="showActive" label="Aktiv" slot="custom-filter" :disabled="showDeleted"></v-switch>
+      <v-switch
+        slot="custom-filter"
+        v-model="showActive"
+        label="Aktiv"
+        :disabled="showDeleted"
+      ></v-switch>
     </search-bar>
     <v-expansion-panels>
       <v-expansion-panel
-        :readonly="$auth.user().hasPermission('', 'employee_preview_read')"
         v-for="employee in employeesFiltered"
         :key="employee.id"
+        :readonly="$auth.user().hasPermission('', 'employee_preview_read')"
       >
         <v-expansion-panel-header hide-actions>
           <p class="pt-2 mt-1 header-text">
-            <v-icon class="float-left">account_circle</v-icon>
-            <span class="font-weight-bold pl-2">{{employee.name}}</span>
-            <span class="font-italic hidden-xs-only">&nbsp; {{employee.callname}}</span>
+            <v-icon class="float-left">
+              account_circle
+            </v-icon>
+            <span class="font-weight-bold pl-2">{{ employee.name }}</span>
+            <span class="font-italic hidden-xs-only">&nbsp; {{ employee.callname }}</span>
           </p>
           <v-btn
             v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['employee_write'])"
             color="primary"
             max-width="200"
             @click="restoreEmployee(employee)"
-          >Wiederherstellen</v-btn>
+          >
+            Wiederherstellen
+          </v-btn>
           <v-btn
-            v-else-if="!showDeleted && $auth.user().hasPermission(['superadmin'], ['employee_read'])"
+            v-else-if="!showDeleted &&
+              $auth.user().hasPermission(['superadmin'], ['employee_read'])"
             color="primary"
             max-width="100"
             :to="'/employee/' + employee.id"
-          >Details</v-btn>
+          >
+            Details
+          </v-btn>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-row>
-            <v-col cols="12" md="5" pl-3>
-              <h4 class="mb-2">Sprachkenntnisse</h4>
-              <p>{{employee.german_knowledge == 1 ? 'Deutsch' : ''}}</p>
-              <p>{{employee.english_knowledge == 1 ? 'Englisch' : ''}}</p>
+            <v-col
+              cols="12"
+              md="5"
+              pl-3
+            >
+              <h4 class="mb-2">
+                Sprachkenntnisse
+              </h4>
+              <p>{{ employee.german_knowledge == 1 ? 'Deutsch' : '' }}</p>
+              <p>{{ employee.english_knowledge == 1 ? 'Englisch' : '' }}</p>
             </v-col>
-            <v-col cols="12" md="5">
-              <h4 class="mb-2">Zusätzliche Infos</h4>
-              <p>{{employee.isDriver == 1 ? 'Fahrer': ''}}</p>
-              <p>Kommentar: {{employee.comment}}</p>
+            <v-col
+              cols="12"
+              md="5"
+            >
+              <h4 class="mb-2">
+                Zusätzliche Infos
+              </h4>
+              <p>{{ employee.isDriver == 1 ? 'Fahrer': '' }}</p>
+              <p>Kommentar: {{ employee.comment }}</p>
             </v-col>
-            <v-col cols="12" md="2">
+            <v-col
+              cols="12"
+              md="2"
+            >
               <v-switch
-                class="float-right mr-4 pr-3"
                 v-model="employee.isActive"
+                class="float-right mr-4 pr-3"
                 label="Aktiv"
-                @change="update(employee)"
                 :readonly="!$auth.user().hasPermission(['superadmin'], ['employee_write'])"
+                @change="update(employee)"
               ></v-switch>
             </v-col>
           </v-row>
@@ -79,7 +105,7 @@
 import SearchBar from '@/components/general/SearchBar'
 
 export default {
-  name: 'employees',
+  name: 'Employees',
   components: {
     SearchBar
   },
@@ -92,7 +118,7 @@ export default {
   },
   methods: {
     update(employee) {
-      this.axios.patch('/employee/' + employee.id, employee).catch(() => {
+      this.axios.patch(`/employee/${employee.id}`, employee).catch(() => {
         employee.isActive = !employee.isActive
         this.$swal('Fehler', 'Aktion konnte nicht durchgeführt werden.', 'error')
       })

@@ -1,10 +1,14 @@
 <template>
-  <div class="background" v-if="open" @click="open = false">
+  <div
+    v-if="open"
+    class="background"
+    @click="open = false"
+  >
     <v-menu
+      v-model="open"
       :close-on-content-click="false"
       :close-on-click="false"
       offset-y
-      v-model="open"
       :position-x="positionX"
       :position-y="positionY"
       z-index="101"
@@ -13,10 +17,19 @@
     >
       <v-card>
         <p class="text-right upper-icon-bar">
-          <v-btn icon class="ma-1" @click="$refs.form.deleteTimerecord()" v-if="timerecord">
+          <v-btn
+            v-if="timerecord"
+            icon
+            class="ma-1"
+            @click="$refs.form.deleteTimerecord()"
+          >
             <v-icon>delete</v-icon>
           </v-btn>
-          <v-btn icon class="ma-1" @click="open = false">
+          <v-btn
+            icon
+            class="ma-1"
+            @click="open = false"
+          >
             <v-icon>close</v-icon>
           </v-btn>
         </p>
@@ -33,7 +46,13 @@
         </div>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" depressed @click="$refs.form.save()">Speichern</v-btn>
+          <v-btn
+            color="primary"
+            depressed
+            @click="$refs.form.save()"
+          >
+            Speichern
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -64,11 +83,13 @@ export default {
     }
   },
   methods: {
-    openNewTimerecord({ day, index, selectedStartHour, event, pixelPerHour, timerecord }) {
+    openNewTimerecord({
+      day, index, selectedStartHour, event, pixelPerHour, timerecord
+    }) {
       if (timerecord) {
-        let startDate = this.$moment(timerecord.from, 'HH:mm')
-        let startHour = startDate.hour() + startDate.minutes() / 60
-        let scrollContainer = document.getElementsByClassName('scroll-container')[0]
+        const startDate = this.$moment(timerecord.from, 'HH:mm')
+        const startHour = startDate.hour() + startDate.minutes() / 60
+        const scrollContainer = document.getElementsByClassName('scroll-container')[0]
         const scrollRect = scrollContainer.getBoundingClientRect()
         this.positionY = pixelPerHour * startHour - scrollContainer.scrollTop + scrollRect.y
       } else {

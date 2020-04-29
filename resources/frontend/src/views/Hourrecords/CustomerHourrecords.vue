@@ -2,7 +2,9 @@
   <v-container>
     <h1
       class="text-center"
-    >Stundenangaben {{ customer.lastname }} {{ customer.firstname }} {{ yearNumber }}</h1>
+    >
+      Stundenangaben {{ customer.lastname }} {{ customer.firstname }} {{ yearNumber }}
+    </h1>
     <div class="d-flex justify-end flex-wrap">
       <div class="date-picker-container">
         <date-picker
@@ -21,7 +23,9 @@
           outlined
           @click="addHourrecordDialog = true"
         >
-          <v-icon class="mr-2">add</v-icon>Hinzufügen
+          <v-icon class="mr-2">
+            add
+          </v-icon>Hinzufügen
         </v-btn>
         <v-btn
           :width="$vuetify.breakpoint.xsOnly ? 'calc(50% - 12px)' : ''"
@@ -30,7 +34,9 @@
           depressed
           @click="edit = !edit"
         >
-          <v-icon class="mr-2">check</v-icon>Fertig
+          <v-icon class="mr-2">
+            check
+          </v-icon>Fertig
         </v-btn>
       </template>
       <v-btn
@@ -39,14 +45,16 @@
         depressed
         @click="edit = !edit"
       >
-        <v-icon class="mr-2">edit</v-icon>Bearbeiten
+        <v-icon class="mr-2">
+          edit
+        </v-icon>Bearbeiten
       </v-btn>
     </div>
     <week
       v-for="(week, index) of hourrecords"
+      :key="index"
       :week="week"
       :cultures="cultures"
-      :key="index"
       :customer="customer"
       :year="$route.query.year"
       :edit="edit"
@@ -99,11 +107,11 @@ export default {
   mounted() {
     this.$store.commit('isLoading', true)
     Promise.all([
-      this.axios.get(`/customer/${this.id}`).then(response => {
+      this.axios.get(`/customer/${this.id}`).then((response) => {
         this.customer = response.data
       }),
       this.getHourrecords(),
-      this.axios.get('/culture').then(response => {
+      this.axios.get('/culture').then((response) => {
         this.cultures = response.data
       })
     ])
@@ -130,7 +138,7 @@ export default {
       this.$router.replace({ query: { ...this.$route.query, edit: this.edit ? 0 : 1 } })
     },
     getHourrecords() {
-      return this.axios.get(`/customer/${this.id}/hourrecords?year=${this.year}`).then(response => {
+      return this.axios.get(`/customer/${this.id}/hourrecords?year=${this.year}`).then((response) => {
         this.hourrecords = response.data
       })
     },

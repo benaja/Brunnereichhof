@@ -1,14 +1,36 @@
 <template>
   <div>
     <v-row class="filter-controlls">
-      <v-col cols="12" :md="customFilterFunction ? 7 : 9" :lg="customFilterFunction ? 9 : 10">
-        <v-text-field v-model="searchString" :label="label" :color="color" prepend-icon="search"></v-text-field>
+      <v-col
+        cols="12"
+        :md="customFilterFunction ? 7 : 9"
+        :lg="customFilterFunction ? 9 : 10"
+      >
+        <v-text-field
+          v-model="searchString"
+          :label="label"
+          :color="color"
+          prepend-icon="search"
+        ></v-text-field>
       </v-col>
-      <v-col cols="6" md="2" lg="1" v-if="customFilterFunction">
+      <v-col
+        v-if="customFilterFunction"
+        cols="6"
+        md="2"
+        lg="1"
+      >
         <slot name="custom-filter"></slot>
       </v-col>
-      <v-col :cols="customFilterFunction ? 6 : 12" md="3" lg="2">
-        <v-checkbox v-model="showDeleted" :color="color" label="Gelöschte anzeigen"></v-checkbox>
+      <v-col
+        :cols="customFilterFunction ? 6 : 12"
+        md="3"
+        lg="2"
+      >
+        <v-checkbox
+          v-model="showDeleted"
+          :color="color"
+          label="Gelöschte anzeigen"
+        ></v-checkbox>
       </v-col>
     </v-row>
   </div>
@@ -18,11 +40,26 @@
 export default {
   name: 'SearchBar',
   props: {
-    value: Array,
-    customFilterFunction: Function,
-    customFilterIndex: String,
-    name: String,
-    label: String,
+    value: {
+      type: Array,
+      default: null
+    },
+    customFilterFunction: {
+      type: Function,
+      default: null
+    },
+    customFilterIndex: {
+      type: String,
+      default: null
+    },
+    name: {
+      type: String,
+      default: null
+    },
+    label: {
+      type: String,
+      default: null
+    },
     items: {
       type: Array,
       default: () => []
@@ -41,14 +78,24 @@ export default {
   computed: {
     filteredItems() {
       if (this.items.length === 0) return []
-      return this.items.filter(item => {
+      return this.items.filter((item) => {
         if (!!this.showDeleted !== !!item.deleted_at) return false
-        if (this.customFilterFunction && !this.customFilterFunction(item) && !this.showDeleted) return false
+        if (this.customFilterFunction
+          && !this.customFilterFunction(item)
+          && !this.showDeleted) return false
         if (!this.searchString) return true
         let fullName = item.name || ''
         if (item[this.customFilterIndex]) fullName += ` ${item[this.customFilterIndex]}`
         return fullName.toLowerCase().includes(this.searchString.toLowerCase())
       })
+    }
+  },
+  watch: {
+    showDeleted() {
+      this.$emit('showDeleted', this.showDeleted)
+    },
+    filteredItems(value) {
+      this.$emit('input', value)
     }
   },
   mounted() {
@@ -66,14 +113,6 @@ export default {
         .catch(() => {
           this.$store.dispatch('error', 'Fehler beim Wiederherstellen')
         })
-    }
-  },
-  watch: {
-    showDeleted() {
-      this.$emit('showDeleted', this.showDeleted)
-    },
-    filteredItems(value) {
-      this.$emit('input', value)
     }
   },
   url: {

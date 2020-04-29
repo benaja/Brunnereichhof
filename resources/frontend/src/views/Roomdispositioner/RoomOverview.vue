@@ -1,10 +1,15 @@
 <template>
   <div>
     <v-row>
-      <v-col class="side-container" cols="12" md="4" lg="3">
+      <v-col
+        class="side-container"
+        cols="12"
+        md="4"
+        lg="3"
+      >
         <v-date-picker
-          class="datepicker"
           v-model="date"
+          class="datepicker"
           no-title
           locale="ch-de"
           first-day-of-week="1"
@@ -13,9 +18,15 @@
           show-week
         ></v-date-picker>
         <diV class="text-center">
-          <v-btn color="blue" class="white--text text-center" @click="generatePdf">
+          <v-btn
+            color="blue"
+            class="white--text text-center"
+            @click="generatePdf"
+          >
             PDF
-            <v-icon right>picture_as_pdf</v-icon>
+            <v-icon right>
+              picture_as_pdf
+            </v-icon>
           </v-btn>
         </diV>
       </v-col>
@@ -23,25 +34,37 @@
         <h1 class="mb-3">
           Raumübersicht
           <v-switch
-            class="float-right mt-2"
             v-model="showFreeBeds"
+            class="float-right mt-2"
             color="blue"
             label="Freie Betten anzeigen"
           ></v-switch>
         </h1>
-        <div v-for="room of roomsWithReservations" :key="'room-' + room.id" class="mb-3">
-          <h3>{{room.number}} / {{room.name}} ({{room.location}})</h3>
-          <template v-for="(reservation, index) of room.bedsWithReservation" class="mb-1">
+        <div
+          v-for="room of roomsWithReservations"
+          :key="'room-' + room.id"
+          class="mb-3"
+        >
+          <h3>{{ room.number }} / {{ room.name }} ({{ room.location }})</h3>
+          <template
+            v-for="(reservation, index) of room.bedsWithReservation"
+            class="mb-1"
+          >
             <p
-              class="mb-1"
-              :key="'reservation-' + index"
               v-if="reservation.employee"
-            >{{reservation.employee.lastname}} {{reservation.employee.firstname}} ({{reservation.bed.name}})</p>
+              :key="'reservation-' + index"
+              class="mb-1"
+            >
+              {{ reservation.employee.lastname }} {{ reservation.employee.firstname }}
+              ({{ reservation.bed.name }})
+            </p>
             <p
-              class="mb-1 blue--text text--darken-2"
               v-else-if="showFreeBeds"
               :key="'reservation-' + index"
-            >{{reservation.bedName}} (Freie Plätze: {{reservation.freePlaces}})</p>
+              class="mb-1 blue--text text--darken-2"
+            >
+              {{ reservation.bedName }} (Freie Plätze: {{ reservation.freePlaces }})
+            </p>
           </template>
         </div>
       </v-col>
@@ -61,6 +84,14 @@ export default {
       showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds'))
     }
   },
+  watch: {
+    date() {
+      this.getReservationsByDate()
+    },
+    showFreeBeds() {
+      localStorage.setItem('showFreeBeds', JSON.stringify(this.showFreeBeds))
+    }
+  },
   mounted() {
     this.getReservationsByDate()
   },
@@ -68,8 +99,8 @@ export default {
     getReservationsByDate() {
       this.$store.commit('isLoading', true)
       this.axios
-        .get('/rooms/reservations/' + this.date)
-        .then(response => {
+        .get(`/rooms/reservations/${this.date}`)
+        .then((response) => {
           this.$store.commit('isLoading', false)
           this.roomsWithReservations = response.data
         })
@@ -80,14 +111,6 @@ export default {
     },
     generatePdf() {
       downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
-    }
-  },
-  watch: {
-    date() {
-      this.getReservationsByDate()
-    },
-    showFreeBeds() {
-      localStorage.setItem('showFreeBeds', JSON.stringify(this.showFreeBeds))
     }
   }
 }

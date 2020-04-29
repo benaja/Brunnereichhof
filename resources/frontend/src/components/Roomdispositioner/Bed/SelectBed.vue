@@ -62,52 +62,52 @@
 </template>
 
 <script>
-import AddBed from '@/components/Roomdispositioner/Bed/AddBed';
-import { mapGetters } from 'vuex';
+import AddBed from '@/components/Roomdispositioner/Bed/AddBed'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'SelectBed',
   components: {
-    AddBed,
+    AddBed
   },
   props: {
     value: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     disabled: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
       addBedModel: false,
-      selectedBed: null,
-    };
+      selectedBed: null
+    }
   },
   computed: {
-    ...mapGetters(['beds']),
+    ...mapGetters(['beds'])
   },
   mounted() {
-    this.$store.dispatch('fetchBeds');
+    this.$store.dispatch('fetchBeds')
   },
   methods: {
     addBed(bed) {
-      this.value.push(bed);
+      this.value.push(bed)
       if (this.$route.params.id) {
         this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then((response) => {
-          bed.pivot = response.data;
-        });
+          bed.pivot = response.data
+        })
       }
     },
     change() {
-      const bed = { ...this.beds.find((b) => b.id === this.selectedBed) };
-      this.value.push(bed);
+      const bed = { ...this.beds.find((b) => b.id === this.selectedBed) }
+      this.value.push(bed)
       if (this.$route.params.id) {
         this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then((response) => {
-          bed.pivot = response.data;
-        });
+          bed.pivot = response.data
+        })
       }
     },
     removeBed(bed) {
@@ -115,21 +115,21 @@ export default {
         this.axios
           .delete(`/rooms/${this.$route.params.id}/beds/${bed.pivot.id}`)
           .then(() => {
-            this.value.splice(this.value.indexOf(bed), 1);
+            this.value.splice(this.value.indexOf(bed), 1)
           })
           .catch((error) => {
             if (error.includes('Bed is currently in use')) {
-              this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error');
+              this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error')
             } else {
-              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error');
+              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
             }
-          });
+          })
       } else {
-        this.value.splice(this.value.indexOf(bed), 1);
+        this.value.splice(this.value.indexOf(bed), 1)
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

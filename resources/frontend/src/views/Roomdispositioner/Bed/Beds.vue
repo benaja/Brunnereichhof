@@ -52,31 +52,31 @@
 </template>
 
 <script>
-import AddBed from '@/components/Roomdispositioner/Bed/AddBed';
-import { mapGetters } from 'vuex';
+import AddBed from '@/components/Roomdispositioner/Bed/AddBed'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Beds',
   components: {
-    AddBed,
+    AddBed
   },
   data() {
     return {
-      addModel: false,
-    };
+      addModel: false
+    }
   },
   computed: {
-    ...mapGetters(['beds', 'isLoading']),
+    ...mapGetters(['beds', 'isLoading'])
   },
   mounted() {
-    this.$store.dispatch('fetchBeds');
+    this.$store.dispatch('fetchBeds')
   },
   methods: {
     add(bed) {
-      this.beds.push(bed);
-    },
-  },
-};
+      this.beds.push(bed)
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
