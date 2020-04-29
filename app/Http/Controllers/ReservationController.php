@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Reservation;
 use App\Employee;
+use App\Helpers\Utils;
 use App\Pivots\BedRoomPivot;
 
 class ReservationController extends Controller
@@ -132,6 +133,46 @@ class ReservationController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
         Reservation::find($id)->delete();
+    }
+
+
+    // GET /stats/quartering
+    public function quartering(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $firstDate = Utils::firstDate($request->type, new \DateTime($request->date));
+        $lastDate = Utils::lastDate($request->type, new \DateTime($request->date));
+
+        return Reservation::where('entry', '>=', $firstDate->format('Y-m-d'))
+            ->where('entry', '<=', $lastDate->format('Y-m-d'))
+            ->count();
+    }
+
+    // GET /stats/room-changes
+    public function roomChanges(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $firstDate = Utils::firstDate($request->type, new \DateTime($request->date));
+        $lastDate = Utils::lastDate($request->type, new \DateTime($request->date));
+
+        $reservations = Reservation::where('entry', '<=', $lastDate->format('Y-m-d'))
+            ->where('exit', '>=', $firstDate->format('Y-m-d'))
+            ->get();
+        $roomChanges = 0;
+        foreach ($reservations as $reservation) {
+            $reservationExitDate = clone $reservation->exit;
+            $reservationExitDate->modify('+1 day');
+            $hasEmployeeChangedBed = Reservation::where('employee_id', $reservation->employee_id)
+                ->where('entry', $reservationExitDate->format('Y-m-d'))
+                ->count();
+
+            if ($hasEmployeeChangedBed && $reservation->exit <= $lastDate) {
+                $roomChanges++;
+            }
+        }
+        return $roomChanges;
     }
 
     // --helpers--

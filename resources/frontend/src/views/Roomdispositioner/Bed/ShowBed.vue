@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <progress-linear :loading="isLoading" color="blue"></progress-linear>
     <v-row class="white px-4 py-2">
       <v-col cols="12" md="2" class="py-0">
         <p class="mt-3 font-weight-bold subheading">Name</p>
@@ -69,13 +70,23 @@ export default {
   },
   data() {
     return {
-      bed: {}
+      bed: {},
+      isLoading: false
     }
   },
   mounted() {
-    this.axios.get('/beds/' + this.$route.params.id).then(response => {
-      this.bed = response.data
-    })
+    this.isLoading = true
+    this.axios
+      .get('/beds/' + this.$route.params.id)
+      .then(response => {
+        this.bed = response.data
+      })
+      .catch(() => {
+        this.$store.dispatch('error', 'Bett konnte nicht geladen werden')
+      })
+      .finally(() => {
+        this.isLoading = false
+      })
   },
   methods: {
     change(key) {
@@ -97,6 +108,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

@@ -7,6 +7,7 @@ use App\Room;
 use App\Helpers\Pdf;
 use App\Reservation;
 use App\Helpers\Settings;
+use App\Helpers\Utils;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -47,7 +48,7 @@ class RoomController extends Controller
                 'name' => $request->name,
                 'location' => $request->location,
                 'comment' => $request->comment,
-                'number' => $request->number || ''
+                'number' => $request->number
             ]);
 
             $beds = json_decode($request->beds, true);
@@ -316,6 +317,48 @@ class RoomController extends Controller
         $reservations = $this->getReservationsByMonth($roomId, $date);
         $this->reservationsPdfTable($reservations);
         return $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
+    }
+
+    // GET /pdf/sleep-over/rooms
+    public function sleepOver(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $this->pdf = new Pdf();
+        $firstDate = Utils::firstDate($request->type, new \DateTime($request->date));
+        $lastDate = Utils::lastDate($request->type, new \DateTime($request->date));
+        $documentTitle = "Übernachtungen pro Zimmer \n";
+
+        if ($request->type === 'year') {
+            $documentTitle .= "Jahr: {$firstDate->format('Y')}";
+        } else if ($request->type === 'month') {
+            $documentTitle .= "Monat: {$firstDate->format('m.Y')}";
+        } else {
+            $documentTitle .= "Woche: {$firstDate->format('W')} ({$firstDate->format('d.m.Y')} - {$lastDate->format('d.m.Y')})";
+        }
+        $this->pdf->documentTitle($documentTitle);
+        $this->pdf->textToInsertOnPageBreak = $documentTitle;
+
+        $rooms = Room::whereIn('id', $request->rooms)->orderby('number')->get();
+        $lines = [];
+        $totalSleepOver = 0;
+
+        foreach ($rooms as $room) {
+            $reservations = $this->getReservationsByRoomAndTime($room->id, $firstDate, $lastDate);
+            $sleepOver = Reservation::getSleepOver($reservations, $firstDate, $lastDate);
+            array_push($lines, [$room->number, $room->name, $sleepOver]);
+            $totalSleepOver += $sleepOver;
+        }
+
+        $this->pdf->documentTitle("Totale Übernachtungen: $totalSleepOver");
+        $this->pdf->table(['Nummer', 'Zimmer', 'Übernachtungen'], $lines, [0.3, 1, 1]);
+
+        if ($request->type === 'year') {
+            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('Y')}");
+        } else if ($request->type === 'month') {
+            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('m-Y')}");
+        }
+        return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('W')} ({$firstDate->format('d-m-Y')} - {$lastDate->format('d-m-Y')})");
     }
 
     private function reservationsPdfTable($reservations)

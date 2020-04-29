@@ -4,14 +4,14 @@
     <v-form lazy-validation ref="form">
       <v-row>
         <v-col cols="12" md="6" class="py-0">
-          <v-text-field label="Name*" v-model="room.name" :rules="rules.required" color="blue"></v-text-field>
+          <v-text-field label="Name*" v-model="room.name" :rules="[rules.required]" color="blue"></v-text-field>
         </v-col>
         <v-col cols="12" md="6" class="py-0">
           <v-text-field
             label="Nummer*"
             type="number"
-            v-model="room.number"
-            :rules="rules.required"
+            v-model.number="room.number"
+            :rules="[rules.required, rules.integer]"
             color="blue"
           ></v-text-field>
         </v-col>
@@ -19,7 +19,7 @@
           <v-text-field
             label="Standort*"
             v-model="room.location"
-            :rules="rules.required"
+            :rules="[rules.required]"
             color="blue"
           ></v-text-field>
         </v-col>
@@ -51,6 +51,7 @@
 <script>
 import SelectBed from '@/components/Roomdispositioner/Bed/SelectBed'
 import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
+import { rules } from '@/utils'
 
 export default {
   components: {
@@ -63,9 +64,7 @@ export default {
         beds: [],
         images: []
       },
-      rules: {
-        required: [v => !!v || 'Dieses Feld muss vorhanden sein']
-      },
+      rules,
       isLoading: false
     }
   },

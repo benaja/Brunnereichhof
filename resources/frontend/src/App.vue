@@ -82,7 +82,7 @@
         <div class="router-view">
           <router-view />
         </div>
-        <loading-page v-if="$store.getters.isLoading"></loading-page>
+        <!-- <loading-page v-if="$store.getters.isLoading"></loading-page> -->
         <div class="alerts" v-if="$store">
           <v-alert
             class="ma-3"
@@ -157,6 +157,12 @@ export default {
               to: '/roomdispositioner/evaluation',
               text: 'Auswertung',
               icon: 'show_chart',
+              show: true
+            },
+            {
+              to: '/roomdispositioner/room-overview',
+              text: 'Raumübersicht',
+              icon: 'line_style',
               show: true
             },
             {

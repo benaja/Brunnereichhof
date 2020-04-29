@@ -9,6 +9,7 @@ import moment from 'moment'
 import VueAxios from 'vue-axios'
 import VueSweetalert2 from 'vue-sweetalert2'
 import EditField from '@/components/general/EditField'
+import ProgressLinear from '@/components/general/ProgressLinear'
 import Vuetify from 'vuetify'
 import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
@@ -25,6 +26,7 @@ Vue.use(VueSync)
 moment.locale('de-ch')
 Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)
+Vue.component('progress-linear', ProgressLinear)
 Vue.router = router
 Vue.store = store
 

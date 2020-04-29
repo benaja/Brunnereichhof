@@ -1,121 +1,159 @@
 <template>
-  <div>
-    <v-row>
-      <v-col class="side-container" cols="12" md="4" lg="3">
-        <v-date-picker
-          class="datepicker"
-          v-model="date"
-          no-title
-          locale="ch-de"
-          first-day-of-week="1"
+  <v-container>
+    <h1>Auswertung</h1>
+    <v-radio-group v-model="dateType" row>
+      <v-radio label="Woche" value="date" color="blue"></v-radio>
+      <v-radio label="Monat" value="month" color="blue"></v-radio>
+      <v-radio label="Jahr" value="year" color="blue"></v-radio>
+    </v-radio-group>
+    <date-picker
+      v-model="date"
+      :type="dateType"
+      label="Datum"
+      outlined
+      color="blue"
+      @input="updateStats"
+    ></date-picker>
+
+    <v-tabs v-model="tab" color="blue">
+      <v-tab>Übernachtungen</v-tab>
+      <v-tab>Einquartierungen</v-tab>
+      <v-tab>Zimmerwechsel</v-tab>
+    </v-tabs>
+    <progress-linear :loading="isLoading.rooms || isLoadingStats" indeterminate color="blue"></progress-linear>
+
+    <v-tabs-items v-model="tab">
+      <v-tab-item>
+        <p class="subtitle-1 mt-3">Wähle die gewünschten Zimmer aus</p>
+        <v-row>
+          <v-col cols="12" md="6" lg="4">
+            <v-checkbox
+              v-model="selectAllRooms"
+              label="Alle auswählen"
+              color="blue"
+              class="pt-0 mt-0"
+            ></v-checkbox>
+          </v-col>
+          <v-col v-for="room of rooms" :key="room.id" cols="12" md="6" lg="4">
+            <v-checkbox
+              v-model="selectedRooms"
+              :label="`${room.name} | ${room.number}`"
+              :value="room.id"
+              class="pt-0 mt-0"
+              color="blue"
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+        <v-btn
+          :loading="isLoadingPdf"
+          :disabled="!selectedRooms.length"
+          depressed
           color="blue"
-          width="100%"
-          show-week
-        ></v-date-picker>
-        <diV class="text-center">
-          <v-btn color="blue" class="white--text text-center" @click="generatePdf">
-            PDF
-            <v-icon right>picture_as_pdf</v-icon>
-          </v-btn>
-        </diV>
-      </v-col>
-      <v-col class="content-container">
-        <h1 class="mb-3">
-          Auswertung
-          <v-switch
-            class="float-right mt-2"
-            v-model="showFreeBeds"
-            color="blue"
-            label="Freie Betten anzeigen"
-          ></v-switch>
-        </h1>
-        <div v-for="room of roomsWithReservations" :key="'room-' + room.id" class="mb-3">
-          <h3>{{room.number}} / {{room.name}} ({{room.location}})</h3>
-          <template v-for="(reservation, index) of room.bedsWithReservation" class="mb-1">
-            <p
-              class="mb-1"
-              :key="'reservation-' + index"
-              v-if="reservation.employee"
-            >{{reservation.employee.lastname}} {{reservation.employee.firstname}} ({{reservation.bed.name}})</p>
-            <p
-              class="mb-1 blue--text text--darken-2"
-              v-else-if="showFreeBeds"
-              :key="'reservation-' + index"
-            >{{reservation.bedName}} (Freie Plätze: {{reservation.freePlaces}})</p>
-          </template>
-        </div>
-      </v-col>
-    </v-row>
-  </div>
+          class="white--text"
+          @click="generateRoomPdf"
+        >
+          <v-icon class="mr-2">picture_as_pdf</v-icon>PDF generieren
+        </v-btn>
+      </v-tab-item>
+      <v-tab-item>
+        <p class="headline">{{quartering}}</p>
+      </v-tab-item>
+      <v-tab-item>
+        <p class="headline">{{roomChanges}}</p>
+      </v-tab-item>
+    </v-tabs-items>
+  </v-container>
 </template>
 
 <script>
+import DatePicker from '@/components/general/DatePicker'
+import { mapGetters } from 'vuex'
 import { downloadFile } from '@/utils'
 
 export default {
-  name: 'RoomdispositionerEvaluation',
+  components: {
+    DatePicker
+  },
   data() {
     return {
-      date: this.$moment(new Date()).format('YYYY-MM-DD'),
-      roomsWithReservations: [],
-      showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds'))
+      dateType: 'year',
+      date: this.$moment().format('YYYY-MM-DD'),
+      tab: 0,
+      selectedRooms: [],
+      isLoadingPdf: false,
+      isLoadingStats: false,
+      quartering: 0,
+      roomChanges: 0
     }
   },
-  mounted() {
-    this.getReservationsByDate()
-  },
-  methods: {
-    getReservationsByDate() {
-      this.$store.commit('isLoading', true)
-      this.axios
-        .get('/rooms/reservations/' + this.date)
-        .then(response => {
-          this.$store.commit('isLoading', false)
-          this.roomsWithReservations = response.data
-        })
-        .catch(() => {
-          this.$store.commit('isLoading', false)
-          this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden. Bitte versuchen Sie es später erneut.', 'error')
-        })
-    },
-    generatePdf() {
-      downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
+  computed: {
+    ...mapGetters(['rooms', 'isLoading']),
+    selectAllRooms: {
+      get() {
+        return this.rooms.length === this.selectedRooms.length
+      },
+      set(value) {
+        if (value) {
+          this.selectedRooms = this.rooms.map(r => r.id)
+        } else {
+          this.selectedRooms = []
+        }
+      }
     }
   },
   watch: {
-    date() {
-      this.getReservationsByDate()
+    tab() {
+      this.updateStats()
     },
-    showFreeBeds() {
-      localStorage.setItem('showFreeBeds', JSON.stringify(this.showFreeBeds))
+    dateType() {
+      this.updateStats()
+    }
+  },
+  mounted() {
+    this.$store.dispatch('fetchRooms')
+  },
+  methods: {
+    generateRoomPdf() {
+      this.isLoadingPdf = true
+      downloadFile(`pdf/sleep-over/rooms`, { rooms: this.selectedRooms, type: this.dateType, date: this.date })
+        .catch(() => {
+          this.$store.dispatch('error', 'Fehler bei der Erstellung des PDFs.')
+        })
+        .finally(() => {
+          this.isLoadingPdf = false
+        })
+    },
+    async updateStats() {
+      if (this.tab === 1) {
+        this.quartering = await this.getStats('/stats/quartering', 'Einquartierungen')
+      } else if (this.tab === 2) {
+        this.roomChanges = await this.getStats('/stats/room-changes', 'Zimmerwechsel')
+      }
+    },
+    getStats(url, name) {
+      return new Promise(resolve => {
+        this.isLoadingStats = true
+        this.axios
+          .get(url, {
+            params: {
+              type: this.dateType,
+              date: this.date
+            }
+          })
+          .then(response => {
+            resolve(response.data)
+          })
+          .catch(() => {
+            this.$store.dispatch('error', `Fehler beim Apruffen der ${name}`)
+          })
+          .finally(() => {
+            this.isLoadingStats = false
+          })
+      })
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.datepicker {
-  margin: 20px;
-}
-.side-container {
-  width: 340px;
-  // min-height: calc(100vh - 64px);
-  // height: 100%;
-}
-
-.content-container {
-  width: calc(100% - 340px);
-  padding: 20px;
-}
-
-@media only screen and (max-width: 600px) {
-  .side-container {
-    width: 100%;
-    height: auto;
-  }
-
-  .content-container {
-    width: 100%;
-  }
-}
+<style>
 </style>

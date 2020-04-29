@@ -107,11 +107,14 @@ Route::delete('/images/{imageId}', 'RoomController@deleteImage');
 Route::resource('/rooms', 'RoomController');
 Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
 Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
+Route::get('/pdf/sleep-over/rooms', 'RoomController@sleepOver');
 
 Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
 Route::delete('/beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');
 Route::resource('/beds', 'BedController');
 
+Route::get('/stats/quartering', 'ReservationController@quartering');
+Route::get('/stats/room-changes', 'ReservationController@roomChanges');
 Route::resource('/reservations', 'ReservationController');
 
 Route::resource('/inventars', 'InventarController');

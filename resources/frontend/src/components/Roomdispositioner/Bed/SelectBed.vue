@@ -7,7 +7,7 @@
         :key="index + '' + bed.id"
       >
         <p class="my-4">
-          {{bed.name}}
+          {{ bed.name }}
           <v-btn
             v-if="!disabled"
             text
@@ -30,17 +30,31 @@
           :items="beds"
           item-value="id"
           item-text="name"
-          @input="change"
           color="blue"
           item-color="blue"
+          @input="change"
         ></v-autocomplete>
       </v-col>
       <v-col cols="12">
-        <v-menu :close-on-content-click="false" :nudge-width="300" offset-x v-model="addBedModel">
+        <v-menu
+          v-model="addBedModel"
+          :close-on-content-click="false"
+          :nudge-width="300"
+          offset-x
+        >
           <template v-slot:activator="{ on }">
-            <v-btn color="blue" class="white--text" v-on="on">Neues Bett erstellen</v-btn>
+            <v-btn
+              color="blue"
+              class="white--text"
+              v-on="on"
+            >
+              Neues Bett erstellen
+            </v-btn>
           </template>
-          <add-bed v-model="addBedModel" @add="addBed"></add-bed>
+          <add-bed
+            v-model="addBedModel"
+            @add="addBed"
+          ></add-bed>
         </v-menu>
       </v-col>
     </v-row>
@@ -48,47 +62,52 @@
 </template>
 
 <script>
-import AddBed from '@/components/Roomdispositioner/Bed/AddBed'
+import AddBed from '@/components/Roomdispositioner/Bed/AddBed';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'SelectBed',
   components: {
-    AddBed
+    AddBed,
   },
   props: {
-    value: Array,
+    value: {
+      type: Array,
+      default: () => [],
+    },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      beds: [],
       addBedModel: false,
-      selectedBed: null
-    }
+      selectedBed: null,
+    };
+  },
+  computed: {
+    ...mapGetters(['beds']),
   },
   mounted() {
-    this.axios.get('/beds').then(respoonse => {
-      this.beds = respoonse.data
-    })
+    this.$store.dispatch('fetchBeds');
   },
   methods: {
     addBed(bed) {
-      this.beds.push(bed)
-      this.value.push(bed)
+      this.value.push(bed);
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`)
+        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then((response) => {
+          bed.pivot = response.data;
+        });
       }
     },
     change() {
-      let bed = { ...this.beds.find(b => b.id === this.selectedBed) }
-      this.value.push(bed)
+      const bed = { ...this.beds.find((b) => b.id === this.selectedBed) };
+      this.value.push(bed);
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then(response => {
-          bed.pivot = response.data
-        })
+        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then((response) => {
+          bed.pivot = response.data;
+        });
       }
     },
     removeBed(bed) {
@@ -96,21 +115,21 @@ export default {
         this.axios
           .delete(`/rooms/${this.$route.params.id}/beds/${bed.pivot.id}`)
           .then(() => {
-            this.value.splice(this.value.indexOf(bed), 1)
+            this.value.splice(this.value.indexOf(bed), 1);
           })
-          .catch(error => {
+          .catch((error) => {
             if (error.includes('Bed is currently in use')) {
-              this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error')
+              this.$swal('Bed ist zurzeit Besetzt', 'Du kannst nur ein Bett löschen wenn es momentan oder in Zukunft nicht Besetzt ist.', 'error');
             } else {
-              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+              this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error');
             }
-          })
+          });
       } else {
-        this.value.splice(this.value.indexOf(bed), 1)
+        this.value.splice(this.value.indexOf(bed), 1);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

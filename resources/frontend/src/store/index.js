@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import roles from './modules/roles'
+import rooms from './modules/rooms'
+import loading from './modules/loading'
+import beds from './modules/beds'
 import moment from 'moment'
 
 Vue.use(Vuex)
@@ -79,7 +82,10 @@ const defaultValuesArray = {
 
 export default new Vuex.Store({
   modules: {
-    roles
+    roles,
+    rooms,
+    loading,
+    beds
   },
   state: {
     isMobile: false,
@@ -88,7 +94,6 @@ export default new Vuex.Store({
     dayNames: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
     recordWeeks: [],
     hourRecords: [],
-    isLoading: false,
     saveState: {
       isSaving: false,
       saves: 0
@@ -112,9 +117,6 @@ export default new Vuex.Store({
     employeesWithGuests: {
       ...defaultValuesArray
     },
-    rooms: {
-      ...defaultValuesArray
-    },
     allEmployees: [],
     employeesAndGuests: [],
     authorizationRules: [],
@@ -132,9 +134,6 @@ export default new Vuex.Store({
     },
     hourRecords(state, hourRecords) {
       state.hourRecords = hourRecords
-    },
-    isLoading(state, isLoading) {
-      state.isLoading = isLoading
     },
     isSaving(state, isSaving) {
       if (isSaving) {
@@ -163,9 +162,6 @@ export default new Vuex.Store({
     employees(state, employees) {
       state.employees.items = getPeopleWithFullName(employees)
     },
-    rooms(state, rooms) {
-      state.rooms.items = rooms
-    },
     authorizationRules(state, authorizationRules) {
       state.authorizationRules = authorizationRules
     },
@@ -193,7 +189,6 @@ export default new Vuex.Store({
     dayNames: state => state.dayNames,
     recordWeeks: state => state.recordWeeks,
     hourRecords: state => state.hourRecords,
-    isLoading: state => state.isLoading,
     saveState: state => state.saveState,
     settings: state => state.settings,
     isEditTime: state => {
@@ -215,7 +210,6 @@ export default new Vuex.Store({
     cultures: state => state.cultures,
     employees: state => state.employees,
     workers: state => state.workers,
-    rooms: state => state.rooms,
     employeesWithGuests: state => state.employeesWithGuests,
     guests: state => state.guests,
     authorizationRules: state => state.authorizationRules,
@@ -239,9 +233,6 @@ export default new Vuex.Store({
     },
     guests(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'guests', 'guest', properties)
-    },
-    rooms(context, properties = defaultResolveProperties) {
-      return resolveContent(context, 'rooms', 'rooms', properties)
     },
     employeesWithGuests(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'employeesWithGuests', 'employeeswithguests', properties)
@@ -267,9 +258,6 @@ export default new Vuex.Store({
     resetGuests(context) {
       resetContent(context, 'guests')
     },
-    resetRooms(context) {
-      resetContent(context, 'rooms')
-    },
     alert({ commit }, alert) {
       commit('addAlert', {
         ...alert,
@@ -279,6 +267,9 @@ export default new Vuex.Store({
       setTimeout(() => {
         commit('removeAlert')
       }, (alert.duration || 3) * 1000)
+    },
+    error({ dispatch }, text) {
+      dispatch('alert', { text, type: 'error' })
     }
   }
 })

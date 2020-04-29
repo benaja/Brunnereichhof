@@ -32,4 +32,28 @@ class Utils
     {
         return User::where('username', $username)->count() > 0;
     }
+
+    public static function firstDate($type, $date)
+    {
+        if ($type === 'year') {
+            $date->modify('first day of january this year');
+        } else if ($type === 'month') {
+            $date->modify('first day of this month');
+        } else {
+            $date->modify('monday this week');
+        }
+        return $date;
+    }
+
+    public static function lastDate($type, $date)
+    {
+        if ($type === 'year') {
+            $date->modify('last day of december this year');
+        } else if ($type === 'month') {
+            $date->modify('last day of this month');
+        } else {
+            $date->modify('sunday this week');
+        }
+        return $date;
+    }
 }

@@ -261,6 +261,14 @@ export default new Router({
       }
     },
     {
+      path: '/roomdispositioner/room-overview',
+      name: 'RoomOverview',
+      component: () => import('./views/Roomdispositioner/RoomOverview'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/rooms',
       name: 'Rooms',
       component: () => import('./views/Roomdispositioner/Room/Rooms'),

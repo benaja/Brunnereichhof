@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row dense>
       <v-col cols="12" md="9">
         <h1>Räume</h1>
       </v-col>
@@ -8,22 +8,26 @@
         <v-select
           v-model="sortType"
           :items="sortTypes"
-          outline
+          outlined
           color="blue"
+          item-color="blue"
           single-line
           prepend-inner-icon="sort"
         ></v-select>
       </v-col>
     </v-row>
     <search-bar
+      v-model="roomsFiltered"
+      :items="rooms"
       name="rooms"
       label="Raum suchen"
-      v-model="roomsFiltered"
-      @showDeleted="s => showDeleted = s"
       ref="searchBar"
+      color="blue"
+      @showDeleted="s => showDeleted = s"
     ></search-bar>
+    <progress-linear :loading="isLoading.rooms" color="blue"></progress-linear>
     <v-list class="pa-0 elevation-2">
-      <v-list-item v-for="room of roomsFiltered" :key="room.id" :to="'/rooms/' + room.id">
+      <v-list-item v-for="room of roomsSorted" :key="room.id" :to="'/rooms/' + room.id">
         <v-list-item-content>
           <p class="mt-3">
             <strong>{{room.name}} | {{room.number}}</strong>
@@ -34,9 +38,10 @@
 
         <v-btn
           v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
-          color="primary"
-          class="ml-4"
+          color="blue"
+          class="ml-4 white--text"
           max-width="200"
+          depressed
           @click="e => restoreRoom(e, room)"
         >Wiederherstellen</v-btn>
       </v-list-item>
@@ -57,6 +62,7 @@
 
 <script>
 import SearchBar from '@/components/general/SearchBar'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Rooms',
@@ -75,13 +81,24 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      rooms: 'allRooms',
+      isLoading: 'isLoading'
+    }),
     roomsSorted() {
       if (this.sortType === 'number') {
-        return [...this.rooms].sort((a, b) => a.number - b.number)
+        return [...this.roomsFiltered].sort((a, b) => a.number - b.number)
       } else {
-        return [...this.rooms].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+        return [...this.roomsFiltered].sort((a, b) => {
+          const nameA = a.name || ''
+          const nameB = b.name || ''
+          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
+        })
       }
     }
+  },
+  mounted() {
+    this.$store.dispatch('fetchRooms')
   },
   methods: {
     restoreRoom(event, room) {

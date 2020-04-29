@@ -366,7 +366,7 @@ class EmployeeController extends Controller
                 ->where('exit', '>=', $firstDayOfYear->format('Y-m-d'))
                 ->orderBy('entry')
                 ->get();
-            $sleepOver = $this->getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
+            $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
 
             $this->pdf->documentTitle("Übernachtungen im Jahr {$date->format('Y')}");
             $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
@@ -431,7 +431,7 @@ class EmployeeController extends Controller
         $lastDayOfYear = clone $firstDayOfYear;
         $lastDayOfYear->modify('last day of december this year');
         $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
-        $sleepOver = $this->getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
+        $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
         if ($sleepOver > 0 || $addWhenEmpty) {
             if (!$addWhenEmpty) {
                 $this->pdf->addNewPage();
@@ -447,7 +447,7 @@ class EmployeeController extends Controller
                     $lastDayOfThisMonth = clone $firstDayOfMonth;
                     $lastDayOfThisMonth->modify('last day of this month');
                     $reservationsThisMonth = $employee->reservationsBetweenDates($firstDayOfMonth, $lastDayOfThisMonth);
-                    $sleepOver = $this->getSleepOver($reservationsThisMonth, $firstDayOfMonth, $lastDayOfThisMonth);
+                    $sleepOver = Reservation::getSleepOver($reservationsThisMonth, $firstDayOfMonth, $lastDayOfThisMonth);
                     if ($sleepOver > 0) {
                         $this->pdf->addNewPage();
                         $monthName = Settings::getMonthName($firstDayOfMonth);
@@ -487,34 +487,6 @@ class EmployeeController extends Controller
             }
         }
         $this->pdf->table(['Mitarbeiter', 'Verpflegungen'], $columns);
-    }
-
-    private function getSleepOver($reservations, $firstDay, $lastDay)
-    {
-        $sleepOver = 0;
-        foreach ($reservations as $reservation) {
-            $sleepDays = $reservation->days();
-            if ($firstDay > $reservation->entry) {
-                $sleepDays -= $firstDay->diff($reservation->entry)->days;
-            }
-            if ($lastDay < $reservation->exit) {
-                $sleepDays -= $lastDay->diff($reservation->exit)->days - 1;
-            }
-            $reservationExitDate = clone $reservation->exit;
-            $reservationExitDate->modify('+1 day');
-            // when the employee leaves the bed at the 3. and enters and other bed on 4. It should also
-            // count the night from the 3. to 4.
-            // But when he leaves at the 3. and dont goes to an other bed id sould not count an additional
-            // night
-            $hasEmployeeChangedBed = Reservation::where('employee_id', $reservation->employee_id)
-                ->where('entry', $reservationExitDate->format('Y-m-d'))
-                ->count();
-            if ($hasEmployeeChangedBed && $reservation->exit <= $lastDay) {
-                $sleepOver++;
-            }
-            $sleepOver += $sleepDays;
-        }
-        return $sleepOver;
     }
 
     private function reservationsPdfTable($reservations)
