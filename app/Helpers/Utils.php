@@ -35,6 +35,7 @@ class Utils
 
     public static function firstDate($type, $date)
     {
+        $date = clone $date;
         if ($type === 'year') {
             $date->modify('first day of january this year');
         } else if ($type === 'month') {

@@ -11,9 +11,10 @@ import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VueSync from 'vue-sync'
-import vueAuth from '@websanova/vue-auth/drivers/auth/bearer'
+import vueBearer from '@websanova/vue-auth/drivers/auth/bearer'
 import vueAuthAxios from '@websanova/vue-auth/drivers/http/axios.1.x'
 import vueAuthRouter from '@websanova/vue-auth/drivers/router/vue-router.2.x'
+import auth from '@websanova/vue-auth'
 import axios from './axios'
 import store from './store'
 import router from './router'
@@ -33,8 +34,8 @@ Vue.component('progress-linear', ProgressLinear)
 Vue.router = router
 Vue.store = store
 
-Vue.use(require('@websanova/vue-auth'), {
-  auth: vueAuth,
+Vue.use(auth, {
+  auth: vueBearer,
   http: vueAuthAxios,
   router: vueAuthRouter,
   parseUserData(body) {

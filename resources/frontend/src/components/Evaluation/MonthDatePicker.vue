@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     submitInput() {
-      this.$emit('input', `${this.selectYear ? 'year' : 'month'}/${this.date}`)
+      this.$emit('input', `dateRangeType=${this.selectYear ? 'year' : 'month'}&date=${this.date}`)
     }
   }
 }

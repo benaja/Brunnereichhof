@@ -37,7 +37,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_PICKER
                 }
               ],
-              url: 'pdf/worker/{worker}/month/{month}',
+              url: 'pdf/timerecords/workers/{worker}?month={month}',
               rules: {
                 month: v => !!v
               }
@@ -128,7 +128,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
-              url: 'employee/{employee}/evaluation/{date}',
+              url: 'pdf/day-total/employees/{employee}?{date}',
               rules: {
                 date: v => !!v,
                 employee: v => !!v
@@ -140,6 +140,7 @@ export default {
                 {
                   key: 'employee',
                   dispatch: 'employees',
+                  getter: 'employeesWithGuests',
                   label: 'Mitarbeiter',
                   selectAll: true,
                   type: EVALUATION_INPUT_TYPES.COMBOBOX

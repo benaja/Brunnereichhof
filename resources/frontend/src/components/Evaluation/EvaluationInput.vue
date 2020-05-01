@@ -35,8 +35,7 @@ export default {
   },
   computed: {
     items() {
-      const items = [...this.$store.getters[this.inputField.dispatch]]
-      console.log(items)
+      const items = [...this.$store.getters[this.inputField.getter || this.inputField.dispatch]]
       if (this.inputField.selectAll) {
         items.unshift({
           id: 'all',

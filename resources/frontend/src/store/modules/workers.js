@@ -3,16 +3,12 @@ import moment from 'moment'
 
 export default {
   state: {
-    employees: []
+    workers: []
   },
   getters: {
-    employees: state => state.employees.filter(e => !e.deleted_at && !e.isGuest),
-    allEmployees: state => state.employees.filter(e => !e.isGuest),
-    deletedEmployees: state => state.employees.filter(e => e.deleted_at && !e.isGuest),
-    guests: state => state.employees.filter(e => !e.deleted_at && e.isGuest),
-    allGuests: state => state.employees.filter(e => e.isGuest),
-    deletedGuests: state => state.employees.filter(e => e.deleted_at && e.isGuest),
-    employeesWithGuests: state => state.employees.filter(e => !e.deleted_at)
+    workers: state => state.workers.filter(w => !w.deleted_at),
+    allWorkers: state => state.workers.filter(w => !w.isGuest),
+    deletedWorkers: state => state.workers.filter(w => w.deleted_at)
   },
   mutations: {
     setEmployees(state, employees) {

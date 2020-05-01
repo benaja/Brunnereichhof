@@ -1,28 +1,26 @@
 <template>
-  <v-expansion-panels>
-    <v-expansion-panel
-      v-for="(evaluationGroup, index) of evaluationGroups.filter(e => e.show)"
-      :key="index"
-    >
-      <v-expansion-panel-header>
-        <p class="header-text mb-1">
-          <v-icon class="account-icon mr-2">
-            {{ evaluationGroup.icon }}
-          </v-icon>
-          {{ evaluationGroup.name }}
-        </p>
-      </v-expansion-panel-header>
-      <v-expansion-panel-content>
-        <div>
-          <evaluation-element
-            v-for="(evaluation, i) of evaluationGroup.evaluations"
-            :key="`e-${i}`"
-            :evaluation="evaluation"
-          ></evaluation-element>
-        </div>
-      </v-expansion-panel-content>
-    </v-expansion-panel>
-  </v-expansion-panels>
+  <div>
+    <v-tabs v-model="tab">
+      <v-tab
+        v-for="(evaluationGroup, index) of evaluationGroups.filter(e => e.show)"
+        :key="index"
+      >
+        {{ evaluationGroup.name }}
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab">
+      <v-tab-item
+        v-for="(evaluationGroup, index) of evaluationGroups.filter(e => e.show)"
+        :key="index"
+      >
+        <evaluation-element
+          v-for="(evaluation, i) of evaluationGroup.evaluations"
+          :key="`e-${i}`"
+          :evaluation="evaluation"
+        ></evaluation-element>
+      </v-tab-item>
+    </v-tabs-items>
+  </div>
 </template>
 
 <script>
@@ -36,6 +34,11 @@ export default {
     evaluationGroups: {
       type: Array,
       required: true
+    }
+  },
+  data() {
+    return {
+      tab: 0
     }
   }
 }

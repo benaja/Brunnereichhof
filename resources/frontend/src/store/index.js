@@ -106,9 +106,6 @@ export default new Vuex.Store({
     workers: {
       ...defaultValuesArray
     },
-    guests: {
-      ...defaultValuesArray
-    },
     authorizationRules: [],
     alerts: []
   },
@@ -195,7 +192,6 @@ export default new Vuex.Store({
     customers: state => state.customers,
     cultures: state => state.cultures,
     workers: state => state.workers,
-    guests: state => state.guests,
     authorizationRules: state => state.authorizationRules,
     alerts: state => state.alerts
   },
@@ -212,9 +208,6 @@ export default new Vuex.Store({
     workers(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'workers', 'worker', properties)
     },
-    guests(context, properties = defaultResolveProperties) {
-      return resolveContent(context, 'guests', 'guest', properties)
-    },
     cultures(context, properties = defaultResolveProperties) {
       return resolveContent(context, 'cultures', 'culture', properties)
     },
@@ -229,9 +222,6 @@ export default new Vuex.Store({
     },
     resetWorkers(context) {
       resetContent(context, 'workers')
-    },
-    resetGuests(context) {
-      resetContent(context, 'guests')
     },
     alert({ commit }, alert) {
       commit('addAlert', {

@@ -23,10 +23,14 @@
     <p>
       <v-btn
         color="primary"
+        depressed
         :disabled="!allValid"
         :loading="isLoading"
         @click="generatePdf"
       >
+        <v-icon class="mr-2">
+          picture_as_pdf
+        </v-icon>
         {{ evaluation.buttonText || 'pdf erstellen' }}
       </v-btn>
     </p>
@@ -93,7 +97,13 @@ export default {
         }
       } while (url)
       this.isLoading = true
-      downloadFile(pdfUrl).then(() => {
+      downloadFile(pdfUrl).catch(error => {
+        if (error.message && error.message.includes('Employee has no entries')) {
+          this.$store.dispatch('error', 'Mitarbeiter hat keine Stundenangaben zur gewählten Zeit')
+        } else {
+          this.$store.dispatch('error', 'Pdf konnte nicht generiert werden')
+        }
+      }).finally(() => {
         this.isLoading = false
       })
     },

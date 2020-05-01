@@ -315,8 +315,7 @@ class EmployeeController extends Controller
             }
             if ($request->dateRangeType === 'month') {
                 $monthName = Settings::getMonthName($firstDayOfMonth);
-                return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname 
-                    {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
+                return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
             }
             $firstDayOfMonth->modify('first day of next month');
             $lastDayOfMonth->modify('last day of next month');
@@ -331,6 +330,7 @@ class EmployeeController extends Controller
 
     public function reservationsPdf(Request $request, $employeeId) {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+        $this->pdf = new Pdf();
 
         if ($employeeId === 'all') {
             $firstDayOfYear = Utils::firstDate('year', new \DateTime($request->date));

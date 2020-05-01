@@ -52,6 +52,7 @@ Route::resource('/rapports', 'RapportController');
 
 Route::get('/pdf/workers/meals/year/{year}', 'Evaluation\WorkerPdfController@mealsYearRapport');
 Route::get('/pdf/workers/meals/month/{month}', 'Evaluation\WorkerPdfController@mealsMonthRapport');
+Route::get('/pdf/hourreocrds/workers/{workerId}', 'Evaluation\WorkerPdfController@workerMonthRapport');
 Route::get('/pdf/workers/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
 Route::get('/pdf/workers/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
 Route::get('/pdf/employees/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');

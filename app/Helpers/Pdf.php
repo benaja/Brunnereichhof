@@ -144,13 +144,14 @@ class Pdf extends TCPDF
       'Content-Type' => 'application/pdf',
       'Pragma' => utf8_decode($fileName)
     ];
+    $fileNameOnServer = str_random(8) . ".pdf";
     $dirName = storage_path() . "/pdfs/";
-    $file = $dirName . $fileName;
+    $file = $dirName . $fileNameOnServer;
     if (!is_dir($dirName)) {
       mkdir($dirName);
     }
     $this->Output($file, 'F');
-    return response()->download($file, $fileName, $headers)->deleteFileAfterSend();
+    return response()->download($file, $fileNameOnServer, $headers)->deleteFileAfterSend();
   }
 
   public function error($errorMessage)
