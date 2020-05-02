@@ -8,6 +8,7 @@ use App\Helpers\Pdf;
 use App\User;
 use App\Worktype;
 use App\Helpers\Settings;
+use App\Helpers\Utils;
 use App\Timerecord;
 
 class WorkerPdfController extends Controller
@@ -25,15 +26,21 @@ class WorkerPdfController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function workerMonthRapport(Request $request, $workerId, $month)
-    {
+    public function timerecords(Request $request, $workerId) {
         auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
 
-        $firstDayOfMonth = new \DateTime($month);
-        $firstDayOfMonth->modify('first day of this month');
-        $workers = [];
+        if ($request->dateRangeType === 'month') {
+            return $this->timerecordsMonthRapport($workerId, $request->date);
+        } else {
+            return $this->timerecordsYearRapport($workerId, $request->date);
+        }
+    }
 
-        if ($workerId != 'all') {
+    private function timerecordsMonthRapport($workerId, $date) {
+        $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
+
+        $workers = [];
+        if ($workerId !== 'all') {
             array_push($workers, User::find($workerId));
         } else {
             foreach (User::workers()->withTrashed()->orderby('lastname')->get() as $worker) {
@@ -77,11 +84,9 @@ class WorkerPdfController extends Controller
         return $this->pdf->export($filename);
     }
 
-    public function workerYearRapport(Request $request, $workerId, $year)
+    public function timerecordsYearRapport($workerId, $date)
     {
-        auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
-
-        $firstDayOfYear = (new \DateTime($year))->modify('first day of january this year');
+        $firstDayOfYear = Utils::firstDate('year', new \DateTime($date));
 
         $worker = User::find($workerId);
         $this->pdf = new Pdf();
@@ -122,7 +127,7 @@ class WorkerPdfController extends Controller
             }
             $firstDayOfMonth->modify('first day of next month');
         }
-        return $this->pdf->export("Jahresrapport {$worker->fullName()} {$firstDayOfYear->format('Y')}");
+        return $this->pdf->export("Jahresrapport {$worker->fullName()} {$firstDayOfYear->format('Y')}.pdf");
     }
 
     public function mealsYearRapport(Request $request, $year)

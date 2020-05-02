@@ -27,6 +27,7 @@
         <v-btn
           color="primary"
           class="login-button mt-4 mb-4"
+          :loading="isLoading"
           @click="login"
         >
           Anmelden
@@ -44,6 +45,7 @@
 
 <script>
 import FormContainer from '@/components/general/FormContainer'
+import { rules } from '@/utils'
 
 export default {
   name: 'AddCustomer',
@@ -55,21 +57,22 @@ export default {
       email: null,
       password: null,
       shake: false,
-      rules: {
-        required: v => !!v || 'Dieses Feld muss vorhanden sein'
-      },
-      loginError: null
+      rules,
+      loginError: null,
+      isLoading: false
     }
   },
   methods: {
     login() {
       if (this.$refs.form.validate()) {
+        this.isLoading = true
         this.$auth.login({
           params: {
             email: this.email,
             password: this.password
           },
-          error() {
+          error: () => {
+            this.isLoading = false
             this.shake = true
             setTimeout(() => {
               this.shake = false
