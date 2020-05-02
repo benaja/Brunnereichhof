@@ -201,17 +201,17 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
-    this.axios.get(`${process.env.VUE_APP_API_URL}settings`).then(response => {
+    this.$store.commit('loading', { settings: true })
+    this.axios.get('settings').then(response => {
       this.settings = response.data
-      this.$store.commit('isLoading', false)
+      this.$store.commit('loading', { settings: false })
     })
     this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['settings_write'])
   },
   methods: {
     update(key) {
       this.axios
-        .patch(`${process.env.VUE_APP_API_URL}settings`, {
+        .patch('settings', {
           [key]: this.settings[key]
         })
         .catch(() => {

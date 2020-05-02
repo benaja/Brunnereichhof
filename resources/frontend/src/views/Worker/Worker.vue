@@ -139,7 +139,7 @@ export default {
   methods: {
     change(key) {
       this.axios
-        .patch(`/worker/${this.$route.params.id}`, {
+        .patch(`workers/${this.$route.params.id}`, {
           [key]: this.worker[key]
         })
         .catch(() => {
@@ -148,7 +148,7 @@ export default {
     },
     resetPassword() {
       this.axios
-        .post(`${process.env.VUE_APP_API_URL}resetpassword/${this.$route.params.id}`)
+        .post(`resetpassword/${this.$route.params.id}`)
         .then(() => {
           this.$swal(
             'Passwort wurde zurückgesetzt',

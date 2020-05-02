@@ -81,7 +81,7 @@ export default {
     addCustomer() {
       if (this.selectedCustomer) {
         this.axios
-          .post(`${process.env.VUE_APP_API_URL}rapport`, {
+          .post('rapports', {
             week: this.$route.params.week,
             customer_id: this.selectedCustomer
           })

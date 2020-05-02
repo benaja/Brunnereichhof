@@ -98,13 +98,13 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
+    this.$store.commit('loading', { dashboard: true })
     this.axios.get('stats').then(response => {
       this.stats = response.data
-      this.$store.commit('isLoading', false)
     }).catch(() => {
-      this.$store.commit('isLoading', false)
       this.$swal('Fehler', 'Satistiken konnten nicht abgeruffen werden', 'error')
+    }).finally(() => {
+      this.$store.commit('loading', { dashboard: false })
     })
   }
 }

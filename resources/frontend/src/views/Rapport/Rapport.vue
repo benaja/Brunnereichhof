@@ -343,7 +343,7 @@ export default {
       }).then(result => {
         if (result.value) {
           this.axios
-            .delete(`${process.env.VUE_APP_API_URL}rapport/${this.rapport.id}`)
+            .delete(`rapports/${this.rapport.id}`)
             .then(() => {
               this.$router.push('/rapport')
             })

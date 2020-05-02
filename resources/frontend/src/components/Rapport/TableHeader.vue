@@ -158,7 +158,7 @@ export default {
   methods: {
     change(changedElement) {
       this.axios
-        .patch(`${process.env.VUE_APP_API_URL}rapport/${this.rapport.id}`, {
+        .patch(`rapports/${this.rapport.id}`, {
           [changedElement]: this.rapport[changedElement]
         })
         .catch(() => {

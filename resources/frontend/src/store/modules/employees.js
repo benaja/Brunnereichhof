@@ -39,7 +39,7 @@ export default {
   actions: {
     fetchEmployees({ commit, getters, dispatch }) {
       return new Promise((resolve, reject) => {
-        commit('loadingEmployees', true)
+        commit('loading', { employees: true })
         axios
           .get('/employees?all=true')
           .then(response => {
@@ -51,7 +51,7 @@ export default {
             reject(error)
           })
           .finally(() => {
-            commit('loadingEmployees', false)
+            commit('loading', { employees: false })
           })
       })
     },

@@ -7,67 +7,67 @@ export default {
   },
   getters: {
     workers: state => state.workers.filter(w => !w.deleted_at),
-    allWorkers: state => state.workers.filter(w => !w.isGuest),
+    allWorkers: state => state.workers,
     deletedWorkers: state => state.workers.filter(w => w.deleted_at)
   },
   mutations: {
-    setEmployees(state, employees) {
-      state.employees = employees.map(e => ({
-        ...e,
-        name: `${e.lastname} ${e.firstname}`
+    setWorkers(state, workers) {
+      state.workers = workers.map(w => ({
+        ...w,
+        name: `${w.lastname} ${w.firstname}`
       }))
     },
-    addEmployee(state, employee) {
-      state.employees.push(employee)
+    addWorker(state, worker) {
+      state.workers.push(worker)
     },
-    updateEmployee(state, updatedEmployee) {
-      const employee = state.employees.find(b => b.id === updatedEmployee.id)
-      const index = state.employees.indexOf(employee)
-      state.employees[index] = updatedEmployee
+    updateWorker(state, updatedWorker) {
+      const worker = state.workers.find(w => w.id === updatedWorker.id)
+      const index = state.workers.indexOf(worker)
+      state.workers[index] = updatedWorker
     },
-    deleteEmployee(state, employeeId) {
-      const employee = state.employees.find(e => e.id === employeeId)
-      const index = state.employees.indexOf(employee)
-      employee.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
-      state.employees[index] = employee
+    deleteWorker(state, workerId) {
+      const worker = state.workers.find(e => e.id === workerId)
+      const index = state.workers.indexOf(worker)
+      worker.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
+      state.workers[index] = worker
     }
   },
   actions: {
-    fetchEmployees({ commit, getters, dispatch }) {
+    fetchWorkers({ commit, getters, dispatch }) {
       return new Promise((resolve, reject) => {
-        commit('loadingEmployees', true)
+        commit('loading', { workers: true })
         axios
-          .get('/employees?all=true')
+          .get('/workers?all=true')
           .then(response => {
-            commit('setEmployees', response.data)
-            resolve(getters.employees)
+            commit('setWorkers', response.data)
+            resolve(getters.workers)
           })
           .catch(error => {
             dispatch('error', 'Fehler beim Laden der Mitarbeiter.')
             reject(error)
           })
           .finally(() => {
-            commit('loadingEmployees', false)
+            commit('loading', { workers: false })
           })
       })
     },
-    updateEmployee({ commit }, employee) {
+    updateWorker({ commit }, worker) {
       return new Promise((resolve, reject) => {
         axios
-          .put(`employees/${employee.id}`, employee)
+          .put(`workers/${worker.id}`, worker)
           .then(() => {
-            commit('updateEmployee', employee)
-            resolve(employee)
+            commit('updateWorker', worker)
+            resolve(worker)
           })
           .catch(error => reject(error))
       })
     },
-    deleteEmployee({ commit }, employeeId) {
+    deleteWorker({ commit }, workerId) {
       return new Promise((resolve, reject) => {
         axios
-          .delete(`employees/${employeeId}`)
+          .delete(`workers/${workerId}`)
           .then(() => {
-            commit('deleteEmployee', employeeId)
+            commit('deleteWorker', workerId)
             resolve()
           })
           .catch(error => reject(error))

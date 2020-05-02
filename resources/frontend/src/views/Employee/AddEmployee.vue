@@ -218,7 +218,6 @@ export default {
         sex: 'man',
         isGuest: !!this.$route.query.guest
       },
-      apiUrl: `${process.env.VUE_APP_API_URL}employee`,
       rules,
       genders: [
         {
@@ -244,13 +243,13 @@ export default {
     save() {
       if (this.$refs.form.validate()) {
         this.axios
-          .post(this.apiUrl, this.employee)
+          .post('employees', this.employee)
           .then(response => {
             if (this.$refs.profileImage.files.length === 1) {
               const data = new FormData()
               data.append('profileimage', this.$refs.profileImage.files[0])
               this.axios
-                .post(`${this.apiUrl}/${response.data}/editimage`, data)
+                .post(`employees/${response.data}/editimage`, data)
                 .then(() => {
                   this.redirect()
                 })

@@ -136,7 +136,7 @@ export default {
           this.selectedEmployees.splice(this.selectedEmployees.indexOf(employee), 1)
           this.selectedEmployees = [...this.selectedEmployees]
           this.axios
-            .delete(`${process.env.VUE_APP_API_URL}rapport/${this.$route.params.id}/employee/${employee.id}`)
+            .delete(`rapports/${this.$route.params.id}/employee/${employee.id}`)
             .then(() => {
               this.$emit('removeEmployee', employee.id)
             })

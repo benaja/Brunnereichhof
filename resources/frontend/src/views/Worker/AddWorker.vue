@@ -68,7 +68,6 @@ export default {
   data() {
     return {
       worker: {},
-      apiUrl: `${process.env.VUE_APP_API_URL}worker`,
       emailRegex: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       nameRules: [v => !!v || 'Name muss vorhanden sein'],
       emailRules: [
@@ -89,7 +88,7 @@ export default {
   methods: {
     save() {
       this.axios
-        .post(this.apiUrl, this.worker)
+        .post('workers', this.worker)
         .then(() => {
           this.$router.push('/worker')
         })

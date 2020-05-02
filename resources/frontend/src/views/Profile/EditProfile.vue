@@ -105,7 +105,7 @@ export default {
     save() {
       if (this.allValid) {
         this.axios
-          .post(`${process.env.VUE_APP_API_URL}password/change`, {
+          .post('password/change', {
             passwordOld: this.passwordOld,
             password: this.passwordNew,
             password_confirmation: this.passwordRepeated,

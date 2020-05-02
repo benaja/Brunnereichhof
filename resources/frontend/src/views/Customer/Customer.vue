@@ -293,7 +293,7 @@ export default {
         address: {},
         billing_address: {}
       },
-      apiUrl: `${process.env.VUE_APP_API_URL}customer/${this.$route.params.id}`,
+      apiUrl: `customers/${this.$route.params.id}`,
       isUserAllowedToEdit: false
     }
   },

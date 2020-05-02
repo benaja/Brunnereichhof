@@ -29,6 +29,7 @@ export default {
     fetchRoles({ commit, getters }) {
       return new Promise((resolve, reject) => {
         if (getters.roles.length === 0) {
+          commit('loading', { roles: true })
           axios
             .get('/roles')
             .then(response => {
@@ -37,6 +38,8 @@ export default {
             })
             .catch(error => {
               reject(error)
+            }).finally(() => {
+              commit('loading', { roles: false })
             })
         } else {
           resolve(getters.roles)

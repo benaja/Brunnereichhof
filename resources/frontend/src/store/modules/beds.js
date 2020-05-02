@@ -32,7 +32,7 @@ export default {
   actions: {
     fetchBeds({ commit, getters, dispatch }) {
       return new Promise((resolve, reject) => {
-        commit('loadingBeds', true)
+        commit('loading', { beds: true })
         axios
           .get('/beds?all=true')
           .then(response => {
@@ -44,7 +44,7 @@ export default {
             reject(error)
           })
           .finally(() => {
-            commit('loadingBeds', false)
+            commit('loading', { beds: false })
           })
       })
     },

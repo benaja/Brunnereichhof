@@ -379,7 +379,7 @@ export default {
       employee: {
         user: {}
       },
-      apiUrl: `${process.env.VUE_APP_API_URL}employee/${this.$route.params.id}`,
+      apiUrl: `employee/${this.$route.params.id}`,
       backendUrl: process.env.VUE_APP_URL,
       genders: [
         {

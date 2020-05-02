@@ -37,7 +37,7 @@ export default {
   },
   data() {
     return {
-      apiUrl: `${process.env.VUE_APP_API_URL}project`,
+      apiUrl: 'project',
       chips: [],
       items: [],
       areItemsLoaded: false
@@ -72,10 +72,10 @@ export default {
     }
   },
   mounted() {
-    this.axios.get(`/customer/${this.customerId}/projects`).then(response => {
+    this.axios.get(`customers/${this.customerId}/projects`).then(response => {
       this.chips = response.data
     })
-    this.axios.get(this.apiUrl).then(response => {
+    this.axios.get('projects').then(response => {
       this.items = response.data
     })
   },
@@ -83,10 +83,10 @@ export default {
     chipAdded() {
       const addedProjectname = this.chipsInstance
         .chipsData[this.chipsInstance.chipsData.length - 1].tag
-      this.axios.get(`${this.apiUrl}/exist/${addedProjectname}`).then(response => {
+      this.axios.get(`projects/exist/${addedProjectname}`).then(response => {
         if (response.data === 1) {
           this.axios
-            .post(`${this.apiUrl}/add`, {
+            .post('projects/add', {
               title: addedProjectname,
               customerId: this.customerId
             })
