@@ -120,7 +120,7 @@ export default new Vuex.Store({
       }, (alert.duration || 3) * 1000)
     },
     error({ dispatch }, text) {
-      dispatch('alert', { text, type: 'error' })
+      dispatch('alert', { text, type: 'error', duration: 4 })
     }
   }
 })

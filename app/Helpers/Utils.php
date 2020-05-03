@@ -35,7 +35,11 @@ class Utils
 
     public static function firstDate($type, $date)
     {
-        $date = clone $date;
+        if (is_string($date)) {
+            $date = new \DateTime($date);
+        } else {
+            $date = clone $date;
+        }
         if ($type === 'year') {
             $date->modify('first day of january this year');
         } else if ($type === 'month') {
@@ -48,6 +52,11 @@ class Utils
 
     public static function lastDate($type, $date)
     {
+        if (is_string($date)) {
+            $date = new \DateTime($date);
+        } else {
+            $date = clone $date;
+        }
         if ($type === 'year') {
             $date->modify('last day of december this year');
         } else if ($type === 'month') {

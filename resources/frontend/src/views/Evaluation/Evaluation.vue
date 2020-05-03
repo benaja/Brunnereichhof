@@ -56,7 +56,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'pdf/worker/{worker}/year/{year}',
+              url: 'pdf/timerecords/workers/{worker}?year={year}',
               rules: {
                 year: v => !!v
               }
@@ -69,7 +69,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
-              url: 'pdf/worker/meals/{date}',
+              url: 'pdf/timerecords/meals?{date}',
               rules: {
                 date: v => !!v
               }
@@ -89,7 +89,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_PICKER
                 }
               ],
-              url: 'pdf/employee/month/{month}',
+              url: 'pdf/rapports/employees?date={month}',
               rules: {
                 month: v => !!v
               }
@@ -108,7 +108,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'pdf/employee/{employee}/year/{year}',
+              url: 'pdf/rapports/employees/{employee}?date={year}',
               rules: {
                 year: v => !!v,
                 employee: v => !!v
@@ -128,6 +128,10 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
+              errors: [{
+                message: 'Employee has no entries',
+                alert: { text: 'Mitarbeiter hat keine Stundenangaben zur gewählten Zeit', type: 'warning' }
+              }],
               url: 'pdf/day-total/employees/{employee}?{date}',
               rules: {
                 date: v => !!v,
@@ -164,7 +168,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
                 }
               ],
-              url: 'employee/food/{date}',
+              url: 'pdf/foods/employees?{date}',
               rules: {
                 date: v => !!v
               }
@@ -197,7 +201,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.DATE_PICKER
                 }
               ],
-              url: 'pdf/customer/{customer}/week/{date}',
+              url: 'pdf/customers/{customer}/week/{date}',
               rules: {
                 date: v => !!v
               }
@@ -216,7 +220,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'pdf/customer/{customer}/year/{year}',
+              url: 'pdf/customers/{customer}/year/{year}',
               rules: {
                 year: v => !!v
               }
@@ -236,7 +240,11 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'pdf/hourrecord/{year}/customer/{customer}',
+              errors: [{
+                message: 'No hourrecords for selected time',
+                alert: { text: 'Keine Stundenangaben zur ausgewählten Zeit', type: 'warning' }
+              }],
+              url: 'pdf/hourrecords/{year}/customer/{customer}',
               rules: {
                 year: v => !!v
               }
@@ -244,7 +252,7 @@ export default {
             {
               title: 'Kundenverzeichnis Export',
               inputFields: [],
-              url: 'customers/export',
+              url: 'export/customers',
               buttonText: 'Kundenverzeichnis exportieren'
             }
           ]

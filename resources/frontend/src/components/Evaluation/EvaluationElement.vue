@@ -24,7 +24,7 @@
       <v-btn
         color="primary"
         depressed
-        :disabled="!allValid"
+        :disabled="!allValid || ($store.getters.isLoading.evaluation && !isLoading)"
         :loading="isLoading"
         @click="generatePdf"
       >
@@ -97,14 +97,21 @@ export default {
         }
       } while (url)
       this.isLoading = true
+      this.$store.commit('loading', { evaluation: true })
       downloadFile(pdfUrl).catch(error => {
-        if (error.message && error.message.includes('Employee has no entries')) {
-          this.$store.dispatch('error', 'Mitarbeiter hat keine Stundenangaben zur gewählten Zeit')
-        } else {
+        let customErrorMessage = false
+        for (const catchErrorMessage of this.evaluation.errors) {
+          if (error.message && error.message.includes(catchErrorMessage.message)) {
+            this.$store.dispatch('alert', catchErrorMessage.alert)
+            customErrorMessage = true
+          }
+        }
+        if (!customErrorMessage) {
           this.$store.dispatch('error', 'Pdf konnte nicht generiert werden')
         }
       }).finally(() => {
         this.isLoading = false
+        this.$store.commit('loading', { evaluation: false })
       })
     },
     getValue(key) {

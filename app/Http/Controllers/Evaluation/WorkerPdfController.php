@@ -26,16 +26,50 @@ class WorkerPdfController extends Controller
         $this->middleware('jwt.auth');
     }
 
+    // GET pdf/timerecords/wokers/{workerId}
     public function timerecords(Request $request, $workerId) {
         auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
 
-        if ($request->dateRangeType === 'month') {
-            return $this->timerecordsMonthRapport($workerId, $request->date);
+        if (isset($request->month)) {
+            return $this->timerecordsMonthRapport($workerId, $request->month);
         } else {
-            return $this->timerecordsYearRapport($workerId, $request->date);
+            return $this->timerecordsYearRapport($workerId, $request->year);
         }
     }
 
+    // GET pdf/timerecord/meals
+    public function meals(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
+
+        $firstDate = Utils::firstDate($request->dateRangeType, new \DateTime($request->date));
+        $lastDate = Utils::lastDate($request->dateRangeType, new \DateTime($request->date));
+
+        if ($request->dateRangeType === 'year') {
+            $pdfTitle = "Jahr: {$firstDate->format('Y')}";
+            $documentTitle = $firstDate->format('Y');
+        } else {
+            $monthName = Settings::getMonthName($firstDate);
+            $pdfTitle = "{$monthName} {$firstDate->format('Y')}";
+            $documentTitle = $pdfTitle;
+        }
+
+        $this->pdf = new Pdf('P');
+        $this->generateMealsPage($firstDate, $lastDate, $pdfTitle, false);
+
+        if ($request->dateRangeType === 'year') {
+            $lastDate = Utils::lastDate('month', $firstDate);
+            for ($i = 0; $i < 12; $i++) {
+                $monthName = Settings::getMonthName($firstDate);
+                $this->generateMealsPage($firstDate, $lastDate, "{$monthName} {$firstDate->format('Y')}");
+                $firstDate->modify('first day of next month');
+                $lastDate->modify('last day of next month');
+            }
+        }
+        return $this->pdf->export("Verpflegungen Hofmitarbeiter {$documentTitle}.pdf");
+    }
+
+    // Helpers
     private function timerecordsMonthRapport($workerId, $date) {
         $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
 
@@ -84,7 +118,7 @@ class WorkerPdfController extends Controller
         return $this->pdf->export($filename);
     }
 
-    public function timerecordsYearRapport($workerId, $date)
+    private function timerecordsYearRapport($workerId, $date)
     {
         $firstDayOfYear = Utils::firstDate('year', new \DateTime($date));
 
@@ -130,46 +164,6 @@ class WorkerPdfController extends Controller
         return $this->pdf->export("Jahresrapport {$worker->fullName()} {$firstDayOfYear->format('Y')}.pdf");
     }
 
-    public function mealsYearRapport(Request $request, $year)
-    {
-        auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
-
-        $date = new \DateTime($year);
-        $firstDayOfYear = clone $date;
-        $firstDayOfYear->modify('first day of january this year');
-        $lastDayOfYear = clone $firstDayOfYear;
-        $lastDayOfYear->modify('last day of december this year');
-
-        $this->pdf = new Pdf('P');
-        $this->generateMealsPage($firstDayOfYear, $lastDayOfYear, "Jahr: {$date->format('Y')}", false);
-
-        $firstDayOfMonth = clone $firstDayOfYear;
-        for ($i = 0; $i < 12; $i++) {
-            $lastDayOfMonth = clone $firstDayOfMonth;
-            $lastDayOfMonth->modify('last day of this month');
-            $monthName = Settings::getMonthName($firstDayOfMonth);
-            $this->generateMealsPage($firstDayOfMonth, $lastDayOfMonth, "{$monthName} {$firstDayOfMonth->format('Y')}");
-            $firstDayOfMonth->modify('first day of next month');
-        }
-        return $this->pdf->export("Verpflegungen Hofmitarbeiter {$firstDayOfYear->format('Y')}");
-    }
-
-    public function mealsMonthRapport(Request $request, $month)
-    {
-        auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
-
-        $date = new \DateTime($month);
-        $firstDayOfMonth = clone $date;
-        $firstDayOfMonth->modify('first day of this month');
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
-
-        $this->pdf = new Pdf('P');
-        $monthName = Settings::getMonthName($firstDayOfMonth);
-        $this->generateMealsPage($firstDayOfMonth, $lastDayOfMonth, "{$monthName} {$firstDayOfMonth->format('Y')}", false);
-        return $this->pdf->export("Verpflegungen Hofmitarbeiter {$monthName} {$firstDayOfMonth->format('Y')}");
-    }
-
     private function generateMealsPage($firstDate, $lastDate, $titleForTime, $addNewPage = true)
     {
         $totalMeals = Timerecord::getMealsBetweenDate($firstDate, $lastDate);
@@ -190,7 +184,7 @@ class WorkerPdfController extends Controller
 
     private function mealsTable($firstDate, $lastDate)
     {
-        $workers = User::withTrashed()->get();
+        $workers = User::withTrashed()->orderBy('lastname')->get();
 
         $columns = [];
         foreach ($workers as $worker) {

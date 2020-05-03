@@ -358,47 +358,6 @@ class EmployeeController extends Controller
         }
     }
 
-    public function foodRapportByYear(Request $request, $date)
-    {
-        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
-
-        $firstDayOfYear = new \DateTime($date);
-        $firstDayOfYear->modify('first day of january this year');
-        $lastDayOfYear = clone $firstDayOfYear;
-        $lastDayOfYear->modify('last day of december this year');
-        $employees = Employee::withTrashed()->get();
-
-        $this->pdf = new Pdf('P');
-        $this->generateFoodPage($employees, $firstDayOfYear, $lastDayOfYear, "Jahr: {$firstDayOfYear->format('Y')}", false);
-
-        $firstDayOfMonth = clone $firstDayOfYear;
-        for ($i = 0; $i < 12; $i++) {
-            $lastDayOfMonth = clone $firstDayOfMonth;
-            $lastDayOfMonth->modify('last day of this month');
-            $monthName = Settings::getMonthName($firstDayOfMonth);
-            $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}");
-            $firstDayOfMonth->modify('first day of next month');
-        }
-
-        return $this->pdf->export("Verpflegungen Mitarbeiter {$firstDayOfYear->format('Y')}.pdf");
-    }
-
-    public function foodRapportByMonth(Request $request, $date)
-    {
-        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
-
-        $firstDayOfMonth = new \DateTime($date);
-        $firstDayOfMonth->modify('first day of this month');
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
-        $employees = Employee::withTrashed()->get();
-        $monthName = Settings::getMonthName($firstDayOfMonth);
-
-        $this->pdf = new Pdf('P');
-        $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}", false);
-        return $this->pdf->export("Verpflegungen Mitarbeiter $monthName {$firstDayOfMonth->format('Y')}");
-    }
-
     private function reservationsByYearSingleEmployee($employee, $date, $addWhenEmpty = true)
     {
         $firstDayOfYear = Utils::firstDate('year', $date);
@@ -436,33 +395,6 @@ class EmployeeController extends Controller
         }
     }
 
-    private function generateFoodPage($employees, $firstDate, $lastDate, $titleDate, $addNewPage = true)
-    {
-        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDate, $lastDate);
-        if ($totalFood > 0 || !$addNewPage) {
-            if ($addNewPage) $this->pdf->addNewPage();
-            $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$titleDate \nTotale Verpflegungen: $totalFood";
-            $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
-            $this->pdf->documentTitle("");
-            $this->foodTable($employees, $firstDate, $lastDate);
-        }
-    }
-
-    private function foodTable($employees, $firstDate, $lastDate)
-    {
-        $columns = [];
-        foreach ($employees as $employee) {
-            $totalFood = $employee->getFoodAmountBetweenDates($firstDate, $lastDate);
-            if ($totalFood > 0) {
-                array_push($columns, [
-                    $employee->name(),
-                    $totalFood
-                ]);
-            }
-        }
-        $this->pdf->table(['Mitarbeiter', 'Verpflegungen'], $columns);
-    }
-
     private function reservationsPdfTable($reservations)
     {
         $this->pdf->newLine();
@@ -484,6 +416,7 @@ class EmployeeController extends Controller
         $rapportdetailsByDay = Rapportdetail::where('employee_id', $employee->id)
             ->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
             ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
+            ->where('hours', '>', 0)
             ->orderBy('date')
             ->get()
             ->groupBy('date');

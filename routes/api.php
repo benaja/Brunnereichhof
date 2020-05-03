@@ -37,10 +37,6 @@ Route::post('/projects/add', 'ProjectController@addToCustomer');
 Route::resource('/projects', 'ProjectController');
 
 //Rapport
-// Route::get('/rapport/choosecustomer', 'RapportController@chooseCustomer');
-// Route::get('/rapport/addcustomer/{customer}', 'RapportController@addCustomer');
-// Route::get('/rapport/show', 'RapportController@showAll');
-// Route::post('/rapport/convertdate', 'RapportController@convertDate');
 Route::get('/rapports/week/{week}', 'RapportController@showWeek');
 Route::get('/rapports/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
 Route::post('/rapports/{rapport}/employee', 'RapportController@addEmployee');
@@ -50,20 +46,19 @@ Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails'
 Route::get('/rapports/daytotal/{date}', 'RapportController@daytotal');
 Route::resource('/rapports', 'RapportController');
 
-Route::get('/pdf/workers/meals/year/{year}', 'Evaluation\WorkerPdfController@mealsYearRapport');
-Route::get('/pdf/workers/meals/month/{month}', 'Evaluation\WorkerPdfController@timerecords');
+// Pdfs
+Route::get('pdf/timerecords/meals', 'Evaluation\WorkerPdfController@meals');
 Route::get('pdf/timerecords/workers/{workerId}', 'Evaluation\WorkerPdfController@timerecords');
-Route::get('/pdf/workers/{workerId}/month/{month}/', 'Evaluation\WorkerPdfController@workerMonthRapport');
-Route::get('/pdf/workers/{workerId}/year/{year}/', 'Evaluation\WorkerPdfController@workerYearRapport');
-Route::get('/pdf/employees/{employeeId}/year/{year}', 'PdfController@employeeYearRapport');
-Route::get('/pdf/employees/month/{month}', 'PdfController@employeeMonthRapport');
-Route::get('/pdf/employees', 'PdfController@employeeList');
-Route::get('/pdf/customers/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
-Route::get('/pdf/customers/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
-Route::get('/pdf/reservations/employee/{id}', 'ReservationPdfController@pdfByEmployee');
-Route::get('/pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
-Route::get('/pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
-Route::get('/customers/export', 'Evaluation\CustomerPdfController@csvExport');
+Route::get('pdf/rapports/employees/{employeeId}', 'Evaluation\EmployeePdfController@yearRapport');
+Route::get('pdf/rapports/employees', 'Evaluation\EmployeePdfController@monthRapport');
+Route::get('pdf/employees', 'Evaluation\EmployeePdfController@employeeList');
+Route::get('pdf/foods/employees', 'Evaluation\EmployeePdfController@foodRapport');
+Route::get('pdf/customers/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
+Route::get('pdf/customers/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
+Route::get('pdf/reservations/employee/{id}', 'ReservationPdfController@pdfByEmployee');
+Route::get('pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
+Route::get('pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
+Route::get('export/customers', 'Evaluation\CustomerPdfController@csvExport');
 
 Route::post('/password/change', 'UserController@changePassword');
 Route::post('/resetpassword/{user}', 'UserController@resetPassword');
@@ -83,12 +78,12 @@ Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
 
 Route::resource('/cultures', 'CultureController');
 
-Route::get('/hourrecords/{year}/{week}', 'HourrecordController@getByWeek');
-Route::get('/pdf/hourrecords/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
-Route::get('/pdf/hourrecords', 'HourrecordController@pdfByWeek');
-Route::post('/hourrecords/{year}/{week}', 'HourrecordController@createSingle');
-Route::patch('/hourrecords', 'HourrecordController@updateMultible');
-Route::resource('/hourrecords', 'HourrecordController');
+Route::get('hourrecords/{year}/{week}', 'HourrecordController@getByWeek');
+Route::get('pdf/hourrecords/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
+Route::get('pdf/hourrecords', 'HourrecordController@pdfByWeek');
+Route::post('hourrecords/{year}/{week}', 'HourrecordController@createSingle');
+Route::patch('hourrecords', 'HourrecordController@updateMultible');
+Route::resource('hourrecords', 'HourrecordController');
 
 Route::get('rules', 'RoleController@getRules');
 Route::resource('roles', 'RoleController');

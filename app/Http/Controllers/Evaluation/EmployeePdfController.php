@@ -1,22 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Evaluation;
 
-use Fpdf;
-use App\User;
-use App\Rapport;
 use App\Employee;
-use App\Customer;
 use App\Helpers\Pdf;
 use App\Rapportdetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Enums\FoodTypeEnum;
+use App\Helpers\Settings as HelpersSettings;
+use App\Helpers\Utils;
 use App\Settings;
-use App\Worktype;
 
-class PdfController extends Controller
+class EmployeePdfController extends Controller
 {
     private $monthNames = [
         "Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -30,63 +26,62 @@ class PdfController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    // GET pdf/employee/year/{year}
-    public function employeeYearRapport(Request $request, $employeeId, $year)
+    // GET pdf/rapports/employees/{employeeId}
+    public function yearRapport(Request $request, $employeeId)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
 
         $employee = Employee::find($employeeId);
-        $year = (new \DateTime($year))->format('Y');
+        $firstDayOfYear = Utils::firstDate('year', $request->date);
 
-        $totalHoursOfMonths = $this->getHoursOfEmployeeByYear($employee, $year);
+        $totalHoursOfMonths = $this->getHoursOfEmployeeByYear($employee, $firstDayOfYear);
 
         $totalFoodOfMonths = 0;
         if ($this->rapportFoodTypeEnabled) {
-            $totalFoodOfMonths = $this->getFoodOfEmployeeByYear($employee, $year);
+            $totalFoodOfMonths = $this->getFoodOfEmployeeByYear($employee, $firstDayOfYear);
         }
 
         $this->pdf = new Pdf();
 
         $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
-        $this->pdf->documentTitle("Jahr: $year");
+        $this->pdf->documentTitle("Jahr: {$firstDayOfYear->format('Y')}");
         $this->pdf->documentTitle("Totale Arbeitsstunden: " . array_sum($totalHoursOfMonths) . "h");
         $this->pdf->newLine();
 
-        $this->addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year);
-        $this->addDetailsForAllMonths($employee, $year, $totalHoursOfMonths);
+        $this->addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $firstDayOfYear);
+        $this->addDetailsForAllMonths($employee, $firstDayOfYear, $totalHoursOfMonths);
 
-        return $this->pdf->export("Jahresrapport $year {$employee->lastname} {$employee->firstname}.pdf");
+        return $this->pdf->export("Jahresrapport {$firstDayOfYear->format('Y')} {$employee->lastname} {$employee->firstname}.pdf");
     }
 
-    // GET overview/employee/month/{month}
-    public function employeeMonthRapport(Request $request, $month)
+    // GET pdf/rapports/employees
+    public function monthRapport(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
-        $firstdate = new \Datetime($month);
-        $firstdate->modify("first day of this month");
-
-        $lastdate = clone $firstdate;
-        $lastdate->modify('last day of this month');
+        $firstDate = Utils::firstDate('month', $request->date);
+        $lastDate = Utils::lastDate('month', $request->date);
 
         $rapportdetails = Rapportdetail::with('employee.user')
-            ->where('date', '>=', $firstdate->format('Y-m-d'))
-            ->where('date', '<=', $lastdate->format('Y-m-d'))
+            ->where('date', '>=', $firstDate->format('Y-m-d'))
+            ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
             ->get()
             ->sortBy('employee.user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         $this->pdf = new Pdf();
-        $monthName = $this->monthNames[intval($firstdate->format('m')) - 1];
-        $this->pdf->documentTitle("Monatsrapport: $monthName {$firstdate->format('Y')}");
+        $monthName = HelpersSettings::getMonthName($firstDate);
+        $pdfTitle = "Monatsrapport: $monthName {$firstDate->format('Y')}";
+        $this->pdf->documentTitle($pdfTitle);
+        $this->pdf->textToInsertOnPageBreak = $pdfTitle;
         $this->addMonthOverviewForAllEmployees($rapportdetails);
         $this->addDetailsForAllEmployees($rapportdetails, $monthName);
 
-        $filename = "Monatsrapport $monthName {$firstdate->format('Y')}.pdf";
+        $filename = "Monatsrapport $monthName {$firstDate->format('Y')}.pdf";
         return $this->pdf->export($filename);
     }
 
@@ -129,8 +124,45 @@ class PdfController extends Controller
         return $this->pdf->export("Mitarbeiterliste.pdf");
     }
 
+    // GET pdf/foods/employees
+    public function foodRapport(Request $request)
+    {
+        auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
+
+        $firstDate = Utils::firstDate($request->dateRangeType, $request->date);
+        $lastDate = Utils::lastDate($request->dateRangeType, $request->date);
+        $employees = Employee::with('user')
+            ->withTrashed()
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        if ($request->dateRangeType === 'year') {
+            $title = "Jahr: {$firstDate->format('Y')}";
+        } else {
+            $monthName = HelpersSettings::getMonthName($firstDate);
+            $title = "$monthName {$firstDate->format('Y')}";
+        }
+
+        $this->pdf = new Pdf('P');
+        $this->generateFoodPage($employees, $firstDate, $lastDate, $title, false);
+
+        if ($request->dateRangeType === 'year') {
+            $firstDayOfMonth = clone $firstDate;
+            for ($i = 0; $i < 12; $i++) {
+                $lastDayOfMonth = Utils::lastDate('month', $firstDayOfMonth);
+                $monthName = HelpersSettings::getMonthName($firstDayOfMonth);
+                $this->generateFoodPage($employees, $firstDayOfMonth, $lastDayOfMonth, "$monthName {$firstDayOfMonth->format('Y')}");
+                $firstDayOfMonth->modify('first day of next month');
+            }
+            
+            return $this->pdf->export("Verpflegungen Mitarbeiter {$firstDate->format('Y')}.pdf");
+        }
+        return $this->pdf->export("Verpflegungen Mitarbeiter $title.pdf"); 
+    }
+
     // --helpers--
-    private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $year)
+    private function addMonthOverview($totalHoursOfMonths, $totalFoodOfMonths, $date)
     {
         $header = ['Monat', 'Arbeitszeit Total'];
         if ($this->rapportFoodTypeEnabled) {
@@ -141,7 +173,7 @@ class PdfController extends Controller
         foreach ($totalHoursOfMonths as $hours) {
             if ($hours > 0) {
                 $line = [
-                    $this->monthNames[$currentMonth] . " " . $year,
+                    $this->monthNames[$currentMonth] . " " . $date->format('Y'),
                     $totalHoursOfMonths[$currentMonth] . "h"
                 ];
                 if ($this->rapportFoodTypeEnabled) {
@@ -157,7 +189,7 @@ class PdfController extends Controller
     private function getHoursOfEmployeeByYear($employee, $year)
     {
         $totalHours = array();
-        $firstOfMonth = new \DateTime("1.1.$year");
+        $firstOfMonth = Utils::firstDate('year', $year);
         for ($i = 0; $i < 12; $i++) {
             $hours = $this->getHoursOfEmployeeByMonth($firstOfMonth, $employee);
             array_push($totalHours, $hours);
@@ -169,18 +201,16 @@ class PdfController extends Controller
 
     private function getHoursOfEmployeeByMonth($fristDayOfMonth, $employee)
     {
-        $lastDayOfMonth = clone $fristDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
-
-        $totalHours = $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))->sum('hours');
-
-        return $totalHours;
+        $lastDayOfMonth = Utils::lastDate('month', $fristDayOfMonth);
+        return $employee->rapportdetails->where('date', '>=', $fristDayOfMonth->format('Y-m-d'))
+            ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
+            ->sum('hours');
     }
 
-    private function getFoodOfEmployeeByYear($employee, $year)
+    private function getFoodOfEmployeeByYear($employee, $date)
     {
         $totalFood = array();
-        $firstOfMonth = new \DateTime("1.1.$year");
+        $firstOfMonth = Utils::firstDate('month', $date);
         for ($i = 0; $i < 12; $i++) {
             $food = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee);
             array_push($totalFood, $food);
@@ -192,8 +222,7 @@ class PdfController extends Controller
 
     private function getFoodOfEmployeeByMonth($firstDayOfMonth, $employee, $foodType = [FoodTypeEnum::Eichhof, FoodTypeEnum::Customer])
     {
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
+        $lastDayOfMonth = Utils::lastDate('month', $firstDayOfMonth);
         return $employee->getFoodAmountBetweenDates($firstDayOfMonth, $lastDayOfMonth, $foodType);
     }
 
@@ -203,8 +232,7 @@ class PdfController extends Controller
         foreach ($rapportdetailsByEmployee as $details) {
             $this->pdf->addNewPage('L');
             $totalHours = $details->sum('hours');
-            $firstOfMonth = new \DateTime($rapportdetails[0]->date);
-            $firstOfMonth->modify("first day of this month");
+            $firstOfMonth = Utils::firstDate('month', new \DateTime($rapportdetails[0]->date));
             $this->addDetailsForMonth($details[0]->employee, $firstOfMonth, $monthName, $totalHours);
         }
     }
@@ -238,9 +266,9 @@ class PdfController extends Controller
         $this->pdf->table($titles, $lines);
     }
 
-    private function addDetailsForAllMonths($employee, $year, $totalHoursOfMonths)
+    private function addDetailsForAllMonths($employee, $date, $totalHoursOfMonths)
     {
-        $firstOfMonth = new \DateTime("1.1.$year");
+        $firstOfMonth = Utils::firstDate('month', $date);
         for ($i = 0; $i < 12; $i++) {
             if ($totalHoursOfMonths[$i] > 0) {
                 $this->pdf->AddNewPage('L');
@@ -252,9 +280,7 @@ class PdfController extends Controller
 
     private function addDetailsForMonth($employee, $firstOfMonth, $montName, $totalHours)
     {
-        $lastOfMonth = clone $firstOfMonth;
-        $lastOfMonth->modify("last day of this month");
-
+        $lastOfMonth = Utils::lastDate('month', $firstOfMonth);
         $titles = ['Zeitraum', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
         $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
@@ -316,5 +342,33 @@ class PdfController extends Controller
             $currentDay->modify("+1 day");
         }
         return $cells;
+    }
+
+    private function generateFoodPage($employees, $firstDate, $lastDate, $titleDate, $addNewPage = true)
+    {
+        $totalFood = Rapportdetail::foodAmountBetweenDates($firstDate, $lastDate);
+        if ($totalFood > 0 || !$addNewPage) {
+            if ($addNewPage) $this->pdf->addNewPage();
+            $this->pdf->textToInsertOnPageBreak = "Verpflegungen Mitarbeiter auf dem Eichhof \n$titleDate \nTotale Verpflegungen: $totalFood";
+            $this->pdf->documentTitle($this->pdf->textToInsertOnPageBreak);
+            $this->pdf->documentTitle("");
+            $this->foodTable($employees, $firstDate, $lastDate);
+        }
+    }
+
+    
+    private function foodTable($employees, $firstDate, $lastDate)
+    {
+        $columns = [];
+        foreach ($employees as $employee) {
+            $totalFood = $employee->getFoodAmountBetweenDates($firstDate, $lastDate);
+            if ($totalFood > 0) {
+                array_push($columns, [
+                    $employee->name(),
+                    $totalFood
+                ]);
+            }
+        }
+        $this->pdf->table(['Mitarbeiter', 'Verpflegungen'], $columns);
     }
 }

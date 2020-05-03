@@ -191,11 +191,16 @@ class HourrecordController extends Controller
         if ($customer === 'all') {
             $customers = Customer::withTrashed()->orderBy('lastname')->get();
             $addNewPage = false;
+            $totalHourrecords = 0;
             foreach ($customers as $customer) {
                 $hourrecords = $customer->hourrecords->where('year', $year->format('Y'));
                 if ($hourrecords->count() > 0) {
+                    $totalHourrecords += $hourrecords->sum('hours');
                     $this->customerYearRapport($customer, $year, $addNewPage);
                     $addNewPage = true;
+                }
+                if ($totalHourrecords === 0) {
+                    abort(400, 'No hourrecords for selected time');
                 }
             }
             return $this->pdf->export("Stundenangaben {$year->format('Y')}.pdf");

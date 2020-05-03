@@ -79,7 +79,7 @@ class CustomerPdfController extends Controller
         }
     }
 
-    // GET customers/export
+    // GET export/customers
     public function csvExport(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
