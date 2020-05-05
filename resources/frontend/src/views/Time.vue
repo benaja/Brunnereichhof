@@ -271,7 +271,7 @@ export default {
   data() {
     return {
       dateDialog: false,
-      date: '',
+      date: this.$moment().format('YYYY-MM-DD'),
       isOverviewOpen: false,
       weekDays: [],
       timePopupForm: {
@@ -311,7 +311,6 @@ export default {
   mounted() {
     this.$store.dispatch('fetchTimerecordSettings', this.urlWorkerParam)
     this.$store.dispatch('fetchWorktypes')
-    this.date = this.$moment().format('YYYY-MM-DD')
     this.getDay()
     this.$refs.scrollContainer.scroll(0, 270)
   },

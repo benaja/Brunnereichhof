@@ -3,6 +3,7 @@
     <select-field
       v-model="role"
       :items="roles"
+      :rules="rules"
       :original="original"
       label="Rolle"
       item-text="name"
@@ -11,7 +12,7 @@
       @change="$emit('change')"
     ></select-field>
     <CreateRole
-      v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
+      v-if="$auth.user().hasPermission(['superadmin'], ['role_write']) && !readonly"
       v-model="isCreateRolePopupOpen"
       @addRole="addRole"
     >
@@ -49,6 +50,10 @@ export default {
     original: {
       type: Number,
       default: null
+    },
+    rules: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

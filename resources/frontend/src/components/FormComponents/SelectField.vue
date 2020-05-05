@@ -86,6 +86,9 @@ export default {
       if (this.disabled || this.readonly || this.outline || this.value) return 'transparent'
       return 'grey lighten-4'
     }
+  },
+  mounted() {
+    console.log(this.computedRestoreMessage)
   }
 }
 </script>

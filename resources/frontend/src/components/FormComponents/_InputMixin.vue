@@ -12,8 +12,7 @@ export default {
   },
   computed: {
     canRestore() {
-      console.log(this.original)
-      if (this.original === undefined || this.disabled || this.readonly) return false
+      if (!this.original || this.disabled || this.readonly) return false
       if (typeof this.original === 'object') return !this._.isEqual(this.original, this.$attrs.value)
       if (this.type === 'number') return Number(this.value) !== Number(this.original)
       return this.original !== this.value

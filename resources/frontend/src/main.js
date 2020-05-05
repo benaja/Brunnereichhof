@@ -26,7 +26,9 @@ import App from './App'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
-Vue.use(VueSweetalert2)
+Vue.use(VueSweetalert2, {
+  confirmButtonColor: COLORS.PRIMARY
+})
 Vue.use(chartist)
 Vue.use(Vue2TouchEvents)
 Vue.use(VueSync)

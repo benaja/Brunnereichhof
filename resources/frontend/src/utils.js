@@ -19,24 +19,25 @@ function downloadFile(url, params) {
   })
 }
 
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 const rules = {
   required: v => !!v || 'Dieses Feld muss vorhanden sein',
   nullableEmail: v => !v
-    || /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      v,
-    )
+    || emailRegex.test(v)
     || 'Email nicht korrekt',
+  email: v => emailRegex.test(v) || 'Email nicht korrekt',
   integer: v => Number.isInteger(v) || 'Muss eine ganzzahlige Zahl sein'
 }
 
-function confirmDelete(text = 'Willst du diesen Eintrag wirklich löschen?') {
+function confirmAction(text = 'Willst du diesen Eintrag wirklich löschen?', confirmButtonText = 'Ja, löschen') {
   return new Promise(resolve => {
-    Vue.swal.fire({
+    Vue.swal({
       title: 'Bis du dir sicher?',
       text,
       type: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Ja, löschen!',
+      confirmButtonText,
       cancelButtonText: 'Nein, abbrechen',
       confirmButtonColor: COLORS.PRIMARY
     }).then(result => {
@@ -45,4 +46,4 @@ function confirmDelete(text = 'Willst du diesen Eintrag wirklich löschen?') {
   })
 }
 
-export { downloadFile, rules, confirmDelete }
+export { downloadFile, rules, confirmAction }

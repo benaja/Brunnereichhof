@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <progress-linear :loading="isLoading || $store.getters.isLoading.authorizationRules" />
     <edit-field
       v-model="role.name"
       label="name"
@@ -26,32 +27,35 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
-  name: 'ShowRole',
   data() {
     return {
       role: {},
-      authorizationRules: {}
+      isLoading: false
     }
   },
+  computed: {
+    ...mapGetters(['authorizationRules'])
+  },
   mounted() {
-    this.$store.commit('isLoading', true)
-    this.axios
-      .get(`roles/${this.$route.params.id}`)
-      .then(response => {
-        this.$store.dispatch('authorizationRules').then(authorizationRules => {
-          this.authorizationRules = authorizationRules
-          this.$store.commit('isLoading', false)
-        })
-        response.data.selectedAuthorizationRules = response.data.authorization_rules
-          .map(r => r.id)
+    this.$store.dispatch('fetchAuthorizationRules').then(() => {
+      this.isLoading = true
+      this.axios
+        .get(`roles/${this.$route.params.id}`)
+        .then(response => {
+          response.data.selectedAuthorizationRules = response.data.authorization_rules
+            .map(r => r.id)
 
-        this.role = response.data
-      })
-      .catch(() => {
-        this.$store.commit('isLoading', false)
-        this.$swal('Fehler', 'Rolle konnte nicht abgerufen werden', 'error')
-      })
+          this.role = response.data
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Rolle konnte nicht abgerufen werden', 'error')
+        }).finally(() => {
+          this.isLoading = false
+        })
+    })
   },
   methods: {
     updateRole() {
@@ -74,6 +78,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

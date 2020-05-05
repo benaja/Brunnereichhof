@@ -47,7 +47,8 @@ class WorkerController extends Controller
         $this->validate($request, [
             'firstname' => 'required|string|max:100',
             'lastname' => 'required|string|max:100',
-            'email' => 'required|email|unique:user'
+            'email' => 'required|email|unique:user',
+            'role_id' => 'required|integer'
         ]);
 
         $username = Utils::getUniqueUsername($request->firstname . "." . $request->lastname);
@@ -60,7 +61,9 @@ class WorkerController extends Controller
             'email' => request('email'),
             'username' => $username,
             'password' => Hash::make($password),
-            'isPasswordChanged' => 0
+            'isPasswordChanged' => 0,
+            'role_id' => $request->role_id,
+            'isActive' => $request->isActive
         ]);
 
         $usertype->users()->save($user);

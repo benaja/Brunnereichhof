@@ -15,6 +15,7 @@
           color="primary"
           class="my-2"
           depressed
+          :loading="isLoadingSave"
           @click="saveChanges"
         >
           Speichern
@@ -24,93 +25,39 @@
     <v-container
       v-if="worker"
     >
-      <v-form
-        @keyup.native.enter="saveChanges"
-      >
-        <v-row>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <text-field
-              v-model="worker.firstname"
-              :original="original.firstname"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-              label="Vorname"
-              @change="change('firstname')"
-            ></text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <text-field
-              v-model="worker.lastname"
-              :original="original.lastname"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-              label="Nachname"
-              @change="change('lastname')"
-            ></text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <text-field
-              v-model="worker.email"
-              :original="original.email"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-              label="Email"
-              @change="change('email')"
-            ></text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <select-role
-              v-model="worker.role_id"
-              :original="original.role_id"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-              @change="change('role_id')"
-            ></select-role>
-          </v-col>
-          <v-col cols="12">
-            <v-switch
-              v-model="worker.isActive"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-              label="Aktiv"
-              @change="change('isActive')"
-            ></v-switch>
-          </v-col>
-          <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
-            <v-col cols="12">
-              <v-divider></v-divider>
-              <div class="d-flex flex-column flex-sm-row mt-5">
-                <v-btn
-                  color="primary"
-                  outlined
-                  class="mr-0 mr-sm-2 my-2"
-                  @click="resetPassword"
-                >
-                  Passwort zurücksetzten
-                </v-btn>
-                <v-btn
-                  color="red"
-                  class="white--text my-2"
-                  depressed
-                  @click="deleteWorker"
-                >
-                  <v-icon class="mr-2">
-                    delete
-                  </v-icon>
-                  Hofmitarbeiter Löschen
-                </v-btn>
-              </div>
-            </v-col>
-          </template>
-        </v-row>
-      </v-form>
+      <worker-form
+        v-model="worker"
+        :original="original"
+        :readonly="!isAlowedToEdit"
+        @submit="saveChanges"
+        @change="change($event)"
+      ></worker-form>
+      <v-row v-if="isAlowedToEdit">
+        <v-col cols="12">
+          <v-divider></v-divider>
+          <div class="d-flex flex-column flex-sm-row mt-5">
+            <v-btn
+              color="primary"
+              outlined
+              class="mr-0 mr-sm-2 my-2"
+              @click="resetPassword"
+            >
+              Passwort zurücksetzten
+            </v-btn>
+            <v-btn
+              color="red"
+              class="white--text my-2"
+              depressed
+              @click="deleteWorker"
+            >
+              <v-icon class="mr-2">
+                delete
+              </v-icon>
+              Hofmitarbeiter Löschen
+            </v-btn>
+          </div>
+        </v-col>
+      </v-row>
     </v-container>
     <div class="time-form">
       <v-container>
@@ -124,34 +71,31 @@
 </template>
 
 <script>
-import SelectRole from '@/components/Authorization/SelectRole'
 import TimeView from '@/views/Time'
-import { confirmDelete } from '@/utils'
-import { TextField } from '@/components/FormComponents'
+import { confirmAction } from '@/utils'
+import WorkerForm from '@/components/worker/WorkerForm'
 
 export default {
   name: 'Worker',
   components: {
-    SelectRole,
     TimeView,
-    TextField
+    WorkerForm
   },
   data() {
     return {
       worker: null,
       original: null,
       apiUrl: `/workers/${this.$route.params.id}`,
-      outline: {
-        firstname: true,
-        lastname: false,
-        email: false
-      },
-      isLoadingRevert: false
+      isLoadingRevert: false,
+      isLoadingSave: false
     }
   },
   computed: {
     hasChanges() {
       return !this._.isEqual(this.worker, this.original)
+    },
+    isAlowedToEdit() {
+      return this.$auth.user().hasPermission(['superadmin'], ['worker_write'])
     }
   },
   mounted() {
@@ -164,33 +108,39 @@ export default {
   },
   methods: {
     change(key) {
-      this.$store.commit('isSaving', true)
-      this.axios
-        .patch(`workers/${this.$route.params.id}`, {
-          [key]: this.worker[key]
-        })
-        .catch(() => {
-          this.$swal('Fehler', 'Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'error')
-        }).finally(() => {
-          this.$store.commit('isSaving', false)
-        })
+      if (this.hasChanges) {
+        this.$store.commit('isSaving', true)
+        this.axios
+          .patch(`workers/${this.$route.params.id}`, {
+            [key]: this.worker[key]
+          })
+          .catch(() => {
+            this.$swal('Fehler', 'Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'error')
+          }).finally(() => {
+            this.$store.commit('isSaving', false)
+          })
+      }
     },
     resetPassword() {
-      this.axios
-        .post(`resetpassword/${this.$route.params.id}`)
-        .then(() => {
-          this.$swal(
-            'Passwort wurde zurückgesetzt',
-            `${this.worker.firstname} ${this.worker.lastname} hat eine Email mit dem neuen Passwort erhalten.`,
-            'success',
-          )
-        })
-        .catch(() => {
-          this.$swal('Fehler', 'Passwort konnte aus einem unbekannten Grund nicht zurückgesetzt werden.', 'error')
-        })
+      confirmAction('Der Mitarbeiter wird eine Email mit seinem neuen Passwort erhalten.', 'Ja, zurücksetzten').then(result => {
+        if (result) {
+          this.axios
+            .post(`resetpassword/${this.$route.params.id}`)
+            .then(() => {
+              this.$swal(
+                'Passwort wurde zurückgesetzt',
+                `${this.worker.firstname} ${this.worker.lastname} hat eine Email mit dem neuen Passwort erhalten.`,
+                'success',
+              )
+            })
+            .catch(() => {
+              this.$swal('Fehler', 'Passwort konnte aus einem unbekannten Grund nicht zurückgesetzt werden.', 'error')
+            })
+        }
+      })
     },
     deleteWorker() {
-      confirmDelete('Willst du diesen Hofmitarbeiter wirklich löschen?').then(result => {
+      confirmAction('Willst du diesen Hofmitarbeiter wirklich löschen?').then(result => {
         if (result) {
           this.axios.delete(this.apiUrl).then(() => {
             this.$router.push('/worker')
@@ -212,22 +162,36 @@ export default {
     },
     revertChanges() {
       this.isLoadingRevert = true
-      this.axios.patch(this.apiUrl, {
-        firstname: this.original.firstname,
-        lastname: this.original.lastname,
-        email: this.original.email,
-        role_id: this.original.role_id,
-        isActive: this.original.isActive
-      }).then(() => {
-        this.worker = this._.cloneDeep(this.original)
-      }).catch(() => {
-        this.$store.dispatch('error', 'Änderungen konnten nicht mehr rückgängig gemacht werden')
-      }).finally(() => {
-        this.isLoadingRevert = false
-      })
+      this.axios.patch(this.apiUrl, this.workerPayload(this.original))
+        .then(() => {
+          this.worker = this._.cloneDeep(this.original)
+        }).catch(() => {
+          this.$store.dispatch('error', 'Änderungen konnten nicht mehr rückgängig gemacht werden')
+        }).finally(() => {
+          this.isLoadingRevert = false
+        })
     },
     saveChanges() {
-      this.original = this._.cloneDeep(this.worker)
+      if (this.isAlowedToEdit) {
+        this.isLoadingSave = true
+        this.axios.patch(this.apiUrl, this.workerPayload(this.worker))
+          .then(() => {
+            this.original = this._.cloneDeep(this.worker)
+          }).catch(() => {
+            this.$store.dispatch('error', 'Änderungen konnten nicht gespeichert werden')
+          }).finally(() => {
+            this.isLoadingSave = false
+          })
+      }
+    },
+    workerPayload(worker) {
+      return {
+        firstname: worker.firstname,
+        lastname: worker.lastname,
+        email: worker.email,
+        role_id: worker.role_id,
+        isActive: worker.isActive
+      }
     }
   }
 }
