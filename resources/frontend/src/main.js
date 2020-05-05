@@ -15,10 +15,14 @@ import vueBearer from '@websanova/vue-auth/drivers/auth/bearer'
 import vueAuthAxios from '@websanova/vue-auth/drivers/http/axios.1.x'
 import vueAuthRouter from '@websanova/vue-auth/drivers/router/vue-router.2.x'
 import auth from '@websanova/vue-auth'
+import VueLodash from 'vue-lodash'
+import lodash from 'lodash'
+import NavigationBar from '@/components/NavigationBar'
+import { COLORS } from './constants'
 import axios from './axios'
 import store from './store'
 import router from './router'
-import App from './App.vue'
+import App from './App'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
@@ -26,10 +30,12 @@ Vue.use(VueSweetalert2)
 Vue.use(chartist)
 Vue.use(Vue2TouchEvents)
 Vue.use(VueSync)
+Vue.use(VueLodash, { name: '$lodash', lodash })
 
 moment.locale('de-ch')
 Vue.prototype.$moment = moment
 Vue.component('edit-field', EditField)
+Vue.component('navigation-bar', NavigationBar)
 Vue.component('progress-linear', ProgressLinear)
 Vue.router = router
 Vue.store = store
@@ -57,9 +63,9 @@ const vuetifyOpts = {
     light: true,
     themes: {
       light: {
-        primary: '#26a69a',
-        secondary: '#26a69a',
-        accent: '#26a69a'
+        primary: COLORS.PRIMARY,
+        secondary: COLORS.SECONDARY,
+        accent: COLORS.ACCENT
       }
     }
   }

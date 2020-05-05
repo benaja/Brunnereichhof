@@ -1,5 +1,7 @@
 import fileDownload from 'js-file-download'
+import Vue from 'vue'
 import axios from './axios'
+import { COLORS } from './constants'
 
 function downloadFile(url, params) {
   return new Promise((resolve, reject) => {
@@ -27,4 +29,20 @@ const rules = {
   integer: v => Number.isInteger(v) || 'Muss eine ganzzahlige Zahl sein'
 }
 
-export { downloadFile, rules }
+function confirmDelete(text = 'Willst du diesen Eintrag wirklich löschen?') {
+  return new Promise(resolve => {
+    Vue.swal.fire({
+      title: 'Bis du dir sicher?',
+      text,
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ja, löschen!',
+      cancelButtonText: 'Nein, abbrechen',
+      confirmButtonColor: COLORS.PRIMARY
+    }).then(result => {
+      resolve(result.value)
+    })
+  })
+}
+
+export { downloadFile, rules, confirmDelete }

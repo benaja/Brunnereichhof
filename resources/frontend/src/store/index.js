@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import moment from 'moment'
 import roles from './modules/roles'
 import rooms from './modules/rooms'
 import loading from './modules/loading'
@@ -10,6 +9,8 @@ import customers from './modules/customers'
 import workers from './modules/workers'
 import cultures from './modules/cultures'
 import authorizationRules from './modules/authorizationRules'
+import timerecords from './modules/timerecords'
+import settings from './modules/settings'
 
 Vue.use(Vuex)
 
@@ -23,7 +24,9 @@ export default new Vuex.Store({
     customers,
     workers,
     cultures,
-    authorizationRules
+    authorizationRules,
+    timerecords,
+    settings
   },
   state: {
     isMobile: false,
@@ -36,7 +39,6 @@ export default new Vuex.Store({
       isSaving: false,
       saves: 0
     },
-    settings: {},
     alerts: []
   },
   mutations: {
@@ -55,19 +57,12 @@ export default new Vuex.Store({
     isSaving(state, isSaving) {
       if (isSaving) {
         state.saveState.saves++
-        state.saveState.isSaving = isSaving
+        state.saveState.isSaving = true
       } else {
         state.saveState.saves--
         if (state.saveState.saves === 0) {
           state.saveState.isSaving = false
         }
-      }
-    },
-    settings(state, settings) {
-      state.settings = {
-        ...settings,
-        welcomeText: settings.welcomeText.replace('{name}', `${Vue.auth.user().firstname} ${Vue.auth.user().lastname}`),
-        hourrecordValid: settings.hourrecordValid.replace('{datum}', moment(settings.hourrecordEndDate).format('DD.MM.YYYY'))
       }
     },
     addAlert(state, alert) {
@@ -85,7 +80,7 @@ export default new Vuex.Store({
     recordWeeks: state => state.recordWeeks,
     hourRecords: state => state.hourRecords,
     saveState: state => state.saveState,
-    settings: state => state.settings,
+    isSaving: state => state.saveState.isSaving,
     isEditTime: state => {
       let startdate = new Date(state.settings.hourrecordStartDate)
       let endDate = new Date(state.settings.hourrecordEndDate)

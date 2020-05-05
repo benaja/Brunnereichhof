@@ -42,6 +42,10 @@
           </v-btn>
         </p>
         <v-divider></v-divider>
+        <progress-linear
+          v-if="$vuetify.breakpoint.smAndDown"
+          :loading="isLoading"
+        ></progress-linear>
         <div class="px-3 pt-3 hidden-md-and-up">
           <h2 class="mb-1">
             Bezogene Stunden {{ type === 'month' ? 'diesen Monat' : 'diese Woche' }}
@@ -74,7 +78,6 @@
 
 <script>
 export default {
-  name: 'Overview',
   props: {
     urlWorkerParam: {
       type: String,
@@ -84,13 +87,14 @@ export default {
   },
   data() {
     return {
-      date: this.$store.getters.isMobile ? new Date().toISOString().substr(0, 7)
-        : new Date().toISOString().substring(0, 10),
+      date: this.$store.getters.isMobile ? this.$moment().format('YYYY-MM')
+        : this.$moment().format('YYYY-MM-DD'),
       totalHours: 0,
       holidayHours: 0,
       totalHoursMonth: 0,
       holidayHoursMonth: 0,
-      type: window.innerWidth < 960 ? 'month' : 'date'
+      type: window.innerWidth < 960 ? 'month' : 'date',
+      isLoading: false
     }
   },
   computed: {
@@ -112,8 +116,9 @@ export default {
   },
   methods: {
     getStats() {
+      this.isLoading = true
       this.axios
-        .get(`/time/stats/${this.date}${this.urlWorkerParam}`)
+        .get(`/times/stats/${this.date}${this.urlWorkerParam}`)
         .then(response => {
           this.totalHours = response.data.week.totalHours
           this.holidayHours = response.data.week.holidayHours
@@ -124,6 +129,8 @@ export default {
         })
         .catch(() => {
           this.$swal('Fehler', 'Statistiken konnten nicht geladen werden', 'error')
+        }).finally(() => {
+          this.isLoading = false
         })
     }
   }

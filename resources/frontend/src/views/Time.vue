@@ -1,10 +1,17 @@
 <template>
   <div class="time-container">
+    <!-- mobile -->
     <v-row
       v-if="$vuetify.breakpoint.smAndDown"
       wrap
       class="pa-0 ma-0"
     >
+      <v-col
+        cols="12"
+        class="pa-0"
+      >
+        <progress-linear :loading="isLoading"></progress-linear>
+      </v-col>
       <v-col cols="2">
         <p class="mx-0 mt-4 text-center">
           <v-btn
@@ -120,15 +127,16 @@
           </v-col>
         </v-row>
       </v-col>
-      <overview
+      <time-overview
         v-model="isOverviewOpen"
         :url-worker-param="urlWorkerParam"
-      ></overview>
+      ></time-overview>
       <time-popup
         ref="timeCard"
         :url-worker-param="urlWorkerParam"
       ></time-popup>
     </v-row>
+    <!-- desktop -->
     <v-row
       v-else
       wrap
@@ -139,11 +147,11 @@
         class="py-0 px-0"
       >
         <div class="overview-container">
-          <overview
+          <time-overview
             ref="overview"
             :url-worker-param="urlWorkerParam"
             @change="newDate => (date = newDate)"
-          ></overview>
+          ></time-overview>
         </div>
       </v-col>
       <v-col
@@ -151,6 +159,7 @@
         xl="10"
         class="py-0"
       >
+        <progress-linear :loading="isLoading"></progress-linear>
         <v-row>
           <v-col
             cols="11"
@@ -165,9 +174,14 @@
               <p class="text-center overline mb-0">
                 {{ $moment(day.date).format('dd') }}
               </p>
-              <p class="text-center display-1 mb-0">
-                {{ $moment(day.date).format('DD') }}
-              </p>
+              <div>
+                <p
+                  class="text-center display-1 mb-0"
+                  :class="{'primary--text': $moment(day.date).isSame($moment(), 'day')}"
+                >
+                  {{ $moment(day.date).format('DD') }}
+                </p>
+              </div>
             </div>
           </v-col>
           <v-col
@@ -235,15 +249,16 @@
 
 <script>
 import Day from '@/components/Time/Day'
-import Overview from '@/components/Time/Overview'
+import TimeOverview from '@/components/Time/TimeOverview'
 import TimePopup from '@/components/Time/TimePopup'
 import TimeCard from '@/components/Time/TimeCard'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'TimeView',
   components: {
     Day,
-    Overview,
+    TimeOverview,
     TimePopup,
     TimeCard
   },
@@ -257,8 +272,6 @@ export default {
     return {
       dateDialog: false,
       date: '',
-      numbers: [3, 4, 5, 6, 7, 8, 9, 10, 11],
-      settings: {},
       isOverviewOpen: false,
       weekDays: [],
       timePopupForm: {
@@ -267,10 +280,14 @@ export default {
         day: {},
         timerecord: {}
       },
-      isScrolling: false
+      isScrolling: false,
+      isLoading: false
     }
   },
   computed: {
+    ...mapGetters({
+      settings: 'timerecordSettings'
+    }),
     dayName() {
       const date = new Date(this.date)
       // set sunday as last day of month
@@ -292,15 +309,9 @@ export default {
     }
   },
   mounted() {
-    this.axios
-      .get(`/settings/time${this.urlWorkerParam}`)
-      .then(response => {
-        this.settings = response.data
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Einstellungen konnten nicht abgeruffen werden', 'error')
-      })
-    this.date = new Date().toISOString().substr(0, 10)
+    this.$store.dispatch('fetchTimerecordSettings', this.urlWorkerParam)
+    this.$store.dispatch('fetchWorktypes')
+    this.date = this.$moment().format('YYYY-MM-DD')
     this.getDay()
     this.$refs.scrollContainer.scroll(0, 270)
   },
@@ -316,10 +327,11 @@ export default {
     getDay() {
       let url = ''
       if (this.$store.getters.isMobile) {
-        url = `/time/${this.date}`
+        url = `/times/${this.date}`
       } else {
-        url = `/time/week/${this.date}`
+        url = `/times/week/${this.date}`
       }
+      this.isLoading = true
       this.axios
         .get(url + this.urlWorkerParam)
         .then(response => {
@@ -327,6 +339,9 @@ export default {
         })
         .catch(() => {
           this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
     openTimePopup(props) {
@@ -356,13 +371,13 @@ export default {
 .overview-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 64px);
-  max-height: calc(var(--vh, 1vh) * 100 - 64px);
+  height: calc(100vh - 68px);
+  max-height: calc(var(--vh, 1vh) * 100 - 68px);
 }
 
 .scroll-container {
-  max-height: calc(100vh - 138px);
-  max-height: calc(var(--vh, 1vh) * 100 - 138px);
+  max-height: calc(100vh - 142px);
+  max-height: calc(var(--vh, 1vh) * 100 - 142px);
   overflow-y: scroll;
   position: relative;
 }
@@ -401,8 +416,8 @@ export default {
 
 @media only screen and (max-width: 960px) {
   .scroll-container {
-    max-height: calc(100vh - 160px);
-    max-height: calc(var(--vh, 1vh) * 100 - 160px);
+    max-height: calc(100vh - 164px);
+    max-height: calc(var(--vh, 1vh) * 100 - 164px);
   }
 }
 </style>

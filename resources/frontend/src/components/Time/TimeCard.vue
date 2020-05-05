@@ -42,6 +42,7 @@
             :url-worker-param="urlWorkerParam"
             :timerecord="timerecord"
             @updated="updated"
+            @isLoading="isLoading = $event"
           ></timerecord-form>
         </div>
         <v-card-actions>
@@ -49,9 +50,10 @@
           <v-btn
             color="primary"
             depressed
+            :loading="isLoading"
             @click="$refs.form.save()"
           >
-            Speichern
+            {{ timerecord ? 'Aktualisieren' : 'Speichern' }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -79,7 +81,8 @@ export default {
       open: false,
       startTime: null,
       day: {},
-      timerecord: {}
+      timerecord: {},
+      isLoading: false
     }
   },
   methods: {

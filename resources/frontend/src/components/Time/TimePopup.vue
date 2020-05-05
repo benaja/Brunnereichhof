@@ -3,6 +3,7 @@
     :open="open"
     class="no-select"
     :edit="!!timerecord"
+    :loading="isLoading"
     @save="$refs.form.save()"
     @cancel="open = false"
     @deleteTimerecord="$refs.form.deleteTimerecord()"
@@ -15,6 +16,7 @@
       :url-worker-param="urlWorkerParam"
       :timerecord="timerecord"
       @updated="updated"
+      @isLoading="isLoading = $event"
     ></timerecord-form>
   </time-type-form>
 </template>
@@ -49,7 +51,8 @@ export default {
       open: false,
       startTime: null,
       day: null,
-      timerecord: null
+      timerecord: null,
+      isLoading: false
     }
   },
   methods: {

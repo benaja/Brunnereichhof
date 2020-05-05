@@ -29,6 +29,7 @@
               depressed
               medium
               class="float-right mr-3"
+              :loading="loading"
               @click="$emit('save')"
             >
               {{ edit ? 'Aktualisieren' : 'Speichern' }}
@@ -50,7 +51,8 @@ export default {
   name: 'TypeTypeForm',
   props: {
     open: Boolean,
-    edit: Boolean
+    edit: Boolean,
+    loading: Boolean
   }
 }
 </script>

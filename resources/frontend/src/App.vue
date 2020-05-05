@@ -2,19 +2,26 @@
   <div id="app">
     <v-app>
       <template v-if="$auth.ready()">
-        <NavigationBar @openNavigation="navDrawerModel = true"></NavigationBar>
+        <!-- <NavigationBar @openNavigation="navDrawerModel = true"></NavigationBar> -->
         <v-navigation-drawer
           v-if="$auth.check()"
           v-model="navDrawerModel"
           :permanent="$vuetify.breakpoint.mdAndUp"
-          :expand-on-hover="$vuetify.breakpoint.mdAndUp"
-          :absolute="$vuetify.breakpoint.smAndDown"
           app
-          class="nav-drawer"
+          class="nav-drawer white"
           @transitionend="navDrawer = !navDrawer"
           @update:mini-variant="navDrawerClosed"
         >
-          <v-list>
+          <router-link
+            tag="a"
+            to="/"
+          >
+            <img
+              class="logo"
+              src="@/assets/images/logo.png"
+            />
+          </router-link>
+          <!-- <v-list>
             <v-list-item link>
               <v-list-item-content>
                 <v-list-item-title
@@ -27,7 +34,7 @@
             </v-list-item>
           </v-list>
 
-          <v-divider></v-divider>
+          <v-divider></v-divider> -->
 
           <v-list
             nav
@@ -320,7 +327,7 @@ body {
 }
 
 .router-view {
-  margin-left: 56px;
+  margin-left: 256px;
 }
 
 .no-select {
@@ -342,6 +349,11 @@ body {
       margin-right: 4px;
     }
   }
+}
+
+.logo {
+  width: 80%;
+  margin: 10px 5%;
 }
 
 .v-navigation-drawer--absolute {

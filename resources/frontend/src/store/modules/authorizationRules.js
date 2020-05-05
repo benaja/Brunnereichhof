@@ -19,7 +19,7 @@ export default {
           authorizationRules: true
         })
         axios
-          .get('/authorizationRules')
+          .get('/rules')
           .then(response => {
             commit('setAuthorizationRules', response.data)
             resolve(getters.authorizationRules)

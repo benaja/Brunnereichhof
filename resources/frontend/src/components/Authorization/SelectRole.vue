@@ -1,14 +1,15 @@
 <template>
   <div>
-    <Select
+    <select-field
       v-model="role"
       :items="roles"
+      :original="original"
       label="Rolle"
       item-text="name"
       item-value="id"
       :readonly="readonly"
       @change="$emit('change')"
-    ></Select>
+    ></select-field>
     <CreateRole
       v-if="$auth.user().hasPermission(['superadmin'], ['role_write'])"
       v-model="isCreateRolePopupOpen"
@@ -26,14 +27,14 @@
 </template>
 
 <script>
-import Select from '@/components/general/Select'
+import { SelectField } from '@/components/FormComponents'
 import CreateRole from '@/components/Authorization/CreateRole'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'SelectRole',
   components: {
-    Select,
+    SelectField,
     CreateRole
   },
   props: {
@@ -44,6 +45,10 @@ export default {
     readonly: {
       type: Boolean,
       default: false
+    },
+    original: {
+      type: Number,
+      default: null
     }
   },
   data() {

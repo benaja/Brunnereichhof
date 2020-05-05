@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'CreateRole',
   props: {
@@ -62,7 +64,6 @@ export default {
   },
   data() {
     return {
-      authorizationRules: [],
       role: {
         name: null,
         authorizationRules: []
@@ -75,6 +76,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['authorizationRules']),
     isOpen: {
       get() {
         return this.value
@@ -85,14 +87,15 @@ export default {
     }
   },
   mounted() {
-    this.$store
-      .dispatch('authorizationRules')
-      .then(authorizationRules => {
-        this.authorizationRules = authorizationRules
-      })
-      .catch(() => {
-        this.$swal('Fehler', 'Berechtigungen konnten nich abgerufen werden', 'error')
-      })
+    this.$store.dispatch('fetchAuthorizationRules')
+    // this.$store
+    //   .dispatch('authorizationRules')
+    //   .then(authorizationRules => {
+    //     this.authorizationRules = authorizationRules
+    //   })
+    //   .catch(() => {
+    //     this.$swal('Fehler', 'Berechtigungen konnten nich abgerufen werden', 'error')
+    //   })
   },
   methods: {
     saveRole() {

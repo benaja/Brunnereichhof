@@ -114,7 +114,7 @@ export default {
     save() {
       if (this.hasDragged) {
         this.axios
-          .put(`/time/${this.value.id}${this.urlWorkerParam}`, {
+          .put(`/times/${this.value.id}${this.urlWorkerParam}`, {
             ...this.value,
             worktype: this.value.worktype.id
           })

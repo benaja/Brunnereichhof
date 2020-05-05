@@ -1,110 +1,123 @@
 <template>
   <div>
-    <v-container class="form">
-      <v-row>
-        <v-col
-          cols="12"
-          class="mb-3"
+    <navigation-bar title="Hofmitarbeiter bearbeiten">
+      <template v-if="hasChanges">
+        <v-btn
+          color="red"
+          class="my-2 ml-auto mr-2"
+          outlined
+          :loading="isLoadingRevert"
+          @click="revertChanges"
         >
-          <h2 class="text-left display-1">
-            Informationen
-          </h2>
-          <v-divider></v-divider>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="6"
+          Abbrechen
+        </v-btn>
+        <v-btn
+          color="primary"
+          class="my-2"
+          depressed
+          @click="saveChanges"
         >
-          <edit-field
-            v-model="worker.firstname"
-            label="Vorname"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-            @change="change('firstname')"
-          ></edit-field>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="6"
-        >
-          <edit-field
-            v-model="worker.lastname"
-            label="Nachname"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-            @change="change('lastname')"
-          ></edit-field>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="6"
-        >
-          <edit-field
-            v-model="worker.email"
-            label="Email"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-            @change="change('email')"
-          ></edit-field>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="6"
-        >
-          <select-role
-            v-model="worker.role_id"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-            @change="change('role_id')"
-          ></select-role>
-        </v-col>
-        <v-col cols="12">
-          <v-switch
-            v-model="worker.isActive"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
-            label="Aktiv"
-            @change="change('isActive')"
-          ></v-switch>
-        </v-col>
-        <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
+          Speichern
+        </v-btn>
+      </template>
+    </navigation-bar>
+    <v-container
+      v-if="worker"
+    >
+      <v-form
+        @keyup.native.enter="saveChanges"
+      >
+        <v-row>
           <v-col
             cols="12"
-            class="mb-3"
+            sm="6"
           >
-            <h2 class="text-left display-1">
-              Aktionen
-            </h2>
-            <v-divider></v-divider>
+            <text-field
+              v-model="worker.firstname"
+              :original="original.firstname"
+              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              label="Vorname"
+              @change="change('firstname')"
+            ></text-field>
           </v-col>
           <v-col
             cols="12"
-            md="6"
+            sm="6"
           >
-            <v-btn
-              color="primary"
-              text
-              @click="resetPassword"
-            >
-              Passwort zurücksetzten
-            </v-btn>
+            <text-field
+              v-model="worker.lastname"
+              :original="original.lastname"
+              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              label="Nachname"
+              @change="change('lastname')"
+            ></text-field>
           </v-col>
           <v-col
             cols="12"
-            md="6"
+            sm="6"
           >
-            <p class="text-left">
-              <v-btn
-                color="red"
-                class="white--text"
-                @click="deleteWorker"
-              >
-                Hofmitarbeiter Löschen
-              </v-btn>
-            </p>
+            <text-field
+              v-model="worker.email"
+              :original="original.email"
+              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              label="Email"
+              @change="change('email')"
+            ></text-field>
           </v-col>
-        </template>
-      </v-row>
+          <v-col
+            cols="12"
+            sm="6"
+          >
+            <select-role
+              v-model="worker.role_id"
+              :original="original.role_id"
+              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              @change="change('role_id')"
+            ></select-role>
+          </v-col>
+          <v-col cols="12">
+            <v-switch
+              v-model="worker.isActive"
+              :readonly="!$auth.user().hasPermission(['superadmin'], ['worker_write'])"
+              label="Aktiv"
+              @change="change('isActive')"
+            ></v-switch>
+          </v-col>
+          <template v-if="$auth.user().hasPermission(['superadmin'], ['worker_write'])">
+            <v-col cols="12">
+              <v-divider></v-divider>
+              <div class="d-flex flex-column flex-sm-row mt-5">
+                <v-btn
+                  color="primary"
+                  outlined
+                  class="mr-0 mr-sm-2 my-2"
+                  @click="resetPassword"
+                >
+                  Passwort zurücksetzten
+                </v-btn>
+                <v-btn
+                  color="red"
+                  class="white--text my-2"
+                  depressed
+                  @click="deleteWorker"
+                >
+                  <v-icon class="mr-2">
+                    delete
+                  </v-icon>
+                  Hofmitarbeiter Löschen
+                </v-btn>
+              </div>
+            </v-col>
+          </template>
+        </v-row>
+      </v-form>
     </v-container>
     <div class="time-form">
-      <h2 class="text-center display-1 time-title py-4">
-        Stundenangaben bearbeiten
-      </h2>
+      <v-container>
+        <h2 class="display-1 py-4">
+          Stundenangaben bearbeiten
+        </h2>
+      </v-container>
       <TimeView :worker-id="this.$route.params.id"></TimeView>
     </div>
   </div>
@@ -113,37 +126,53 @@
 <script>
 import SelectRole from '@/components/Authorization/SelectRole'
 import TimeView from '@/views/Time'
+import { confirmDelete } from '@/utils'
+import { TextField } from '@/components/FormComponents'
 
 export default {
   name: 'Worker',
   components: {
     SelectRole,
-    TimeView
+    TimeView,
+    TextField
   },
   data() {
     return {
-      worker: {},
-      apiUrl: `/worker/${this.$route.params.id}`,
+      worker: null,
+      original: null,
+      apiUrl: `/workers/${this.$route.params.id}`,
       outline: {
         firstname: true,
         lastname: false,
         email: false
-      }
+      },
+      isLoadingRevert: false
+    }
+  },
+  computed: {
+    hasChanges() {
+      return !this._.isEqual(this.worker, this.original)
     }
   },
   mounted() {
     this.axios.get(this.apiUrl).then(response => {
       this.worker = response.data
+      this.original = this._.cloneDeep(this.worker)
+    }).catch(() => {
+      this.$store.dispatch('error', 'Hofmitarbeiter konnte nicht geladen werden')
     })
   },
   methods: {
     change(key) {
+      this.$store.commit('isSaving', true)
       this.axios
         .patch(`workers/${this.$route.params.id}`, {
           [key]: this.worker[key]
         })
         .catch(() => {
           this.$swal('Fehler', 'Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
     },
     resetPassword() {
@@ -161,8 +190,12 @@ export default {
         })
     },
     deleteWorker() {
-      this.axios.delete(this.apiUrl).then(() => {
-        this.$router.push('/worker')
+      confirmDelete('Willst du diesen Hofmitarbeiter wirklich löschen?').then(result => {
+        if (result) {
+          this.axios.delete(this.apiUrl).then(() => {
+            this.$router.push('/worker')
+          })
+        }
       })
     },
     changeAuthrorization() {
@@ -176,24 +209,34 @@ export default {
         .catch(() => {
           this.$swal('Fehler', 'Berechtigung konnte nicht geändert werden', 'error')
         })
+    },
+    revertChanges() {
+      this.isLoadingRevert = true
+      this.axios.patch(this.apiUrl, {
+        firstname: this.original.firstname,
+        lastname: this.original.lastname,
+        email: this.original.email,
+        role_id: this.original.role_id,
+        isActive: this.original.isActive
+      }).then(() => {
+        this.worker = this._.cloneDeep(this.original)
+      }).catch(() => {
+        this.$store.dispatch('error', 'Änderungen konnten nicht mehr rückgängig gemacht werden')
+      }).finally(() => {
+        this.isLoadingRevert = false
+      })
+    },
+    saveChanges() {
+      this.original = this._.cloneDeep(this.worker)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-h2 {
-  text-align: center;
-}
-
 .delete_button {
   margin-top: 50px;
   text-align: center;
-}
-
-.form {
-  background-color: white;
-  margin-top: 20px;
 }
 
 .time-form {

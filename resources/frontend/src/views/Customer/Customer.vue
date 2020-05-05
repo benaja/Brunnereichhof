@@ -293,16 +293,16 @@ export default {
         address: {},
         billing_address: {}
       },
+      original: {},
       apiUrl: `customers/${this.$route.params.id}`,
       isUserAllowedToEdit: false
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
     this.axios.get(this.apiUrl).then(response => {
       if (!response.data.billing_address) response.data.billing_address = {}
       this.customer = response.data
-      this.$store.commit('isLoading', false)
+      this.original = this._.cloneDeep(this.customer)
     })
     this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['customer_write'])
   },

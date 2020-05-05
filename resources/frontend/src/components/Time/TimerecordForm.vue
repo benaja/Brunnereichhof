@@ -7,6 +7,7 @@
       item-text="name_de"
       item-value="id"
       class="pa-0 ma-0"
+      :loading="$store.getters.isLoading.worktypes"
       :rules="[rules.required]"
       @change="setEditTypeByTime"
     ></v-select>
@@ -117,6 +118,7 @@
 
 <script>
 import { rules } from '@/utils'
+import { mapGetters } from 'vuex'
 
 const defaultForm = {
   worktype: null,
@@ -154,7 +156,6 @@ export default {
       form: {
         ...defaultForm
       },
-      worktypes: [],
       timeDialogFrom: false,
       timeDialogTo: false,
       rules: {
@@ -173,6 +174,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['worktypes']),
     edittypes() {
       const worktype = this.worktypes.find(w => w.id === this.form.worktype)
       if (!worktype) return []
@@ -197,26 +199,22 @@ export default {
     }
   },
   mounted() {
-    this.axios.get('/worktypes').then(response => {
-      this.worktypes = response.data
-      if (this.timerecord) {
-        this.setEditTypeByTime()
-      } else {
-        const timerecordSettings = JSON.parse(localStorage.timerecordSettings)
-        if (timerecordSettings.edittype === 'manually') {
-          this.form.hours = timerecordSettings.hours
-        }
-        this.form.worktype = timerecordSettings.worktype
-        this.form.edittype = timerecordSettings.edittype
-        this.form.breakfast = timerecordSettings.breakfast
-        this.form.lunch = timerecordSettings.lunch
-        this.form.dinner = timerecordSettings.dinner
-        this.applyTime()
-      }
-    })
-
     this.applyTime()
     this.editTimerecrod()
+    if (this.timerecord) {
+      this.setEditTypeByTime()
+    } else if (localStorage.timerecordSettings) {
+      const timerecordSettings = JSON.parse(localStorage.timerecordSettings)
+      if (timerecordSettings.edittype === 'manually') {
+        this.form.hours = timerecordSettings.hours
+      }
+      this.form.worktype = timerecordSettings.worktype
+      this.form.edittype = timerecordSettings.edittype
+      this.form.breakfast = timerecordSettings.breakfast
+      this.form.lunch = timerecordSettings.lunch
+      this.form.dinner = timerecordSettings.dinner
+      this.applyTime()
+    }
   },
   methods: {
     getDate(timeString) {
@@ -269,13 +267,18 @@ export default {
     },
     save() {
       if (this.$refs.form.validate()) {
+        this.$emit('isLoading', true)
         if (this.form.id) {
           this.axios
-            .patch(`time/${this.form.id}${this.urlWorkerParam}`, this.form)
+            .patch(`times/${this.form.id}${this.urlWorkerParam}`, this.form)
             .then(response => {
+              // isLoading is not in finally because after the updated event the form is
+              // already disabled
+              this.$emit('isLoading', false)
               this.$emit('updated', response.data)
             })
             .catch(error => {
+              this.$emit('isLoading', false)
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -284,15 +287,17 @@ export default {
             })
         } else {
           this.axios
-            .post(`/time${this.urlWorkerParam}`, {
+            .post(`/times${this.urlWorkerParam}`, {
               ...this.form,
               date: this.date
             })
             .then(response => {
+              this.$emit('isLoading', false)
               localStorage.timerecordSettings = JSON.stringify(this.form)
               this.$emit('updated', response.data)
             })
             .catch(error => {
+              this.$emit('isLoading', false)
               if (error.includes('Die Zeit überschneidet sich mit einem anderen Eintrag.')) {
                 this.$swal('Kollision mit einem anderen Eintrag', 'Die Zeit überschneidet sich mit einem bereits existierenden Eintrag.', 'error')
               } else if (!error.status(403)) {
@@ -313,7 +318,7 @@ export default {
       }).then(result => {
         if (result.value) {
           this.axios
-            .delete(`time/${this.timerecord.id}${this.urlWorkerParam}`)
+            .delete(`times/${this.timerecord.id}${this.urlWorkerParam}`)
             .then(response => {
               this.$emit('updated', response.data)
             })
@@ -342,7 +347,6 @@ export default {
           hours: null
         }
         this.form.hours = this.calculateHoursBetweenTime()
-        // this.setEditTypeByTime()
       } else {
         this.$refs.form.reset()
       }

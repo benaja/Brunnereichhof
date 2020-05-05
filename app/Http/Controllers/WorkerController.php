@@ -94,13 +94,11 @@ class WorkerController extends Controller
         }
 
         $user = User::find($id);
+        foreach($request->except('_token') as $key => $value) {
+            $user->$key = $value;
+        }
 
-        $updatetKey = key($request->except('_token'));
-        $updatedValue = $request->$updatetKey;
-
-        $user->$updatetKey = $updatedValue;
         $user->save();
-
         return $user;
     }
 

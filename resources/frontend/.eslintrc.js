@@ -36,7 +36,9 @@ module.exports = {
     'no-restricted-globals': ['error', 'event', 'fdescribe'],
     'comma-dangle': ['error', 'never'],
     'prefer-destructuring': ['error', { object: true, array: false }],
-    'arrow-parens': ['error', 'as-needed']
+    'arrow-parens': ['error', 'as-needed'],
+    "import/extensions": ['error', "never" ],
+    'prefer-default-export': 0
   },
   parserOptions: {
     parser: 'babel-eslint'

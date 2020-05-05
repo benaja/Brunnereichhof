@@ -20,31 +20,31 @@ Route::get('pdf/day-total/employees/{employeeId}', 'EmployeeController@dayTotals
 Route::get('pdf/reservations/employees/{employeeId}', 'EmployeeController@reservationsPdf');
 Route::get('pdf/employees/food/year/{date}', 'EmployeeController@foodRapportByYear');
 Route::get('pdf/employees/food/month/{date}', 'EmployeeController@foodRapportByMonth');
-Route::get('/guests', 'EmployeeController@guests');
-Route::patch('/guests/{id}', 'EmployeeController@update');
-Route::get('/employeeswithguests', 'EmployeeController@employeesWithGuests');
-Route::delete('/employees/{employee}/editimage', 'EmployeeController@deleteImage');
-Route::post('/employees/{employee}/editimage', 'EmployeeController@uploadImage');
+Route::get('guests', 'EmployeeController@guests');
+Route::patch('guests/{id}', 'EmployeeController@update');
+Route::get('employeeswithguests', 'EmployeeController@employeesWithGuests');
+Route::delete('employees/{employee}/editimage', 'EmployeeController@deleteImage');
+Route::post('employees/{employee}/editimage', 'EmployeeController@uploadImage');
 Route::resource('employees', 'EmployeeController');
 
 // Worker
-Route::resource('/workers', 'WorkerController');
+Route::resource('workers', 'WorkerController');
 
 //Project
-Route::get('/projects/exist/{name}', 'ProjectController@exist');
-Route::delete('/projects/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
-Route::post('/projects/add', 'ProjectController@addToCustomer');
-Route::resource('/projects', 'ProjectController');
+Route::get('projects/exist/{name}', 'ProjectController@exist');
+Route::delete('projects/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
+Route::post('projects/add', 'ProjectController@addToCustomer');
+Route::resource('projects', 'ProjectController');
 
 //Rapport
-Route::get('/rapports/week/{week}', 'RapportController@showWeek');
-Route::get('/rapports/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
-Route::post('/rapports/{rapport}/employee', 'RapportController@addEmployee');
-Route::delete('/rapports/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
-Route::patch('/rapportdetails/{rapportdetail}', 'RapportController@updateRapportdetail');
-Route::patch('/rapportdetails', 'RapportController@updateMultibleRapportdetails');
-Route::get('/rapports/daytotal/{date}', 'RapportController@daytotal');
-Route::resource('/rapports', 'RapportController');
+Route::get('rapports/week/{week}', 'RapportController@showWeek');
+Route::get('rapports/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
+Route::post('rapports/{rapport}/employee', 'RapportController@addEmployee');
+Route::delete('rapports/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
+Route::patch('rapportdetails/{rapportdetail}', 'RapportController@updateRapportdetail');
+Route::patch('rapportdetails', 'RapportController@updateMultibleRapportdetails');
+Route::get('rapports/daytotal/{date}', 'RapportController@daytotal');
+Route::resource('rapports', 'RapportController');
 
 // Pdfs
 Route::get('pdf/timerecords/meals', 'Evaluation\WorkerPdfController@meals');
@@ -60,21 +60,21 @@ Route::get('pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reserv
 Route::get('pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
 Route::get('export/customers', 'Evaluation\CustomerPdfController@csvExport');
 
-Route::post('/password/change', 'UserController@changePassword');
-Route::post('/resetpassword/{user}', 'UserController@resetPassword');
+Route::post('password/change', 'UserController@changePassword');
+Route::post('resetpassword/{user}', 'UserController@resetPassword');
 
-Route::get('/times/{date}', 'TimeController@index');
-Route::get('/times/week/{date}', 'TimeController@week');
-Route::get('/times/stats/{date}', 'TimeController@stats');
+Route::get('times/{date}', 'TimeController@index');
+Route::get('times/week/{date}', 'TimeController@week');
+Route::get('times/stats/{date}', 'TimeController@stats');
 Route::resource('/times', 'TimeController');
 
-Route::get('/stats/roomdispositioner', 'DashboardController@roomdispositioner');
-Route::get('/stats', 'DashboardController@allStats');
+Route::get('stats/roomdispositioner', 'DashboardController@roomdispositioner');
+Route::get('stats', 'DashboardController@allStats');
 
-Route::patch('/settings', 'SettingsController@update');
-Route::get('/settings/time', 'SettingsController@timeSettings');
-Route::get('/settings', 'SettingsController@index');
-Route::get('/settings/hourrecords', 'SettingsController@hourrecordSettings');
+Route::patch('settings', 'SettingsController@update');
+Route::get('settings/time', 'SettingsController@timeSettings');
+Route::get('settings', 'SettingsController@index');
+Route::get('settings/hourrecords', 'SettingsController@hourrecordSettings');
 
 Route::resource('/cultures', 'CultureController');
 
@@ -90,27 +90,27 @@ Route::resource('roles', 'RoleController');
 
 
 // roomdispositioner
-Route::get('/rooms/evaluation/{date}/pdf', 'RoomController@evaluationPdf');
-Route::patch('/rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
-Route::delete('/rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
-Route::get('/rooms/{id}/beds', 'RoomController@getBeds');
-Route::get('/rooms/reservations/{date}', 'RoomController@evaluation');
-Route::patch('/room/{room}', 'RoomController@update');
-Route::post('/rooms/{roomId}/images', 'RoomController@uploadImages');
-Route::delete('/images/{imageId}', 'RoomController@deleteImage');
+Route::get('rooms/evaluation/{date}/pdf', 'RoomController@evaluationPdf');
+Route::patch('rooms/{roomId}/beds/{bedId}', 'RoomController@addBed');
+Route::delete('rooms/{roomId}/beds/{pivotId}', 'RoomController@removeBed');
+Route::get('rooms/{id}/beds', 'RoomController@getBeds');
+Route::get('rooms/reservations/{date}', 'RoomController@evaluation');
+Route::patch('room/{room}', 'RoomController@update');
+Route::post('rooms/{roomId}/images', 'RoomController@uploadImages');
+Route::delete('images/{imageId}', 'RoomController@deleteImage');
 Route::resource('/rooms', 'RoomController');
-Route::get('/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
-Route::get('/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
-Route::get('/pdf/sleep-over/rooms', 'RoomController@sleepOver');
+Route::get('rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
+Route::get('rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
+Route::get('pdf/sleep-over/rooms', 'RoomController@sleepOver');
 
-Route::patch('/beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
-Route::delete('/beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');
-Route::resource('/beds', 'BedController');
+Route::patch('beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
+Route::delete('beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');
+Route::resource('beds', 'BedController');
 
-Route::get('/stats/quartering', 'ReservationController@quartering');
-Route::get('/stats/room-changes', 'ReservationController@roomChanges');
+Route::get('stats/quartering', 'ReservationController@quartering');
+Route::get('stats/room-changes', 'ReservationController@roomChanges');
 Route::resource('/reservations', 'ReservationController');
 
-Route::resource('/inventars', 'InventarController');
+Route::resource('inventars', 'InventarController');
 
-Route::resource('/worktypes', 'WorktypeController');
+Route::resource('worktypes', 'WorktypeController');

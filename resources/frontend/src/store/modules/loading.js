@@ -10,7 +10,9 @@ export default {
       cultures: false,
       authorizationRules: false,
       dashboard: false,
-      evaluation: false
+      evaluation: false,
+      worktypes: false,
+      settings: false
     }
   },
   getters: {

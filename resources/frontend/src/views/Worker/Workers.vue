@@ -4,6 +4,7 @@
     <search-bar
       ref="searchBar"
       v-model="workersFiltered"
+      :items="allWorkers"
       name="workers"
       label="Hofmitarbeiter suchen"
       :custom-filter-function="filterActive"
@@ -16,6 +17,7 @@
         :disabled="showDeleted"
       ></v-switch>
     </search-bar>
+    <progress-linear :loading="$store.getters.isLoading.workers"></progress-linear>
     <v-expansion-panels>
       <v-expansion-panel
         v-for="worker in workersFiltered"
@@ -32,6 +34,7 @@
             v-if="showDeleted"
             color="primary"
             max-width="200"
+            depressed
             @click="$refs.searchBar.restoreItem(worker)"
           >
             Wiederherstellen
@@ -40,6 +43,7 @@
             v-else
             color="primary"
             max-width="100"
+            depressed
             :to="'/worker/' + worker.id"
           >
             Details
@@ -96,6 +100,7 @@
               lg="1"
             >
               <v-switch
+                v-if="!showDeleted"
                 v-model="worker.isActive"
                 class="float-right mr-4 pr-3"
                 label="Aktiv"
@@ -123,6 +128,7 @@
 
 <script>
 import SearchBar from '@/components/general/SearchBar'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Workers',
@@ -136,13 +142,21 @@ export default {
       showActive: true
     }
   },
+  computed: {
+    ...mapGetters(['allWorkers'])
+  },
+  mounted() {
+    this.$store.dispatch('fetchWorkers')
+  },
   methods: {
     filterActive(worker) {
       return (worker.isActive && this.showActive) || (!worker.isActive && !this.showActive)
     },
     update(worker) {
-      this.axios.patch(`/worker/${worker.id}`, { isActive: worker.isActive }).catch(() => {
+      this.axios.patch(`/workers/${worker.id}`, { isActive: worker.isActive }).catch(() => {
         this.$swal('Fehler', 'Aktion konnte nicht durchgeführt werden.', 'error')
+      }).then(() => {
+        this.$store.dispatch('alert', { text: `Hofmitarbeiter erfolgreich auf ${worker.isActive ? 'aktiv' : 'inaktiv'} gesetzt.` })
       })
     }
   }
