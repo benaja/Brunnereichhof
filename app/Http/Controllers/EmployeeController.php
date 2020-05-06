@@ -14,8 +14,10 @@ use App\Reservation;
 use App\Role;
 use App\User;
 use App\UserType;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
@@ -211,34 +213,50 @@ class EmployeeController extends Controller
 
         if ($request->profileimage != null) {
             $employee = Employee::find($id);
-            $photoName = uniqid() . '.' . $request->profileimage->getClientOriginalExtension();
-            $request->profileimage->move(public_path('profileimages'), $photoName);
 
-            $img = Image::make(public_path('profileimages/') . $photoName);
+            $img = Image::make($request->file('profileimage'));
             $width = $img->width();
             $height = $img->height();
-
             $factor = $width / $height;
-
             $img->resize(150 * $factor, 150);
 
-            $img->save(public_path('profileimages/') . "small-$photoName");
-
-            $request->element = "profileimage";
-            $request->data = $photoName;
-            if ($employee->profileimage != null) {
-                $imagePath = public_path('profileimages/') . $employee->profileimage;
-                $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-                if (file_exists($smallImagePath)) {
-                    unlink($smallImagePath);
-                }
-            }
-            $employee->profileimage = $photoName;
+            $imagePath = Storage::disk('s3')->putFile('profileimages',$request->file('profileimage'));
+            Storage::disk('s3')->put('small/'.$imagePath, (string)$img->stream());
+            $employee->profileimage = $imagePath;
             $employee->save();
-            return response($photoName);
+            return Storage::disk('s3')->temporaryUrl(
+                $imagePath,
+                Carbon::now()->addMinutes(5)
+            );
+            // $employee = Employee::find($id);
+            // $photoName = uniqid() . '.' . $request->profileimage->getClientOriginalExtension();
+            // $request->profileimage->move(public_path('profileimages'), $photoName);
+
+            // $img = Image::make(public_path('profileimages/') . $photoName);
+            // $width = $img->width();
+            // $height = $img->height();
+
+            // $factor = $width / $height;
+
+            // $img->resize(150 * $factor, 150);
+
+            // $img->save(public_path('profileimages/') . "small-$photoName");
+
+            // $request->element = "profileimage";
+            // $request->data = $photoName;
+            // if ($employee->profileimage != null) {
+            //     $imagePath = public_path('profileimages/') . $employee->profileimage;
+            //     $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
+            //     if (file_exists($imagePath)) {
+            //         unlink($imagePath);
+            //     }
+            //     if (file_exists($smallImagePath)) {
+            //         unlink($smallImagePath);
+            //     }
+            // }
+            // $employee->profileimage = $photoName;
+            // $employee->save();
+            // return response($photoName);
         } else {
             return response('no image', 404);
         }

@@ -3,8 +3,10 @@
 namespace App;
 
 use App\Enums\FoodTypeEnum;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Employee extends Model
 {
@@ -31,7 +33,7 @@ class Employee extends Model
         'drivingLicence'
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email'];
+    protected $appends = ['firstname', 'lastname', 'email', 'profileimage_url', 'profileimage_url_small'];
 
     protected $dates = ['entryDate'];
 
@@ -89,6 +91,30 @@ class Employee extends Model
     public function getEmailAttribute()
     {
         return $this->user ? $this->user->email : '';
+    }
+
+    public function getProfileimageUrlAttribute()
+    {
+        if ($this->profileimage) {
+            return Storage::disk('s3')->temporaryUrl(
+                $this->profileimage,
+                Carbon::now()->addMinutes(5)
+            );
+        } else {
+            return null;
+        }
+    }
+
+    public function getProfileimageUrlSmallAttribute()
+    {
+        if ($this->profileimage) {
+            return Storage::disk('s3')->temporaryUrl(
+                'small/'. $this->profileimage,
+                Carbon::now()->addMinutes(5)
+            );
+        } else {
+            return null;
+        }
     }
 
     // user mutators

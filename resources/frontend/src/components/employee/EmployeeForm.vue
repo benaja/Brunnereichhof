@@ -43,7 +43,7 @@
       >
         <div v-if="value.profileimage">
           <img
-            :src="backendUrl + 'profileimages/'+ value.profileimage"
+            :src="value.profileimage_url"
             class="profileimage"
           />
           <p
@@ -87,7 +87,7 @@
           type="file"
           class="hidden"
           accept="image/*"
-          @change="uploadImage"
+          @change="$emit('uploadImage', $refs.profileImage.files)"
         />
       </v-col>
       <v-col cols="12">

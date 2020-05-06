@@ -1,7 +1,9 @@
 <template>
-  <div class="container">
-    <h1>Auswertung</h1>
-    <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
+  <div>
+    <navigation-bar title="Auswertung"></navigation-bar>
+    <v-container>
+      <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
+    </v-container>
   </div>
 </template>
 

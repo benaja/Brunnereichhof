@@ -33,6 +33,7 @@
         :readonly="!isUserAllowedToEdit"
         @change="changed"
         @submit="saveChanges"
+        @uploadImage="uploadImage"
       ></employee-form>
       <v-btn
         v-if="isUserAllowedToEdit"
@@ -151,10 +152,10 @@ export default {
         else this.$router.push('/employee')
       })
     },
-    uploadImage() {
-      if (this.$refs.profileImage.files.length === 1) {
+    uploadImage(files) {
+      if (files.length === 1) {
         const data = new FormData()
-        data.append('profileimage', this.$refs.profileImage.files[0])
+        data.append('profileimage', files[0])
         this.axios
           .post(`${this.apiUrl}/editimage`, data)
           .then(response => {

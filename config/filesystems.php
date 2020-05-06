@@ -57,7 +57,7 @@ return [
 
         'profileimages' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/profileimages'),
+            'root' => storage_path('../public/profileimages'),
             'visibility' => 'public',
         ],
 
