@@ -19,8 +19,7 @@
       :readonly="readonly"
       :rules="rules"
       validate-on-blur
-      @input="$emit('input', $event)"
-      @change="$emit('change')"
+      @input="input"
       @focus="outline = true"
       @blur="outline = false"
     ></v-text-field>

@@ -1,422 +1,148 @@
 <template>
-  <v-container>
-    <v-form ref="form">
-      <v-row>
-        <v-col
-          cols="12"
-          md="6"
-          class="my-0"
+  <div>
+    <navigation-bar
+      :title="`${employee && employee.isGuest ? 'Gast' : 'Mitarbeiter'} bearbeiten`"
+    >
+      <template v-if="hasPedingChanges">
+        <v-btn
+          color="red"
+          class="my-2 ml-auto mr-2"
+          outlined
+          :loading="isLoadingRevert"
+          @click="revertChanges"
         >
-          <v-row>
-            <v-col
-              cols="12"
-              sm="4"
-              class="py-0"
-            >
-              <p class="font-weight-bold subheading description mb-0">
-                Vorname
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="8"
-              class="py-0"
-            >
-              <edit-field
-                v-model="employee.firstname"
-                :readonly="!isUserAllowedToEdit"
-                @change="changed"
-              ></edit-field>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="4"
-              class="py-0"
-            >
-              <p class="font-weight-bold subheading description mb-0">
-                Nachname
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="8"
-              class="py-0"
-            >
-              <edit-field
-                v-model="employee.lastname"
-                :readonly="!isUserAllowedToEdit"
-                @change="changed"
-              ></edit-field>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="4"
-              class="py-0"
-            >
-              <p class="font-weight-bold subheading description mb-0">
-                Rufname
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="8"
-              class="py-0"
-            >
-              <edit-field
-                v-model="employee.callname"
-                :readonly="!isUserAllowedToEdit"
-                @change="changed"
-              ></edit-field>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="4"
-              class="py-0"
-            >
-              <p class="font-weight-bold subheading description mb-0">
-                Nationalität
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="8"
-              class="py-0"
-            >
-              <edit-field
-                v-model="employee.nationality"
-                :readonly="!isUserAllowedToEdit"
-                @change="changed"
-              ></edit-field>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
+          Abbrechen
+        </v-btn>
+        <v-btn
+          color="primary"
+          class="my-2"
+          depressed
+          :loading="isLoadingSave"
+          @click="saveChanges"
         >
-          <div v-if="employee.profileimage">
-            <img
-              :src="backendUrl + 'profileimages/'+ employee.profileimage"
-              class="profileimage"
-            />
-            <p
-              v-if="$auth.user().hasPermission(['superadmin'], ['employee_write'])"
-              class="image-buttons"
-            >
-              <v-btn
-                color="primary"
-                @click="$refs.profileImage.click()"
-              >
-                Bild ändern
-                <v-icon right>
-                  edit
-                </v-icon>
-              </v-btn>
-              <v-btn
-                color="primary"
-                class="ml-2"
-                @click="deleteImage"
-              >
-                Bild entfernen
-                <v-icon right>
-                  delete
-                </v-icon>
-              </v-btn>
-            </p>
-          </div>
-          <div v-if="!employee.profileimage">
-            <div class="new-image">
-              <v-btn
-                v-if="$auth.user().hasPermission(['superadmin'], ['employee_write'])"
-                color="primary"
-                @click="$refs.profileImage.click()"
-              >
-                Bild hinzufügen
-              </v-btn>
-            </div>
-          </div>
-          <input
-            ref="profileImage"
-            type="file"
-            class="hidden"
-            accept="image/*"
-            @change="uploadImage"
-          />
-        </v-col>
-        <v-col cols="12">
-          <input-field
-            v-model="employee.email"
-            label="Email"
-            :readonly="!isUserAllowedToEdit"
-            long
-            :rules="[rules.nullableEmail]"
-            @change="changed"
-          ></input-field>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.isLoginActive"
-            label="Login aktiviert"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <select-role
-            v-model="employee.user.role_id"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></select-role>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <input-field label="Arbeitseintrittsjahr">
-            <date-picker
-              v-model="employee.entryDate"
-              type="year"
-              @input="changed"
-            ></date-picker>
-          </input-field>
-        </v-col>
-
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.isIntern"
-            label="Intern"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.drivingLicence"
-            label="Führerschein"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.isDriver"
-            label="Fahrer"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.german_knowledge"
-            label="Deutschkenntnisse"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-checkbox
-            v-model="employee.english_knowledge"
-            label="Englischkenntnisse"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-select
-            v-model="employee.sex"
-            :items="genders"
-            label="Geschlecht"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-select>
-        </v-col>
-        <v-col cols="12">
-          <v-row>
-            <v-col
-              cols="12"
-              sm="4"
-              md="2"
-            >
-              <p class="font-weight-bold subheading description mb-0">
-                Kommentar
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="8"
-              md="10"
-            >
-              <edit-field
-                v-model="employee.comment"
-                :readonly="!isUserAllowedToEdit"
-                @change="changed"
-              ></edit-field>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="4"
-          md="2"
-        >
-          <p class="font-weight-bold subheading description mb-0">
-            Erfahrung
-          </p>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="8"
-          md="10"
-        >
-          <edit-field
-            v-model="employee.experience"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></edit-field>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="4"
-          md="2"
-        >
-          <p class="font-weight-bold subheading description mb-0">
-            Allergie
-          </p>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="8"
-          md="10"
-        >
-          <edit-field
-            v-model="employee.allergy"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></edit-field>
-        </v-col>
-        <v-col cols="12">
-          <v-checkbox
-            v-model="employee.isActive"
-            label="Aktiv"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col cols="12">
-          <v-checkbox
-            v-model="employee.isGuest"
-            label="Gast"
-            color="primary"
-            :readonly="!$auth.user().hasPermission(['superadmin'], ['employee_write'])"
-            @change="changed"
-          ></v-checkbox>
-        </v-col>
-        <v-col
-          v-if="$auth.user().hasPermission(['superadmin'], ['employee_write'])"
-          cols="12"
-          class="text-center"
-        >
-          <v-btn
-            color="red white--text my-4"
-            @click="deleteEmployee"
-          >
-            Löschen
-            <v-icon right>
-              delete
-            </v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-form>
-  </v-container>
+          Fertig
+        </v-btn>
+      </template>
+    </navigation-bar>
+    <v-container>
+      <progress-linear :loading="isLoading"></progress-linear>
+      <employee-form
+        ref="form"
+        v-model="employee"
+        :original="original"
+        :readonly="!isUserAllowedToEdit"
+        @change="changed"
+        @submit="saveChanges"
+      ></employee-form>
+      <v-btn
+        v-if="isUserAllowedToEdit"
+        color="red white--text my-4"
+        depressed
+        @click="deleteEmployee"
+      >
+        <v-icon class="mr-2">
+          delete
+        </v-icon>
+        Löschen
+      </v-btn>
+    </v-container>
+  </div>
 </template>
 
 <script>
 import { rules } from '@/utils'
-import InputField from '@/components/general/InputField'
-import SelectRole from '@/components/Authorization/SelectRole'
-import DatePicker from '@/components/general/DatePicker'
+import EmployeeForm from '@/components/employee/EmployeeForm'
 
 export default {
   components: {
-    InputField,
-    SelectRole,
-    DatePicker
+    EmployeeForm
   },
   data() {
     return {
       employee: {
         user: {}
       },
-      apiUrl: `employee/${this.$route.params.id}`,
+      original: {
+        user: {}
+      },
+      apiUrl: `employees/${this.$route.params.id}`,
       backendUrl: process.env.VUE_APP_URL,
-      genders: [
-        {
-          value: 'man',
-          text: 'Männlich'
-        },
-        {
-          value: 'woman',
-          text: 'Weiblich'
-        }
-      ],
-      isUserAllowedToEdit: false,
-      rules
+      rules,
+      isLoading: false,
+      isLoadingSave: false,
+      isLoadingRevert: false
+    }
+  },
+  computed: {
+    isUserAllowedToEdit() {
+      if (this.employee.isGuest) {
+        return this.$auth.user().hasPermission(['superadmin'], ['employee_write', 'roomdispositioner_write'])
+      }
+      return this.$auth.user().hasPermission(['superadmin'], ['employee_write'])
+    },
+    hasPedingChanges() {
+      return !this._.isEqual(this.employee, this.original)
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
+    this.isLoading = true
     this.axios.get(this.apiUrl).then(response => {
       this.employee = response.data
-      this.$store.commit('isLoading', false)
-      if (this.employee.isGuest) {
-        this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['employee_write', 'roomdispositioner_write'])
-      }
+      this.original = this._.cloneDeep(this.employee)
+    }).catch(() => {
+      this.$store.dispatch('error', 'Mitarbeiter konnte nicht geladen werden')
+    }).finally(() => {
+      this.isLoading = false
     })
-    this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['employee_write'])
   },
   methods: {
     changed() {
       if (this.$refs.form.validate()) {
+        this.$store.commit('isSaving', true)
         this.axios.put(this.apiUrl, this.employee).catch(error => {
           if (error.includes('Email already exist')) {
             this.$store.dispatch('alert', { text: 'Email existiert bereits', type: 'error', duration: 6 })
           } else {
             this.$store.dispatch('alert', { text: 'Fehler beim Speichern', type: 'error' })
           }
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
       }
+    },
+    updateEmployee() {
+      return new Promise((resolve, reject) => {
+        this.axios.put(this.apiUrl, this.employee).catch(error => {
+          if (error.includes('Email already exist')) {
+            this.$store.dispatch('alert', { text: 'Email existiert bereits', type: 'error', duration: 6 })
+          } else {
+            this.$store.dispatch('alert', { text: 'Änderungen konnten nicht gespeichert werden', type: 'error' })
+          }
+          reject(error)
+        }).then(response => resolve(response))
+      })
+    },
+    saveChanges() {
+      if (this.$refs.form.validate() && this.hasPedingChanges) {
+        this.isLoadingSave = true
+        this.updateEmployee().then(() => {
+          this.original = this._.cloneDeep(this.employee)
+          this.$store.dispatch('alert', { text: 'Änderungen erfolgreich gespeichert' })
+        }).finally(() => {
+          this.isLoadingSave = false
+        })
+      }
+    },
+    revertChanges() {
+      this.isLoadingRevert = true
+      this.axios.put(this.apiUrl, this.original).then(() => {
+        this.employee = this._.cloneDeep(this.original)
+        this.$store.dispatch('alert', { text: 'Änderungen erfolgreich zurückgesetzt' })
+      }).catch(() => {
+        this.$store.dispatch('error', 'Änderungen konnten nicht rückgängig gemacht werden')
+      }).finally(() => {
+        this.isLoadingRevert = false
+      })
     },
     deleteEmployee() {
       this.axios.delete(this.apiUrl).then(() => {

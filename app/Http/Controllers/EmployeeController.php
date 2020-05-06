@@ -35,7 +35,7 @@ class EmployeeController extends Controller
         if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
         else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
         else $employees = Employee::with('user');
-        return $employees->where('isGuest', false)
+        return $employees
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();

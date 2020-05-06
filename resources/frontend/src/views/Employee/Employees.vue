@@ -7,6 +7,7 @@
       name="employees"
       label="Mitarbeiter suchen"
       :custom-filter-function="filterActive"
+      :items="allEmployees"
       @showDeleted="s => showDeleted = s"
     >
       <v-switch
@@ -103,9 +104,9 @@
 
 <script>
 import SearchBar from '@/components/general/SearchBar'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'Employees',
   components: {
     SearchBar
   },
@@ -115,6 +116,12 @@ export default {
       showActive: true,
       employeesFiltered: []
     }
+  },
+  computed: {
+    ...mapGetters(['allEmployees'])
+  },
+  mounted() {
+    this.$store.dispatch('fetchEmployees')
   },
   methods: {
     update(employee) {

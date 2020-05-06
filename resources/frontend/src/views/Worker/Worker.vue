@@ -18,7 +18,7 @@
           :loading="isLoadingSave"
           @click="saveChanges"
         >
-          Speichern
+          Fertig
         </v-btn>
       </template>
     </navigation-bar>
@@ -108,18 +108,16 @@ export default {
   },
   methods: {
     change(key) {
-      if (this.hasChanges) {
-        this.$store.commit('isSaving', true)
-        this.axios
-          .patch(`workers/${this.$route.params.id}`, {
-            [key]: this.worker[key]
-          })
-          .catch(() => {
-            this.$swal('Fehler', 'Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'error')
-          }).finally(() => {
-            this.$store.commit('isSaving', false)
-          })
-      }
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch(`workers/${this.$route.params.id}`, {
+          [key]: this.worker[key]
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
     },
     resetPassword() {
       confirmAction('Der Mitarbeiter wird eine Email mit seinem neuen Passwort erhalten.', 'Ja, zurücksetzten').then(result => {
