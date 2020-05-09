@@ -1,204 +1,204 @@
 <template>
-  <v-container>
-    <h1 class="my-3">
-      Stundenangaben
-    </h1>
-    <div class="grid-layout">
-      <div class="chart-card bar-chart">
-        <h3 class="title my-2">
-          Anzahl Stunden pro KW
-        </h3>
-        <hourrecords-chart
-          v-if="!isLoading"
-          :chart-data="chartData"
-          :height="250"
-          :options="chartOptions"
-        ></hourrecords-chart>
-      </div>
-      <div class="chart-card total-number">
-        <h2 class="body-1 mt-4">
-          Stunden in disem Jahr
-        </h2>
-        <h2 class="display-1 mb-4">
-          {{ totalHours }}
-        </h2>
-      </div>
-      <div class="chart-card filter">
-        <v-select
-          v-model="sortType"
-          :items="sortTypes"
-          label="Sortieren nach"
-          outlined
-          prepend-inner-icon="sort"
-          class="mt-3"
-        ></v-select>
-        <date-picker
-          v-model="selectedYear"
-          type="year"
-          label="Jahr"
-          outlined
-        ></date-picker>
-        <v-btn
-          color="primary"
-          class="full-width"
-          depressed
-          width="100%"
-          @click="generatePdf"
-        >
-          <v-icon class="mr-3">
-            picture_as_pdf
-          </v-icon>Pdf Erstellen
-        </v-btn>
-        <v-btn
-          v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
-          outlined
-          color="primary"
-          width="100%"
-          class="my-2"
-          @click="datepicker = true"
-        >
-          <v-icon class="mr-3">
-            today
-          </v-icon>Erfassen nach KW
-        </v-btn>
-        <v-btn
-          v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
-          outlined
-          color="primary"
-          width="100%"
-          @click="selectCustomerDialog = true"
-        >
-          <v-icon class="mr-3">
-            supervisor_account
-          </v-icon>Erfassen nach Kunde
-        </v-btn>
-      </div>
-    </div>
-    <v-list
-      v-if="sortType == 'week'"
-      class="mt-10 pa-0"
-    >
-      <template v-for="(hourrecord, index) of hourrecords">
-        <div
-          :key="index"
-          class="week-item"
-        >
-          <v-list-item :to="'/hourrecords/' + hourrecord[0].year + '/' + hourrecord[0].week">
-            <v-list-item-content class="pt-2">
-              <p class="mb-0 week-text">
-                <span class="font-weight-bold">KW {{ hourrecord[0].week }}</span>
-                ({{ $moment().year(hourrecord[0].year).week(hourrecord[0].week)
-                  .startOf('week').format('DD.MM.YYYY') }} -
-                {{ $moment().year(hourrecord[0].year).week(hourrecord[0].week)
-                  .endOf('week').format('DD.MM.YYYY') }})
-                / {{ calculateHours(hourrecord) }} Stunden
-              </p>
-            </v-list-item-content>
-            <v-list-item-action class="hidden-xs-only">
-              <v-icon>send</v-icon>
-            </v-list-item-action>
-          </v-list-item>
-          <v-divider class="divider"></v-divider>
+  <fragment>
+    <navigation-bar title="Stundenangaben"></navigation-bar>
+    <v-container>
+      <div class="grid-layout">
+        <div class="chart-card bar-chart">
+          <h3 class="title my-2">
+            Anzahl Stunden pro KW
+          </h3>
+          <hourrecords-chart
+            v-if="!isLoading"
+            :chart-data="chartData"
+            :height="250"
+            :options="chartOptions"
+          ></hourrecords-chart>
         </div>
-      </template>
-    </v-list>
-    <v-expansion-panels
-      v-if="sortType === 'customer'"
-      class="mt-10"
-      flat
-    >
-      <v-expansion-panel
-        v-for="customer of hourrecrodsByCustomer.filter(c => c.hourrecords.length > 0)"
-        :key="customer.id"
-        class="elevation-0"
-      >
-        <v-expansion-panel-header hide-actions>
-          <p class="mb-1 week-text">
-            <span class="font-weight-bold">{{ customer.lastname }} {{ customer.firstname }}</span>
-            / {{ customer.hours }} Stunden
-          </p>
-          <v-btn
-            max-width="100"
-            color="primary"
-            text
-            :to="`/customers/${customer.id}/hourrecords?year=${selectedYear}`"
-          >
-            Details
-          </v-btn>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <hourrecord-week-list :hourrecords="customer.hourrecords"></hourrecord-week-list>
-        </v-expansion-panel-content>
-        <v-divider></v-divider>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <v-expansion-panels
-      v-if="sortType === 'project'"
-      class="mt-10"
-      flat
-    >
-      <v-expansion-panel
-        v-for="project of hourrecrodsByProject.filter(p => p.hourrecords.length > 0)"
-        :key="project.id"
-      >
-        <v-expansion-panel-header>
-          <p class="mb-1 week-text">
-            <span class="font-weight-bold">{{ project.name }}</span>
-            / {{ project.hours }} Stunden
-          </p>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <hourrecord-week-list :hourrecords="project.hourrecords"></hourrecord-week-list>
-        </v-expansion-panel-content>
-        <v-divider></v-divider>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <v-dialog
-      v-model="datepicker"
-      width="unset"
-    >
-      <v-date-picker
-        v-model="newHourrecordDate"
-        scrollable
-        first-day-of-week="1"
-        locale="ch-de"
-        show-week
-      >
-        <v-spacer></v-spacer>
-        <v-btn
-          text
-          color="primary"
-          @click="datepicker = false"
-        >
-          Abbrechen
-        </v-btn>
-        <v-btn
-          text
-          color="primary"
-          @click="addHourrecord"
-        >
-          OK
-        </v-btn>
-      </v-date-picker>
-    </v-dialog>
-    <v-dialog
-      v-model="selectCustomerDialog"
-      width="500"
-    >
-      <v-card>
-        <v-card-title>Kunde Auswählen</v-card-title>
-        <v-card-text>
+        <div class="chart-card total-number">
+          <h2 class="body-1 mt-4">
+            Stunden in disem Jahr
+          </h2>
+          <h2 class="display-1 mb-4">
+            {{ totalHours }}
+          </h2>
+        </div>
+        <div class="chart-card filter">
           <v-select
-            label="Kunde"
-            :items="customers"
-            item-value="id"
-            item-text="name"
-            @input="selectCustomer"
+            v-model="sortType"
+            :items="sortTypes"
+            label="Sortieren nach"
+            outlined
+            prepend-inner-icon="sort"
+            class="mt-3"
           ></v-select>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-container>
+          <date-picker
+            v-model="selectedYear"
+            type="year"
+            label="Jahr"
+            outlined
+          ></date-picker>
+          <v-btn
+            color="primary"
+            class="full-width"
+            depressed
+            width="100%"
+            @click="generatePdf"
+          >
+            <v-icon class="mr-3">
+              picture_as_pdf
+            </v-icon>Pdf Erstellen
+          </v-btn>
+          <v-btn
+            v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
+            outlined
+            color="primary"
+            width="100%"
+            class="my-2"
+            @click="datepicker = true"
+          >
+            <v-icon class="mr-3">
+              today
+            </v-icon>Erfassen nach KW
+          </v-btn>
+          <v-btn
+            v-if="$auth.user().hasPermission(['superadmin'], ['hourrecord_write'])"
+            outlined
+            color="primary"
+            width="100%"
+            @click="selectCustomerDialog = true"
+          >
+            <v-icon class="mr-3">
+              supervisor_account
+            </v-icon>Erfassen nach Kunde
+          </v-btn>
+        </div>
+      </div>
+      <v-list
+        v-if="sortType == 'week'"
+        class="mt-10 pa-0"
+      >
+        <template v-for="(hourrecord, index) of hourrecords">
+          <div
+            :key="index"
+            class="week-item"
+          >
+            <v-list-item :to="'/hourrecords/' + hourrecord[0].year + '/' + hourrecord[0].week">
+              <v-list-item-content class="pt-2">
+                <p class="mb-0 week-text">
+                  <span class="font-weight-bold">KW {{ hourrecord[0].week }}</span>
+                  ({{ $moment().year(hourrecord[0].year).week(hourrecord[0].week)
+                    .startOf('week').format('DD.MM.YYYY') }} -
+                  {{ $moment().year(hourrecord[0].year).week(hourrecord[0].week)
+                    .endOf('week').format('DD.MM.YYYY') }})
+                  / {{ calculateHours(hourrecord) }} Stunden
+                </p>
+              </v-list-item-content>
+              <v-list-item-action class="hidden-xs-only">
+                <v-icon>send</v-icon>
+              </v-list-item-action>
+            </v-list-item>
+            <v-divider class="divider"></v-divider>
+          </div>
+        </template>
+      </v-list>
+      <v-expansion-panels
+        v-if="sortType === 'customer'"
+        class="mt-10"
+        flat
+      >
+        <v-expansion-panel
+          v-for="customer of hourrecrodsByCustomer.filter(c => c.hourrecords.length > 0)"
+          :key="customer.id"
+          class="elevation-0"
+        >
+          <v-expansion-panel-header hide-actions>
+            <p class="mb-1 week-text">
+              <span class="font-weight-bold">{{ customer.lastname }} {{ customer.firstname }}</span>
+              / {{ customer.hours }} Stunden
+            </p>
+            <v-btn
+              max-width="100"
+              color="primary"
+              text
+              :to="`/customers/${customer.id}/hourrecords?year=${selectedYear}`"
+            >
+              Details
+            </v-btn>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <hourrecord-week-list :hourrecords="customer.hourrecords"></hourrecord-week-list>
+          </v-expansion-panel-content>
+          <v-divider></v-divider>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <v-expansion-panels
+        v-if="sortType === 'project'"
+        class="mt-10"
+        flat
+      >
+        <v-expansion-panel
+          v-for="project of hourrecrodsByProject.filter(p => p.hourrecords.length > 0)"
+          :key="project.id"
+        >
+          <v-expansion-panel-header>
+            <p class="mb-1 week-text">
+              <span class="font-weight-bold">{{ project.name }}</span>
+              / {{ project.hours }} Stunden
+            </p>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <hourrecord-week-list :hourrecords="project.hourrecords"></hourrecord-week-list>
+          </v-expansion-panel-content>
+          <v-divider></v-divider>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <v-dialog
+        v-model="datepicker"
+        width="unset"
+      >
+        <v-date-picker
+          v-model="newHourrecordDate"
+          scrollable
+          first-day-of-week="1"
+          locale="ch-de"
+          show-week
+        >
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            color="primary"
+            @click="datepicker = false"
+          >
+            Abbrechen
+          </v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="addHourrecord"
+          >
+            OK
+          </v-btn>
+        </v-date-picker>
+      </v-dialog>
+      <v-dialog
+        v-model="selectCustomerDialog"
+        width="500"
+      >
+        <v-card>
+          <v-card-title>Kunde Auswählen</v-card-title>
+          <v-card-text>
+            <v-select
+              label="Kunde"
+              :items="customers"
+              item-value="id"
+              item-text="name"
+              @input="selectCustomer"
+            ></v-select>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-container>
+  </fragment>
 </template>
 
 <script>

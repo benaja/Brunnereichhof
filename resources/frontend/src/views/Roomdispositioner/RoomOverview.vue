@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <fragment>
+    <navigation-bar title="Raumübersicht"></navigation-bar>
     <v-row>
       <v-col
         class="side-container"
@@ -31,15 +32,12 @@
         </diV>
       </v-col>
       <v-col class="content-container">
-        <h1 class="mb-3">
-          Raumübersicht
-          <v-switch
-            v-model="showFreeBeds"
-            class="float-right mt-2"
-            color="blue"
-            label="Freie Betten anzeigen"
-          ></v-switch>
-        </h1>
+        <v-switch
+          v-model="showFreeBeds"
+          class="float-right mt-2"
+          color="blue"
+          label="Freie Betten anzeigen"
+        ></v-switch>
         <div
           v-for="room of roomsWithReservations"
           :key="'room-' + room.id"
@@ -69,7 +67,7 @@
         </div>
       </v-col>
     </v-row>
-  </div>
+  </fragment>
 </template>
 
 <script>

@@ -27,7 +27,7 @@ export default {
   name: 'Home',
   props: {
     customerId: {
-      type: Number,
+      type: [Number, String],
       required: true
     },
     readonly: {

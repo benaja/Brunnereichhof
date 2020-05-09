@@ -1,65 +1,67 @@
 <template>
-  <v-container>
-    <h1>Dashboard</h1>
-    <v-row class="mt-4 pt-4">
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <stats-card
-          title="Mitarbeiter Stunden"
-          text="Geleistete Stunden pro Monat"
-          :updated-at="stats.updatedAt.date"
-          :dataset="stats.employeeHoursByMonth"
-        ></stats-card>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <stats-card
-          title="Hofmitarbeiter Stunden"
-          text="Geleistete Stunden pro Monat"
-          :updated-at="stats.updatedAt.date"
-          :dataset="stats.workerHoursByMonth"
-        ></stats-card>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <single-stat-card
-          title="Totale Stunden Mitarbeiter"
-          icon="person"
-          :value="`${stats.employeeTotalNumbers.hours} Stunden`"
-          :updated-at="stats.updatedAt.date"
-        ></single-stat-card>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <single-stat-card
-          title="Aktive Mitarbeiter"
-          icon="person"
-          :value="`${stats.employeeTotalNumbers.activeEmployees}`"
-          action-text="Aktuell"
-        ></single-stat-card>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <single-stat-card
-          title="Totale Stunden Hofmitarbeiter"
-          icon="person_outline"
-          :value="`${stats.workerTotalNumbers.hours} Stunden`"
-          :updated-at="stats.updatedAt.date"
-        ></single-stat-card>
-      </v-col>
-    </v-row>
-    <release-notes></release-notes>
-  </v-container>
+  <fragment>
+    <navigation-bar title="Dashoard"></navigation-bar>
+    <v-container>
+      <v-row class="mt-4 pt-4">
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <stats-card
+            title="Mitarbeiter Stunden"
+            text="Geleistete Stunden pro Monat"
+            :updated-at="stats.updatedAt.date"
+            :dataset="stats.employeeHoursByMonth"
+          ></stats-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <stats-card
+            title="Hofmitarbeiter Stunden"
+            text="Geleistete Stunden pro Monat"
+            :updated-at="stats.updatedAt.date"
+            :dataset="stats.workerHoursByMonth"
+          ></stats-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <single-stat-card
+            title="Totale Stunden Mitarbeiter"
+            icon="person"
+            :value="`${stats.employeeTotalNumbers.hours} Stunden`"
+            :updated-at="stats.updatedAt.date"
+          ></single-stat-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <single-stat-card
+            title="Aktive Mitarbeiter"
+            icon="person"
+            :value="`${stats.employeeTotalNumbers.activeEmployees}`"
+            action-text="Aktuell"
+          ></single-stat-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+        >
+          <single-stat-card
+            title="Totale Stunden Hofmitarbeiter"
+            icon="person_outline"
+            :value="`${stats.workerTotalNumbers.hours} Stunden`"
+            :updated-at="stats.updatedAt.date"
+          ></single-stat-card>
+        </v-col>
+      </v-row>
+      <release-notes></release-notes>
+    </v-container>
+  </fragment>
 </template>
 
 <script>

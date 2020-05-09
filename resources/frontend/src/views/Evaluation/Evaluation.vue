@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <fragment>
     <navigation-bar title="Auswertung"></navigation-bar>
     <v-container>
       <evaluation-component :evaluation-groups="evaluationGroups"></evaluation-component>
     </v-container>
-  </div>
+  </fragment>
 </template>
 
 <script>

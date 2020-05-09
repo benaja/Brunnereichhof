@@ -33,7 +33,7 @@ class Employee extends Model
         'drivingLicence'
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email', 'profileimage_url', 'profileimage_url_small'];
+    protected $appends = ['firstname', 'lastname', 'email'];
 
     protected $dates = ['entryDate'];
 
@@ -93,7 +93,7 @@ class Employee extends Model
         return $this->user ? $this->user->email : '';
     }
 
-    public function getProfileimageUrlAttribute()
+    public function getProfileimageUrl()
     {
         if ($this->profileimage) {
             return Storage::disk('s3')->temporaryUrl(
@@ -105,17 +105,6 @@ class Employee extends Model
         }
     }
 
-    public function getProfileimageUrlSmallAttribute()
-    {
-        if ($this->profileimage) {
-            return Storage::disk('s3')->temporaryUrl(
-                'small/'. $this->profileimage,
-                Carbon::now()->addMinutes(5)
-            );
-        } else {
-            return null;
-        }
-    }
 
     // user mutators
     public function setFirstnameAttribute($value)

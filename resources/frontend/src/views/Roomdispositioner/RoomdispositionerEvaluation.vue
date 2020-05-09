@@ -1,108 +1,110 @@
 <template>
-  <v-container>
-    <h1>Auswertung</h1>
-    <v-radio-group
-      v-model="dateType"
-      row
-    >
-      <v-radio
-        label="Woche"
-        value="date"
-        color="blue"
-      ></v-radio>
-      <v-radio
-        label="Monat"
-        value="month"
-        color="blue"
-      ></v-radio>
-      <v-radio
-        label="Jahr"
-        value="year"
-        color="blue"
-      ></v-radio>
-    </v-radio-group>
-    <date-picker
-      v-model="date"
-      :type="dateType"
-      label="Datum"
-      outlined
-      color="blue"
-      @input="updateStats"
-    ></date-picker>
-
-    <v-tabs
-      v-model="tab"
-      color="blue"
-    >
-      <v-tab>Übernachtungen</v-tab>
-      <v-tab>Einquartierungen</v-tab>
-      <v-tab>Zimmerwechsel</v-tab>
-    </v-tabs>
-    <progress-linear
-      :loading="isLoading.rooms || isLoadingStats"
-      indeterminate
-      color="blue"
-    ></progress-linear>
-
-    <v-tabs-items v-model="tab">
-      <v-tab-item>
-        <p class="subtitle-1 mt-3">
-          Wähle die gewünschten Zimmer aus
-        </p>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-            lg="4"
-          >
-            <v-checkbox
-              v-model="selectAllRooms"
-              label="Alle auswählen"
-              color="blue"
-              class="pt-0 mt-0"
-            ></v-checkbox>
-          </v-col>
-          <v-col
-            v-for="room of rooms"
-            :key="room.id"
-            cols="12"
-            md="6"
-            lg="4"
-          >
-            <v-checkbox
-              v-model="selectedRooms"
-              :label="`${room.name} | ${room.number}`"
-              :value="room.id"
-              class="pt-0 mt-0"
-              color="blue"
-            ></v-checkbox>
-          </v-col>
-        </v-row>
-        <v-btn
-          :loading="isLoadingPdf"
-          :disabled="!selectedRooms.length"
-          depressed
+  <fragment>
+    <navigation-bar title="Auswertung"></navigation-bar>
+    <v-container>
+      <v-radio-group
+        v-model="dateType"
+        row
+      >
+        <v-radio
+          label="Woche"
+          value="date"
           color="blue"
-          class="white--text"
-          @click="generateRoomPdf"
-        >
-          <v-icon class="mr-2">
-            picture_as_pdf
-          </v-icon>PDF generieren
-        </v-btn>
-      </v-tab-item>
-      <v-tab-item>
-        <p class="headline">
-          {{ quartering }}
-        </p>
-      </v-tab-item>
-      <v-tab-item>
-        <p class="headline">
-          {{ roomChanges }}
-        </p>
-      </v-tab-item>
-    </v-tabs-items>
-  </v-container>
+        ></v-radio>
+        <v-radio
+          label="Monat"
+          value="month"
+          color="blue"
+        ></v-radio>
+        <v-radio
+          label="Jahr"
+          value="year"
+          color="blue"
+        ></v-radio>
+      </v-radio-group>
+      <date-picker
+        v-model="date"
+        :type="dateType"
+        label="Datum"
+        outlined
+        color="blue"
+        @input="updateStats"
+      ></date-picker>
+
+      <v-tabs
+        v-model="tab"
+        color="blue"
+      >
+        <v-tab>Übernachtungen</v-tab>
+        <v-tab>Einquartierungen</v-tab>
+        <v-tab>Zimmerwechsel</v-tab>
+      </v-tabs>
+      <progress-linear
+        :loading="isLoading.rooms || isLoadingStats"
+        indeterminate
+        color="blue"
+      ></progress-linear>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <p class="subtitle-1 mt-3">
+            Wähle die gewünschten Zimmer aus
+          </p>
+          <v-row>
+            <v-col
+              cols="12"
+              md="6"
+              lg="4"
+            >
+              <v-checkbox
+                v-model="selectAllRooms"
+                label="Alle auswählen"
+                color="blue"
+                class="pt-0 mt-0"
+              ></v-checkbox>
+            </v-col>
+            <v-col
+              v-for="room of rooms"
+              :key="room.id"
+              cols="12"
+              md="6"
+              lg="4"
+            >
+              <v-checkbox
+                v-model="selectedRooms"
+                :label="`${room.name} | ${room.number}`"
+                :value="room.id"
+                class="pt-0 mt-0"
+                color="blue"
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <v-btn
+            :loading="isLoadingPdf"
+            :disabled="!selectedRooms.length"
+            depressed
+            color="blue"
+            class="white--text"
+            @click="generateRoomPdf"
+          >
+            <v-icon class="mr-2">
+              picture_as_pdf
+            </v-icon>PDF generieren
+          </v-btn>
+        </v-tab-item>
+        <v-tab-item>
+          <p class="headline">
+            {{ quartering }}
+          </p>
+        </v-tab-item>
+        <v-tab-item>
+          <p class="headline">
+            {{ roomChanges }}
+          </p>
+        </v-tab-item>
+      </v-tabs-items>
+    </v-container>
+  </fragment>
 </template>
 
 <script>

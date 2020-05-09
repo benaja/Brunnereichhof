@@ -136,6 +136,7 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
+        $employee->profileimage = $employee->getProfileimageUrl();@
         return $employee;
     }
 
@@ -224,39 +225,7 @@ class EmployeeController extends Controller
             Storage::disk('s3')->put('small/'.$imagePath, (string)$img->stream());
             $employee->profileimage = $imagePath;
             $employee->save();
-            return Storage::disk('s3')->temporaryUrl(
-                $imagePath,
-                Carbon::now()->addMinutes(5)
-            );
-            // $employee = Employee::find($id);
-            // $photoName = uniqid() . '.' . $request->profileimage->getClientOriginalExtension();
-            // $request->profileimage->move(public_path('profileimages'), $photoName);
-
-            // $img = Image::make(public_path('profileimages/') . $photoName);
-            // $width = $img->width();
-            // $height = $img->height();
-
-            // $factor = $width / $height;
-
-            // $img->resize(150 * $factor, 150);
-
-            // $img->save(public_path('profileimages/') . "small-$photoName");
-
-            // $request->element = "profileimage";
-            // $request->data = $photoName;
-            // if ($employee->profileimage != null) {
-            //     $imagePath = public_path('profileimages/') . $employee->profileimage;
-            //     $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
-            //     if (file_exists($imagePath)) {
-            //         unlink($imagePath);
-            //     }
-            //     if (file_exists($smallImagePath)) {
-            //         unlink($smallImagePath);
-            //     }
-            // }
-            // $employee->profileimage = $photoName;
-            // $employee->save();
-            // return response($photoName);
+            return $employee->getProfileImageUrl();
         } else {
             return response('no image', 404);
         }

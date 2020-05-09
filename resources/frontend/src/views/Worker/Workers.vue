@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <fragment>
     <navigation-bar title="Hofmitarbeiter"></navigation-bar>
     <v-container>
       <search-bar
@@ -125,7 +125,7 @@
         <v-icon>add</v-icon>
       </v-btn>
     </v-container>
-  </div>
+  </fragment>
 </template>
 
 <script>

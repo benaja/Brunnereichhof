@@ -1,118 +1,121 @@
 <template>
-  <div
-    ref="background"
-    class="white background"
-  >
-    <v-row
-      wrap
-      class="ma-0"
+  <fragmet>
+    <navigation-bar title="Roomdispositioner"></navigation-bar>
+    <div
+      ref="background"
+      class="white background"
     >
-      <v-col class="side-bar">
-        <range-picker v-model="dates"></range-picker>
-        <div class="px-2">
-          <v-select
-            v-model="calendarSortType"
-            :items="calendarSortTypes"
-            color="blue"
-            item-color="blue"
-            prepend-inner-icon="sort"
-            label="Sortieren nach"
-          ></v-select>
-        </div>
-        <div class="px-2">
-          <create-pdf></create-pdf>
-          <stats ref="stats"></stats>
-        </div>
-      </v-col>
-      <v-col class="content pa-0">
-        <div
-          ref="callendarContainer"
-          class="callendar-container"
-        >
-          <div
-            v-for="(day, index) in days"
-            :key="day.format('YYYY-MM-DD')"
-            class="day"
-            :style="{ width: `${100 / amountOfDays}%` }"
-            @click="e => openReservationPopup(e, index)"
-          >
-            <div class="day-border"></div>
-            <div class="day-content pt-2">
-              <p class="text-center mb-0 overline">
-                {{ day.format('ddd') }}
-              </p>
-              <p class="text-center font-weight-bold">
-                <span
-                  v-if="day.format('D') == 1 || index === 0"
-                >{{ day.format('D') }}. {{ day.format('MMM') }}</span>
-                <span v-else>{{ day.format('D') }}</span>
-              </p>
-              <!-- <v-divider></v-divider> -->
-            </div>
+      <v-row
+        wrap
+        class="ma-0"
+      >
+        <v-col class="side-bar">
+          <range-picker v-model="dates"></range-picker>
+          <div class="px-2">
+            <v-select
+              v-model="calendarSortType"
+              :items="calendarSortTypes"
+              color="blue"
+              item-color="blue"
+              prepend-inner-icon="sort"
+              label="Sortieren nach"
+            ></v-select>
           </div>
-          <div class="reservations-container">
-            <div class="reservations-scroll-wrapper">
-              <div
-                v-for="(tag, index) of reservationTags"
-                :key="'r' + index"
-                :class="['reservation',
-                         'blue',
-                         'reservation-' + tag.reservation.id, ...tag.cssClass]"
-                :style="tag.style"
-                @click="e => openDetailsPopup(e, tag.reservation)"
-                @mouseover="hover(tag.reservation.id)"
-                @mouseleave="leave(tag.reservation.id)"
-              >
-                <p
-                  class="white--text ml-2 mr-1 caption"
-                >
-                  {{ tag.reservation.employee.lastname }}
-                  {{ tag.reservation.employee.firstname }} |
-                  {{ tag.reservation.bed_room_pivot.room.name }} /
-                  {{ tag.reservation.bed_room_pivot.room.number }}
+          <div class="px-2">
+            <create-pdf></create-pdf>
+            <stats ref="stats"></stats>
+          </div>
+        </v-col>
+        <v-col class="content pa-0">
+          <div
+            ref="callendarContainer"
+            class="callendar-container"
+          >
+            <div
+              v-for="(day, index) in days"
+              :key="day.format('YYYY-MM-DD')"
+              class="day"
+              :style="{ width: `${100 / amountOfDays}%` }"
+              @click="e => openReservationPopup(e, index)"
+            >
+              <div class="day-border"></div>
+              <div class="day-content pt-2">
+                <p class="text-center mb-0 overline">
+                  {{ day.format('ddd') }}
                 </p>
+                <p class="text-center font-weight-bold">
+                  <span
+                    v-if="day.format('D') == 1 || index === 0"
+                  >{{ day.format('D') }}. {{ day.format('MMM') }}</span>
+                  <span v-else>{{ day.format('D') }}</span>
+                </p>
+              <!-- <v-divider></v-divider> -->
+              </div>
+            </div>
+            <div class="reservations-container">
+              <div class="reservations-scroll-wrapper">
+                <div
+                  v-for="(tag, index) of reservationTags"
+                  :key="'r' + index"
+                  :class="['reservation',
+                           'blue',
+                           'reservation-' + tag.reservation.id, ...tag.cssClass]"
+                  :style="tag.style"
+                  @click="e => openDetailsPopup(e, tag.reservation)"
+                  @mouseover="hover(tag.reservation.id)"
+                  @mouseleave="leave(tag.reservation.id)"
+                >
+                  <p
+                    class="white--text ml-2 mr-1 caption"
+                  >
+                    {{ tag.reservation.employee.lastname }}
+                    {{ tag.reservation.employee.firstname }} |
+                    {{ tag.reservation.bed_room_pivot.room.name }} /
+                    {{ tag.reservation.bed_room_pivot.room.number }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </v-col>
-    </v-row>
-    <v-menu
-      v-model="reservationModel.open"
-      :close-on-content-click="false"
-      :nudge-width="300"
-      obsolute
-      :position-x="reservationModel.x"
-      :position-y="reservationModel.y"
-      z-index="3"
-    >
-      <create-reservation
+        </v-col>
+      </v-row>
+      <v-menu
         v-model="reservationModel.open"
-        :reservation="reservation"
-        @add="reservation => reservations.push(reservation)"
-        @updateAll="newReservations => reservations = newReservations"
-      ></create-reservation>
-    </v-menu>
-    <v-menu
-      v-model="detailsModel.open"
-      :close-on-content-click="false"
-      :position-x="detailsModel.x"
-      :position-y="detailsModel.y"
-      z-index="4"
-      max-width="100%"
-      min-width="300"
-      close-delay="10"
-    >
-      <reservation-details
-        v-model="detailsModel.reservation"
-        :selected-day="detailsModel.clickedDay"
-        @close="detailsModel.open = false"
-        @update="drawReservations"
-        @delete="deleteReservation"
-        @updateAll="newReservations => reservations = newReservations"
-      />
-    </v-menu>
-  </div>
+        :close-on-content-click="false"
+        :nudge-width="300"
+        obsolute
+        :position-x="reservationModel.x"
+        :position-y="reservationModel.y"
+        z-index="3"
+      >
+        <create-reservation
+          v-model="reservationModel.open"
+          :reservation="reservation"
+          @add="reservation => reservations.push(reservation)"
+          @updateAll="newReservations => reservations = newReservations"
+        ></create-reservation>
+      </v-menu>
+      <v-menu
+        v-model="detailsModel.open"
+        :close-on-content-click="false"
+        :position-x="detailsModel.x"
+        :position-y="detailsModel.y"
+        z-index="4"
+        max-width="100%"
+        min-width="300"
+        close-delay="10"
+      >
+        <reservation-details
+          v-model="detailsModel.reservation"
+          :selected-day="detailsModel.clickedDay"
+          @close="detailsModel.open = false"
+          @update="drawReservations"
+          @delete="deleteReservation"
+          @updateAll="newReservations => reservations = newReservations"
+        />
+      </v-menu>
+    </div>
+  </fragmet>
 </template>
 
 <script>

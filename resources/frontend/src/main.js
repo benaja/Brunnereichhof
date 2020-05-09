@@ -18,6 +18,7 @@ import auth from '@websanova/vue-auth'
 import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
 import NavigationBar from '@/components/NavigationBar'
+import Fragment from 'vue-fragment'
 import { COLORS } from './constants'
 import axios from './axios'
 import store from './store'
@@ -33,6 +34,7 @@ Vue.use(chartist)
 Vue.use(Vue2TouchEvents)
 Vue.use(VueSync)
 Vue.use(VueLodash, { name: '$lodash', lodash })
+Vue.use(Fragment.Plugin)
 
 moment.locale('de-ch')
 Vue.prototype.$moment = moment

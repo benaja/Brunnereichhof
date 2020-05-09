@@ -31,14 +31,18 @@
         v-model="employee"
         :original="original"
         :readonly="!isUserAllowedToEdit"
+        :loading-image="isUploadingImage"
+        :loading-delete-image="isDeleteingImage"
         @change="changed"
         @submit="saveChanges"
         @uploadImage="uploadImage"
+        @deleteImage="deleteImage"
       ></employee-form>
       <v-btn
         v-if="isUserAllowedToEdit"
         color="red white--text my-4"
         depressed
+        :loading="isLoadingDelete"
         @click="deleteEmployee"
       >
         <v-icon class="mr-2">
@@ -71,7 +75,10 @@ export default {
       rules,
       isLoading: false,
       isLoadingSave: false,
-      isLoadingRevert: false
+      isLoadingRevert: false,
+      isLoadingDelete: false,
+      isUploadingImage: false,
+      isDeleteingImage: false
     }
   },
   computed: {
@@ -146,14 +153,18 @@ export default {
       })
     },
     deleteEmployee() {
+      this.isLoadingDelete = true
       this.axios.delete(this.apiUrl).then(() => {
-        this.$store.dispatch('resetEmployees')
         if (this.employee.isGuest) this.$router.push('/guests')
         else this.$router.push('/employee')
+      }).catch(() => {
+        this.isLoadingDelete = false
+        this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
       })
     },
     uploadImage(files) {
       if (files.length === 1) {
+        this.isUploadingImage = true
         const data = new FormData()
         data.append('profileimage', files[0])
         this.axios
@@ -162,18 +173,23 @@ export default {
             this.employee.profileimage = response.data
           })
           .catch(() => {
-            this.$swal('Fehler beim hochladen', '', 'error')
+            this.$store.dispatch('error', 'Bild konnte nicht hochgeladen werden')
+          }).finally(() => {
+            this.isUploadingImage = false
           })
       }
     },
     deleteImage() {
+      this.isDeleteingImage = true
       this.axios
         .delete(`${this.apiUrl}/editimage`)
         .then(() => {
           this.employee.profileimage = null
         })
         .catch(() => {
-          this.$swal('Fehler', '', 'error')
+          this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
+        }).finally(() => {
+          this.isDeleteingImage = false
         })
     }
   }

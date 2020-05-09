@@ -21,6 +21,7 @@
           v-model="value.lastname"
           label="Nachname*"
           :rules="[rules.required]"
+          :original="original.lastname"
           :readonly="readonly"
           @change="$emit('change', 'lastname')"
         ></text-field>
@@ -28,12 +29,14 @@
           v-model="value.callname"
           label="Rufname"
           :readonly="readonly"
+          :original="original.callname"
           @change="$emit('change', 'callname')"
         ></text-field>
         <text-field
           v-model="value.nationality"
           label="Nationalität"
           :readonly="readonly"
+          :original="original.nationality"
           @change="$emit('change', 'nationality')"
         ></text-field>
       </v-col>
@@ -43,7 +46,7 @@
       >
         <div v-if="value.profileimage">
           <img
-            :src="value.profileimage_url"
+            :src="value.profileimage"
             class="profileimage"
           />
           <p
@@ -52,6 +55,8 @@
           >
             <v-btn
               color="primary"
+              depressed
+              :loading="loadingImage"
               @click="$refs.profileImage.click()"
             >
               Bild ändern
@@ -62,7 +67,9 @@
             <v-btn
               color="primary"
               class="ml-2"
-              @click="deleteImage"
+              depressed
+              :loading="loadingDeleteImage"
+              @click="$emit('deleteImage')"
             >
               Bild entfernen
               <v-icon right>
@@ -76,6 +83,8 @@
             <v-btn
               v-if="!readonly"
               color="primary"
+              depressed
+              :loading="loadingImage"
               @click="$refs.profileImage.click()"
             >
               Bild hinzufügen
@@ -273,14 +282,12 @@
 <script>
 import { TextField, SelectField, DateField } from '@/components/FormComponents'
 import SelectRole from '@/components/Authorization/SelectRole'
-import DatePicker from '@/components/general/DatePicker'
 import { rules } from '@/utils'
 
 export default {
   components: {
     TextField,
     SelectRole,
-    DatePicker,
     SelectField,
     DateField
   },
@@ -294,6 +301,14 @@ export default {
       default: () => ({})
     },
     readonly: {
+      type: Boolean,
+      default: false
+    },
+    loadingImage: {
+      type: Boolean,
+      default: false
+    },
+    loadingDeleteImage: {
       type: Boolean,
       default: false
     }
@@ -315,8 +330,6 @@ export default {
     }
   },
   methods: {
-    deleteImage() {},
-    uploadImage() {},
     validate() {
       return this.$refs.form.validate()
     }

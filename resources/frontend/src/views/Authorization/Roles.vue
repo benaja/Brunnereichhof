@@ -1,29 +1,31 @@
 <template>
-  <v-container>
-    <h1>Rollen</h1>
-    <v-list class="pa-0">
-      <template v-for="role of roles">
-        <v-list-item
-          :key="role.id"
-          :to="`/roles/${role.id}`"
-        >
-          <v-list-item-content>{{ role.name }}</v-list-item-content>
-        </v-list-item>
+  <fragment>
+    <navigation-bar title="Rollen"></navigation-bar>
+    <v-container>
+      <v-list class="pa-0">
+        <template v-for="role of roles">
+          <v-list-item
+            :key="role.id"
+            :to="`/roles/${role.id}`"
+          >
+            <v-list-item-content>{{ role.name }}</v-list-item-content>
+          </v-list-item>
 
-        <v-divider :key="'divider-' + role.id"></v-divider>
-      </template>
-    </v-list>
-    <CreateRole v-model="isCreateRolePopupOpen">
-      <v-btn
-        slot="activator"
-        fab
-        color="primary"
-        class="add-button"
-      >
-        <v-icon>add</v-icon>
-      </v-btn>
-    </CreateRole>
-  </v-container>
+          <v-divider :key="'divider-' + role.id"></v-divider>
+        </template>
+      </v-list>
+      <CreateRole v-model="isCreateRolePopupOpen">
+        <v-btn
+          slot="activator"
+          fab
+          color="primary"
+          class="add-button"
+        >
+          <v-icon>add</v-icon>
+        </v-btn>
+      </CreateRole>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
