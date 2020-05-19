@@ -159,7 +159,7 @@
       <v-spacer></v-spacer>
       <v-btn
         text
-        @click="editMode = false"
+        @click="cancel"
       >
         Abbrechen
       </v-btn>
@@ -178,10 +178,9 @@
 import moment from 'moment'
 import DatePicker from '@/components/general/DatePicker'
 import SelectEmployee from '@/components/Roomdispositioner/SelectEmployee'
-import { downloadFile, rules } from '@/utils'
+import { downloadFile, rules, confirmAction } from '@/utils'
 
 export default {
-  name: 'ReservationDetailss',
   components: {
     DatePicker,
     SelectEmployee
@@ -194,6 +193,10 @@ export default {
       })
     },
     selectedDay: {
+      type: Object,
+      default: null
+    },
+    original: {
       type: Object,
       default: null
     }
@@ -272,28 +275,23 @@ export default {
           })
           .catch(error => {
             if (error.includes('Employee is already in an other bed at this time')) {
-              this.$swal({
-                title: 'Achtung!',
-                text: 'Dieser Mitarbeiter ist zur angegeben Zeit in einem anderen Bett. Wollen sie ihn umbuchen?',
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ja, umbuchen!',
-                cancelButtonText: 'Nein, abbrechen'
-              }).then(result => {
-                if (result.value) {
-                  this.axios
-                    .put(`/reservations/${this.value.id}`, {
-                      ...this.reservationBody,
-                      force: true
-                    })
-                    .then(response => {
-                      this.$emit('updateAll', response.data)
-                    })
-                    .catch(() => {
-                      this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
-                    })
-                }
-              })
+              confirmAction('Dieser Mitarbeiter ist zur angegeben Zeit in einem anderen Bett. Wollen sie ihn umbuchen?', 'Ja, umbuchen!')
+                .then(result => {
+                  if (result) {
+                    this.axios
+                      .put(`/reservations/${this.value.id}`, {
+                        ...this.reservationBody,
+                        force: true
+                      })
+                      .then(response => {
+                        this.$emit('updateAll', response.data)
+                        this.editMode = false
+                      })
+                      .catch(() => {
+                        this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
+                      })
+                  }
+                })
             } else if (error.includes('Bed is already booked at this time')) {
               this.$swal(
                 'Bett ist bereit voll',
@@ -351,7 +349,11 @@ export default {
         id: this.value.bed_room_pivot.id
       }
       this.originalRoomId = this.value.bed_room_pivot.room_id
-      this.$emit('update')
+      this.$emit('update', this._.cloneDeep(this.value))
+    },
+    cancel() {
+      this.editMode = false
+      this.$emit('input', this._.cloneDeep(this.original))
     }
   }
 }

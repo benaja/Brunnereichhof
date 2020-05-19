@@ -139,9 +139,11 @@
       >
         <reservation-details
           v-model="detailsModel.reservation"
+          :original="detailsModel.original"
           :selected-day="detailsModel.clickedDay"
           @close="detailsModel.open = false"
           @delete="deleteReservation"
+          @update="updateReservation(detailsModel.original, $event)"
           @updateAll="newReservations => reservations = newReservations"
         />
       </v-menu>
@@ -289,14 +291,14 @@ export default {
         const cssClass = []
         if (isReservationEntrySameOrAfterTimeSelected) {
           diffFromFirstDay = this.$moment(reservation.entry).diff(this.firstDate, 'days')
-          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 5px)`
+          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 4px)`
           cssClass.push('border-radius-left')
         }
 
         let width = '100%'
         const diffFromLastDay = this.lastDate.diff(this.$moment(reservation.exit), 'days')
         if (this.$moment(reservation.exit).isSameOrBefore(this.lastDate, 'day')) {
-          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 10 : 5
+          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 6 : 3
           width = `calc(${(100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay - diffFromFirstDay)}% - ${pixelsToAdd}px)`
           cssClass.push('border-radius-right')
         }
@@ -374,7 +376,8 @@ export default {
       }
       this.detailsModel.x = x
       reservation.employee.name = `${reservation.employee.lastname} ${reservation.employee.firstname}`
-      this.detailsModel.reservation = reservation
+      this.detailsModel.reservation = this._.cloneDeep(reservation)
+      this.detailsModel.original = reservation
 
       const day = Math.floor((e.x - calendarContainerRect.x)
         / (calendarContainerRect.width / this.amountOfDays))
@@ -387,6 +390,12 @@ export default {
     deleteReservation(reservation) {
       this.reservations.splice(this.reservations.indexOf(reservation), 1)
       this.reservations = [...this.reservations]
+    },
+    updateReservation(originalReservation, reservation) {
+      this.reservations = this.reservations.map(r => {
+        if (r !== originalReservation) return r
+        return reservation
+      })
     }
   }
 }
@@ -478,6 +487,7 @@ export default {
 .reservation {
   height: 20px;
   z-index: 2;
+  min-width: 6px;
   // border-radius: 5px;
   margin-top: 5px;
   cursor: pointer;
