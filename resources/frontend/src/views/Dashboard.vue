@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Dashoard"></navigation-bar>
+    <navigation-bar
+      title="Dashoard"
+      :loading="$store.getters.isLoading.dashboard"
+    ></navigation-bar>
     <v-container>
       <v-row class="mt-4 pt-4">
         <v-col

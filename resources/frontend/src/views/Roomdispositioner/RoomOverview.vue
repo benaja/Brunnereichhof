@@ -1,6 +1,18 @@
 <template>
   <fragment>
-    <navigation-bar title="Raumübersicht"></navigation-bar>
+    <navigation-bar
+      title="Raumübersicht"
+      color="blue"
+      :loading="isLoading"
+      full-width
+    >
+      <v-switch
+        v-model="showFreeBeds"
+        class="ml-auto"
+        color="blue"
+        label="Freie Betten anzeigen"
+      ></v-switch>
+    </navigation-bar>
     <v-row>
       <v-col
         class="side-container"
@@ -22,6 +34,7 @@
           <v-btn
             color="blue"
             class="white--text text-center"
+            depressed
             @click="generatePdf"
           >
             PDF
@@ -32,12 +45,6 @@
         </diV>
       </v-col>
       <v-col class="content-container">
-        <v-switch
-          v-model="showFreeBeds"
-          class="float-right mt-2"
-          color="blue"
-          label="Freie Betten anzeigen"
-        ></v-switch>
         <div
           v-for="room of roomsWithReservations"
           :key="'room-' + room.id"
@@ -79,7 +86,8 @@ export default {
     return {
       date: this.$moment(new Date()).format('YYYY-MM-DD'),
       roomsWithReservations: [],
-      showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds'))
+      showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds')),
+      isLoading: false
     }
   },
   watch: {
@@ -95,16 +103,16 @@ export default {
   },
   methods: {
     getReservationsByDate() {
-      this.$store.commit('isLoading', true)
+      this.isLoading = true
       this.axios
         .get(`/rooms/reservations/${this.date}`)
         .then(response => {
-          this.$store.commit('isLoading', false)
           this.roomsWithReservations = response.data
         })
         .catch(() => {
-          this.$store.commit('isLoading', false)
           this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden. Bitte versuchen Sie es später erneut.', 'error')
+        }).finally(() => {
+          this.isLoading = false
         })
     },
     generatePdf() {

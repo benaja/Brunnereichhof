@@ -29,13 +29,14 @@ class BedController extends Controller
         $this->validate($request, [
             'name' => 'required|max:100',
             'width' => 'required|max:100',
-            'places' => 'required|numeric'
+            'places' => 'required|numeric',
         ]);
 
         $bed = Bed::create([
             'name' => $request->name,
             'width' => $request->width,
-            'places' => $request->places
+            'places' => $request->places,
+            'comment' => $request->comment
         ]);
 
         $inventarIds = array_map(function ($inventar) {

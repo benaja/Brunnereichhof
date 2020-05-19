@@ -35,7 +35,7 @@ function confirmAction(text = 'Willst du diesen Eintrag wirklich löschen?', con
     Vue.swal({
       title: 'Bis du dir sicher?',
       text,
-      type: 'warning',
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonText,
       cancelButtonText: 'Nein, abbrechen',

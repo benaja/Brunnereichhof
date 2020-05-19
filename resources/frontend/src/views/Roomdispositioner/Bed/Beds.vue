@@ -1,11 +1,11 @@
 <template>
   <fragment>
-    <navigation-bar title="Betten"></navigation-bar>
+    <navigation-bar
+      title="Betten"
+      :loading="isLoading.beds"
+      color="blue"
+    ></navigation-bar>
     <v-container>
-      <progress-linear
-        :loading="isLoading.beds"
-        color="blue"
-      />
       <v-list class="pa-0 elevation-2">
         <v-list-item
           v-for="bed of beds"
@@ -21,13 +21,9 @@
           <v-list-item-action>{{ bed.places }} Plätze</v-list-item-action>
         </v-list-item>
       </v-list>
-      <v-menu
+      <v-dialog
         v-model="addModel"
-        :close-on-content-click="false"
-        right
-        content-class="bed-menu"
-        max-width="500"
-        min-width="500"
+        width="900"
       >
         <template v-slot:activator="{ on }">
           <v-btn
@@ -48,7 +44,7 @@
           v-model="addModel"
           @add="add"
         />
-      </v-menu>
+      </v-dialog>
     </v-container>
   </fragment>
 </template>

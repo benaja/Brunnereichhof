@@ -1,20 +1,26 @@
 <template>
   <v-card
     v-if="card"
-    class="pa-3"
   >
-    <slot></slot>
+    <h3 class="pa-4 title">
+      {{ title }}
+    </h3>
+    <div class="card-content">
+      <slot></slot>
+    </div>
     <v-card-actions>
-      <v-spacer></v-spacer>
       <v-btn
         text
         @click="$emit('cancel')"
       >
         Abbrechen
       </v-btn>
+      <v-spacer></v-spacer>
       <v-btn
         :color="color"
-        text
+        :loading="saving"
+        depressed
+        class="white--text"
         @click="$emit('save')"
       >
         Speichern
@@ -25,6 +31,7 @@
     <slot></slot>
     <v-btn
       :color="color"
+      :loading="saving"
       @click="$emit('save')"
     >
       Speichern
@@ -42,10 +49,24 @@ export default {
     color: {
       type: String,
       default: 'primary'
+    },
+    saving: {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: null
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.card-content {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px
+}
 </style>

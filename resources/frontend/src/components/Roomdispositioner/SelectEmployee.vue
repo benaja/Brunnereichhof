@@ -2,7 +2,7 @@
   <v-autocomplete
     v-model="employee"
     label="Mitarbeiter suchen"
-    :items="employees"
+    :items="selectableEmployees"
     item-value="id"
     item-text="name"
     :loading="isLoading"
@@ -11,6 +11,7 @@
     autocomplete="off"
     :rules="rules"
     color="blue"
+    item-color="blue"
     @focus="searchString = ''"
   >
     <template v-slot:item="data">
@@ -31,12 +32,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
-  name: 'SelectEmployee',
   props: {
     value: {
       type: Number,
-      required: true
+      default: null
     },
     rules: {
       type: Array,
@@ -51,11 +53,25 @@ export default {
     return {
       searchString: null,
       isLoading: false,
-      employees: [],
       loaded: false
     }
   },
   computed: {
+    ...mapGetters(['employeesWithGuests', 'allEmployeesWithGuests']),
+    selectableEmployees() {
+      const employees = [...this.employeesWithGuests]
+      if (this.selectAll) {
+        employees.unshift({
+          id: 0,
+          name: 'Alle'
+        })
+      }
+      if (this.value && !this.employeesWithGuests.find(e => e.id === this.value)) {
+        const employee = this.allEmployeesWithGuests.find(e => e.id === this.value)
+        employees.push(employee)
+      }
+      return employees
+    },
     employee: {
       get() {
         return this.value
@@ -71,22 +87,10 @@ export default {
       if (this.isLoading) return
       this.isLoading = true
 
-      this.$store.dispatch('employeesWithGuests').then(employees => {
-        this.employees = [...employees]
+
+      this.$store.dispatch('fetchEmployees').then(() => {
         this.isLoading = false
         this.loaded = true
-        if (this.value && !this.employees.find(e => e.id === this.value)) {
-          this.$store.dispatch('employeesWithGuests', { deleted: true }).then(employeesWithGuests => {
-            const employee = employeesWithGuests.find(e => e.id === this.value)
-            this.employees.push(employee)
-          })
-        }
-        if (this.selectAll) {
-          this.employees.unshift({
-            id: 0,
-            name: 'Alle'
-          })
-        }
       })
     }
   },

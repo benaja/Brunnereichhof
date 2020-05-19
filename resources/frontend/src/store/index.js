@@ -37,7 +37,8 @@ export default new Vuex.Store({
     hourRecords: [],
     saveState: {
       isSaving: false,
-      saves: 0
+      saves: 0,
+      saved: false
     },
     alerts: []
   },
@@ -62,6 +63,10 @@ export default new Vuex.Store({
         state.saveState.saves--
         if (state.saveState.saves === 0) {
           state.saveState.isSaving = false
+          state.saveState.saved = true
+          setTimeout(() => {
+            state.saveState.saved = false
+          }, 2000)
         }
       }
     },
@@ -81,6 +86,7 @@ export default new Vuex.Store({
     hourRecords: state => state.hourRecords,
     saveState: state => state.saveState,
     isSaving: state => state.saveState.isSaving,
+    saved: state => state.saveState.saved,
     isEditTime: state => {
       let startdate = new Date(state.settings.hourrecordStartDate)
       let endDate = new Date(state.settings.hourrecordEndDate)

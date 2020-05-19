@@ -18,13 +18,13 @@ class ReservationPdfController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function pdfByEmployee(Request $request, $id)
+    public function pdfByEmployee(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $this->pdf = new Pdf();
 
-        $employees = Employee::withTrashed()->find($id);
+        $employees = Employee::withTrashed()->find($request->employeeId);
         if (!$employees) {
             $employees = Employee::with('user')
                 ->withTrashed()

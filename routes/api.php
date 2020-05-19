@@ -55,7 +55,7 @@ Route::get('pdf/employees', 'Evaluation\EmployeePdfController@employeeList');
 Route::get('pdf/foods/employees', 'Evaluation\EmployeePdfController@foodRapport');
 Route::get('pdf/customers/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
 Route::get('pdf/customers/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
-Route::get('pdf/reservations/employee/{id}', 'ReservationPdfController@pdfByEmployee');
+Route::get('pdf/reservations', 'ReservationPdfController@pdfByEmployee');
 Route::get('pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
 Route::get('pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
 Route::get('export/customers', 'Evaluation\CustomerPdfController@csvExport');

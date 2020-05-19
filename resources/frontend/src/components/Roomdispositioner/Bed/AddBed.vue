@@ -2,60 +2,31 @@
   <card-layout
     :loading="isLoading"
     color="blue"
+    :saving="isSaving"
+    title="Bett erstellen"
     @cancel="$emit('input', false)"
     @save="save"
   >
     <template>
-      <v-form
+      <bed-form
         ref="form"
-        lazy-validation
-      >
-        <h2>Bett erstellen</h2>
-        <v-text-field
-          v-model="bed.name"
-          :rules="[rules.required]"
-          label="Name*"
-          color="blue"
-        ></v-text-field>
-        <v-text-field
-          v-model="bed.width"
-          :rules="[rules.required]"
-          label="Breite*"
-          color="blue"
-        ></v-text-field>
-        <v-text-field
-          v-model="bed.places"
-          :rules="[rules.required]"
-          type="number"
-          label="Anzahl Plätze*"
-          color="blue"
-        ></v-text-field>
-        <v-textarea
-          v-model="bed.comment"
-          label="Kommentar"
-          rows="1"
-          auto-grow
-          color="blue"
-        ></v-textarea>
-        <select-inventar
-          v-model="bed.inventars"
-          :bed="bed"
-        ></select-inventar>
-      </v-form>
+        v-model="bed"
+        @submit="save"
+      ></bed-form>
     </template>
   </card-layout>
 </template>
 
 <script>
 import CardLayout from '@/components/general/CardLayout'
-import SelectInventar from '@/components/Roomdispositioner/Inventar/SelectInventar'
 import { rules } from '@/utils'
+import BedForm from '@/components/forms/BedForm'
 
 export default {
   name: 'AddBed',
   components: {
     CardLayout,
-    SelectInventar
+    BedForm
   },
   props: {
     value: Boolean
@@ -66,21 +37,24 @@ export default {
         inventars: []
       },
       rules,
-      isLoading: false
+      isLoading: false,
+      isSaving: false
     }
   },
   methods: {
     save() {
       if (this.$refs.form.validate()) {
+        this.isSaving = true
         this.axios
           .post('/beds', this.bed)
           .then(response => {
             this.$store.commit('addBed', response.data)
-            this.$emit('add', response.data)
             this.$emit('input', false)
           })
           .catch(() => {
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler beim Speichern aufgetreten.', 'error')
+          }).finally(() => {
+            this.isSaving = false
           })
       }
     }

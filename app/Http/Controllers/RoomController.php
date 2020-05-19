@@ -354,11 +354,11 @@ class RoomController extends Controller
         $this->pdf->table(['Nummer', 'Zimmer', 'Übernachtungen'], $lines, [0.3, 1, 1]);
 
         if ($request->type === 'year') {
-            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('Y')}");
+            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('Y')}.pdf");
         } else if ($request->type === 'month') {
-            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('m-Y')}");
+            return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('m-Y')}.pdf");
         }
-        return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('W')} ({$firstDate->format('d-m-Y')} - {$lastDate->format('d-m-Y')})");
+        return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('W')} ({$firstDate->format('d-m-Y')} - {$lastDate->format('d-m-Y')}).pdf");
     }
 
     private function reservationsPdfTable($reservations)

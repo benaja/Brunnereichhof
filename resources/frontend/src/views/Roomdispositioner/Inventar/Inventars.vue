@@ -1,6 +1,10 @@
 <template>
   <fragment>
-    <navigation-bar title="Inventar"></navigation-bar>
+    <navigation-bar
+      title="Inventar"
+      :loading="isLoading"
+      color="blue"
+    ></navigation-bar>
     <v-container>
       <v-list class="pa-0 elevation-2">
         <v-list-item
@@ -16,12 +20,9 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-      <v-menu
+      <v-dialog
         v-model="addModel"
-        :close-on-content-click="false"
-        right
-        max-width="400"
-        min-width="400"
+        width="900"
       >
         <template v-slot:activator="{ on }">
           <v-btn
@@ -42,7 +43,7 @@
           v-model="addModel"
           @add="add"
         ></add-inventar>
-      </v-menu>
+      </v-dialog>
     </v-container>
   </fragment>
 </template>
@@ -51,19 +52,22 @@
 import AddInventar from '@/components/Roomdispositioner/Inventar/AddInventar'
 
 export default {
-  name: 'Inventars',
   components: {
     AddInventar
   },
   data() {
     return {
       inventars: [],
-      addModel: false
+      addModel: false,
+      isLoading: false
     }
   },
   mounted() {
+    this.isLoading = true
     this.axios.get('/inventars').then(response => {
       this.inventars = response.data
+    }).finally(() => {
+      this.isLoading = false
     })
   },
   methods: {
@@ -73,6 +77,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

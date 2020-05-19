@@ -66,6 +66,7 @@
       :items="inventars"
       item-value="id"
       item-text="name"
+      item-color="blue"
       :loading="isLoading"
       :search-input.sync="search"
       color="blue"
@@ -82,6 +83,7 @@
         <v-btn
           color="blue"
           class="white--text"
+          text
           v-on="on"
         >
           Neues Inventar erstellen
@@ -159,7 +161,12 @@ export default {
         }
       }
       if (this.bed.id) {
-        this.axios.patch(`/beds/${this.$route.params.id}/inventars/${this.searchItem}`)
+        this.$store.commit('isSaving', true)
+        this.axios.patch(`/beds/${this.$route.params.id}/inventars/${this.searchItem}`).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Speichern')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
       }
     },
     remove(inventar, removeAmount2 = false) {
@@ -173,7 +180,12 @@ export default {
         }
       }
       if (this.bed.id) {
-        this.axios.delete(`/beds/${this.$route.params.id}/inventars/${inventar.id}?removeAmount2=${removeAmount2}`)
+        this.$store.commit('isSaving', true)
+        this.axios.delete(`/beds/${this.$route.params.id}/inventars/${inventar.id}?removeAmount2=${removeAmount2}`).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Speichern')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
       }
     },
     add(inventar) {
@@ -184,7 +196,12 @@ export default {
       this.inventars.push(inventar)
       this.value.push(inventar)
       if (this.bed.id) {
-        this.axios.patch(`/beds/${this.$route.params.id}/inventars/${inventar.id}`)
+        this.$store.commit('isSaving', true)
+        this.axios.patch(`/beds/${this.$route.params.id}/inventars/${inventar.id}`).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Speichern')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
       }
     },
     addAmount(inventar, addAmount2 = false) {
@@ -195,8 +212,13 @@ export default {
         inventar.pivot.amount_2 = inventar.pivot.amount
       }
       if (this.bed.id) {
+        this.$store.commit('isSaving', true)
         this.axios.patch(`/beds/${this.$route.params.id}/inventars/${inventar.id}`, {
           addAmount2
+        }).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Speichern')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
       }
     }

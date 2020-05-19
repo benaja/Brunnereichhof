@@ -16,6 +16,7 @@
       <v-btn
         color="blue"
         class="pdf-button white--text float-right"
+        depressed
         @click="generatePdf"
       >
         Pdf Generieren
@@ -96,9 +97,9 @@ export default {
   },
   methods: {
     getReservations() {
-      this.axios.get(`/rooms/${this.$route.params.id}/reservations/${this.date}`).then(response => {
-        this.reservations = response.data
-      })
+      // this.axios.get(`/rooms/${this.$route.params.id}/reservations/${this.date}`).then(response => {
+      //   this.reservations = response.data
+      // })
     },
     sortItems(items, index, isDesc) {
       if (index.includes('entry') || index.includes('exit')) {

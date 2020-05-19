@@ -1,6 +1,10 @@
 <template>
   <fragment>
-    <navigation-bar title="Räume">
+    <navigation-bar
+      title="Räume"
+      :loading="isLoading.rooms"
+      color="blue"
+    >
       <div class="ml-auto">
         <v-select
           v-model="sortType"
@@ -36,10 +40,6 @@
         :items="rooms"
         @showDeleted="s => showDeleted = s"
       ></search-bar>
-      <progress-linear
-        :loading="isLoading.rooms"
-        color="blue"
-      ></progress-linear>
       <v-list class="pa-0 elevation-2">
         <v-list-item
           v-for="room of roomsSorted"

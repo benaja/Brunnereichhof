@@ -36,16 +36,15 @@
         ></v-autocomplete>
       </v-col>
       <v-col cols="12">
-        <v-menu
+        <v-dialog
           v-model="addBedModel"
-          :close-on-content-click="false"
-          :nudge-width="300"
-          offset-x
+          width="900"
         >
           <template v-slot:activator="{ on }">
             <v-btn
               color="blue"
               class="white--text"
+              text
               v-on="on"
             >
               Neues Bett erstellen
@@ -55,7 +54,7 @@
             v-model="addBedModel"
             @add="addBed"
           ></add-bed>
-        </v-menu>
+        </v-dialog>
       </v-col>
     </v-row>
   </div>

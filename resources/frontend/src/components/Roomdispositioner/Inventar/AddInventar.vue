@@ -1,42 +1,31 @@
 <template>
   <card-layout
     color="blue"
+    :saving="isSaving"
     @save="save"
     @cancel="$emit('input', false)"
   >
     <template>
-      <v-form
+      <h2>Inventar hinzufügen</h2>
+      <inventar-form
         ref="form"
-        v-model="valid"
-        lazy-validation
+        v-model="inventar"
+        @submit="save"
       >
-        <h2>Inventar hinzufügen</h2>
-        <v-text-field
-          v-model="inventar.name"
-          label="Name"
-          :rules="rules.name"
-          color="blue"
-        />
-        <v-text-field
-          v-model="inventar.price"
-          label="Preis in CHF"
-          type="number"
-          :rules="rules.price"
-          color="blue"
-          @keyup.13="save"
-        />
-      </v-form>
+      </inventar-form>
     </template>
   </card-layout>
 </template>
 
 <script>
 import CardLayout from '@/components/general/CardLayout'
+import InventarForm from '@/components/forms/InventarForm'
 
 export default {
   naem: 'AddInventar',
   components: {
-    CardLayout
+    CardLayout,
+    InventarForm
   },
   props: {
     value: Boolean
@@ -44,11 +33,7 @@ export default {
   data() {
     return {
       inventar: {},
-      rules: {
-        name: [v => !!v || 'Name muss vorhanden sein'],
-        price: [v => !!v || 'Geben Sie einen Preis an']
-      },
-      valid: false
+      isSaving: false
     }
   },
   watch: {
@@ -61,6 +46,7 @@ export default {
   methods: {
     save() {
       if (this.$refs.form.validate()) {
+        this.isSaving = true
         this.axios
           .post('/inventars', this.inventar)
           .then(response => {
@@ -70,12 +56,11 @@ export default {
           })
           .catch(() => {
             this.$swal('Fehler', 'Inventar konnte nicht erstellt werden.', 'error')
+          }).finally(() => {
+            this.isSaving = false
           })
       }
     }
   }
 }
 </script>
-
-<style>
-</style>

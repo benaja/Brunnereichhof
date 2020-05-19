@@ -15,17 +15,6 @@
       v-model="selectedEmployee"
       :select-all="true"
     ></select-employee>
-    <!-- <v-autocomplete
-      color="blue"
-      v-model="selectedEmployee"
-      label="Mitarbeiter Auswählen"
-      :items="employees"
-      item-value="id"
-      item-text="name"
-      :loading="isLoading"
-      :search-input.sync="search"
-      @focus="search = ''"
-    ></v-autocomplete>-->
     <date-picker
       v-model="date"
       label="Zeitpunkt"
@@ -35,6 +24,7 @@
       <v-btn
         text
         color="blue"
+        :loading="isLoadingPdf"
         @click="generatePdf"
       >
         PDF generieren
@@ -60,6 +50,7 @@ export default {
       employees: [],
       search: null,
       isLoading: false,
+      isLoadingPdf: false,
       inventarsLoaded: false,
       selectedEmployee: null,
       date: moment().format('YYYY-MM-DD')
@@ -85,11 +76,16 @@ export default {
   },
   methods: {
     generatePdf() {
-      downloadFile(`pdf/reservation/employee/${this.selectedEmployee || 0}?date=${this.date}`)
+      this.isLoadingPdf = true
+      downloadFile('pdf/reservations', {
+        date: this.date,
+        employeeId: this.selectedEmployee
+      }).catch(() => {
+        this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
+      }).finally(() => {
+        this.isLoadingPdf = false
+      })
     }
   }
 }
 </script>
-
-<style>
-</style>

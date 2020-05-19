@@ -12,7 +12,8 @@ export default {
     guests: state => state.employees.filter(e => !e.deleted_at && e.isGuest),
     allGuests: state => state.employees.filter(e => e.isGuest),
     deletedGuests: state => state.employees.filter(e => e.deleted_at && e.isGuest),
-    employeesWithGuests: state => state.employees.filter(e => !e.deleted_at)
+    employeesWithGuests: state => state.employees.filter(e => !e.deleted_at),
+    allEmployeesWithGuests: state => state.employees
   },
   mutations: {
     setEmployees(state, employees) {

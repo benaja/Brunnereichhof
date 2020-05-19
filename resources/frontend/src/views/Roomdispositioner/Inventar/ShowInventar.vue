@@ -1,94 +1,74 @@
 <template>
-  <v-container>
-    <v-row class="white px-4 py-2">
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <p class="mt-3 font-weight-bold subheading">
-          Name
-        </p>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <edit-field
-          v-model="inventar.name"
-          color="blue"
-          :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
-          @change="change('name')"
-        ></edit-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <p class="mt-3 font-weight-bold subheading">
-          Name
-        </p>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <edit-field
-          v-model="inventar.price"
-          type="number"
-          color="blue"
-          :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
-          @change="change('price')"
-        ></edit-field>
-      </v-col>
-      <v-col
+  <fragment>
+    <navigation-bar
+      title="Inventar"
+      :loading="isLoading"
+      color="blue"
+    ></navigation-bar>
+    <v-container>
+      <inventar-form
+        v-model="inventar"
+        :readonly="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+        @change="change($event)"
+      ></inventar-form>
+      <v-btn
         v-if="$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
-        cols="12"
+        color="red"
+        class="white--text"
+        depressed
+        @click="deleteInventar"
       >
-        <v-btn
-          color="red"
-          class="white--text"
-          @click="deleteInventar"
-        >
-          Löschen
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
+        Löschen
+      </v-btn>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
+import InventarForm from '@/components/forms/InventarForm'
+import { confirmAction } from '@/utils'
+
 export default {
-  name: 'ShowInventar',
+  components: {
+    InventarForm
+  },
   data() {
     return {
-      inventar: {}
+      inventar: {},
+      isLoading: false
     }
   },
   mounted() {
+    this.isLoading = true
     this.axios.get(`/inventars/${this.$route.params.id}`).then(response => {
       this.inventar = response.data
+      this.isLoading = false
     })
   },
   methods: {
     change(key) {
+      this.$store.commit('isSaving', true)
       this.axios.patch(`/inventars/${this.$route.params.id}`, {
         [key]: this.inventar[key]
+      }).finally(() => {
+        this.$store.commit('isSaving', false)
       })
     },
     deleteInventar() {
-      this.axios
-        .delete(`/inventars/${this.$route.params.id}`)
-        .then(() => {
-          this.$router.push('/inventars')
-        })
-        .catch(error => {
-          if (error.includes('Integrity constraint violation')) this.$swal('Fehler', 'Inventar wird noch in einem Bett verwenden', 'error')
-          else this.$swal('Fehler', 'Inventar konnte aus einem unbekanntem Grund nicht gelöscht werden', 'error')
-        })
+      confirmAction().then(value => {
+        if (value) {
+          this.axios
+            .delete(`/inventars/${this.$route.params.id}`)
+            .then(() => {
+              this.$router.push('/inventars')
+            })
+            .catch(error => {
+              if (error.includes('Integrity constraint violation')) this.$swal('Fehler', 'Inventar wird noch in einem Bett verwenden', 'error')
+              else this.$swal('Fehler', 'Inventar konnte aus einem unbekanntem Grund nicht gelöscht werden', 'error')
+            })
+        }
+      })
     }
   }
 }
 </script>
-
-<style>
-</style>

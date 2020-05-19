@@ -1,6 +1,11 @@
 <template>
-  <fragmet>
-    <navigation-bar title="Roomdispositioner"></navigation-bar>
+  <fragment>
+    <navigation-bar
+      title="Roomdispositioner"
+      full-width
+      :loading="isLoading"
+      color="blue"
+    ></navigation-bar>
     <div
       ref="background"
       class="white background"
@@ -115,7 +120,7 @@
         />
       </v-menu>
     </div>
-  </fragmet>
+  </fragment>
 </template>
 
 <script>
@@ -167,7 +172,8 @@ export default {
       calendarSortTypes: [
         { text: 'Nachname', value: 'lastname' },
         { text: 'Zimmernummer', value: 'number' }
-      ]
+      ],
+      isLoading: false
     }
   },
   computed: {
@@ -225,8 +231,10 @@ export default {
   },
   methods: {
     loadReservations() {
+      this.isLoading = true
       this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
         this.reservations = response.data
+        this.isLoading = false
       })
     },
     isCurrentMonth(day) {

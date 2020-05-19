@@ -23,40 +23,31 @@
       >
         <v-icon>dehaze</v-icon>
       </v-btn>
-      <v-container>
+      <v-container :fluid="fullWidth">
         <div class="d-flex align-center nav-content-container">
           <div class="nav-title">
             <h1 class="display-1 ma-0">
               {{ title }}
             </h1>
             <p
-              v-if="$store.getters.isSaving"
+              v-if="$store.getters.isSaving || $store.getters.saved"
               class="my-0 mr-3 grey--text font-italic save-text"
             >
-              {{ $vuetify.breakpoint.xsOnly ? 'speichern...' : 'Wird gespeichert...' }}
+              <template v-if="$store.getters.isSaving">
+                {{ $vuetify.breakpoint.xsOnly ? 'speichern...' : 'Wird gespeichert...' }}
+              </template>
+              <template v-else>
+                Gespeichert
+              </template>
             </p>
           </div>
           <slot></slot>
         </div>
       </v-container>
-      <!-- <v-spacer></v-spacer> -->
-      <!-- <div
-        v-if="$store.getters.isSaving"
-        class="is-saving"
-      >
-        <p class="my-0 mr-3 grey--text font-italic">
-          {{ $vuetify.breakpoint.xsOnly ? 'speichern...' : 'Wird gespeichert...' }}
-        </p>
-      </div> -->
-      <!-- <v-toolbar-title>
-        <router-link
-          tag="div"
-          to="/"
-          class="logo"
-        >
-          <img src="@/assets/images/logo.png" />
-        </router-link>
-      </v-toolbar-title> -->
+      <progress-linear
+        :loading="loading"
+        :color="color"
+      />
     </div>
   </div>
 </template>
@@ -67,6 +58,18 @@ export default {
     title: {
       type: String,
       default: null
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    fullWidth: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -114,7 +117,8 @@ export default {
 .save-text {
   position: absolute;
   bottom: -18px;
-  left: 0
+  left: 0;
+  min-width: 150px;
 }
 
 .is-saving {
@@ -125,6 +129,12 @@ export default {
     text-decoration: underline;
     align-self: center;
   }
+}
+
+.loading-bar {
+  position: fixed;
+  width: 100%;
+  top: 76px
 }
 
 @media only screen and (max-width: 600px) {

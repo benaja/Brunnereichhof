@@ -136,7 +136,7 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
-        $employee->profileimage = $employee->getProfileimageUrl();@
+        $employee->profileimage = $employee->getProfileimageUrl();
         return $employee;
     }
 
