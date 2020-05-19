@@ -120,13 +120,13 @@
       <date-picker
         v-model="value.entry"
         label="Von"
-        :rules="rules.required"
+        :rules="[rules.required]"
         color="blue"
       ></date-picker>
       <date-picker
         v-model="value.exit"
         label="Bis"
-        :rules="rules.after"
+        :rules="[rules.after]"
         color="blue"
       ></date-picker>
       <v-select
@@ -135,8 +135,9 @@
         label="Raum"
         item-value="id"
         item-text="name"
-        :rules="rules.required"
-        color="bluje"
+        :rules="[rules.required]"
+        color="blue"
+        item-color="blue"
       ></v-select>
       <v-select
         v-model="value.bed_room_pivot.id"
@@ -144,13 +145,14 @@
         label="Bett"
         item-value="pivot.id"
         item-text="name"
-        :rules="rules.required"
+        :rules="[rules.required]"
         no-data-text="Kein freies Bett vorhanden."
         color="blue"
+        item-color="blue"
       ></v-select>
       <select-employee
         v-model="value.employee_id"
-        :rules="rules.required"
+        :rules="[rules.required]"
       ></select-employee>
     </v-form>
     <v-card-actions v-if="editMode">
@@ -204,7 +206,7 @@ export default {
       editMode: false,
       rules: {
         ...rules,
-        after: [() => new Date(this.value.entry) <= new Date(this.value.exit) || 'Das Datum muss nach dem Startdatum sein.']
+        after: () => new Date(this.value.entry) <= new Date(this.value.exit) || 'Das Datum muss nach dem Startdatum sein.'
       },
       loadingBeds: false,
       originalRoomId: null

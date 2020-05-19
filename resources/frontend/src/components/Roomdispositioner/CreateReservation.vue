@@ -13,13 +13,13 @@
       <date-picker
         v-model="reservation.entry"
         label="Von"
-        :rules="rules.required"
+        :rules="[rules.required]"
         color="blue"
       ></date-picker>
       <date-picker
         v-model="reservation.exit"
         label="Bis"
-        :rules="rules.after"
+        :rules="[rules.after]"
         color="blue"
       ></date-picker>
       <v-select
@@ -28,7 +28,7 @@
         label="Raum"
         item-value="id"
         item-text="name"
-        :rules="rules.required"
+        :rules="[rules.required]"
         color="blue"
       ></v-select>
       <v-select
@@ -38,13 +38,13 @@
         item-value="pivot.id"
         item-text="name"
         :disabled="!reservation.room"
-        :rules="rules.required"
+        :rules="[rules.required]"
         no-data-text="Kein freies Bett vorhanden."
         color="blue"
       ></v-select>
       <select-employee
         v-model="reservation.employee"
-        :rules="rules.required"
+        :rules="[rules.required]"
       ></select-employee>
     </v-form>
   </card-layout>
@@ -87,7 +87,7 @@ export default {
       searchStringEmployee: null,
       rules: {
         ...rules,
-        after: [() => new Date(this.reservation.entry) <= new Date(this.reservation.exit) || 'Das Datum muss nach dem Startdatum sein.']
+        after: () => new Date(this.reservation.entry) <= new Date(this.reservation.exit) || 'Das Datum muss nach dem Startdatum sein.'
       }
     }
   },
