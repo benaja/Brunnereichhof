@@ -2,11 +2,11 @@
   <card-layout
     color="blue"
     :saving="isSaving"
+    title="Inventar hinzufügen"
     @save="save"
     @cancel="$emit('input', false)"
   >
     <template>
-      <h2>Inventar hinzufügen</h2>
       <inventar-form
         ref="form"
         v-model="inventar"

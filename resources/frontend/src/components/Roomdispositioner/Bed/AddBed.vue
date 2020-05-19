@@ -49,6 +49,7 @@ export default {
           .post('/beds', this.bed)
           .then(response => {
             this.$store.commit('addBed', response.data)
+            this.$emit('add', response.data)
             this.$emit('input', false)
           })
           .catch(() => {

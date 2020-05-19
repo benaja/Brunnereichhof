@@ -95,8 +95,8 @@ export default {
     addBed(bed) {
       this.value.push(bed)
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then(response => {
-          bed.pivot = response.data
+        this.updateRoom(`/rooms/${this.$route.params.id}/beds/${bed.id}`).then(response => {
+          bed.pivot = response
         })
       }
     },
@@ -104,13 +104,26 @@ export default {
       const bed = { ...this.beds.find(b => b.id === this.selectedBed) }
       this.value.push(bed)
       if (this.$route.params.id) {
-        this.axios.patch(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then(response => {
-          bed.pivot = response.data
+        this.updateRoom(`/rooms/${this.$route.params.id}/beds/${this.selectedBed}`).then(response => {
+          bed.pivot = response
         })
       }
     },
+    updateRoom(url) {
+      return new Promise(resolve => {
+        this.$store.commit('isSaving', true)
+        this.axios.patch(url).then(response => {
+          resolve(response.data)
+        }).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Speichern')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
+      })
+    },
     removeBed(bed) {
       if (this.$route.params.id) {
+        this.$store.commit('isSaving', true)
         this.axios
           .delete(`/rooms/${this.$route.params.id}/beds/${bed.pivot.id}`)
           .then(() => {
@@ -122,6 +135,8 @@ export default {
             } else {
               this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
             }
+          }).finally(() => {
+            this.$store.commit('isSaving', false)
           })
       } else {
         this.value.splice(this.value.indexOf(bed), 1)

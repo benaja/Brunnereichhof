@@ -40,10 +40,7 @@
             </v-icon>
           </v-btn>
         </template>
-        <add-bed
-          v-model="addModel"
-          @add="add"
-        />
+        <add-bed v-model="addModel" />
       </v-dialog>
     </v-container>
   </fragment>
@@ -68,11 +65,6 @@ export default {
   },
   mounted() {
     this.$store.dispatch('fetchBeds')
-  },
-  methods: {
-    add(bed) {
-      this.beds.push(bed)
-    }
   }
 }
 </script>

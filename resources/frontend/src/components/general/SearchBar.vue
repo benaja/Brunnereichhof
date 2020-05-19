@@ -86,7 +86,7 @@ export default {
         if (!this.searchString) return true
         let fullName = item.name || ''
         if (item[this.customFilterIndex]) fullName += ` ${item[this.customFilterIndex]}`
-        return fullName.toLowerCase().includes(this.searchString.toLowerCase())
+        return fullName.toLowerCase().includes(`${this.searchString}`.toLowerCase())
       })
     }
   },

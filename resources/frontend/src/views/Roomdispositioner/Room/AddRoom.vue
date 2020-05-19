@@ -2,108 +2,43 @@
   <fragment>
     <navigation-bar title="Raum erstellen"></navigation-bar>
     <v-container>
-      <v-form
+      <room-form
         ref="form"
-        lazy-validation
-      >
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-            class="py-0"
-          >
-            <v-text-field
-              v-model="room.name"
-              label="Name*"
-              :rules="[rules.required]"
-              color="blue"
-            ></v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            md="6"
-            class="py-0"
-          >
-            <v-text-field
-              v-model.number="room.number"
-              label="Nummer*"
-              type="number"
-              :rules="[rules.required, rules.integer]"
-              color="blue"
-            ></v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            class="py-0"
-          >
-            <v-text-field
-              v-model="room.location"
-              label="Standort*"
-              :rules="[rules.required]"
-              color="blue"
-            ></v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            class="py-0"
-          >
-            <v-textarea
-              v-model="room.comment"
-              label="Kommentar"
-              rows="1"
-              auto-grow
-              color="blue"
-            ></v-textarea>
-          </v-col>
-          <v-col
-            cols="12"
-            class="px-4"
-          >
-            <select-bed v-model="room.beds"></select-bed>
-          </v-col>
-          <v-col
-            cols="12"
-            class="py-0"
-          >
-            <select-images v-model="room.images"></select-images>
-          </v-col>
-          <v-col
-            cols="12"
-            class="mt-4"
-          >
-            <v-btn
-              text
-              to="/rooms"
-              color="black"
-            >
-              Abbrechen
-            </v-btn>
-            <v-btn
-              depressed
-              dark
-              color="blue"
-              class="float-right"
-              :loading="isLoading"
-              @click="save"
-            >
-              Speichern
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-form>
+        v-model="room"
+      ></room-form>
+      <select-images v-model="room.images"></select-images>
+      <div class="mt-5">
+        <v-btn
+          text
+          to="/rooms"
+          color="black"
+        >
+          Abbrechen
+        </v-btn>
+        <v-btn
+          depressed
+          dark
+          color="blue"
+          class="float-right"
+          :loading="isLoading"
+          @click="save"
+        >
+          Speichern
+        </v-btn>
+      </div>
     </v-container>
   </fragment>
 </template>
 
 <script>
-import SelectBed from '@/components/Roomdispositioner/Bed/SelectBed'
 import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
 import { rules } from '@/utils'
+import RoomForm from '@/components/forms/RoomForm'
 
 export default {
   components: {
-    SelectBed,
-    SelectImages
+    SelectImages,
+    RoomForm
   },
   data() {
     return {

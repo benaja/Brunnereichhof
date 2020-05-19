@@ -11,7 +11,7 @@
     <template v-slot:activator="{ on }">
       <v-text-field
         :value="formatedDate"
-        label="Zeitraum"
+        label="Datum"
         prepend-icon="event"
         readonly
         color="blue"

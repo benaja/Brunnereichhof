@@ -5,7 +5,21 @@
       full-width
       :loading="isLoading"
       color="blue"
-    ></navigation-bar>
+    >
+      <div class="ml-auto nav-controls">
+        <v-select
+          v-model="dateRange"
+          :items="dateRanges"
+          outlined
+          color="blue"
+          item-color="blue"
+          prepend-inner-icon="sort"
+          hide-details
+          label="Zeitraum"
+          @input="drawReservations"
+        ></v-select>
+      </div>
+    </navigation-bar>
     <div
       ref="background"
       class="white background"
@@ -15,7 +29,16 @@
         class="ma-0"
       >
         <v-col class="side-bar">
-          <range-picker v-model="dates"></range-picker>
+          <range-picker
+            v-if="dateRange === 'custom'"
+            v-model="dates"
+          ></range-picker>
+          <date-picker
+            v-else
+            v-model="date"
+            label="Datum"
+            color="blue"
+          ></date-picker>
           <div class="px-2">
             <v-select
               v-model="calendarSortType"
@@ -130,6 +153,7 @@ import CreatePdf from '@/components/Roomdispositioner/CreatePdf'
 import CreateReservation from '@/components/Roomdispositioner/CreateReservation'
 import ReservationDetails from '@/components/Roomdispositioner/ReservationDetails'
 import RangePicker from '@/components/Roomdispositioner/RangePicker'
+import DatePicker from '@/components/general/DatePicker'
 
 export default {
   name: 'Dashboard',
@@ -138,7 +162,8 @@ export default {
     CreatePdf,
     CreateReservation,
     ReservationDetails,
-    RangePicker
+    RangePicker,
+    DatePicker
   },
   data() {
     return {
@@ -164,28 +189,54 @@ export default {
           .startOf('day'),
         moment().startOf('day')
       ],
+      date: this.$moment().format('YYYY-MM-DD'),
       dayHeight: 0,
       firstday: moment(),
-      reservationTags: [],
+      // reservationTags: [],
       initialLoad: false,
       calendarSortType: localStorage.getItem('calendarSortType') || 'lastname',
       calendarSortTypes: [
         { text: 'Nachname', value: 'lastname' },
         { text: 'Zimmernummer', value: 'number' }
       ],
+      dateRanges: [
+        { text: '2 wochen', value: '2-weeks' },
+        { text: 'Monat', value: 'month' },
+        { text: 'Jahr', value: 'year' },
+        { text: 'Benutzerdefiniert', value: 'custom' }
+      ],
+      dateRange: '2-weeks',
       isLoading: false
     }
   },
   computed: {
     firstDate() {
-      return this.$moment(this.dates[0], 'YYYY-MM-DD')
+      if (this.dateRange === 'custom') {
+        return this.$moment(this.dates[0], 'YYYY-MM-DD')
+      }
+      if (this.dateRange === '2-weeks') {
+        return this.$moment(this.date, 'YYYY-MM-DD').subtract(1, 'week')
+      }
+      if (this.dateRange === 'month') {
+        return this.$moment(this.date, 'YYYY-MM-DD').subtract(2, 'weeks')
+      }
+      return this.$moment(this.date, 'YYYY-MM-DD').subtract(6, 'months')
     },
     lastDate() {
-      return this.$moment(this.dates[1], 'YYYY-MM-DD')
+      if (this.dateRange === 'custom') {
+        return this.$moment(this.dates[1], 'YYYY-MM-DD')
+      }
+      if (this.dateRange === '2-weeks') {
+        return this.$moment(this.date, 'YYYY-MM-DD').add(1, 'week')
+      }
+      if (this.dateRange === 'month') {
+        return this.$moment(this.date, 'YYYY-MM-DD').add(2, 'weeks')
+      }
+      return this.$moment(this.date, 'YYYY-MM-DD').add(6, 'months')
     },
     days() {
       const days = []
-      const day = this.dates[0].clone()
+      const day = this.firstDate.clone()
       for (let i = 0; i < this.amountOfDays; i++) {
         const currentDay = day.clone().add(i, 'days')
         days.push(currentDay)
@@ -193,7 +244,7 @@ export default {
       return days
     },
     amountOfDays() {
-      return this.dates[1].diff(this.dates[0], 'days') + 1
+      return this.lastDate.diff(this.firstDate, 'days') + 1
     },
     getDayHeight() {
       if (this.calendarType === 'month') {
@@ -204,12 +255,76 @@ export default {
     },
     datesUrlQuery: {
       get() {
-        return [this.dates[0].format('YYYY-MM-DD'), this.dates[1].format('YYYY-MM-DD')]
+        return [this.firstDate.format('YYYY-MM-DD'), this.lastDate.format('YYYY-MM-DD')]
       },
       set(value) {
         this.dates[0] = this.$moment(value[0], 'YYYY-MM-DD')
         this.dates[1] = this.$moment(value[1], 'YYYY-MM-DD')
       }
+    },
+    reservationsForSelectedTime() {
+      return this.reservations.filter(
+        r => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.lastDate, 'day')
+          && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.firstDate, 'day')
+      ).sort((a, b) => {
+        if (this.calendarSortType === 'number') {
+          return a.bed_room_pivot.room.number - b.bed_room_pivot.room.number
+        }
+        if (this.calendarSortType === 'lastname') {
+          const nameA = `${a.employee.lastname} ${a.employee.firstname}`
+          const nameB = `${b.employee.lastname} ${b.employee.firstname}`
+          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
+        }
+        return 0
+      })
+    },
+    reservationTags() {
+      console.log('draw')
+      // if (this.initialLoad) {
+      //   this.$refs.stats.getStats()
+      // } else {
+      //   this.initialLoad = true
+      // }
+
+      let top = -25
+      let previousReservation = null
+      return this.reservationsForSelectedTime.map(reservation => {
+        let marginLeft = 0
+        let diffFromFirstDay = 0
+        const isReservationEntrySameOrAfterTimeSelected = this.$moment(reservation.entry).isSameOrAfter(this.firstDate, 'day')
+        const cssClass = []
+        if (isReservationEntrySameOrAfterTimeSelected) {
+          diffFromFirstDay = this.$moment(reservation.entry).diff(this.firstDate, 'days')
+          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 5px)`
+          cssClass.push('border-radius-left')
+        }
+
+        let width = '100%'
+        const diffFromLastDay = this.lastDate.diff(this.$moment(reservation.exit), 'days')
+        if (this.$moment(reservation.exit).isSameOrBefore(this.lastDate, 'day')) {
+          // const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
+          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 10 : 5
+          width = `calc(${(100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay - diffFromFirstDay)}% - ${pixelsToAdd}px)`
+          cssClass.push('border-radius-right')
+        }
+
+        if (this.calendarSortType === 'lastname' && previousReservation && previousReservation.employee_id === reservation.employee_id) {
+          top -= 25
+        }
+
+        top += 25
+        previousReservation = reservation
+
+        return {
+          style: {
+            marginLeft,
+            width,
+            top: `${top}px`
+          },
+          cssClass,
+          reservation
+        }
+      })
     }
   },
   watch: {
@@ -296,12 +411,6 @@ export default {
         return moment(r.entry).isSameOrBefore(currentDay, 'day') && moment(r.exit).isSameOrAfter(currentDay, 'day')
       })
     },
-    getReservationsForSelectedTime() {
-      return this.reservations.filter(
-        r => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.dates[1], 'day')
-          && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.dates[0], 'day'),
-      )
-    },
     isFirstDay(day, reservation) {
       if ((day - 1) % 7 === 0) return true
       if (
@@ -315,63 +424,7 @@ export default {
       return false
     },
     drawReservations() {
-      if (this.initialLoad) {
-        this.$refs.stats.getStats()
-      } else {
-        this.initialLoad = true
-      }
-      const reservations = this.getReservationsForSelectedTime()
-      if (this.calendarSortType === 'number') {
-        reservations.sort((a, b) => a.bed_room_pivot.room.number - b.bed_room_pivot.room.number)
-      } else if (this.calendarSortType === 'lastname') {
-        reservations.sort((a, b) => {
-          const nameA = `${a.employee.lastname} ${a.employee.firstname}`
-          const nameB = `${b.employee.lastname} ${b.employee.firstname}`
-          return nameA.toLowerCase().localeCompare(nameB.toLowerCase())
-        })
-      }
 
-      this.reservationTags = []
-      let top = 0
-      let previousReservation = null
-      for (const reservation of reservations) {
-        let marginLeft = 0
-        let diffFromFirstDay = 0
-        const isReservationEntrySameOrAfterTimeSelected = this.$moment(reservation.entry).isSameOrAfter(this.dates[0], 'day')
-        const cssClass = []
-        if (isReservationEntrySameOrAfterTimeSelected) {
-          diffFromFirstDay = this.$moment(reservation.entry).diff(this.dates[0], 'days')
-          marginLeft = `calc(${(100 / this.amountOfDays) * diffFromFirstDay}% + 5px)`
-          cssClass.push('border-radius-left')
-        }
-
-        let width = '100%'
-        const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
-        if (this.$moment(reservation.exit).isSameOrBefore(this.dates[1], 'day')) {
-          // const diffFromLastDay = this.dates[1].diff(this.$moment(reservation.exit), 'days')
-          const pixelsToAdd = isReservationEntrySameOrAfterTimeSelected ? 10 : 5
-          width = `calc(${(100 / this.amountOfDays) * (this.amountOfDays - diffFromLastDay - diffFromFirstDay)}% - ${pixelsToAdd}px)`
-          cssClass.push('border-radius-right')
-        }
-
-        if (this.calendarSortType === 'lastname' && previousReservation && previousReservation.employee_id === reservation.employee_id) {
-          top -= 25
-        }
-
-        const tag = {
-          style: {
-            marginLeft,
-            width,
-            top: `${top}px`
-          },
-          cssClass,
-          reservation
-        }
-        this.reservationTags.push(tag)
-
-        top += 25
-        previousReservation = reservation
-      }
     },
     getFirstDayFromReservationAndWeek(reservation, week, monday) {
       if (moment(reservation.entry).diff(monday, 'days') < 0) {
@@ -422,13 +475,17 @@ export default {
   flex: 0 0 300px;
 }
 
+.nav-controls {
+  width: 250px;
+}
+
 .content {
   width: calc(100% - 300px);
   flex: 0 0 calc(100% - 300px);
 }
 
 .background {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 80px);
 }
 
 .callendar-container {
@@ -452,7 +509,7 @@ export default {
 .day {
   // width: calc(100% / 7.001);
   position: relative;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 80px);
 }
 
 .day-border {
@@ -483,9 +540,9 @@ export default {
 
   > .reservations-scroll-wrapper {
     position: relative;
-    max-height: calc(100vh - 145px);
-    max-height: calc(var(--vh, 1vh) * 100 - 145px);
-    height: calc(var(--vh, 1vh) * 100 - 145px);
+    max-height: calc(100vh - 160px);
+    max-height: calc(var(--vh, 1vh) * 100 - 160px);
+    height: calc(var(--vh, 1vh) * 100 - 160px);
     overflow-y: scroll;
     overflow-x: hidden;
 

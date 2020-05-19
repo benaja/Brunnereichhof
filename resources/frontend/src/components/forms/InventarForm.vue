@@ -6,7 +6,7 @@
     <v-row>
       <v-col
         cols="12"
-        :md="fullWidth ? 12 : 6"
+        md="6"
       >
         <text-field
           v-model="value.name"
@@ -20,7 +20,7 @@
       </v-col>
       <v-col
         cols="12"
-        :md="fullWidth ? 12 : 6"
+        md="6"
       >
         <text-field
           v-model="value.price"
@@ -55,10 +55,6 @@ export default {
       default: () => ({})
     },
     readonly: {
-      type: Boolean,
-      default: false
-    },
-    fullWidth: {
       type: Boolean,
       default: false
     }

@@ -2,6 +2,7 @@
   <card-layout
     class="reservation-model"
     color="blue"
+    title="Raum buchen"
     @save="save"
     @cancel="$emit('input', false)"
   >
@@ -9,7 +10,6 @@
       ref="form"
       lazy-validation
     >
-      <h2>Raum buchen</h2>
       <date-picker
         v-model="reservation.entry"
         label="Von"

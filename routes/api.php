@@ -56,8 +56,7 @@ Route::get('pdf/foods/employees', 'Evaluation\EmployeePdfController@foodRapport'
 Route::get('pdf/customers/{customerId}/year/{year}', 'Evaluation\CustomerPdfController@customerYearRapport');
 Route::get('pdf/customers/{customerId}/week/{date}', 'Evaluation\CustomerPdfController@weekRapport');
 Route::get('pdf/reservations', 'ReservationPdfController@pdfByEmployee');
-Route::get('pdf/rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsPdfByYear');
-Route::get('pdf/rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsPdfByMonth');
+Route::get('pdf/rooms/{roomId}/reservations', 'RoomController@reservationsPdf');
 Route::get('export/customers', 'Evaluation\CustomerPdfController@csvExport');
 
 Route::post('password/change', 'UserController@changePassword');
@@ -99,8 +98,7 @@ Route::patch('room/{room}', 'RoomController@update');
 Route::post('rooms/{roomId}/images', 'RoomController@uploadImages');
 Route::delete('images/{imageId}', 'RoomController@deleteImage');
 Route::resource('/rooms', 'RoomController');
-Route::get('rooms/{roomId}/reservations/month/{date}', 'RoomController@reservationsByMonth');
-Route::get('rooms/{roomId}/reservations/year/{date}', 'RoomController@reservationsByYear');
+Route::get('rooms/{roomId}/reservations', 'RoomController@reservations');
 Route::get('pdf/sleep-over/rooms', 'RoomController@sleepOver');
 
 Route::patch('beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');

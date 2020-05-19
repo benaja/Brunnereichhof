@@ -42,7 +42,7 @@
       >
         <text-field
           v-model="value.location"
-          label="Standort"
+          label="Standort*"
           color="blue"
           :original="original.location"
           :rules="[rules.required]"

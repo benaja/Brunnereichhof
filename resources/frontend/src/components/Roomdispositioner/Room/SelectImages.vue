@@ -93,6 +93,7 @@
 
 <script>
 import FileUpload from '@/components/Roomdispositioner/Room/FileUpload'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -146,15 +147,8 @@ export default {
     },
     deleteImage(image) {
       if (this.uploadOnChange) {
-        this.$swal({
-          title: 'Wirklich Löschen?',
-          text: 'Willst du dieses Bild wirklich löschen?',
-          type: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Ja, löschen!',
-          cancelButtonText: 'Nein, abbrechen'
-        }).then(result => {
-          if (result.value) {
+        confirmAction('Willst du dieses Bild wirklich löschen?').then(value => {
+          if (value) {
             this.axios
               .delete(`/images/${image.id}`)
               .then(() => {

@@ -274,18 +274,37 @@ class RoomController extends Controller
         return $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
     }
 
-    public function reservationsByMonth(Request $request, $roomId, $date)
-    {
+    public function reservations(Request $request, $roomId) {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return $this->getReservationsByMonth($roomId, $date);
+        $startDate = Utils::firstDate($request->dateRangeType, $request->date);
+        $endDate = Utils::lastDate($request->dateRangeType, $request->date);
+
+        return $this->getReservationsByRoomAndTime($roomId, $startDate, $endDate);
     }
 
-    public function reservationsByYear($roomId, $date)
-    {
+    public function reservationsPdf(Request $request, $roomId) {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        return $this->getReservationsByYear($roomId, $date);
+        $this->pdf = new Pdf();
+        $room = Room::find($roomId);
+
+        $firstDate = Utils::firstDate($request->dateRangeType, $request->date);
+        $lastDate = Utils::lastDate($request->dateRangeType, $request->date);
+        
+        $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
+        if ($request->dateRangeType === 'year') {
+            $this->pdf->documentTitle("Jahr: {$firstDate->format('Y')}");
+        } else {
+            $monthName = Settings::getMonthName($firstDate);
+            $this->pdf->documentTitle("{$monthName} {$firstDate->format('Y')}");
+        }
+
+        $reservations = $this->getReservationsByRoomAndTime($roomId, $firstDate, $lastDate);
+        $this->reservationsPdfTable($reservations);
+
+        $monthName = isset($monthName) ? $monthName : '';
+        return $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$firstDate->format('Y')}.pdf");
     }
 
     public function reservationsPdfByYear(Request $request, $roomId, $date)
@@ -375,27 +394,7 @@ class RoomController extends Controller
             ]);
         }
         $this->pdf->table($headers, $columns);
-    }
-
-    private function getReservationsByYear($roomId, $date)
-    {
-        $firstDay = new \DateTime($date);
-        $firstDay->modify('first day of january this year');
-        $lastDay = clone $firstDay;
-        $lastDay->modify('last day of december this year');
-
-        return $this->getReservationsByRoomAndTime($roomId, $firstDay, $lastDay);
-    }
-
-    private function getReservationsByMonth($roomId, $date)
-    {
-        $firstDayOfMonth = new \DateTime($date);
-        $firstDayOfMonth->modify('first day of this month');
-        $lastDayOfMonth = clone $firstDayOfMonth;
-        $lastDayOfMonth->modify('last day of this month');
-
-        return $this->getReservationsByRoomAndTime($roomId, $firstDayOfMonth, $lastDayOfMonth);
-    }
+    } 
 
     private function getReservationsByRoomAndTime($roomId, $firstDate, $lastdate)
     {

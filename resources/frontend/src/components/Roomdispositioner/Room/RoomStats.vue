@@ -17,12 +17,17 @@
         color="blue"
         class="pdf-button white--text float-right"
         depressed
+        :loading="isLoadingPdf"
         @click="generatePdf"
       >
         Pdf Generieren
       </v-btn>
     </v-col>
     <v-col cols="12">
+      <progress-linear
+        :loading="isLoading"
+        color="blue"
+      ></progress-linear>
       <v-data-table
         :headers="headers"
         :items="reservationTableItems"
@@ -70,7 +75,9 @@ export default {
           sortable: true,
           value: 'bedName'
         }
-      ]
+      ],
+      isLoading: false,
+      isLoadingPdf: false
     }
   },
   computed: {
@@ -97,9 +104,14 @@ export default {
   },
   methods: {
     getReservations() {
-      // this.axios.get(`/rooms/${this.$route.params.id}/reservations/${this.date}`).then(response => {
-      //   this.reservations = response.data
-      // })
+      this.isLoading = true
+      this.axios.get(`/rooms/${this.$route.params.id}/reservations?${this.date}`).then(response => {
+        this.reservations = response.data
+      }).catch(() => {
+        this.$store.dispatch('error', 'Raum-Statistiken konnten nicht geladen werden')
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
     sortItems(items, index, isDesc) {
       if (index.includes('entry') || index.includes('exit')) {
@@ -124,7 +136,12 @@ export default {
       return items
     },
     generatePdf() {
-      downloadFile(`pdf/rooms/${this.$route.params.id}/reservations/${this.date}`)
+      this.isLoadingPdf = true
+      downloadFile(`pdf/rooms/${this.$route.params.id}/reservations?${this.date}`).catch(() => {
+        this.$store.dispatch('error', 'Pdf konnte nicht generiert werden')
+      }).finally(() => {
+        this.isLoadingPdf = false
+      })
     }
   }
 }
