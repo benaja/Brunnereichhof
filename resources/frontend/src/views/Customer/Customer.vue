@@ -1,291 +1,91 @@
 <template>
-  <v-container>
-    <v-row class="single-customer">
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.firstname"
-          label="Vorname"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.lastname"
-          label="Nachname"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        class="py-0"
-      >
-        <v-divider class="mb-8"></v-divider>
-        <h3 class="headline">
-          Adresse
-        </h3>
-        <edit-address
-          v-model="customer.address"
-          :readonly="!isUserAllowedToEdit"
-          @change="changed"
-        ></edit-address>
-        <v-divider class="mb-8"></v-divider>
-        <v-checkbox
-          v-model="customer.differingBillingAddress"
-          label="Abweichende Rechnungsadresse"
-          @change="changed"
-        ></v-checkbox>
-      </v-col>
-      <v-col
-        v-if="customer.differingBillingAddress"
-        cols="12"
-        class="py-0"
-      >
-        <h3 class="headline">
-          Rechnungsadresse
-        </h3>
-        <edit-address
-          v-model="customer.billing_address"
-          :readonly="!isUserAllowedToEdit"
-          @change="changed"
-        ></edit-address>
-        <v-divider class="mb-8"></v-divider>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.mobile"
-          label="Mobile"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.phone"
-          label="Festnetz"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.email"
-          label="Email"
-          :readonly="!isUserAllowedToEdit"
-          @change="changed('email')"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.customer_number"
-          label="Kundennummer"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <v-row>
-          <v-checkbox
-            v-model="customer.needs_payment_order"
-            label="Benötigt Einzahlungsschein"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-row>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <v-row>
-          <v-checkbox
-            v-model="customer.hasCatering"
-            label="Verpflegung"
-            color="primary"
-            :readonly="!isUserAllowedToEdit"
-            @change="changed"
-          ></v-checkbox>
-        </v-row>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.kitchen_infrastructure"
-          label="Ausstattung der Küche"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.max_catering"
-          label="Max Anzahl Verpflegung"
-          type="number"
-          :readonly="!isUserAllowedToEdit"
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.comment_catering"
-          label="Bemerkung zur Verpflegung"
-          :readonly="!isUserAllowedToEdit"
-          long
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.driver_info"
-          label="Fahrerinfo"
-          :readonly="!isUserAllowedToEdit"
-          long
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.maps"
-          label="Google-Maps Link"
-          :readonly="!isUserAllowedToEdit"
-          long
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        class="py-0"
-      >
-        <input-field
-          v-model="customer.comment"
-          label="Allgemeine Bemerkung"
-          :readonly="!isUserAllowedToEdit"
-          long
-          @input="changed"
-        ></input-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-        class="py-0"
-      >
-        <p class="description font-weight-bold subheading mb-0">
-          Projekte
-        </p>
-      </v-col>
-      <v-col
-        cols="12"
-        md="10"
-        class="py-0"
-      >
-        <projects
-          :customer-id="$route.params.id"
-          :readonly="!isUserAllowedToEdit"
-        ></projects>
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-        class="py-0"
-      >
-        <p class="description font-weight-bold subheading mb-0">
-          Passwort
-        </p>
-      </v-col>
-      <v-col
-        cols="12"
-        md="10"
-        class="py-0"
-      >
+  <fragment>
+    <navigation-bar
+      title="Kunde bearbeiten"
+      :loading="isLoading"
+    >
+      <template v-if="hasPedingChanges">
         <v-btn
-          v-if="!customer.secret && $auth.user().hasPermission(['superadmin'], ['customer_write'])"
+          color="red"
+          class="my-2 ml-auto mr-2"
+          outlined
+          :loading="loadingReset"
+          @click="resetCustomer"
+        >
+          Abbrechen
+        </v-btn>
+        <v-btn
           color="primary"
-          class="float-right"
-          @click="resetPassword"
+          class="my-2"
+          depressed
+          @click="saveChanges"
         >
-          Passwort zurücksetzen
+          Fertig
         </v-btn>
-        <p
-          class="mt-3 reset-password-text"
+      </template>
+    </navigation-bar>
+    <v-container>
+      <customer-form
+        v-model="customer"
+        :original="original"
+        @change="changed"
+      ></customer-form>
+      <v-row>
+        <v-col
+          cols="12"
+          md="2"
+          class="py-0"
         >
-          {{ customer.secret ? customer.secret : 'Passwort wurde von Kunde geändert' }}
-        </p>
-      </v-col>
-      <v-col
-        v-if="$auth.user().hasPermission(['superadmin'], ['customer_write'])"
-        cols="12"
-        class="py-0"
-      >
-        <v-btn
-          color="red white--text"
-          @click="deleteCustomer"
+          <p class="description font-weight-bold subheading mb-0">
+            Passwort
+          </p>
+        </v-col>
+        <v-col
+          cols="12"
+          md="10"
+          class="py-0"
         >
-          Löschen
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
+          <v-btn
+            v-if="!customer.secret
+              && $auth.user().hasPermission(['superadmin'], ['customer_write'])"
+            color="primary"
+            class="float-right"
+            text
+            @click="resetPassword"
+          >
+            Passwort zurücksetzen
+          </v-btn>
+          <p
+            class="mt-3 reset-password-text"
+          >
+            {{ customer.secret ? customer.secret : 'Passwort wurde von Kunde geändert' }}
+          </p>
+        </v-col>
+        <v-col
+          v-if="$auth.user().hasPermission(['superadmin'], ['customer_write'])"
+          cols="12"
+          class="py-0"
+        >
+          <v-btn
+            color="red white--text"
+            depressed
+            @click="deleteCustomer"
+          >
+            Löschen
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
-import Projects from '@/components/customer/Projects'
-import InputField from '@/components/general/InputField'
-import EditAddress from '@/components/customer/EditAddress'
 import _ from 'lodash'
+import CustomerForm from '@/components/forms/CustomerForm'
 
 export default {
-  name: 'Home',
   components: {
-    Projects,
-    InputField,
-    EditAddress
+    CustomerForm
   },
   data() {
     return {
@@ -293,16 +93,29 @@ export default {
         address: {},
         billing_address: {}
       },
-      original: {},
+      original: {
+        address: {},
+        billing_address: {}
+      },
       apiUrl: `customers/${this.$route.params.id}`,
-      isUserAllowedToEdit: false
+      isUserAllowedToEdit: false,
+      loadingReset: false,
+      isLoading: false
+    }
+  },
+  computed: {
+    hasPedingChanges() {
+      return !this._.isEqual(this.customer, this.original)
     }
   },
   mounted() {
+    this.isLoading = true
     this.axios.get(this.apiUrl).then(response => {
       if (!response.data.billing_address) response.data.billing_address = {}
       this.customer = response.data
       this.original = this._.cloneDeep(this.customer)
+    }).finally(() => {
+      this.isLoading = false
     })
     this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['customer_write'])
   },
@@ -327,14 +140,24 @@ export default {
       }
     }, 400),
     update() {
-      this.axios.put(this.apiUrl, this.customer).catch(error => {
-        if (error.response.data.errors && error.response.data.errors.email.includes('validation.email')) {
-          this.$swal('Email nicht korrekt', 'Bitte schaue, dass die email ein korrektes Format hat.', 'error')
-        } else if (error.response.data.errors && error.response.data.errors.email.includes('validation.unique')) {
-          this.$swal('Email bereits vorhanden', 'Diese Email wird bereits von einem anderen Benutzer verwendet.', 'error')
-        } else {
-          this.$swal('Fehler', 'Kunde konnte aus einem unbekannten Grund nicht gespeichert werden.', 'error')
-        }
+      this.$store.commit('isSaving', true)
+      this.updateCustomer(this.customer).then(() => {
+        this.$store.commit('isSaving', false)
+      })
+    },
+    updateCustomer(customer) {
+      return new Promise(resove => {
+        this.axios.put(this.apiUrl, customer).catch(error => {
+          if (error.response.data.errors && error.response.data.errors.email.includes('validation.email')) {
+            this.$swal('Email nicht korrekt', 'Bitte schaue, dass die email ein korrektes Format hat.', 'error')
+          } else if (error.response.data.errors && error.response.data.errors.email.includes('validation.unique')) {
+            this.$swal('Email bereits vorhanden', 'Diese Email wird bereits von einem anderen Benutzer verwendet.', 'error')
+          } else {
+            this.$swal('Fehler', 'Kunde konnte aus einem unbekannten Grund nicht gespeichert werden.', 'error')
+          }
+        }).finally(() => {
+          resove()
+        })
       })
     },
     deleteCustomer() {
@@ -352,6 +175,16 @@ export default {
         .catch(() => {
           this.$swal('Fehler', 'Passwort konnte nicht zurückgesetzt werden', 'error')
         })
+    },
+    saveChanges() {
+      this.original = this._.cloneDeep(this.customer)
+    },
+    resetCustomer() {
+      this.loadingReset = true
+      this.updateCustomer(this.original).then(() => {
+        this.customer = this._.cloneDeep(this.original)
+        this.loadingReset = false
+      })
     }
   }
 }

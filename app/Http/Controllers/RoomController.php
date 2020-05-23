@@ -148,64 +148,22 @@ class RoomController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         if (isset($request->entry)) {
-            $bedPivots = Room::withTrashed()->find($id)->bedRoomPivots;
-            $availableBeds = [];
-
-            foreach ($bedPivots as $bedPivot) {
-                $usedBeds1 = BedRoomPivot::withTrashed()
-                    ->join('reservation', function ($join) {
-                        $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-                    })->where('reservation.bed_room_id', '=', $bedPivot->id)
+            return Room::withTrashed()
+                ->find($id)
+                ->bedRoomPivots
+                ->filter(function ($bedPivot) use ($request) {
+                    $reservations = $bedPivot->reservations()
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->entry)
-                    ->where('reservation.deleted_at', null)
-                    ->get()->toArray();
-
-                $usedBeds2 = BedRoomPivot::withTrashed()
-                    ->join('reservation', function ($join) {
-                        $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-                    })->where('reservation.bed_room_id', '=', $bedPivot->id)
-                    ->where('entry', '<=', $request->exit)
-                    ->where('exit', '>=', $request->exit)
-                    ->where('reservation.deleted_at', null)
-                    ->get()->toArray();
-
-                $usedBedsWithDubilcates = array_merge($usedBeds1, $usedBeds2);
-                $usedBeds = [];
-                foreach ($usedBedsWithDubilcates as $usedBed) {
-                    if (!in_array($usedBed, $usedBeds)) {
-                        array_push($usedBeds, $usedBed);
-                    }
-                }
-                $bedsUsed = 0;
-                if (count($usedBeds) == 1) {
-                    $bedsUsed = 1;
-                } else if (count($usedBeds) > 1) {
-                    $bedsUsed = 1;
-                    for ($i  = 0; $i < count($usedBeds); $i++) {
-                        $pivot = $bedPivot->id;
-                        if ($usedBeds[$i]['bed_room_id'] == $pivot) {
-                            for ($j = 0; $j < count($usedBeds); $j++) {
-                                if (
-                                    $usedBeds[$i]['exit'] >= $usedBeds[$j]['entry']
-                                    && $usedBeds[$i]['entry'] <= $usedBeds[$j]['entry']
-                                    && $i != $j
-                                ) {
-                                    $bedsUsed++;
-                                }
-                            }
-                        }
-                    }
-                }
-                if ($bedsUsed < $bedPivot->bed->places) {
+                    ->get();
+                    return count($reservations) < $bedPivot->bed->places;
+                })->map(function($bedPivot) {
                     $bed = $bedPivot->bed;
                     $bed['pivot'] = [
                         'id' => $bedPivot->id
                     ];
-                    array_push($availableBeds, $bed);
-                }
-            }
-            return $availableBeds;
+                    return $bed;
+                });
         }
 
         return Room::find($id)->beds;

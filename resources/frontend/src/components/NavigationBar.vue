@@ -1,55 +1,65 @@
 <template>
-  <div class="nav-bar">
-    <div
-      class="toolbar"
-    >
-      <v-btn
-        v-if="$auth.check()
-          && $auth.user().hasPermission(
-            ['superadmin'],
-            ['customer_read',
-             'employee_read',
-             'employee_preview_read',
-             'worker_read',
-             'rapport_read',
-             'roomdispositioner_read',
-             'timerecord_stats',
-             'hourrecord_read',
-             'evaluation_employee',
-             'evaluation_customer'])"
-        icon
-        class="d-md-none"
-        @click="$emit('openNavigation')"
+  <fragment>
+    <div class="nav-bar">
+      <div
+        class="toolbar"
       >
-        <v-icon>dehaze</v-icon>
-      </v-btn>
-      <v-container :fluid="fullWidth">
-        <div class="d-flex align-center nav-content-container">
-          <div class="nav-title">
-            <h1 class="display-1 ma-0">
-              {{ title }}
-            </h1>
-            <p
-              v-if="$store.getters.isSaving || $store.getters.saved"
-              class="my-0 mr-3 grey--text font-italic save-text"
+        <v-container
+          :fluid="fullWidth"
+          class="pa-1 pa-sm-3"
+        >
+          <div class="d-flex align-center nav-content-container">
+            <v-btn
+              v-if="$auth.check()
+                && $auth.user().hasPermission(
+                  ['superadmin'],
+                  ['customer_read',
+                   'employee_read',
+                   'employee_preview_read',
+                   'worker_read',
+                   'rapport_read',
+                   'roomdispositioner_read',
+                   'timerecord_stats',
+                   'hourrecord_read',
+                   'evaluation_employee',
+                   'evaluation_customer'])"
+              icon
+              class="d-md-none"
+              @click="$store.commit('navigationBarModel', true)"
             >
-              <template v-if="$store.getters.isSaving">
-                {{ $vuetify.breakpoint.xsOnly ? 'speichern...' : 'Wird gespeichert...' }}
-              </template>
-              <template v-else>
-                Gespeichert
-              </template>
-            </p>
+              <v-icon>dehaze</v-icon>
+            </v-btn>
+            <div class="nav-title">
+              <h1 class="display-1 ma-0 d-none d-md-block">
+                {{ title }}
+              </h1>
+              <p
+                v-if="$store.getters.isSaving || $store.getters.saved"
+                class="my-0 mr-3 grey--text font-italic save-text"
+              >
+                <template v-if="$store.getters.isSaving">
+                  {{ $vuetify.breakpoint.xsOnly ? 'speichern...' : 'Wird gespeichert...' }}
+                </template>
+                <template v-else>
+                  Gespeichert
+                </template>
+              </p>
+            </div>
+            <slot></slot>
           </div>
-          <slot></slot>
-        </div>
-      </v-container>
-      <progress-linear
-        :loading="loading"
-        :color="color"
-      />
+        </v-container>
+        <progress-linear
+          :loading="loading"
+          :color="color"
+        />
+      </div>
     </div>
-  </div>
+    <h1
+      class="display-1 mx-3 mt-5 d-md-none"
+    >
+      {{ title }}
+    </h1>
+  </fragment>
 </template>
 
 <script>
@@ -135,6 +145,12 @@ export default {
   position: fixed;
   width: 100%;
   top: 76px
+}
+
+@media only screen and (max-width: 960px) {
+  .toolbar {
+    padding-left: 0px;
+  }
 }
 
 @media only screen and (max-width: 600px) {

@@ -40,7 +40,8 @@ export default new Vuex.Store({
       saves: 0,
       saved: false
     },
-    alerts: []
+    alerts: [],
+    navigationBarModel: false
   },
   mutations: {
     isMobile(state, isMobile) {
@@ -75,6 +76,9 @@ export default new Vuex.Store({
     },
     removeAlert(state) {
       state.alerts.shift()
+    },
+    navigationBarModel(state, value) {
+      state.navigationBarModel = value
     }
   },
   getters: {
@@ -101,7 +105,8 @@ export default new Vuex.Store({
       }
       return true
     },
-    alerts: state => state.alerts
+    alerts: state => state.alerts,
+    navigationBarModel: state => state.navigationBarModel
   },
   actions: {
     closeAllPopups({ commit }) {

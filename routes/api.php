@@ -31,9 +31,8 @@ Route::resource('employees', 'EmployeeController');
 Route::resource('workers', 'WorkerController');
 
 //Project
-Route::get('projects/exist/{name}', 'ProjectController@exist');
-Route::delete('projects/{projectId}/customer/{id}', 'ProjectController@removeFromCustomer');
-Route::post('projects/add', 'ProjectController@addToCustomer');
+Route::delete('customers/{customerId}/projects/{projectId}', 'ProjectController@removeFromCustomer');
+Route::post('customers/{customerId}/projects/{projectId}', 'ProjectController@addToCustomer');
 Route::resource('projects', 'ProjectController');
 
 //Rapport

@@ -5,61 +5,69 @@
       md="6"
       class="py-0"
     >
-      <input-field
+      <text-field
         v-model="value.street"
+        :original="original.street"
         label="Strasse + Nr"
         :readonly="readonly"
         @input="$emit('change')"
-      ></input-field>
+      ></text-field>
     </v-col>
     <v-col
       cols="12"
       md="6"
       class="py-0"
     >
-      <input-field
+      <text-field
         v-model="value.addition"
+        :original="original.addition"
         label="Zusatz"
         :readonly="readonly"
         @input="$emit('change')"
-      ></input-field>
+      ></text-field>
     </v-col>
     <v-col
       cols="12"
       md="6"
       class="py-0"
     >
-      <input-field
+      <text-field
         v-model="value.plz"
+        :original="original.plz"
         label="PLZ"
         :readonly="readonly"
         @input="$emit('change')"
-      ></input-field>
+      ></text-field>
     </v-col>
     <v-col
       cols="12"
       md="6"
       class="py-0"
     >
-      <input-field
+      <text-field
         v-model="value.place"
+        :original="original.place"
         label="Ort"
         :readonly="readonly"
         @input="$emit('change')"
-      ></input-field>
+      ></text-field>
     </v-col>
   </v-row>
 </template>
 
 <script>
-import InputField from '@/components/general/InputField'
+import { TextField } from '@/components/FormComponents'
 
 export default {
   components: {
-    InputField
+    TextField
   },
   props: {
     value: {
+      type: Object,
+      default: () => ({})
+    },
+    original: {
       type: Object,
       default: () => ({})
     },

@@ -127,22 +127,24 @@
 </template>
 
 <script>
-import NavigationBar from '@/components/NavigationBar'
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'App',
-  components: {
-    NavigationBar
-  },
   data() {
     return {
-      navDrawer: false,
-      navDrawerModel: false
+      navDrawer: false
     }
   },
   computed: {
-    ...mapGetters(['alerts']),
+    ...mapGetters(['alerts', 'navigationBarModel']),
+    navDrawerModel: {
+      get() {
+        return this.navigationBarModel
+      },
+      set(value) {
+        this.$store.commit('navigationBarModel', value)
+      }
+    },
     navItems() {
       return [
         {

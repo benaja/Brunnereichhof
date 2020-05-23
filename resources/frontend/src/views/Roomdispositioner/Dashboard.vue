@@ -7,6 +7,15 @@
       color="blue"
     >
       <div class="ml-auto nav-controls">
+        <v-text-field
+          label="Suchen"
+          outlined
+          hide-details
+          prepend-inner-icon="search"
+          color="blue"
+          :dense="$vuetify.breakpoint.xsOnly"
+          @input="searchDebounce"
+        ></v-text-field>
       </div>
     </navigation-bar>
     <div
@@ -64,7 +73,7 @@
               :key="day.format('YYYY-MM-DD')"
               class="day"
               :style="{ width: `${100 / columns.length}%` }"
-              @click="e => openReservationPopup(e, index)"
+              @click="e => openReservationPopup(e, day)"
             >
               <div
                 class="day-border"
@@ -85,7 +94,11 @@
               </div>
             </div>
             <div class="reservations-container">
-              <div class="reservations-scroll-wrapper">
+              <div
+                ref="reservationsWrapper"
+                class="reservations-scroll-wrapper"
+                @click.self="openReservationPopupAtPosition"
+              >
                 <div
                   v-for="(tag, index) of reservationTags"
                   :key="'r' + index"
@@ -122,7 +135,7 @@
       >
         <create-reservation
           v-model="reservationModel.open"
-          :reservation="reservation"
+          :reservation="reservationModel.reservation"
           @add="reservation => reservations.push(reservation)"
           @updateAll="newReservations => reservations = newReservations"
         ></create-reservation>
@@ -159,6 +172,7 @@ import CreateReservation from '@/components/Roomdispositioner/CreateReservation'
 import ReservationDetails from '@/components/Roomdispositioner/ReservationDetails'
 import RangePicker from '@/components/Roomdispositioner/RangePicker'
 import DatePicker from '@/components/general/DatePicker'
+import _ from 'lodash'
 
 export default {
   name: 'Dashboard',
@@ -175,7 +189,11 @@ export default {
       reservationModel: {
         open: false,
         x: 0,
-        y: 0
+        y: 0,
+        reservation: {
+          entry: null,
+          bed_room_pivot: {}
+        }
       },
       detailsModel: {
         open: false,
@@ -183,9 +201,6 @@ export default {
         y: 0,
         reservation: {},
         clickedDay: moment()
-      },
-      reservation: {
-        entry: null
       },
       reservations: [],
       dates: [
@@ -207,7 +222,8 @@ export default {
         { text: 'Benutzerdefiniert', value: 'custom' }
       ],
       dateRange: localStorage.getItem('roomdispositionerDateRange') || '2-weeks',
-      isLoading: false
+      isLoading: false,
+      searchString: null
     }
   },
   computed: {
@@ -269,6 +285,7 @@ export default {
       return this.reservations.filter(
         r => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.lastDate, 'day')
           && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.firstDate, 'day')
+          && (!this.searchString || r.searchText.includes(this.searchString.toLowerCase()))
       ).sort((a, b) => {
         if (this.calendarSortType === 'number') {
           return a.bed_room_pivot.room.number - b.bed_room_pivot.room.number
@@ -320,6 +337,10 @@ export default {
           reservation
         }
       })
+    },
+    dayWidth() {
+      const position = this.$refs.reservationsWrapper.getBoundingClientRect()
+      return position.width / this.amountOfDays
     }
   },
   watch: {
@@ -337,31 +358,39 @@ export default {
   methods: {
     loadReservations() {
       this.isLoading = true
-      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`).then(response => {
-        this.reservations = response.data
-        this.isLoading = false
-      })
+      this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`)
+        .then(response => {
+          this.reservations = response.data.map(r => ({
+            ...r,
+            searchText: `${r.employee.lastname} ${r.employee.firstname} ${r.bed_room_pivot.room.name} ${r.bed_room_pivot.room.id}`
+              .toLowerCase()
+          }))
+          this.isLoading = false
+        })
     },
-    openReservationPopup(e, day) {
+    openReservationPopup(e, selectedDate) {
       if (!this.detailsModel.open && this.$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])) {
         e.preventDefault()
-        let targetElement = e.target
-        while (!targetElement.classList.contains('day')) {
-          targetElement = targetElement.parentNode
-        }
-        const position = targetElement.getBoundingClientRect()
+        const position = this.$refs.reservationsWrapper.getBoundingClientRect()
+        const yRelativePosition = e.clientX - position.x
+        const clickedDay = Math.floor(yRelativePosition / this.dayWidth)
 
         this.reservationModel.open = false
-        this.reservationModel.x = position.x + position.width
+        this.reservationModel.x = position.x + (clickedDay + 1) * this.dayWidth
         this.reservationModel.y = e.clientY
-        const selectedDate = this.dates[0].clone().add(day, 'days')
         setTimeout(() => {
           this.reservationModel.open = true
           this.$nextTick(() => {
-            this.reservation.entry = selectedDate.format('YYYY-MM-DD')
+            this.reservationModel.reservation.entry = selectedDate.format('YYYY-MM-DD')
           })
         }, 100)
       }
+    },
+    openReservationPopupAtPosition(event) {
+      const position = event.target.getBoundingClientRect()
+      const yRelativePosition = event.clientX - position.x
+      const clickedDay = Math.floor(yRelativePosition / this.dayWidth)
+      this.openReservationPopup(event, this.firstDate.clone().add(clickedDay, 'days'))
     },
     openDetailsPopup(e, reservation) {
       e.preventDefault()
@@ -389,14 +418,17 @@ export default {
     },
     deleteReservation(reservation) {
       this.reservations.splice(this.reservations.indexOf(reservation), 1)
-      this.reservations = [...this.reservations]
+      this.detailsModel.open = false
     },
     updateReservation(originalReservation, reservation) {
       this.reservations = this.reservations.map(r => {
         if (r !== originalReservation) return r
         return reservation
       })
-    }
+    },
+    searchDebounce: _.debounce(function (value) {
+      this.searchString = value
+    }, 400)
   }
 }
 </script>
@@ -408,7 +440,7 @@ export default {
 }
 
 .nav-controls {
-  width: 250px;
+  width: 350px;
 }
 
 .content {

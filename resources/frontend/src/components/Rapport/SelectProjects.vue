@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import Projects from '@/components/customer/Projects'
+import Projects from '@/components/customer/EditProjects'
 
 export default {
   name: 'SelectProjects',

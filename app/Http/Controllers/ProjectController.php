@@ -22,17 +22,17 @@ class ProjectController extends Controller
         return $projects;
     }
 
-    // POST project/add
-    public function addToCustomer(Request $request)
+    // POST customers/{customerId}/projects/{projectId}
+    public function addToCustomer($customerId, $projectId)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write', 'customer_write']);
-        $project = Project::find($request->projectId);
+        $project = Project::find($projectId);
 
         if ($project == null) {
-            return response('project no exists', 400);
+            return response('project not exists', 400);
         }
 
-        $customer = Customer::withTrashed()->find($request->customerId);
+        $customer = Customer::withTrashed()->find($customerId);
 
         $project->customer()->attach($customer);
     }
@@ -46,19 +46,11 @@ class ProjectController extends Controller
             'description' => $request->description
         ]);
 
-        $customer = Customer::find($request->customerId);
-        $project->customer()->attach($customer);
-        return $project->id;
+        return $project;
     }
 
     // GET project/{id}
     public function show($id)
-    {
-        //
-    }
-
-    // GET project/{id}/edit
-    public function edit($id)
     {
         //
     }
@@ -69,12 +61,12 @@ class ProjectController extends Controller
         //
     }
 
-    // DELETE project/{projectName}/customer/{customerId}
-    public function removeFromCustomer(Request $request, $projectId, $id)
+    // DELETE customer/{customerId}/projects/{projectId}
+    public function removeFromCustomer(Request $request, $customerId, $projectId)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
-        $customer = Customer::withTrashed()->find($id);
+        $customer = Customer::withTrashed()->find($customerId);
         $project = Project::find($projectId);
 
         $customer->projects()->detach($project);

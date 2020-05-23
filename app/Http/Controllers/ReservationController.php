@@ -8,6 +8,7 @@ use App\Reservation;
 use App\Employee;
 use App\Helpers\Utils;
 use App\Pivots\BedRoomPivot;
+use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
@@ -47,33 +48,29 @@ class ReservationController extends Controller
 
         $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
 
-        while ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
-            $reservations = Reservation::where('employee_id', $employee->id)->get();
-            $this->clearOverlappingReservations($request, $reservations);
-            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
-        }
-        if ($validationResult === true || $request->force) {
-            $reservation = Reservation::create([
-                'entry' => $request->entry,
-                'exit' => $request->exit,
-                'bed_room_id' => $request->bed
-            ]);
-
-            $reservation->employee()->associate($employee);
-            $reservation->save();
-
-            if ($request->force) {
-                return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+        return DB::transaction(function () use($request, $employee, $validationResult) {
+            if ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
+                $reservations = Reservation::where('employee_id', $employee->id);
+                $this->clearOverlappingReservations($request, $reservations);
             }
-            return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
-        } else {
-            return response($validationResult, 400);
-        }
-    }
-
-    public function show($id)
-    {
-        //
+            if ($validationResult === true || $request->force) {
+                $reservation = Reservation::create([
+                    'entry' => $request->entry,
+                    'exit' => $request->exit,
+                    'bed_room_id' => $request->bed
+                ]);
+    
+                $reservation->employee()->associate($employee);
+                $reservation->save();
+    
+                if ($request->force) {
+                    return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+                }
+                return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+            } else {
+                return response($validationResult, 400);
+            }
+        });
     }
 
     public function update(Request $request, $id)
@@ -88,44 +85,41 @@ class ReservationController extends Controller
             'employee' => 'required'
         ]);
 
-        // BedRoomPivot::where('entry', '>=', $request->from)->where('entry', '<=', $re)
         $bedRoomPivot = BedRoomPivot::withTrashed()->find($request->bed);
         $employee = Employee::withTrashed()->find($request->employee);
 
         $reservation = Reservation::find($id);
-        $reservation->delete();
+        $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false, $reservation);
 
-        $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
-
-        while ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
-            $reservations = Reservation::where('employee_id', $employee->id)->get();
-            $this->clearOverlappingReservations($request, $reservations);
-            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
-        }
-        while ($validationResult === 'Bed is already booked at this time' && $request->force) {
-            $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id)->get();
-            $this->clearOverlappingReservations($request, $reservations);
-            $validationResult = $this->validateDate($bedRoomPivot, $employee, $request->entry, $request->exit, false);
-        }
-
-        if ($validationResult === true || $request->force) {
-
-            $reservation = Reservation::create([
-                'entry' => $request->entry,
-                'exit' => $request->exit,
-                'bed_room_id' => $request->bed
-            ]);
-
-            $reservation->employee()->associate($employee);
-            $reservation->save();
-            if ($request->force) {
-                return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+        return DB::transaction(function () use($request, $validationResult, $employee, $reservation, $bedRoomPivot) {
+            if ($validationResult === 'Employee is already in an other bed at this time' && $request->force) {
+                $reservations = Reservation::where('employee_id', $employee->id);
+                $this->clearOverlappingReservations($request, $reservations, $reservation);
             }
-            return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
-        } else {
-            Reservation::withTrashed()->find($reservation->id)->restore();
-            return response($validationResult, 400);
-        }
+            if ($validationResult === 'Bed is already booked at this time' && $request->force) {
+                $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id);
+                $this->clearOverlappingReservations($request, $reservations, $reservation);
+            }
+    
+            if ($validationResult === true || $request->force) {
+    
+                $reservation->update([
+                    'entry' => $request->entry,
+                    'exit' => $request->exit,
+                    'bed_room_id' => $request->bed
+                ]);
+    
+                $reservation->employee()->associate($employee);
+                $reservation->save();
+                if ($request->force) {
+                    return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->get();
+                }
+                return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])->find($reservation->id);
+            } else {
+                Reservation::withTrashed()->find($reservation->id)->restore();
+                return response($validationResult, 400);
+            }
+        });
     }
 
     public function destroy($id)
@@ -176,64 +170,28 @@ class ReservationController extends Controller
     }
 
     // --helpers--
-    private function validateDate($bedRoomPivot, $employee, $entry, $exit, $abort = true)
+    private function validateDate($bedRoomPivot, $employee, $entry, $exit, $abort = true, $reservation = null)
     {
-        $allReservations = [];
         $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id)
             ->where('entry', '<=', $exit)
-            ->where('exit', '>=', $entry)
-            ->get();
-
-        foreach ($reservations as $reservation) {
-            if (!in_array($reservation, $allReservations)) {
-                array_push($allReservations, $reservation);
-            }
-        }
-
-        $reservations = Reservation::where('bed_room_id', $bedRoomPivot->id)
-            ->where('entry', '<=', $exit)
-            ->where('exit', '>=', $exit)
-            ->get();
-
-        foreach ($reservations as $reservation) {
-            if (!in_array($reservation, $allReservations)) {
-                array_push($allReservations, $reservation);
-            }
-        }
-
-        if (count($allReservations) >= $bedRoomPivot->bed->places) {
-            $bedsUsed = 1;
-            for ($i = 0; $i < count($allReservations); $i++) {
-                for ($j = 0; $j < count($allReservations); $j++) {
-                    if (
-                        $allReservations[$i]->exit >= $allReservations[$j]->entry
-                        && $allReservations[$i]->entry <= $allReservations[$j]->entry
-                        && $i != $j
-                    ) {
-                        $bedsUsed++;
-                    }
-                }
-            }
-            if ($bedsUsed >= $bedRoomPivot->bed->places) {
-                return $this->rejectValidation('Bed is already booked at this time', $abort);
-            }
-        }
-
-        $reservation = Reservation::where('employee_id', $employee->id)
-            ->where('entry', '<=', $exit)
-            ->where('exit', '>=', $entry)
-            ->first();
-
+            ->where('exit', '>=', $entry);
         if ($reservation) {
-            return $this->rejectValidation('Employee is already in an other bed at this time', $abort);
+            $reservations->where('id', '!=', $reservation->id);
+        }
+        $reservations = $reservations->get();
+        if (count($reservations) >= $bedRoomPivot->bed->places) {
+            return $this->rejectValidation('Bed is already booked at this time', $abort);
         }
 
-        $reservation = Reservation::where('employee_id', $employee->id)
+        $employeeReservation = Reservation::where('employee_id', $employee->id)
             ->where('entry', '<=', $exit)
-            ->where('exit', '>=', $exit)
-            ->first();
-
+            ->where('exit', '>=', $entry);
         if ($reservation) {
+            $employeeReservation->where('id', '!=', $reservation->id);
+        }
+        $employeeReservation = $employeeReservation->first();
+
+        if ($employeeReservation) {
             return $this->rejectValidation('Employee is already in an other bed at this time', $abort);
         }
         return true;
@@ -248,9 +206,15 @@ class ReservationController extends Controller
         }
     }
 
-    private function clearOverlappingReservations($request, $reservations)
+    private function clearOverlappingReservations($request, $originalReservationsQuery, $editableReservation = null)
     {
-        $reservation = $reservations->where('entry', '<=', $request->entry)
+        if ($editableReservation) {
+            $originalReservationsQuery->where('id', '!=', $editableReservation->id);
+        }
+
+        $reservationsQuery = clone $originalReservationsQuery;
+        $reservation = $reservationsQuery
+            ->where('entry', '<', $request->entry)
             ->where('exit', '>=', $request->entry)
             ->first();
         if ($reservation) {
@@ -264,8 +228,10 @@ class ReservationController extends Controller
             $reservation = null;
         }
 
-        $reservation = $reservations->where('entry', '<=', $request->exit)
-            ->where('exit', '>=', $request->exit)
+        $reservationsQuery = clone $originalReservationsQuery;
+        $reservation = $reservationsQuery
+            ->where('entry', '<=', $request->exit)
+            ->where('exit', '>', $request->exit)
             ->first();
         if ($reservation) {
             $newEntryDate = (new \DateTime($request->exit))->modify('+1 day');
@@ -278,10 +244,13 @@ class ReservationController extends Controller
             $reservation = null;
         }
 
-        $reservation = $reservations->where('entry', '>=', $request->entry)
+        $reservationsQuery = clone $originalReservationsQuery;
+        $reservations = $reservationsQuery
+            ->where('entry', '>=', $request->entry)
             ->where('exit', '<=', $request->exit)
-            ->first();
-        if ($reservation) {
+            ->get();
+
+        foreach($reservations as $reservation) {
             Reservation::destroy($reservation->id);
         }
     }

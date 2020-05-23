@@ -120,7 +120,7 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read']);
 
-        $customer = Customer::with(['address', 'billingAddress'])->find($id);
+        $customer = Customer::with(['address', 'billingAddress', 'projects'])->find($id);
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
         if ($customer->secret != null) {

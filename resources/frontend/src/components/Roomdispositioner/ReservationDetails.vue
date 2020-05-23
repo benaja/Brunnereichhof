@@ -5,6 +5,7 @@
         text
         icon
         small
+        :loading="loadingPdf"
         @click="generatePdf"
       >
         <v-icon>picture_as_pdf</v-icon>
@@ -23,6 +24,7 @@
         text
         icon
         small
+        :loading="isDeleting"
         @click="deleteReservation"
       >
         <v-icon>delete</v-icon>
@@ -52,7 +54,7 @@
         cols="8"
         class="py-0"
       >
-        <p>{{ moment(value.entry).format('DD.MM.YYYY') }}</p>
+        <p>{{ $moment(value.entry).format('DD.MM.YYYY') }}</p>
       </v-col>
       <v-col
         cols="4"
@@ -66,7 +68,7 @@
         cols="8"
         class="py-0"
       >
-        <p>{{ moment(value.exit).format('DD.MM.YYYY') }}</p>
+        <p>{{ $moment(value.exit).format('DD.MM.YYYY') }}</p>
       </v-col>
       <v-col
         cols="4"
@@ -111,61 +113,25 @@
         <p>{{ value.employee.lastname }} {{ value.employee.firstname }}</p>
       </v-col>
     </v-row>
-    <v-form
+    <reservation-form
       v-else-if="editMode"
       ref="form"
-      lazy-validation
-      class="px-3"
-    >
-      <date-picker
-        v-model="value.entry"
-        label="Von"
-        :rules="[rules.required]"
-        color="blue"
-      ></date-picker>
-      <date-picker
-        v-model="value.exit"
-        label="Bis"
-        :rules="[rules.after]"
-        color="blue"
-      ></date-picker>
-      <v-select
-        v-model="value.bed_room_pivot.room_id"
-        :items="rooms"
-        label="Raum"
-        item-value="id"
-        item-text="name"
-        :rules="[rules.required]"
-        color="blue"
-        item-color="blue"
-      ></v-select>
-      <v-select
-        v-model="value.bed_room_pivot.id"
-        :items="beds"
-        label="Bett"
-        item-value="pivot.id"
-        item-text="name"
-        :rules="[rules.required]"
-        no-data-text="Kein freies Bett vorhanden."
-        color="blue"
-        item-color="blue"
-      ></v-select>
-      <select-employee
-        v-model="value.employee_id"
-        :rules="[rules.required]"
-      ></select-employee>
-    </v-form>
+      v-model="value"
+      :original-room-id="originalRoomId"
+    ></reservation-form>
     <v-card-actions v-if="editMode">
-      <v-spacer></v-spacer>
       <v-btn
         text
         @click="cancel"
       >
         Abbrechen
       </v-btn>
+      <v-spacer></v-spacer>
       <v-btn
         color="blue"
-        text
+        class="white--text"
+        depressed
+        :loading="isSaving"
         @click="save"
       >
         Speichern
@@ -175,15 +141,12 @@
 </template>
 
 <script>
-import moment from 'moment'
-import DatePicker from '@/components/general/DatePicker'
-import SelectEmployee from '@/components/Roomdispositioner/SelectEmployee'
-import { downloadFile, rules, confirmAction } from '@/utils'
+import { downloadFile, confirmAction } from '@/utils'
+import ReservationForm from '@/components/forms/ReservationForm'
 
 export default {
   components: {
-    DatePicker,
-    SelectEmployee
+    ReservationForm
   },
   props: {
     value: {
@@ -203,16 +166,11 @@ export default {
   },
   data() {
     return {
-      employees: [],
-      rooms: [],
-      beds: [],
       editMode: false,
-      rules: {
-        ...rules,
-        after: () => new Date(this.value.entry) <= new Date(this.value.exit) || 'Das Datum muss nach dem Startdatum sein.'
-      },
-      loadingBeds: false,
-      originalRoomId: null
+      originalRoomId: null,
+      isDeleting: false,
+      loadingPdf: false,
+      isSaving: false
     }
   },
   computed: {
@@ -236,38 +194,17 @@ export default {
       }
       this.beds = [this.value.bed_room_pivot.bed]
       this.originalRoomId = this.value.bed_room_pivot.room_id
-      if (this.employees.length === 0) {
-        this.employees = [this.value.employee]
-      }
     },
     editMode() {
-      if (this.editMode) {
-        if (!this.originalRoomId) this.originalRoomId = this.value.bed_room_pivot.room_id
-        this.axios.get('/rooms').then(response => {
-          this.rooms = response.data
-          if (!this.rooms.find(r => r.id === this.originalRoomId)) {
-            this.rooms.push(this.value.bed_room_pivot.room)
-          }
-          this.getBeds()
-        })
+      if (this.editMode && !this.originalRoomId) {
+        this.originalRoomId = this.value.bed_room_pivot.room_id
       }
-    },
-    'value.bed_room_pivot.room_id': function() {
-      this.getBeds()
-    },
-    'value.entry': function() {
-      this.getBeds()
-    },
-    'value.exit': function() {
-      this.getBeds()
     }
   },
   methods: {
-    moment(date) {
-      return moment(date)
-    },
     save() {
       if (this.$refs.form.validate()) {
+        this.isSaving = true
         this.axios
           .put(`/reservations/${this.value.id}`, this.reservationBody)
           .then(response => {
@@ -278,6 +215,7 @@ export default {
               confirmAction('Dieser Mitarbeiter ist zur angegeben Zeit in einem anderen Bett. Wollen sie ihn umbuchen?', 'Ja, umbuchen!')
                 .then(result => {
                   if (result) {
+                    this.isSaving = true
                     this.axios
                       .put(`/reservations/${this.value.id}`, {
                         ...this.reservationBody,
@@ -289,6 +227,8 @@ export default {
                       })
                       .catch(() => {
                         this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
+                      }).finally(() => {
+                        this.isSaving = false
                       })
                   }
                 })
@@ -301,44 +241,31 @@ export default {
             } else if (!error.status(403)) {
               this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error')
             }
+          }).finally(() => {
+            this.isSaving = false
           })
       }
     },
     deleteReservation() {
-      this.$swal({
-        title: 'Achtung!',
-        text: 'Wollen sie diese Reservation wirklich löschen?',
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ja, löschen!',
-        cancelButtonText: 'Nein, abbrechen'
-      }).then(result => {
-        if (result.value) {
+      confirmAction('Wollen sie diese Reservation wirklich löschen?').then(value => {
+        if (value) {
+          this.isDeleting = true
           this.axios.delete(`/reservations/${this.value.id}`).then(() => {
-            this.$emit('delete', this.value)
+            this.$emit('delete', this.original)
+          }).finally(() => {
+            this.isDeleting = false
           })
         }
       })
     },
-    getBeds() {
-      if (this.editMode && !this.loadingBeds) {
-        this.axios.get(`/rooms/${this.value.bed_room_pivot.room_id}/beds?entry=${this.value.entry}&exit=${this.value.exit}`).then(response => {
-          if (!response.data.find(b => b.pivot.id === this.value.bed_room_pivot.id)
-            && this.value.bed_room_pivot.room_id === this.originalRoomId) {
-            response.data.push({
-              ...this.value.bed_room_pivot.bed,
-              pivot: this.value.bed_room_pivot
-            })
-          }
-          for (const bed of response.data) {
-            bed.bed_room_pivot = bed.pivot
-          }
-          this.beds = response.data
-        })
-      }
-    },
     generatePdf() {
+      this.loadingPdf = true
       downloadFile(`pdf/reservation/employee/${this.value.employee_id}?date=${this.selectedDay.format('YYYY-MM-DD')}`)
+        .catch(() => {
+          this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
+        }).finally(() => {
+          this.loadingPdf = false
+        })
     },
     updateExistingReservation(response) {
       this.editMode = false
