@@ -52,7 +52,7 @@ class CustomerController extends Controller
         ]);
         $this->validateAddress($request, 'address');
         if ($request->differingBillingAddress) {
-            $this->validateAddress($request, 'billingAddress');
+            $this->validateAddress($request, 'billing_address');
         }
 
         DB::transaction(function () use ($request) {
@@ -92,16 +92,23 @@ class CustomerController extends Controller
             $customer->address()->associate($address);
 
             if ($request->differingBillingAddress) {
-                $billingAddress = Address::create($request->billingAddress);
+                $billingAddress = Address::create($request->billing_address);
                 $customer->billingAddress()->associate($billingAddress);
             }
 
             $defaultProject = Project::where('name', 'Allgemein')->first();
             if ($defaultProject == null) {
-                $customer->delete();
                 return response('no project called "Allgemein"', 404);
             }
-            $customer->projects()->save($defaultProject);
+
+            $projectIds = array_map(function($project) {
+              return $project['id'];
+            }, $request->projects);
+            array_push($projectIds, $defaultProject->id);
+            
+            $customer->projects()->sync($projectIds);
+
+
             $customer->save();
 
             if ($user->email != null) {

@@ -8,8 +8,9 @@
       <text-field
         v-model="value.street"
         :original="original.street"
-        label="Strasse + Nr"
+        label="Strasse + Nr*"
         :readonly="readonly"
+        :rules="[rules.required]"
         @input="$emit('change')"
       ></text-field>
     </v-col>
@@ -34,8 +35,10 @@
       <text-field
         v-model="value.plz"
         :original="original.plz"
-        label="PLZ"
+        label="PLZ*"
+        type="number"
         :readonly="readonly"
+        :rules="[rules.required]"
         @input="$emit('change')"
       ></text-field>
     </v-col>
@@ -47,8 +50,9 @@
       <text-field
         v-model="value.place"
         :original="original.place"
-        label="Ort"
+        label="Ort*"
         :readonly="readonly"
+        :rules="[rules.required]"
         @input="$emit('change')"
       ></text-field>
     </v-col>
@@ -57,6 +61,7 @@
 
 <script>
 import { TextField } from '@/components/FormComponents'
+import { rules } from '@/utils'
 
 export default {
   components: {
@@ -72,6 +77,11 @@ export default {
       default: () => ({})
     },
     readonly: Boolean
+  },
+  data() {
+    return {
+      rules
+    }
   }
 }
 </script>

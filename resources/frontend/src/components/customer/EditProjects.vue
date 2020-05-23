@@ -27,7 +27,7 @@ export default {
   props: {
     customerId: {
       type: [Number, String],
-      required: true
+      default: null
     },
     readonly: {
       type: Boolean,
@@ -56,6 +56,7 @@ export default {
   },
   watch: {
     value(projects, oldProjects) {
+      console.log('watch value', projects)
       if (!this.areItemsLoaded) {
         this.areItemsLoaded = true
         return
@@ -95,7 +96,7 @@ export default {
       }
     },
     removeProject(project) {
-      if (project.id) {
+      if (project.id && this.customerId) {
         this.$store.commit('isSaving', true)
         this.axios
           .delete(`customers/${this.customerId}/projects/${project.id}`)
@@ -107,7 +108,26 @@ export default {
       }
     },
     addProject(project) {
-      if (project.id) {
+      if (typeof project === 'string') {
+        const projectAlreadySelected = this.selectedProjects.find(p => p.name
+          && p.name.toLowerCase() === project.toLowerCase())
+        const projectExist = this.items.find(p => p.name
+          && p.name.toLowerCase() === project.toLowerCase())
+        this.remove(project)
+
+        // wait for next tick so that the 'value' property is updated after call this.remove()
+        this.$nextTick(() => {
+          if (projectExist && !projectAlreadySelected) {
+            // make a clone to detect the added project in the watch function
+            const projects = [...this.selectedProjects]
+            projects.push(projectExist)
+            this.selectedProjects = projects
+          } else if (!projectAlreadySelected) {
+            this.createProject(project)
+          }
+        })
+      }
+      if (project.id && this.customerId) {
         this.$store.commit('isSaving', true)
         this.axios
           .post(`customers/${this.customerId}/projects/${project.id}`).catch(() => {
@@ -115,10 +135,6 @@ export default {
           }).finally(() => {
             this.$store.commit('isSaving', false)
           })
-      } else if (this.items.find(i => i.name && i.name.toLowerCase() === project.toLowerCase())) {
-        this.remove(project)
-      } else {
-        this.createProject(project)
       }
     },
     createProject(title) {
@@ -151,6 +167,7 @@ export default {
                 id: response.data.id
               })
               this.selectedProjects = projects
+              this.items.push(response.data)
             })
             .catch(() => {
               this.$swal('Erstellung fehlgeschlagen!', 'Etwas ist schief gelaufen!', 'error')
@@ -158,7 +175,6 @@ export default {
               this.$store.commit('isSaving', false)
             })
         }
-        this.remove(title)
       })
     }
   }

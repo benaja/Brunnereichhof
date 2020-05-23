@@ -6,17 +6,8 @@
     >
       <template v-if="hasPedingChanges">
         <v-btn
-          color="red"
-          class="my-2 ml-auto mr-2"
-          outlined
-          :loading="loadingReset"
-          @click="resetCustomer"
-        >
-          Abbrechen
-        </v-btn>
-        <v-btn
           color="primary"
-          class="my-2"
+          class="ml-auto"
           depressed
           @click="saveChanges"
         >

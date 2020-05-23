@@ -18,8 +18,10 @@ axios.interceptors.response.use(
       ) {
         return true
       }
-      for (const err in error.response.data.errors) {
-        if (error.response.data.errors[err].includes(string)) return true
+      if (!key) {
+        for (const err in error.response.data.errors) {
+          if (error.response.data.errors[err].includes(string)) return true
+        }
       }
 
       if (error.response.data.error && error.response.data.error.includes(string)) return true

@@ -113,6 +113,7 @@
           v-model="value.customer_number"
           label="Kundennummer"
           :original="original.customer_number"
+          type="number"
           :readonly="readonly"
           @change="$emit('change', 'customer_number')"
         ></text-field>
@@ -240,6 +241,11 @@ export default {
   data() {
     return {
       rules
+    }
+  },
+  methods: {
+    validate() {
+      return this.$refs.form.validate()
     }
   }
 }
