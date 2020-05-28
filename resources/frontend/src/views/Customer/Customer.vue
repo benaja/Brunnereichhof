@@ -9,6 +9,7 @@
           color="primary"
           class="ml-auto"
           depressed
+          :loading="isSaving"
           @click="saveChanges"
         >
           Fertig
@@ -17,9 +18,11 @@
     </navigation-bar>
     <v-container>
       <customer-form
+        ref="form"
         v-model="customer"
         :original="original"
         @change="changed"
+        @submit="saveChanges"
       ></customer-form>
       <v-row>
         <v-col
@@ -60,6 +63,7 @@
           <v-btn
             color="red white--text"
             depressed
+            :loading="isDeleting"
             @click="deleteCustomer"
           >
             Löschen
@@ -73,6 +77,7 @@
 <script>
 import _ from 'lodash'
 import CustomerForm from '@/components/forms/CustomerForm'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -90,8 +95,9 @@ export default {
       },
       apiUrl: `customers/${this.$route.params.id}`,
       isUserAllowedToEdit: false,
-      loadingReset: false,
-      isLoading: false
+      isLoading: false,
+      isSaving: false,
+      isDeleting: false
     }
   },
   computed: {
@@ -112,14 +118,16 @@ export default {
   },
   methods: {
     changed: _.debounce(function(changedElement = null) {
-      if (changedElement === 'email') {
+      if (!this.$refs.form.validate()) return
+      if (changedElement === 'email' && this.customer.email !== this.original.email) {
         setTimeout(() => {
           this.$swal({
             title: 'Wollen sie die Email wirklich ändern?',
             text: `Bist du dir sicher, dass die Email: "${this.customer.email}" wirklich stimmt?`,
             confirmButtonText: 'Ja',
             cancelButtonText: 'Nein',
-            showCancelButton: true
+            showCancelButton: true,
+            allowOutsideClick: false
           }).then(async result => {
             if (result.value) {
               this.update()
@@ -131,30 +139,41 @@ export default {
       }
     }, 400),
     update() {
-      this.$store.commit('isSaving', true)
-      this.updateCustomer(this.customer).then(() => {
-        this.$store.commit('isSaving', false)
-      })
+      if (this.$refs.form.validate()) {
+        this.$store.commit('isSaving', true)
+        this.updateCustomer(this.customer).then(() => {
+          this.$store.commit('isSaving', false)
+        })
+      }
     },
     updateCustomer(customer) {
-      return new Promise(resove => {
+      return new Promise(resolve => {
         this.axios.put(this.apiUrl, customer).catch(error => {
-          if (error.response.data.errors && error.response.data.errors.email.includes('validation.email')) {
+          if (error.includes('validation.email')) {
             this.$swal('Email nicht korrekt', 'Bitte schaue, dass die email ein korrektes Format hat.', 'error')
-          } else if (error.response.data.errors && error.response.data.errors.email.includes('validation.unique')) {
+          } else if (error.includes('validation.unique')) {
             this.$swal('Email bereits vorhanden', 'Diese Email wird bereits von einem anderen Benutzer verwendet.', 'error')
           } else {
             this.$swal('Fehler', 'Kunde konnte aus einem unbekannten Grund nicht gespeichert werden.', 'error')
           }
-        }).finally(() => {
-          resove()
+          resolve(false)
+        }).then(() => {
+          resolve(true)
         })
       })
     },
     deleteCustomer() {
-      this.axios.delete(this.apiUrl).then(() => {
-        this.$store.dispatch('resetCustomers')
-        this.$router.push('/customer')
+      confirmAction().then(result => {
+        if (result) {
+          this.isDeleting = true
+          this.axios.delete(this.apiUrl).then(() => {
+            this.$router.push('/customer')
+          }).catch(() => {
+            this.$swal('Fehler', 'Kunde konnte nicht gelöscht werden', 'error')
+          }).finally(() => {
+            this.isDeleting = false
+          })
+        }
       })
     },
     resetPassword() {
@@ -168,14 +187,17 @@ export default {
         })
     },
     saveChanges() {
-      this.original = this._.cloneDeep(this.customer)
-    },
-    resetCustomer() {
-      this.loadingReset = true
-      this.updateCustomer(this.original).then(() => {
-        this.customer = this._.cloneDeep(this.original)
-        this.loadingReset = false
-      })
+      if (this.$refs.form.validate()) {
+        this.isSaving = true
+        this.updateCustomer(this.customer).then(result => {
+          this.isSaving = false
+          if (result) {
+            this.original = this._.cloneDeep(this.customer)
+          }
+        })
+      } else {
+        this.$store.dispatch('error', 'Prüffe deine Eingaben.')
+      }
     }
   }
 }

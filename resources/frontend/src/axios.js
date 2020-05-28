@@ -1,7 +1,6 @@
 import axios from 'axios'
 import Vue from 'vue'
 import router from './router'
-import store from './store'
 
 axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.interceptors.response.use(
@@ -33,14 +32,11 @@ axios.interceptors.response.use(
     error.status = status => error.response && error.response.status === status
 
     if (error.includes('token_not_provided')) {
-      store.commit('isLoading', false)
       router.push('/login')
     } else if (error.status(401) || error.status(429)) {
-      store.commit('isLoading', false)
       router.push('/login')
     } else if (error.includes('token_invalid') || error.includes('token_expired')) {
       localStorage.removeItem('default_auth_token')
-      store.commit('isLoading', false)
       router.push('/login')
     } else if (error.status(403) && error.includes('Your account has been deactivated')) {
       Vue.swal(
@@ -48,10 +44,8 @@ axios.interceptors.response.use(
         'Dein Benutzer wurde deaktiviert. Bitte kontaktiere Steffan Brunner um deinen Benutzer wieder zu aktivieren.',
         'error',
       )
-      store.commit('isLoading', false)
     } else if (error.status(403)) {
       Vue.swal('Nicht berechtigt', 'Du bist für diese Aktion nicht berechtigt', 'error')
-      store.commit('isLoading', false)
     }
 
     return Promise.reject(error)

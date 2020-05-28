@@ -4,7 +4,7 @@
       v-for="(image, index) of filesToDisplay"
       :key="image.id"
       class="d-flex child-flex"
-      cols="4"
+      :cols="singleFile ? 12 : 4"
     >
       <v-card
         flat
@@ -43,9 +43,10 @@
       </v-card>
     </v-col>
     <file-upload
-      v-if="!disabled"
+      v-if="!disabled && (!singleFile || !filesToDisplay.length)"
       :upload-on-change="uploadOnChange"
       :upload-url="uploadUrl"
+      :multiple="!singleFile"
       @input="displayImages"
       @uploaded="addImages"
     ></file-upload>
@@ -101,7 +102,7 @@ export default {
   },
   props: {
     value: {
-      type: Array,
+      type: [Array, String, File],
       default: () => []
     },
     uploadOnChange: {
@@ -115,6 +116,14 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    singleFile: {
+      type: Boolean,
+      default: false
+    },
+    delete: {
+      type: Function,
+      default: () => {}
     }
   },
   data() {
@@ -126,11 +135,22 @@ export default {
   },
   computed: {
     filesToDisplay() {
-      if (this.uploadOnChange) return this.value
-      return this.imageUrls.map((image, index) => ({
-        id: index,
-        url: image
-      }))
+      if (!this.uploadOnChange) {
+        return this.imageUrls.map((image, index) => ({
+          id: index,
+          url: image
+        }))
+      }
+      if (this.singleFile) {
+        if (this.value && this.value.length) {
+          return [{
+            id: 0,
+            url: this.value
+          }]
+        }
+        return []
+      }
+      return this.value
     }
   },
   methods: {
@@ -139,24 +159,34 @@ export default {
       this.galleryDialog = true
     },
     addImages(newImages) {
-      const images = [...this.value]
-      for (const image of newImages) {
-        images.push(image)
+      if (this.singleFile) {
+        this.$emit('input', newImages)
+      } else {
+        const images = [...this.value]
+        for (const image of newImages) {
+          images.push(image)
+        }
+        this.$emit('input', images)
       }
-      this.$emit('input', images)
     },
     deleteImage(image) {
       if (this.uploadOnChange) {
         confirmAction('Willst du dieses Bild wirklich löschen?').then(value => {
           if (value) {
-            this.axios
-              .delete(`/images/${image.id}`)
-              .then(() => {
+            this.delete().then(imageDeleted => {
+              if (imageDeleted) {
                 this.spliceImage(image)
-              })
-              .catch(() => {
-                this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
-              })
+              }
+            })
+            // this.$emit('delete', image)
+            // this.axios
+            //   .delete(`/images/${image.id}`)
+            //   .then(() => {
+            //     this.spliceImage(image)
+            //   })
+            //   .catch(() => {
+            //     this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
+            //   })
           }
         })
       } else {
@@ -166,20 +196,33 @@ export default {
       }
     },
     spliceImage(image) {
-      const index = this.value.indexOf(image)
-      const newImages = [...this.value]
-      newImages.splice(index, 1)
-      this.$emit('input', newImages)
+      if (this.singleFile) {
+        this.$emit('input', null)
+      } else {
+        const index = this.value.indexOf(image)
+        const newImages = [...this.value]
+        newImages.splice(index, 1)
+        this.$emit('input', newImages)
+      }
     },
     displayImages(files) {
-      for (const file of files) {
-        this.value.push(file)
-        const reader = new FileReader()
-        reader.onload = e => {
-          this.imageUrls.push(e.target.result)
+      if (this.singleFile) {
+        this.$emit('input', files)
+        this.readFile(files)
+      } else {
+        for (const file of files) {
+          this.value.push(file)
+          this.$emit('input', this.value)
+          this.readFile(file)
         }
-        reader.readAsDataURL(file)
       }
+    },
+    readFile(file) {
+      const reader = new FileReader()
+      reader.onload = e => {
+        this.imageUrls.push(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
   }
 }

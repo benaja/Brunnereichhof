@@ -288,13 +288,6 @@ export default {
     ...mapGetters({
       settings: 'timerecordSettings'
     }),
-    dayName() {
-      const date = new Date(this.date)
-      // set sunday as last day of month
-      let day = date.getDay() === 0 ? 7 : date.getDay()
-      day--
-      return this.$store.getters.dayNames[day]
-    },
     urlWorkerParam() {
       if (this.workerId) return `?workerId=${this.workerId}`
       return ' '

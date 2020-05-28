@@ -1,7 +1,7 @@
 <template>
   <v-form
     ref="form"
-    @keyup.native.enter="$emit('submit')"
+    @keyup.native.enter="submit"
   >
     <v-row>
       <v-col
@@ -99,6 +99,7 @@
         <text-field
           v-model="value.email"
           label="Email"
+          type="email"
           :original="original.email"
           :readonly="readonly"
           :rules="[rules.nullableEmail]"
@@ -207,8 +208,10 @@
         <p>Projekte</p>
         <edit-projects
           v-model="value.projects"
+          :original="original.projects"
           :customer-id="$route.params.id"
           :readonly="readonly"
+          @change="$emit('change', 'projects')"
         ></edit-projects>
       </v-col>
     </v-row>
@@ -246,6 +249,11 @@ export default {
   methods: {
     validate() {
       return this.$refs.form.validate()
+    },
+    submit() {
+      if (!this.$store.getters.preventFormSubmit) {
+        this.$emit('submit')
+      }
     }
   }
 }

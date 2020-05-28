@@ -80,52 +80,68 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_write']);
         }
-        $this->validate(request(), $this->validateArray);
+        $request['data'] = json_decode($request->data, true);
+        $modifiedValidateArray = [];
+        foreach($this->validateArray as $key => $validate) {
+            $modifiedValidateArray[$key] = "data.$validate";
+        }
+        $request->validate($modifiedValidateArray);
         $this->validate($request, [
-            'email' => 'unique:user'
+            'data.email' => 'nullable|email|unique:user,email'
         ]);
 
-        $employee = Employee::create([
-            'callname' => $request->callname,
-            'nationality' => $request->nationality,
-            'isIntern' => $request->isIntern,
-            'isDriver' => $request->isDriver,
-            'german_knowledge' => $request->german_knowledge,
-            'english_knowledge' => $request->english_knowledge,
-            'sex' => $request->sex,
-            'comment' => $request->comment,
-            'experience' => $request->experience,
-            'isActive' => 1,
-            'isGuest' => $request->isGuest,
-            'allergy' => $request->allergy,
-            'isLoginActive' => $request->isLoginActive || false,
-            'drivingLicence' => $request->drivingLicence,
-            'entryDate' => $request->entryDate
-        ]);
+        return DB::transaction(function () use ($request) {
+            $data = $request['data'];
+            foreach(array_keys($this->validateArray) as $key) {
+                if (array_key_exists($key, $data)) continue;
+                $data[$key] = null;
+            }
+            $employee = Employee::create([
+                'callname' => $data['callname'],
+                'nationality' => $data['nationality'],
+                'isIntern' => $data['isIntern'],
+                'isDriver' => $data['isDriver'],
+                'german_knowledge' => $data['german_knowledge'],
+                'english_knowledge' => $data['english_knowledge'],
+                'sex' => $data['sex'],
+                'comment' => $data['comment'],
+                'experience' => $data['experience'],
+                'isActive' => $data['isActive'],
+                'isGuest' => $data['isGuest'],
+                'allergy' => $data['allergy'],
+                'isLoginActive' => $data['isLoginActive'] || false,
+                'drivingLicence' => $data['drivingLicence'],
+                'entryDate' => $data['entryDate']
+            ]);
+    
+            $user = User::create([
+                'firstname' => $data['firstname'],
+                'lastname' => $data['lastname'],
+                'username' => Utils::getUniqueUsername($data['firstname'] . "." . $data['lastname']),
+                'email' => strtolower($data['email']),
+                'password' => Hash::make(str_random(8)),
+                'isPasswordChanged' => 0,
+            ]);
+    
+            if (!$data['isLoginActive']) {
+                $user->delete();
+            }
+    
+            if (array_key_exists('role_id', $data['user'])) {
+                $role = Role::find($data['user']['role_id']);
+                $role->users()->save($user);
+            }
 
-        $user = User::create([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'username' => Utils::getUniqueUsername($request->firstname . "." . $request->lastname),
-            'email' => strtolower($request->email),
-            'password' => Hash::make(str_random(8)),
-            'isPasswordChanged' => 0,
-        ]);
-
-        if (!$request->isLoginActive) {
-            $user->delete();
-        }
-
-        if ($request->role_id) {
-            $role = Role::find($request->role_id);
-            $role->users()->save($user);
-        }
-
-        $employeeUserType = UserType::where('name', 'employee')->first();
-        $user->employee()->save($employee);
-        $employeeUserType->users()->save($user);
-
-        return $employee->id;
+            if ($request->file('profileimage')) {
+                $this->handleProfileImage($employee->id, $request->file('profileimage'));
+            }
+    
+            $employeeUserType = UserType::where('name', 'employee')->first();
+            $user->employee()->save($employee);
+            $employeeUserType->users()->save($user);
+    
+            return $employee->id;
+        });
     }
 
     // GET employee/{id}
@@ -212,20 +228,8 @@ class EmployeeController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['employee_write']);
 
-        if ($request->profileimage != null) {
-            $employee = Employee::find($id);
-
-            $img = Image::make($request->file('profileimage'));
-            $width = $img->width();
-            $height = $img->height();
-            $factor = $width / $height;
-            $img->resize(150 * $factor, 150);
-
-            $imagePath = Storage::disk('s3')->putFile('profileimages',$request->file('profileimage'));
-            Storage::disk('s3')->put('small/'.$imagePath, (string)$img->stream());
-            $employee->profileimage = $imagePath;
-            $employee->save();
-            return $employee->getProfileImageUrl();
+        if ($request->image != null) {
+            return $this->handleProfileImage($id, $request->file('image'));
         } else {
             return response('no image', 404);
         }
@@ -458,7 +462,22 @@ class EmployeeController extends Controller
         return true;
     }
 
-    // Helpers
+    private function handleProfileImage($employeeId, $file) {
+            $employee = Employee::find($employeeId);
+
+            $img = Image::make($file);
+            $width = $img->width();
+            $height = $img->height();
+            $factor = $width / $height;
+            $img->resize(150 * $factor, 150);
+
+            $imagePath = Storage::disk('s3')->putFile('profileimages',$file);
+            Storage::disk('s3')->put('small/'.$imagePath, (string)$img->stream());
+            $employee->profileimage = $imagePath;
+            $employee->save();
+            return $employee->getProfileImageUrl();
+    }
+
     private $validateArray = [
         'firstname' => 'required|string|max:100',
         'lastname' => 'required|string|max:100',
@@ -472,6 +491,12 @@ class EmployeeController extends Controller
         'isGuest' => 'boolean',
         'isLoginActive' => 'boolean',
         'drivingLicence' => 'boolean|nullable',
-        'entryDate' => 'nullable|date'
+        'entryDate' => 'nullable|date',
+        'nationality' => 'nullable|string',
+        'isIntern' => 'nullable|boolean',
+        'isDriver' => 'nullable|boolean',
+        'isActive' => 'boolean',
+        'german_knowledge' => 'nullable|boolean',
+        'english_knowledge' => 'nullable|boolean'
     ];
 }

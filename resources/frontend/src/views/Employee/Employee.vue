@@ -5,17 +5,8 @@
     >
       <template v-if="hasPedingChanges">
         <v-btn
-          color="red"
-          class="my-2 ml-auto mr-2"
-          outlined
-          :loading="isLoadingRevert"
-          @click="revertChanges"
-        >
-          Abbrechen
-        </v-btn>
-        <v-btn
           color="primary"
-          class="my-2"
+          class="ml-auto"
           depressed
           :loading="isLoadingSave"
           @click="saveChanges"
@@ -33,10 +24,9 @@
         :readonly="!isUserAllowedToEdit"
         :loading-image="isUploadingImage"
         :loading-delete-image="isDeleteingImage"
+        save-on-change
         @change="changed"
         @submit="saveChanges"
-        @uploadImage="uploadImage"
-        @deleteImage="deleteImage"
       ></employee-form>
       <v-btn
         v-if="isUserAllowedToEdit"
@@ -56,7 +46,7 @@
 
 <script>
 import { rules } from '@/utils'
-import EmployeeForm from '@/components/employee/EmployeeForm'
+import EmployeeForm from '@/components/forms/EmployeeForm'
 
 export default {
   components: {
@@ -141,6 +131,7 @@ export default {
         })
       }
     },
+    // currently not used, because image cant be restored
     revertChanges() {
       this.isLoadingRevert = true
       this.axios.put(this.apiUrl, this.original).then(() => {
@@ -161,36 +152,6 @@ export default {
         this.isLoadingDelete = false
         this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
       })
-    },
-    uploadImage(files) {
-      if (files.length === 1) {
-        this.isUploadingImage = true
-        const data = new FormData()
-        data.append('profileimage', files[0])
-        this.axios
-          .post(`${this.apiUrl}/editimage`, data)
-          .then(response => {
-            this.employee.profileimage = response.data
-          })
-          .catch(() => {
-            this.$store.dispatch('error', 'Bild konnte nicht hochgeladen werden')
-          }).finally(() => {
-            this.isUploadingImage = false
-          })
-      }
-    },
-    deleteImage() {
-      this.isDeleteingImage = true
-      this.axios
-        .delete(`${this.apiUrl}/editimage`)
-        .then(() => {
-          this.employee.profileimage = null
-        })
-        .catch(() => {
-          this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
-        }).finally(() => {
-          this.isDeleteingImage = false
-        })
     }
   }
 }

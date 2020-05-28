@@ -1,16 +1,13 @@
 <template>
-  <div>
-    <h1 class="text-center my-4">
-      Mitarbeiter erstellen
-    </h1>
-    <v-form
-      ref="form"
-      onsubmit="return false;"
-      @submit="save"
-    >
-      <v-container>
-        <v-row>
-          <v-col
+  <fragment>
+    <navigation-bar title="Mitarbeiter erstellen"></navigation-bar>
+    <v-container>
+      <employee-form
+        ref="form"
+        v-model="employee"
+        @submit="save"
+      ></employee-form>
+      <!-- <v-col
             cols="12"
             md="6"
           >
@@ -180,56 +177,39 @@
               v-model="employee.isGuest"
               label="Gast"
             ></v-switch>
-          </v-col>
-          <v-col
-            cols="12"
-            class="text-center"
-          >
-            <v-btn
-              type="submit"
-              color="primary"
-            >
-              Speichern
-              <v-icon right>
-                send
-              </v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-form>
-  </div>
+          </v-col> -->
+      <v-btn
+        :loading="isLoading"
+        depressed
+        color="primary"
+        @click="save"
+      >
+        Speichern
+        <v-icon right>
+          send
+        </v-icon>
+      </v-btn>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
-import { rules } from '@/utils'
-import SelectRole from '@/components/Authorization/SelectRole'
-import DatePicker from '@/components/general/DatePicker'
+import EmployeeForm from '@/components/forms/EmployeeForm'
 
 export default {
-  name: 'AddCustomer',
   components: {
-    SelectRole,
-    DatePicker
+    EmployeeForm
   },
   data() {
     return {
       employee: {
         sex: 'man',
-        isGuest: !!this.$route.query.guest
+        isGuest: !!this.$route.query.guest,
+        user: {},
+        isActive: true
       },
-      rules,
-      genders: [
-        {
-          value: 'man',
-          text: 'Männlich'
-        },
-        {
-          value: 'woman',
-          text: 'Weiblich'
-        }
-      ],
-      filename: ''
+      filename: '',
+      isLoading: false
     }
   },
   computed: {
@@ -242,23 +222,16 @@ export default {
   methods: {
     save() {
       if (this.$refs.form.validate()) {
+        this.isLoading = true
+        const formData = new FormData()
+        if (this.employee.profileimage) {
+          formData.append('profileimage', this.employee.profileimage)
+        }
+        formData.append('data', JSON.stringify(this.employee))
         this.axios
-          .post('employees', this.employee)
-          .then(response => {
-            if (this.$refs.profileImage.files.length === 1) {
-              const data = new FormData()
-              data.append('profileimage', this.$refs.profileImage.files[0])
-              this.axios
-                .post(`employees/${response.data}/editimage`, data)
-                .then(() => {
-                  this.redirect()
-                })
-                .catch(() => {
-                  this.$swal('Fehler beim Speichern', 'Das Bild konnte nicht hochgeladen werden', 'error')
-                })
-            } else {
-              this.redirect()
-            }
+          .post('employees', formData)
+          .then(() => {
+            this.redirect()
           })
           .catch(error => {
             if (error.includes('validation.unique')) {
@@ -266,6 +239,8 @@ export default {
             } else {
               this.$swal('Fehler beim Speichern', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
             }
+          }).finally(() => {
+            this.isLoading = false
           })
       } else {
         this.$store.dispatch('alert', { text: 'Bitte fülle alle Felder korrekt aus', type: 'error' })
@@ -280,7 +255,7 @@ export default {
       }
     },
     redirect() {
-      if (this.$route.query.guest) {
+      if (this.employee.isGuest) {
         this.$router.push('/guests')
       } else {
         this.$router.push('/employee')

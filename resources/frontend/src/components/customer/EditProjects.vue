@@ -1,29 +1,44 @@
 <template>
-  <v-combobox
-    v-model="selectedProjects"
-    :items="items"
-    item-value="id"
-    item-text="name"
-    label="Projekte"
-    chips
-    prepend-icon="filter_list"
-    multiple
-    :readonly="readonly"
+  <base-input
+    :restore-message="computedRestoreMessage"
+    :label="label"
+    @restore="restoreOriginal"
   >
-    <template v-slot:selection="data">
-      <v-chip
-        :input-value="data.selected"
-        close
-        @update:active="remove(data.item)"
-      >
-        <strong>{{ data.item.name }}</strong>&nbsp;
-      </v-chip>
-    </template>
-  </v-combobox>
+    <v-combobox
+      v-model="selectedProjects"
+      :items="items"
+      item-value="id"
+      item-text="name"
+      chips
+      prepend-icon="filter_list"
+      multiple
+      :readonly="readonly"
+      @focus="$store.commit('preventFormSubmit', true)"
+      @blur="$store.commit('preventFormSubmit', false)"
+      @input="projectsUpdated"
+    >
+      <template v-slot:selection="data">
+        <v-chip
+          :input-value="data.selected"
+          close
+          @update:active="remove(data.item)"
+        >
+          <strong>{{ data.item.name }}</strong>&nbsp;
+        </v-chip>
+      </template>
+    </v-combobox>
+  </base-input>
 </template>
 
 <script>
+import BaseInput from '@/components/FormComponents/_BaseInput'
+import InputMixin from '@/components/FormComponents/_InputMixin'
+
 export default {
+  components: {
+    BaseInput
+  },
+  mixins: [InputMixin],
   props: {
     customerId: {
       type: [Number, String],
@@ -36,6 +51,10 @@ export default {
     value: {
       type: Array,
       default: () => []
+    },
+    label: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -54,34 +73,28 @@ export default {
       }
     }
   },
-  watch: {
-    value(projects, oldProjects) {
-      console.log('watch value', projects)
-      if (!this.areItemsLoaded) {
-        this.areItemsLoaded = true
-        return
-      }
-      if (this.areItemsLoaded) {
-        const addedProjects = this._.difference(projects, oldProjects)
-        const removedProjects = this._.difference(oldProjects, projects)
-        if (addedProjects.length === 1) {
-          this.addProject(addedProjects[0])
-        } else if (removedProjects.length === 1) {
-          if (removedProjects[0].name === 'Allgemein') {
-            this.selectedProjects.push(removedProjects[0])
-          } else {
-            this.removeProject(removedProjects[0])
-          }
-        }
-      }
-    }
-  },
   mounted() {
     this.axios.get('projects').then(response => {
       this.items = response.data
     })
   },
   methods: {
+    projectsUpdated(newSelectedProjects) {
+      const addedProjects = this._.difference(newSelectedProjects, this.selectedProjects)
+      const removedProjects = this._.difference(this.selectedProjects, newSelectedProjects)
+      // whait for next tick, so that the computed property selectedProjects is updated
+      this.$nextTick(() => {
+        if (addedProjects.length === 1) {
+          this.addProject(addedProjects[0])
+        } else if (removedProjects.length === 1) {
+          if (removedProjects[0].name === 'Allgemein') {
+            this.selectedProjects.unshift(removedProjects[0])
+          } else {
+            this.removeProject(removedProjects[0])
+          }
+        }
+      })
+    },
     remove(project) {
       if (!this.readonly) {
         if (project.name !== 'Allgemein') {
@@ -90,6 +103,7 @@ export default {
           const projects = [...this.selectedProjects]
           projects.splice(projects.indexOf(project), 1)
           this.selectedProjects = projects
+          this.projectsUpdated(projects)
         } else {
           this.$swal('Das Projekt "Allgemein" kann nicht entfernt werden.')
         }
@@ -122,6 +136,7 @@ export default {
             const projects = [...this.selectedProjects]
             projects.push(projectExist)
             this.selectedProjects = projects
+            this.projectsUpdated(projects)
           } else if (!projectAlreadySelected) {
             this.createProject(project)
           }
@@ -168,6 +183,7 @@ export default {
               })
               this.selectedProjects = projects
               this.items.push(response.data)
+              this.projectsUpdated(projects)
             })
             .catch(() => {
               this.$swal('Erstellung fehlgeschlagen!', 'Etwas ist schief gelaufen!', 'error')
@@ -180,9 +196,6 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>
 
 <style lang="scss">
 .swal2-input {

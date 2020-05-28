@@ -1,7 +1,7 @@
 <template>
   <v-col
     class="d-flex child-flex"
-    cols="4"
+    :cols="multiple ? 4 : 12"
   >
     <div class="upload-container">
       <div class="file-upload">
@@ -27,7 +27,7 @@
           id="attachments"
           ref="fileInput"
           type="file"
-          multiple="multiple"
+          :multiple="multiple"
           @change="uploadFieldChange"
         />
       </div>
@@ -49,6 +49,10 @@ export default {
     uploadUrl: {
       type: String,
       default: null
+    },
+    multiple: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -62,13 +66,19 @@ export default {
     uploadFieldChange(e) {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
-      for (let i = 0; i < files.length; i++) {
-        this.data.append('images[]', files[i])
+      if (this.multiple) {
+        for (let i = 0; i < files.length; i++) {
+          this.data.append('images[]', files[i])
+        }
+      } else {
+        this.data.append('image', files[0])
       }
       if (this.uploadOnChange) {
         this.uploadFiles()
-      } else {
+      } else if (this.multiple) {
         this.$emit('input', files)
+      } else {
+        this.$emit('input', files[0])
       }
     },
     uploadFiles() {
@@ -79,6 +89,7 @@ export default {
         }
       }
       this.isLoading = true
+      this.$store.commit('isSaving', true)
       this.axios
         .post(this.uploadUrl, this.data, config)
         .then(response => {
@@ -90,6 +101,7 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          this.$store.commit('isSaving', false)
         })
     }
   }

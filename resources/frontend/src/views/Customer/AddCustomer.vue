@@ -36,7 +36,8 @@ export default {
         email: '',
         address: {},
         billing_address: {},
-        differingBillingAddress: false
+        differingBillingAddress: false,
+        projects: []
       },
       isLoading: false
     }
@@ -66,7 +67,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>

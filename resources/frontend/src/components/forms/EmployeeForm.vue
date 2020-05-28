@@ -44,7 +44,15 @@
         cols="12"
         md="6"
       >
-        <div v-if="value.profileimage">
+        <select-images
+          v-model="value.profileimage"
+          :upload-on-change="saveOnChange"
+          :upload-url="`/employees/${$route.params.id}/profileimage`"
+          :disabled="readonly"
+          single-file
+          :delete="deleteImage"
+        ></select-images>
+        <!-- <div v-if="value.profileimage">
           <img
             :src="value.profileimage"
             class="profileimage"
@@ -97,7 +105,7 @@
           class="hidden"
           accept="image/*"
           @change="$emit('uploadImage', $refs.profileImage.files)"
-        />
+        /> -->
       </v-col>
       <v-col cols="12">
         <text-field
@@ -283,13 +291,15 @@
 import { TextField, SelectField, DateField } from '@/components/FormComponents'
 import SelectRole from '@/components/Authorization/SelectRole'
 import { rules } from '@/utils'
+import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
 
 export default {
   components: {
     TextField,
     SelectRole,
     SelectField,
-    DateField
+    DateField,
+    SelectImages
   },
   props: {
     value: {
@@ -298,7 +308,9 @@ export default {
     },
     original: {
       type: Object,
-      default: () => ({})
+      default: () => ({
+        user: {}
+      })
     },
     readonly: {
       type: Boolean,
@@ -309,6 +321,10 @@ export default {
       default: false
     },
     loadingDeleteImage: {
+      type: Boolean,
+      default: false
+    },
+    saveOnChange: {
       type: Boolean,
       default: false
     }
@@ -332,6 +348,22 @@ export default {
   methods: {
     validate() {
       return this.$refs.form.validate()
+    },
+    deleteImage() {
+      return new Promise(resolve => {
+        this.$store.commit('isSaving', true)
+        this.axios
+          .delete(`employees/${this.value.id}/profileimage`)
+          .then(() => {
+            resolve(true)
+          })
+          .catch(() => {
+            this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
+            resolve(false)
+          }).finally(() => {
+            this.$store.commit('isSaving', false)
+          })
+      })
     }
   }
 }

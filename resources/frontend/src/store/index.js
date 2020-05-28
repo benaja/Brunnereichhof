@@ -31,8 +31,6 @@ export default new Vuex.Store({
   state: {
     isMobile: false,
     openPopups: true,
-    dayShortNames: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-    dayNames: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
     recordWeeks: [],
     hourRecords: [],
     saveState: {
@@ -41,7 +39,8 @@ export default new Vuex.Store({
       saved: false
     },
     alerts: [],
-    navigationBarModel: false
+    navigationBarModel: false,
+    preventFormSubmit: false
   },
   mutations: {
     isMobile(state, isMobile) {
@@ -79,13 +78,14 @@ export default new Vuex.Store({
     },
     navigationBarModel(state, value) {
       state.navigationBarModel = value
+    },
+    preventFormSubmit(state, value) {
+      state.preventFormSubmit = value
     }
   },
   getters: {
     isMobile: state => state.isMobile,
     openPopups: state => state.openPopups,
-    dayShortNames: state => state.dayShortNames,
-    dayNames: state => state.dayNames,
     recordWeeks: state => state.recordWeeks,
     hourRecords: state => state.hourRecords,
     saveState: state => state.saveState,
@@ -106,7 +106,8 @@ export default new Vuex.Store({
       return true
     },
     alerts: state => state.alerts,
-    navigationBarModel: state => state.navigationBarModel
+    navigationBarModel: state => state.navigationBarModel,
+    preventFormSubmit: state => state.preventFormSubmit
   },
   actions: {
     closeAllPopups({ commit }) {

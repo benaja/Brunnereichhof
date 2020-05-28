@@ -181,6 +181,12 @@ class CustomerController extends Controller
             }
         }
 
+        $projectIds = array_map(function($project) {
+            return $project['id'];
+        }, $request->projects);
+        
+        $customer->projects()->sync($projectIds);
+
         if ($request->email != $customer->user->email) {
             $this->validate($request, [
                 'email' => 'nullable|email|unique:user'

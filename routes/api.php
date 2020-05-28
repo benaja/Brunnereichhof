@@ -23,8 +23,8 @@ Route::get('pdf/employees/food/month/{date}', 'EmployeeController@foodRapportByM
 Route::get('guests', 'EmployeeController@guests');
 Route::patch('guests/{id}', 'EmployeeController@update');
 Route::get('employeeswithguests', 'EmployeeController@employeesWithGuests');
-Route::delete('employees/{employee}/editimage', 'EmployeeController@deleteImage');
-Route::post('employees/{employee}/editimage', 'EmployeeController@uploadImage');
+Route::delete('employees/{employee}/profileimage', 'EmployeeController@deleteImage');
+Route::post('employees/{employee}/profileimage', 'EmployeeController@uploadImage');
 Route::resource('employees', 'EmployeeController');
 
 // Worker
