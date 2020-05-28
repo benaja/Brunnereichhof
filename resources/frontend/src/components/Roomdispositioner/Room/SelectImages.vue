@@ -173,10 +173,13 @@ export default {
       if (this.uploadOnChange) {
         confirmAction('Willst du dieses Bild wirklich löschen?').then(value => {
           if (value) {
-            this.delete().then(imageDeleted => {
-              if (imageDeleted) {
-                this.spliceImage(image)
-              }
+            this.$store.commit('isSaving', true)
+            this.delete(image).then(() => {
+              this.spliceImage(image)
+            }).catch(() => {
+              this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
+            }).finally(() => {
+              this.$store.commit('isSaving', false)
             })
             // this.$emit('delete', image)
             // this.axios

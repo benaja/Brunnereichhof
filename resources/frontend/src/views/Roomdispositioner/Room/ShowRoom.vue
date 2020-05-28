@@ -18,6 +18,7 @@
             upload-on-change
             :upload-url="`/rooms/${$route.params.id}/images`"
             :disabled="!$auth.user().hasPermission(['superadmin'], ['roomdispositioner_write'])"
+            :delete="deleteImage"
           ></select-images>
         </v-col>
         <v-col cols="12"></v-col>
@@ -105,6 +106,9 @@ export default {
             })
         }
       })
+    },
+    deleteImage(image) {
+      return this.axios.delete(`/images/${image.id}`)
     }
   }
 }

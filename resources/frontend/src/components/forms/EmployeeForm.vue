@@ -350,20 +350,21 @@ export default {
       return this.$refs.form.validate()
     },
     deleteImage() {
-      return new Promise(resolve => {
-        this.$store.commit('isSaving', true)
-        this.axios
-          .delete(`employees/${this.value.id}/profileimage`)
-          .then(() => {
-            resolve(true)
-          })
-          .catch(() => {
-            this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
-            resolve(false)
-          }).finally(() => {
-            this.$store.commit('isSaving', false)
-          })
-      })
+      return this.axios.delete(`employees/${this.value.id}/profileimage`)
+      // return new Promise(resolve => {
+      //   this.$store.commit('isSaving', true)
+      //   this.axios
+      //     .delete(`employees/${this.value.id}/profileimage`)
+      //     .then(() => {
+      //       resolve(true)
+      //     })
+      //     .catch(() => {
+      //       this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
+      //       resolve(false)
+      //     }).finally(() => {
+      //       this.$store.commit('isSaving', false)
+      //     })
+      // })
     }
   }
 }

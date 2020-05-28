@@ -240,15 +240,9 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         $employee = Employee::find($id);
+        Storage::disk('s3')->delete($employee->profileimage);
+        Storage::disk('s3')->delete("small/{$employee->profileimage}");
 
-        $imagePath = public_path('profileimages/') . $employee->profileimage;
-        $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
-        if (file_exists($imagePath)) {
-            unlink($imagePath);
-        }
-        if (file_exists($smallImagePath)) {
-            unlink($smallImagePath);
-        }
         $employee->profileimage = null;
         $employee->save();
     }
