@@ -10,11 +10,11 @@
           <h3>Standard Projekt auswählen</h3>
         </v-card-title>
         <v-divider></v-divider>
-        <v-card-text>
+        <v-card-text v-if="customer">
           <v-select
             v-model="rapport.default_project_id"
             label="Projekt"
-            :items="projects"
+            :items="customer.projects"
             item-value="id"
             item-text="name"
             @change="save"
@@ -22,17 +22,19 @@
           <h3 class="mt-4">
             Projekte von Kunde bearbeiten
           </h3>
-          <projects
+          <edit-projects
+            v-model="customer.projects"
             :customer-id="rapport.customer_id"
             @updateProjects="updatedProjects => $emit('updatedProjects', updatedProjects)"
-          ></projects>
+          ></edit-projects>
           <v-row justify="center">
             <v-btn
               color="primary"
               :disabled="!rapport.default_project_id"
+              depressed
               @click="$emit('input', false)"
             >
-              Speichern
+              Fertig
             </v-btn>
           </v-row>
         </v-card-text>
@@ -42,12 +44,11 @@
 </template>
 
 <script>
-import Projects from '@/components/customer/EditProjects'
+import EditProjects from '@/components/customer/EditProjects'
 
 export default {
-  name: 'SelectProjects',
   components: {
-    Projects
+    EditProjects
   },
   props: {
     value: Boolean,
@@ -63,7 +64,8 @@ export default {
   data() {
     return {
       selectedProject: null,
-      isOpen: false
+      isOpen: false,
+      customer: null
     }
   },
   watch: {
@@ -76,11 +78,15 @@ export default {
   },
   mounted() {
     this.isOpen = this.value
+    this.axios.get(`customers/${this.rapport.customer_id}`).then(response => {
+      this.customer = response.data
+    })
   },
   methods: {
     save() {
+      this.$store.commit('isSaving', true)
       this.axios
-        .patch(`/rapport/${this.$route.params.id}`, {
+        .patch(`/rapports/${this.$route.params.id}`, {
           default_project_id: this.rapport.default_project_id
         })
         .then(response => {
@@ -88,6 +94,8 @@ export default {
         })
         .catch(() => {
           this.$swal('Fehler', 'Standard Projekt konnte nicht gesetzt werden', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
     }
   }

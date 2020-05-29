@@ -204,38 +204,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.single-customer {
-  background-color: white;
-  margin-top: 30px;
-  border-radius: 5px;
-  padding: 20px;
-  box-shadow: 0 0 10px lightgray;
-}
-
-input {
-  border-bottom: none;
-}
-
-.description {
-  margin-top: 12px;
-}
-
-.delete_button {
-  text-align: center;
-  margin-top: 40px;
-}
-
 @media only screen and (max-width: 959px) {
-  .container {
-    padding: 0;
-  }
-
-  .single-customer {
-    margin-top: 0;
-    background-color: transparent;
-    box-shadow: none;
-  }
-
   .reset-password-text {
     width: 100%;
   }

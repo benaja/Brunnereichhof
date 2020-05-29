@@ -52,60 +52,6 @@
           single-file
           :delete="deleteImage"
         ></select-images>
-        <!-- <div v-if="value.profileimage">
-          <img
-            :src="value.profileimage"
-            class="profileimage"
-          />
-          <p
-            v-if="!readonly"
-            class="image-buttons"
-          >
-            <v-btn
-              color="primary"
-              depressed
-              :loading="loadingImage"
-              @click="$refs.profileImage.click()"
-            >
-              Bild ändern
-              <v-icon right>
-                edit
-              </v-icon>
-            </v-btn>
-            <v-btn
-              color="primary"
-              class="ml-2"
-              depressed
-              :loading="loadingDeleteImage"
-              @click="$emit('deleteImage')"
-            >
-              Bild entfernen
-              <v-icon right>
-                delete
-              </v-icon>
-            </v-btn>
-          </p>
-        </div>
-        <div v-if="!value.profileimage">
-          <div class="new-image">
-            <v-btn
-              v-if="!readonly"
-              color="primary"
-              depressed
-              :loading="loadingImage"
-              @click="$refs.profileImage.click()"
-            >
-              Bild hinzufügen
-            </v-btn>
-          </div>
-        </div>
-        <input
-          ref="profileImage"
-          type="file"
-          class="hidden"
-          accept="image/*"
-          @change="$emit('uploadImage', $refs.profileImage.files)"
-        /> -->
       </v-col>
       <v-col cols="12">
         <text-field
@@ -351,20 +297,6 @@ export default {
     },
     deleteImage() {
       return this.axios.delete(`employees/${this.value.id}/profileimage`)
-      // return new Promise(resolve => {
-      //   this.$store.commit('isSaving', true)
-      //   this.axios
-      //     .delete(`employees/${this.value.id}/profileimage`)
-      //     .then(() => {
-      //       resolve(true)
-      //     })
-      //     .catch(() => {
-      //       this.$store.dispatch('error', 'Bild konnte nicht gelöscht werden')
-      //       resolve(false)
-      //     }).finally(() => {
-      //       this.$store.commit('isSaving', false)
-      //     })
-      // })
     }
   }
 }

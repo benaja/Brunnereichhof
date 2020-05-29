@@ -36,9 +36,9 @@ Route::post('customers/{customerId}/projects/{projectId}', 'ProjectController@ad
 Route::resource('projects', 'ProjectController');
 
 //Rapport
+Route::get('pdf/rapports/{rapport}', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
 Route::get('rapports/week/{week}', 'RapportController@showWeek');
-Route::get('rapports/{rapport}/pdf', 'Evaluation\CustomerPdfController@weekRapportByRapportId');
-Route::post('rapports/{rapport}/employee', 'RapportController@addEmployee');
+Route::post('rapports/{rapport}/employees', 'RapportController@addEmployee');
 Route::delete('rapports/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
 Route::patch('rapportdetails/{rapportdetail}', 'RapportController@updateRapportdetail');
 Route::patch('rapportdetails', 'RapportController@updateMultibleRapportdetails');

@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Rapportübersicht"></navigation-bar>
+    <navigation-bar
+      title="Rapportübersicht"
+      :loading="isLoading"
+    ></navigation-bar>
     <v-container>
       <v-row
         justify="center"
@@ -97,11 +100,12 @@ export default {
     return {
       rapports: [],
       newRapportDate: new Date().toISOString().substr(0, 10),
-      datepicker: false
+      datepicker: false,
+      isLoading: false
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
+    this.isLoading = true
     this.axios
       .get('rapports')
       .then(response => {
@@ -109,11 +113,11 @@ export default {
         for (const rapport of this.rapports) {
           rapport.date = moment(rapport.date.date)
         }
-        this.$store.commit('isLoading', false)
       })
       .catch(() => {
-        this.$store.commit('isLoading', false)
         this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+      }).finally(() => {
+        this.isLoading = false
       })
   },
   methods: {
@@ -130,6 +134,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

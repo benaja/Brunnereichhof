@@ -7,6 +7,7 @@
       <template v-slot:activator="{ on }">
         <v-btn
           color="primary"
+          outlined
           v-on="on"
         >
           <v-icon>today</v-icon>

@@ -19,7 +19,8 @@ export default {
     setEmployees(state, employees) {
       state.employees = employees.map(e => ({
         ...e,
-        name: `${e.lastname} ${e.firstname}`
+        name: `${e.lastname} ${e.firstname}`,
+        nameWithCallName: `${e.lastname} ${e.firstname} ${e.callname || ''}`
       }))
     },
     addEmployee(state, employee) {

@@ -8,7 +8,8 @@ export default {
     settings: {}
   },
   getters: {
-    timerecordSettings: state => state.timerecordSettings
+    timerecordSettings: state => state.timerecordSettings,
+    settings: state => state.settings
   },
   mutations: {
     setTimerecordSettings(state, settings) {
@@ -30,7 +31,7 @@ export default {
           .get(`settings/time${urlParams}`)
           .then(response => {
             commit('setTimerecordSettings', response.data)
-            resolve(getters.worktypes)
+            resolve(getters.timerecordSettings)
           })
           .catch(error => {
             dispatch('error', 'Fehler beim Laden der Einstellungen.')
@@ -39,6 +40,20 @@ export default {
           .finally(() => {
             commit('loading', { settings: false })
           })
+      })
+    },
+    fetchSettings({ commit, getters, dispatch }) {
+      return new Promise((resolve, reject) => {
+        commit('loading', { settings: true })
+        axios.get('settings').then(response => {
+          commit('setSettings', response.data)
+          resolve(getters.settings)
+        }).catch(error => {
+          dispatch('error', 'Fehler beim Laden der Einstellungen')
+          reject(error)
+        }).finally(() => {
+          commit('loading', { settings: false })
+        })
       })
     }
   }

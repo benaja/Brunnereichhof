@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Stundenangaben"></navigation-bar>
+    <navigation-bar
+      title="Stundenangaben"
+      :loading="isLoading"
+    ></navigation-bar>
     <v-container>
       <div class="grid-layout">
         <div class="chart-card bar-chart">
@@ -8,7 +11,7 @@
             Anzahl Stunden pro KW
           </h3>
           <hourrecords-chart
-            v-if="!isLoading"
+            v-if="statsLoaded"
             :chart-data="chartData"
             :height="250"
             :options="chartOptions"
@@ -206,9 +209,9 @@ import HourrecordWeekList from '@/components/Hourrecords/HourrecordWeekList'
 import HourrecordsChart from '@/components/Hourrecords/HourrecordsChart'
 import DatePicker from '@/components/general/DatePicker'
 import { downloadFile } from '@/utils'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'Hourrecords',
   components: {
     HourrecordsChart,
     HourrecordWeekList,
@@ -244,7 +247,8 @@ export default {
       hourrecords: {},
       hourrecrodsByCustomer: [],
       hourrecrodsByProject: [],
-      isLoading: true,
+      isLoading: false,
+      statsLoaded: false,
       datepicker: false,
       newHourrecordDate: null,
       totalHours: 0,
@@ -255,9 +259,11 @@ export default {
         { text: 'Projekt', value: 'project' }
       ],
       sortType: 'week',
-      selectCustomerDialog: false,
-      customers: []
+      selectCustomerDialog: false
     }
+  },
+  computed: {
+    ...mapGetters(['customers'])
   },
   watch: {
     sortType() {
@@ -272,9 +278,7 @@ export default {
       this.totalHours = Math.floor(Math.random() * 100000)
     }, 10)
     this.getHourRecords()
-    this.$store.dispatch('customers').then(customers => {
-      this.customers = customers
-    })
+    this.$store.dispatch('fetchCustomers')
   },
   methods: {
     getHourRecords(updateStats = false) {
@@ -288,9 +292,9 @@ export default {
       }
     },
     getHourRecordsByWeek() {
-      this.$store.commit('isLoading', true)
+      this.isLoading = true
       this.axios
-        .get(`hourrecord?year=${this.selectedYear}`)
+        .get(`hourrecords?year=${this.selectedYear}`)
         .then(response => {
           this.hourrecords = response.data
           clearInterval(this.randomNumbersInterval)
@@ -320,15 +324,14 @@ export default {
               }
             ]
           }
-          this.$store.commit('isLoading', false)
-          this.isLoading = false
+          this.statsLoaded = true
         })
         .catch(() => {
           this.$swal('Fehler', 'Daten konnten nicht abgeruffen werden', 'error')
-          this.isLoading = false
-          this.$store.commit('isLoading', false)
           clearInterval(this.randomNumbersInterval)
           this.totalHours = 0
+        }).finally(() => {
+          this.isLoading = false
         })
     },
     getMondayOfWeek(week, year) {
@@ -357,9 +360,9 @@ export default {
       this.$router.push(`/hourrecords/${newDate.format('YYYY')}/${newDate.format('W')}?edit=true`)
     },
     getHourrecordsByCustomer() {
-      this.$store.commit('isLoading', true)
+      this.isLoading = true
       this.axios
-        .get(`hourrecord?sortBy=customer&year=${this.selectedYear}`)
+        .get(`hourrecords?sortBy=customer&year=${this.selectedYear}`)
         .then(response => {
           for (const customer of response.data) {
             customer.hours = 0
@@ -367,18 +370,19 @@ export default {
               customer.hours += hourrecord.hours
             }
           }
-          this.$store.commit('isLoading', false)
           this.hourrecrodsByCustomer = response.data
+          this.statsLoaded = true
         })
         .catch(() => {
-          this.$store.commit('isLoading', false)
           this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
+        }).finally(() => {
+          this.isLoading = false
         })
     },
     getHourrecordsByProject() {
-      this.$store.commit('isLoading', true)
+      this.isLoading = true
       this.axios
-        .get(`hourrecord?sortBy=project&year=${this.selectedYear}`)
+        .get(`hourrecords?sortBy=project&year=${this.selectedYear}`)
         .then(response => {
           for (const project of response.data) {
             project.hours = 0
@@ -387,11 +391,12 @@ export default {
             }
           }
           this.hourrecrodsByProject = response.data
-          this.$store.commit('isLoading', false)
+          this.statsLoaded = true
         })
         .catch(() => {
-          this.$store.commit('isLoading', false)
           this.$swal('Fehler', 'Beim Abfragen der Daten ist ein unerwarteter Fehler aufgetreten.', 'error')
+        }).finally(() => {
+          this.isLoading = false
         })
     },
     generatePdf() {

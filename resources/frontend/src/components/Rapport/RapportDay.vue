@@ -9,7 +9,7 @@
       class="mt-1"
       placeholder="Bemerkung"
       :readonly="!hasPermisstionToChangeRapport"
-      @change="updateComment"
+      @input="updateComment"
     ></edit-field>
     <div
       class="mx-1 all-days"
@@ -84,9 +84,11 @@
   </div>
 </template>
 
+
 <script>
+import _ from 'lodash'
+
 export default {
-  name: 'RapportDay',
   props: {
     date: {
       type: Object,
@@ -207,37 +209,36 @@ export default {
     this.hasPermisstionToChangeRapport = this.$auth.user().hasPermission(['superadmin'], ['rapport_write'])
   },
   methods: {
-    change(changedElement, rapportdetail) {
+    change: _.debounce(function(changedElement, rapportdetail) {
       if (changedElement === 'hours' && rapportdetail.hours < 0) rapportdetail.hours = 0
       this.$store.commit('isSaving', true)
       this.axios
-        .patch(`rapportdetail/${rapportdetail.id}`, {
+        .patch(`rapportdetails/${rapportdetail.id}`, {
           [changedElement]: rapportdetail[changedElement]
         })
         .then(response => {
-          this.$store.commit('isSaving', false)
           if (changedElement === 'foodtype_id' || changedElement === 'hours') {
             rapportdetail.foodtype_ok = response.data.foodtype_ok
           }
         })
         .catch(() => {
           this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
-    },
-    updateComment() {
+    }, 400),
+    updateComment: _.debounce(function() {
       this.$store.commit('isSaving', true)
       this.axios
-        .patch(`rapport/${this.rapport.id}`, {
+        .patch(`rapports/${this.rapport.id}`, {
           [this.currentCommentString]: this.rapport[this.currentCommentString]
         })
-        .then(() => {
-          this.$store.commit('isSaving', false)
-        })
         .catch(() => {
-          this.$store.commit('isSaving', false)
           this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
-    },
+    }, 400),
     addEmployeeToRapportdetails() {
       for (const rapportdetail of this.rapportdetails) {
         rapportdetail.employee = this.employees.find(e => e.id === rapportdetail.employee_id)

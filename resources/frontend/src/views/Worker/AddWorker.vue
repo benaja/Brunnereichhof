@@ -65,15 +65,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.container {
-  background-color: white;
-  border-radius: 5px;
-}
-
-.save_button {
-  text-align: center;
-  margin-bottom: 30px;
-}
-</style>

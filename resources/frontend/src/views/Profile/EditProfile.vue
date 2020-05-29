@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
     <h1 class="text-center">
       Passwort ändern
     </h1>
@@ -51,7 +51,7 @@
         </v-btn>
       </p>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -133,9 +133,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.container {
-  max-width: 800px;
-}
-</style>

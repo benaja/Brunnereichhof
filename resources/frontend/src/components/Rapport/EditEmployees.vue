@@ -1,33 +1,37 @@
 <template>
   <v-row justify="center">
     <v-dialog
-      v-model="isOpen"
+      :value="open"
       max-width="600px"
       :persistent="selectedEmployees.length === 0"
+      @input="$emit('close')"
     >
       <v-card width="600px">
         <v-card-title>
           <h3>Mitarbeiter hinzufügen</h3>
         </v-card-title>
         <v-divider></v-divider>
-        <v-card-text>
+        <progress-linear :loading="isLoading"></progress-linear>
+        <v-card-text class="card-content">
           <v-autocomplete
             v-model="selectedEmployee"
             label="Mitarbeiter suchen"
             append-outer-icon="search"
-            :items="employees.filter(e => e.isActive
-              && !e.deleted_at && !selectedEmployees.includes(e))"
+            :items="employees.filter(e => e.isActive && !selectedEmployees.includes(e))"
             item-value="id"
             item-text="nameWithCallName"
             no-data-text="Keine Mitarbeiter verfügbar"
             @input="addEmployee"
           ></v-autocomplete>
-          <v-list>
+          <v-list dense>
             <v-list-item
               v-for="(employee, index) of selectedEmployees"
               :key="index"
             >
-              <v-list-item-content>{{ employee.name }}</v-list-item-content>
+              <v-list-item-content>
+                {{ employee.name }}
+                <i>{{ employee.callname }}</i>
+              </v-list-item-content>
               <v-list-item-avatar class="pointer">
                 <v-icon
                   color="primary"
@@ -38,32 +42,31 @@
               </v-list-item-avatar>
             </v-list-item>
           </v-list>
-          <v-row justify="center">
-            <v-btn
-              color="primary"
-              :disabled="selectedEmployees.length === 0"
-              @click="isOpen = false"
-            >
-              Speichern
-            </v-btn>
-          </v-row>
         </v-card-text>
+        <v-card-actions class="py-4">
+          <v-btn
+            color="primary"
+            class="mx-auto px-4"
+            :disabled="selectedEmployees.length === 0"
+            depressed
+            @click="$emit('close')"
+          >
+            Fertig
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-row>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import { confirmAction } from '@/utils'
+
 export default {
-  name: 'EditEmployees',
-  components: {},
   props: {
-    employees: {
-      type: Array,
-      default: null
-    },
-    selectedEmployeesProp: {
-      type: Array,
+    rapport: {
+      type: Object,
       default: null
     },
     open: {
@@ -76,74 +79,68 @@ export default {
   },
   data() {
     return {
-      isOpen: false,
       selectedEmployee: null,
-      selectedEmployees: this.selectedEmployeesProp
+      isLoading: false
     }
   },
-  watch: {
-    open() {
-      this.isOpen = this.open
-    },
-    isOpen() {
-      if (!this.isOpen) {
-        this.$emit('close')
+  computed: {
+    ...mapGetters(['employees', 'allEmployees']),
+    selectedEmployees() {
+      if (this.allEmployees.length) {
+        const employees = this.rapport.rapportdetails
+          .map(rapportdetail => this.allEmployees.find(e => e.id === rapportdetail[0].employee_id))
+          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+        return employees
       }
-    },
-    selectedEmployeesProp() {
-      this.selectedEmployees = this.selectedEmployeesProp
+      return []
     }
-  },
-  mounted() {
-    this.isOpen = this.open
   },
   methods: {
     addEmployee() {
-      if (!this.selectedEmployees
-        .filter(employee => employee.id === this.selectedEmployee).length) {
-        this.selectedEmployees.push(this.employees
-          .filter(employee => employee.id === this.selectedEmployee)[0])
+      const employeeSelected = this.selectedEmployees
+        .find(employee => employee.id === this.selectedEmployee)
+      if (!employeeSelected) {
+        this.isLoading = true
         this.axios
-          .post(`/rapport/${this.$route.params.id}/employee`, {
+          .post(`/rapports/${this.$route.params.id}/employees`, {
             employee_id: this.selectedEmployee,
-            default_project_id: this.defaultProject
+            default_project_id: this.rapport.default_project_id
           })
           .then(response => {
-            this.$emit('addEmployee', response.data)
+            this.rapport.rapportdetails.push(response.data)
+            this.selectedEmployee = null
           })
           .catch(error => {
-            if (error.response.data.includes('employee already exists')) {
+            if (error.includes('employee already exists')) {
               this.$swal('Mitarbeiter ist bereits hinzugefügt worden', '', 'warning')
             } else {
-              const employee = this.selectedEmployees.filter(e => e.id === this.selectedEmployee)
-              this.selectedEmployees.splice(this.selectedEmployees.indexOf(employee), 1)
-              this.selectedEmployees = [...this.selectedEmployees]
               this.$swal('Fehler', 'Es ist ein unbekannter Fehler beim Speichern aufgetreten', 'error')
             }
+          }).finally(() => {
+            this.isLoading = false
           })
       }
     },
     removeEmployee(employee) {
-      this.$swal({
-        title: 'Achtung!',
-        text: `Willst du den Mitarbeiter ${employee.name} wirklich von diesem Rapport entfernen?`,
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ja, entfernen!',
-        cancelButtonText: 'Nein, abbrechen'
-      }).then(result => {
-        if (result.value) {
-          this.selectedEmployees.splice(this.selectedEmployees.indexOf(employee), 1)
-          this.selectedEmployees = [...this.selectedEmployees]
+      confirmAction(
+        `Willst du den Mitarbeiter ${employee.name} wirklich von diesem Rapport entfernen?`,
+        'Ja, entfernen!'
+      ).then(result => {
+        if (result) {
+          this.isLoading = true
           this.axios
             .delete(`rapports/${this.$route.params.id}/employee/${employee.id}`)
             .then(() => {
-              this.$emit('removeEmployee', employee.id)
+              const rapportdetail = this.rapport.rapportdetails
+                .find(r => r[0].employee_id === employee)
+              const index = this.rapport.rapportdetails.indexOf(rapportdetail)
+              this.rapport.rapportdetails.splice(index, 1)
+              this.rapport.rapportdetails = [...this.rapport.rapportdetails]
             })
             .catch(() => {
-              this.selectedEmployees.push(this.employees
-                .filter(currentEmployee => currentEmployee.id === employee.id)[0])
               this.$swal('Fehler', 'Mitarbeiter konnte nicht entfernt werden', 'error')
+            }).finally(() => {
+              this.isLoading = false
             })
         }
       })
@@ -151,3 +148,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.card-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+</style>
