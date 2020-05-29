@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Rollen"></navigation-bar>
+    <navigation-bar
+      title="Rollen"
+      :loading="$store.getters.isLoading.roles"
+    ></navigation-bar>
     <v-container>
       <v-list class="pa-0">
         <template v-for="role of roles">
@@ -33,7 +36,6 @@ import CreateRole from '@/components/Authorization/CreateRole'
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'Roles',
   components: {
     CreateRole
   },

@@ -103,7 +103,7 @@ export default {
     addCulture(week) {
       this.isAddCultureLoading = true
       this.axios
-        .post(`hourrecord/${this.year}/${week[0].week}`, {
+        .post(`hourrecords/${this.year}/${week[0].week}`, {
           customerId: this.customer ? this.customer.id : null
         })
         .then(response => {

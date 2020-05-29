@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Einstellungen"></navigation-bar>
+    <navigation-bar
+      title="Einstellungen"
+      :loading="$store.getters.isLoading.settings"
+    ></navigation-bar>
     <v-container>
       <h2>Zeiterfassung</h2>
       <v-row wrap>
@@ -92,7 +95,7 @@
             v-model="settings.welcomeText"
             label="Willkommenstext {name}"
             :readonly="!isUserAllowedToEdit"
-            @change="update('welcomeText')"
+            @input="update('welcomeText')"
           ></v-text-field>
           <v-textarea
             v-model="settings.subtitle"
@@ -100,7 +103,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('subtitle')"
+            @input="update('subtitle')"
           ></v-textarea>
           <v-textarea
             v-model="settings.hourrecordTitle"
@@ -108,7 +111,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('hourrecordTitle')"
+            @input="update('hourrecordTitle')"
           ></v-textarea>
           <v-textarea
             v-model="settings.hourrecordValid"
@@ -116,7 +119,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('hourrecordValid')"
+            @input="update('hourrecordValid')"
           ></v-textarea>
           <v-textarea
             v-model="settings.hourrecordInvalid"
@@ -124,7 +127,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('hourrecordInvalid')"
+            @input="update('hourrecordInvalid')"
           ></v-textarea>
           <v-textarea
             v-model="settings.surveyTitle"
@@ -132,7 +135,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('surveyTitle')"
+            @input="update('surveyTitle')"
           ></v-textarea>
           <v-textarea
             v-model="settings.surveyText"
@@ -140,7 +143,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('surveyText')"
+            @input="update('surveyText')"
           ></v-textarea>
           <v-textarea
             v-model="settings.weekRapportTitle"
@@ -148,7 +151,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('weekRapportTitle')"
+            @input="update('weekRapportTitle')"
           ></v-textarea>
           <v-textarea
             v-model="settings.weekRapportText"
@@ -156,7 +159,7 @@
             auto-grow
             rows="1"
             :readonly="!isUserAllowedToEdit"
-            @change="update('weekRapportText')"
+            @input="update('weekRapportText')"
           ></v-textarea>
         </v-col>
         <v-col
@@ -180,21 +183,22 @@
 
 <script>
 import EditWorkTypes from '@/components/Settings/EditWorkTypes'
+import { mapGetters } from 'vuex'
+import { debounce } from 'lodash'
 
 export default {
-  name: 'Settings',
   components: {
     EditWorkTypes
   },
   data() {
     return {
-      settings: {},
       menu1: false,
       menu2: false,
       isUserAllowedToEdit: false
     }
   },
   computed: {
+    ...mapGetters(['settings']),
     hourrecordStartDateFormated() {
       return new Date(this.settings.hourrecordStartDate).toLocaleDateString()
     },
@@ -203,26 +207,22 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('loading', { settings: true })
-    this.axios.get('settings').then(response => {
-      this.settings = response.data
-      this.$store.commit('loading', { settings: false })
-    })
+    this.$store.dispatch('fetchSettings')
     this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['settings_write'])
   },
   methods: {
-    update(key) {
+    update: debounce(function (key) {
+      this.$store.commit('isSaving', true)
       this.axios
         .patch('settings', {
           [key]: this.settings[key]
         })
         .catch(() => {
           this.$swal('Fehler', 'Einstellungen konnten nicht gespeichert werden', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
-    }
+    }, 400)
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

@@ -76,6 +76,7 @@
               <v-btn
                 color="primary"
                 depressed
+                :loading="isSaving"
                 :disabled="!allValid()"
                 @click="save"
               >
@@ -91,6 +92,7 @@
 
 <script>
 import DatePicker from '@/components/general/DatePicker'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -117,10 +119,12 @@ export default {
   },
   data() {
     return {
-      customers: [],
-      cultures: [],
-      hourrecord: {}
+      hourrecord: {},
+      isSaving: false
     }
+  },
+  computed: {
+    ...mapGetters(['customers', 'cultures'])
   },
   watch: {
     value() {
@@ -139,8 +143,9 @@ export default {
       if (!this.week) {
         week = this.$moment(this.hourrecord.date).week()
       }
+      this.isSaving = true
       this.axios
-        .post(`hourrecord/${this.year}/${week}`, this.hourrecord)
+        .post(`hourrecords/${this.year}/${week}`, this.hourrecord)
         .then(response => {
           this.$emit('add', response.data)
           this.$emit('input', false)
@@ -148,6 +153,8 @@ export default {
         })
         .catch(() => {
           this.$swal('Fehler', 'Kultur konnte nicht erfasst werden', 'error')
+        }).finally(() => {
+          this.isSaving = false
         })
     },
     allValid() {
@@ -159,14 +166,10 @@ export default {
     },
     getData() {
       if (this.value && !this.cultures.length) {
-        this.$store.dispatch('cultures').then(cultures => {
-          this.cultures = cultures
-        })
+        this.$store.dispatch('fetchCultures')
       }
       if (this.value && !this.customers.length && !this.customer) {
-        this.$store.dispatch('customers').then(customers => {
-          this.customers = customers
-        })
+        this.$store.dispatch('fetchCustomers')
       }
     }
   }

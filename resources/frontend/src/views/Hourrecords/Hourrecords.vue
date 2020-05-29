@@ -45,6 +45,7 @@
             class="full-width"
             depressed
             width="100%"
+            :loading="loadingPdf"
             @click="generatePdf"
           >
             <v-icon class="mr-3">
@@ -259,7 +260,8 @@ export default {
         { text: 'Projekt', value: 'project' }
       ],
       sortType: 'week',
-      selectCustomerDialog: false
+      selectCustomerDialog: false,
+      loadingPdf: false
     }
   },
   computed: {
@@ -400,7 +402,16 @@ export default {
         })
     },
     generatePdf() {
-      downloadFile(`pdf/hourrecord/${this.selectedYear}/customer/all`)
+      this.loadingPdf = true
+      downloadFile(`pdf/hourrecords/${this.selectedYear}/customers/all`).catch(error => {
+        if (error.message && error.message.includes('No hourrecords for selected time')) {
+          this.$store.dispatch('alert', { text: 'Keine Stundenangaben zur ausgewählten Zeit', type: 'warning' })
+        } else {
+          this.$store.dispatch('error', 'PDF konnte nicht erstellt werden')
+        }
+      }).finally(() => {
+        this.loadingPdf = false
+      })
     },
     selectCustomer(customerId) {
       this.$router.push({

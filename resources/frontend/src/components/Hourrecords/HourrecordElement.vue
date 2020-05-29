@@ -12,7 +12,7 @@
         type="number"
         label="Stunden*"
         class="pa-1 ma-0"
-        @change="update"
+        @input="update"
       />
       <p
         v-else
@@ -59,7 +59,7 @@
         class="pa-1 ma-0"
         rows="1"
         auto-grow
-        @change="update"
+        @input="update"
       />
       <p
         v-else
@@ -100,10 +100,10 @@
 </template>
 
 <script>
-import { rules } from '@/utils'
+import { rules, confirmAction } from '@/utils'
+import { debounce } from 'lodash'
 
 export default {
-  name: 'HourrecrodElement',
   props: {
     value: {
       type: Object,
@@ -132,29 +132,33 @@ export default {
     }
   },
   methods: {
-    update() {
+    update: debounce(function() {
+      this.$store.commit('isSaving', true)
       this.axios
-        .put(`/hourrecord/${this.value.id}`, this.value)
-        .then(response => {
-          this.$emit('input', response.data)
-        })
+        .put(`/hourrecords/${this.value.id}`, this.value)
         .catch(() => {
           this.$swal('Fehler', 'Ein unbekannter Fehler ist aufgetreten. Versuchen Sie es bitte später erneut.', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
         })
-    },
+    }, 400),
     deleteHourrecord() {
-      this.axios
-        .delete(`/hourrecord/${this.value.id}`)
-        .then(() => {
-          this.$emit('remove')
-        })
-        .catch(() => {
-          this.$swal('Fehler', 'Element konnte aus einem unbekannten Grund nicht gelöscht werden. Bitter versuchen Sie es später erneut', 'error')
-        })
+      confirmAction().then(value => {
+        if (value) {
+          this.$store.commit('isSaving', true)
+          this.axios
+            .delete(`/hourrecords/${this.value.id}`)
+            .then(() => {
+              this.$emit('remove')
+            })
+            .catch(() => {
+              this.$swal('Fehler', 'Element konnte aus einem unbekannten Grund nicht gelöscht werden. Bitter versuchen Sie es später erneut', 'error')
+            }).finally(() => {
+              this.$store.commit('isSaving', false)
+            })
+        }
+      })
     }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

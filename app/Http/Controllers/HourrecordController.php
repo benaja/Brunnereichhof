@@ -199,9 +199,9 @@ class HourrecordController extends Controller
                     $this->customerYearRapport($customer, $year, $addNewPage);
                     $addNewPage = true;
                 }
-                if ($totalHourrecords === 0) {
-                    abort(400, 'No hourrecords for selected time');
-                }
+            }
+            if ($totalHourrecords === 0) {
+                abort(400, 'No hourrecords for selected time');
             }
             return $this->pdf->export("Stundenangaben {$year->format('Y')}.pdf");
         } else {

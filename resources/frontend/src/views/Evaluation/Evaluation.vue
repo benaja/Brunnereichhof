@@ -246,7 +246,7 @@ export default {
                 message: 'No hourrecords for selected time',
                 alert: { text: 'Keine Stundenangaben zur ausgewählten Zeit', type: 'warning' }
               }],
-              url: 'pdf/hourrecords/{year}/customer/{customer}',
+              url: 'pdf/hourrecords/{year}/customers/{customer}',
               rules: {
                 year: v => !!v
               }

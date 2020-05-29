@@ -77,7 +77,7 @@ Route::get('settings/hourrecords', 'SettingsController@hourrecordSettings');
 Route::resource('/cultures', 'CultureController');
 
 Route::get('hourrecords/{year}/{week}', 'HourrecordController@getByWeek');
-Route::get('pdf/hourrecords/{year}/customer/{customer}', 'HourrecordController@hourrecordYearRappport');
+Route::get('pdf/hourrecords/{year}/customers/{customer}', 'HourrecordController@hourrecordYearRappport');
 Route::get('pdf/hourrecords', 'HourrecordController@pdfByWeek');
 Route::post('hourrecords/{year}/{week}', 'HourrecordController@createSingle');
 Route::patch('hourrecords', 'HourrecordController@updateMultible');
