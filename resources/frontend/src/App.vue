@@ -2,15 +2,12 @@
   <div id="app">
     <v-app>
       <template v-if="$auth.ready()">
-        <!-- <NavigationBar @openNavigation="navDrawerModel = true"></NavigationBar> -->
         <v-navigation-drawer
           v-if="$auth.check()"
           v-model="navDrawerModel"
           :permanent="$vuetify.breakpoint.mdAndUp"
           app
           class="nav-drawer white"
-          @transitionend="navDrawer = !navDrawer"
-          @update:mini-variant="navDrawerClosed"
         >
           <router-link
             tag="a"
@@ -21,7 +18,10 @@
               src="@/assets/images/logo.png"
             />
           </router-link>
-          <!-- <v-list>
+          <v-list
+            dense
+            class="pt-0"
+          >
             <v-list-item link>
               <v-list-item-content>
                 <v-list-item-title
@@ -34,7 +34,7 @@
             </v-list-item>
           </v-list>
 
-          <v-divider></v-divider> -->
+          <v-divider></v-divider>
 
           <v-list
             nav
@@ -98,7 +98,6 @@
                   exit_to_app
                 </v-icon>
                 <span
-                  v-if="navDrawer"
                   class="ml-2"
                 >Logout</span>
               </v-btn>
@@ -130,11 +129,6 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  data() {
-    return {
-      navDrawer: false
-    }
-  },
   computed: {
     ...mapGetters(['alerts', 'navigationBarModel']),
     navDrawerModel: {
@@ -300,12 +294,6 @@ export default {
     },
     hasPermission(urserTypes, rules) {
       return this.$auth.check() && this.$auth.user().hasPermission(urserTypes, rules)
-    },
-    navDrawerClosed() {
-      // to prevent bug when nav drawer is openen only very quickly
-      setTimeout(() => {
-        this.navDrawer = false
-      }, 500)
     }
   }
 }

@@ -2,6 +2,10 @@
   <form-container :class="{shake}">
     <template>
       <h1 class="center-align text-center display-2 mb-8">
+        <img
+          class="login-logo"
+          src="@/assets/images/logo.png"
+        /><br>
         Login
       </h1>
       <v-form ref="form">
@@ -27,6 +31,7 @@
         <v-btn
           color="primary"
           class="login-button mt-4 mb-4"
+          depressed
           :loading="isLoading"
           @click="login"
         >
@@ -34,7 +39,7 @@
         </v-btn>
         <router-link
           tag="a"
-          :to="`/reset-password?email=${email}`"
+          :to="`/reset-password?email=${email || ''}`"
         >
           Passwort vergessen?
         </router-link>
@@ -98,14 +103,9 @@ export default {
   width: 100vw;
   height: 100vh;
 }
-.login-container {
-  width: 500px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: lightgray 0 0 20px;
-  margin: 0 auto;
-  padding: 40px;
-  max-width: 95vw;
+
+.login-logo {
+  width: 50%;
 }
 
 .center {

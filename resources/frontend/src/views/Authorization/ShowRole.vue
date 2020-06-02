@@ -48,8 +48,8 @@ export default {
     ...mapGetters(['authorizationRules'])
   },
   mounted() {
+    this.isLoading = true
     this.$store.dispatch('fetchAuthorizationRules').then(() => {
-      this.isLoading = true
       this.axios
         .get(`roles/${this.$route.params.id}`)
         .then(response => {

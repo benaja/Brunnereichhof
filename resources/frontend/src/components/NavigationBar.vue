@@ -30,7 +30,10 @@
               <v-icon>dehaze</v-icon>
             </v-btn>
             <div class="nav-title">
-              <h1 class="display-1 ma-0 d-none d-md-block">
+              <h1
+                class="display-1 ma-0 d-md-block"
+                :class="{'d-none': mobileTitleBelow}"
+              >
                 {{ title }}
               </h1>
               <p
@@ -45,7 +48,9 @@
                 </template>
               </p>
             </div>
-            <slot></slot>
+            <div class="ml-auto">
+              <slot></slot>
+            </div>
           </div>
         </v-container>
         <progress-linear
@@ -55,6 +60,7 @@
       </div>
     </div>
     <h1
+      v-if="mobileTitleBelow"
       class="display-1 mx-3 mt-5 d-md-none"
     >
       {{ title }}
@@ -78,6 +84,10 @@ export default {
       default: 'primary'
     },
     fullWidth: {
+      type: Boolean,
+      default: false
+    },
+    mobileTitleBelow: {
       type: Boolean,
       default: false
     }
@@ -145,6 +155,20 @@ export default {
   position: fixed;
   width: 100%;
   top: 76px
+}
+
+.profile {
+  height: 50px;
+  width: 50px;
+  color: white;
+  border-radius: 25px;
+  text-align: center;
+  line-height: 50px;
+  span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+  }
 }
 
 @media only screen and (max-width: 960px) {

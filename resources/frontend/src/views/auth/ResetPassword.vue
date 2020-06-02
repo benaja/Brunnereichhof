@@ -22,6 +22,7 @@
           class="reset-button"
           color="primary"
           :loading="isLoading"
+          depressed
           @click="resetPassword"
         >
           Zurücksetzten

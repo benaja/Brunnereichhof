@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'FormContainer'
-}
-</script>
-
 <style lang="scss" scoped>
 .form-container {
   display: table;
@@ -36,5 +30,12 @@ export default {
 .center {
   display: table-cell;
   vertical-align: middle;
+}
+
+@media only screen and (max-width: 600px) {
+  .sub-container {
+    box-shadow: none;
+    padding: 20px;
+  }
 }
 </style>
