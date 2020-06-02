@@ -48,9 +48,9 @@
                 </template>
               </p>
             </div>
-            <div class="ml-auto">
-              <slot></slot>
-            </div>
+            <!-- <div class="ml-auto"> -->
+            <slot></slot>
+            <!-- </div> -->
           </div>
         </v-container>
         <progress-linear

@@ -28,7 +28,7 @@
       v-model="date"
       locale="ch-de"
       :color="color"
-      first-day-of-week="1"
+      :first-day-of-week="1"
       :type="type === 'year' ? 'date' : type"
       :max="
         type === 'year'
@@ -38,7 +38,7 @@
           : undefined
       "
       show-week
-      :locale-first-day-of-year="1"
+      :locale-first-day-of-year="7"
       @input="model = false"
     ></v-date-picker>
   </v-menu>
@@ -46,7 +46,6 @@
 
 <script>
 export default {
-  name: 'DatePicker',
   props: {
     value: {
       type: [String, Number],

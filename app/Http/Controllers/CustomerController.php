@@ -170,14 +170,16 @@ class CustomerController extends Controller
         $customer->user->username = $request->customer_number;
         $customer->user->save();
 
-        $customer->address()->update($request->address);
+        $this->updateAddress($customer->address(), $request->address);
+        // $customer->address()->update($request->address);
         if ($request->differingBillingAddress && $request->billing_address) {
             if (!$customer->billingAddress) {
                 $billingAddress = Address::create($request->billing_address);
                 $customer->billingAddress()->associate($billingAddress);
                 $customer->save();
             } else {
-                $customer->billingAddress()->update($request->billing_address);
+                $this->updateAddress($customer->billingAddress(), $request->billing_address);
+                // $customer->billingAddress()->update($request->billing_address);
             }
         }
 
@@ -267,6 +269,15 @@ class CustomerController extends Controller
             "$addressType.street" => 'required|string|max:100',
             "$addressType.place" => 'required|string|max:100',
             "$addressType.plz" => 'required|integer',
+        ]);
+    }
+
+    private function updateAddress($address, $newAddress) {
+        $address->update([
+            'street' => $newAddress['street'],
+            'place' => $newAddress['place'],
+            'plz' => $newAddress['plz'],
+            'addition' => $newAddress['addition']
         ]);
     }
 }

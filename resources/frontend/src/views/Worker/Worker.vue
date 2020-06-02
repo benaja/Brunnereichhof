@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <fragment>
     <navigation-bar title="Hofmitarbeiter bearbeiten">
       <template v-if="hasChanges">
         <v-btn
@@ -67,7 +67,7 @@
       </v-container>
       <TimeView :worker-id="this.$route.params.id"></TimeView>
     </div>
-  </div>
+  </fragment>
 </template>
 
 <script>
@@ -76,7 +76,6 @@ import { confirmAction } from '@/utils'
 import WorkerForm from '@/components/worker/WorkerForm'
 
 export default {
-  name: 'Worker',
   components: {
     TimeView,
     WorkerForm

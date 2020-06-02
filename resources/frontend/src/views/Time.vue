@@ -1,6 +1,7 @@
 <template>
   <fragment>
     <navigation-bar
+      v-if="!workerId"
       title="Zeiterfassung"
       full-width
       :loading="isLoading"
