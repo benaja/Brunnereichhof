@@ -1,10 +1,24 @@
 <?php
+// Route::group([
+//     'middleware' => 'api',
+//     'prefix' => 'auth'
+
+// ], function ($router) {
+
+//     Route::post('login', 'AuthController@login');
+//     Route::post('logout', 'AuthController@logout');
+//     Route::post('refresh', 'AuthController@refresh');
+//     Route::get('user', 'AuthController@user');
+//     Route::post('auth/reset-password', 'AuthController@resetPassword');
+//     Route::post('auth/set-password', 'AuthController@setPassword');
+// });
+
 Route::post('auth/login', 'AuthController@login');
 Route::post('auth/reset-password', 'AuthController@resetPassword');
 Route::post('auth/set-password', 'AuthController@setPassword');
-Route::group(['middleware' => 'jwt.auth'], function () {
+// Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('auth/user', 'AuthController@user');
-});
+// });
 Route::group(['middleware' => 'jwt.refresh'], function () {
     Route::get('auth/refresh', 'AuthController@refresh');
 });

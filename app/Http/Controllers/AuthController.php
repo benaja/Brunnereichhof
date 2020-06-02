@@ -3,49 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserTypeEnum;
-use Auth;
-use JWTAuth;
+// use Auth;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Mail\ResetPassword;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // public function register(Request $request)
-    // {
-    //     $user = new User;
-    //     $user->email = $request->email;
-    //     $user->name = $request->name;
-    //     $user->password = bcrypt($request->password);
-    //     $user->save();
-    //     return response([
-    //         'status' => 'success',
-    //         'data' => $user
-    //     ], 200);
-    // }
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login']]);
+    }
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        if (!$token = JWTAuth::attempt($credentials)) {
+        $credentials = request(['email', 'password']);
+
+        if (!$token = auth()->attempt($credentials)) {
             $credentials = [
                 'username' => $credentials['email'],
                 'password' => $credentials['password']
             ];
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (!$token = auth()->attempt($credentials)) {
                 return response([
                     'status' => 'error',
                     'error' => 'invalid.credentials',
                     'msg' => 'Invalid Credentials.'
-                ], 400);
+                ], 401);
             }
         }
-        return response([
-            'status' => 'success'
-        ])->header('Authorization', $token);
+
+        return $this->respondWithToken($token);
+
+        // return response([
+        //     'status' => 'success'
+        // ])->header('Authorization', $token);
+    }
+
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
     }
 
     public function resetPassword(Request $request)
@@ -93,9 +94,9 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = User::with(['role.authorizationRules', 'customer'])->with('type')->find(Auth::user()->id);
+        $user = User::with(['role.authorizationRules', 'customer'])->with('type')->find(auth()->user()->id);
         if (!$user->isActive) {
-            JWTAuth::invalidate();
+            auth()->invalidate();
             return response('Your account has been deactivated', 403);
         }
         return response([
@@ -104,10 +105,12 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh()
+    protected function respondWithToken($token)
     {
         return response([
-            'status' => 'success'
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
         ]);
     }
 
@@ -116,6 +119,7 @@ class AuthController extends Controller
         JWTAuth::invalidate();
         return response([
             'status' => 'success',
+            // return response()->json(['error' => 'Unauthorized'], 401);
             'msg' => 'Logged out Successfully.'
         ], 200);
     }

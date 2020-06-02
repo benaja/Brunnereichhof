@@ -11,7 +11,6 @@ import chartist from 'vue-chartist'
 import 'vuetify/dist/vuetify.min.css'
 import Vue2TouchEvents from 'vue2-touch-events'
 import VueSync from 'vue-sync'
-import vueBearer from '@websanova/vue-auth/drivers/auth/bearer'
 import vueAuthAxios from '@websanova/vue-auth/drivers/http/axios.1.x'
 import vueAuthRouter from '@websanova/vue-auth/drivers/router/vue-router.2.x'
 import auth from '@websanova/vue-auth'
@@ -45,7 +44,16 @@ Vue.router = router
 Vue.store = store
 
 Vue.use(auth, {
-  auth: vueBearer,
+  auth: {
+    request (req, token) {
+      this.http.setHeaders.call(this, req, {
+        Authorization: `Bearer ${token}`
+      })
+    },
+    response (res) {
+      return res.data.access_token
+    }
+  },
   http: vueAuthAxios,
   router: vueAuthRouter,
   parseUserData(body) {
