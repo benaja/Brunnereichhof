@@ -210,7 +210,6 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class
     ],
 

@@ -100,10 +100,12 @@ export default {
       this.$store.commit('loading', { evaluation: true })
       downloadFile(pdfUrl).catch(error => {
         let customErrorMessage = false
-        for (const catchErrorMessage of this.evaluation.errors) {
-          if (error.message && error.message.includes(catchErrorMessage.message)) {
-            this.$store.dispatch('alert', catchErrorMessage.alert)
-            customErrorMessage = true
+        if (this.evaluation.errors) {
+          for (const catchErrorMessage of this.evaluation.errors) {
+            if (error.message && error.message.includes(catchErrorMessage.message)) {
+              this.$store.dispatch('alert', catchErrorMessage.alert)
+              customErrorMessage = true
+            }
           }
         }
         if (!customErrorMessage) {

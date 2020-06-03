@@ -2,10 +2,9 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Cache;
-use TCPDF;
+use setasign\Fpdi\Tcpdf\Fpdi;
 
-class Pdf extends TCPDF
+class Pdf extends Fpdi
 {
   private $documentWidth = 270;
   private $pageBreakeWidth = 180;

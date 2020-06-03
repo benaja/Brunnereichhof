@@ -219,10 +219,11 @@ class WorkerPdfController extends Controller
         $comments = [];
         $currentDay = clone $firstDayOfMonth;
         $currentDay->modify('monday this week');
-        $firstCellWidth = 3;
+        // loop through each weak of month
         for ($i = 0; $i < 6; $i++) {
             $line = [];
             $totalHoursOfWeek = 0;
+            // loop through each day of week
             for ($j = 0; $j < 7; $j++) {
                 if ($currentDay < $firstDayOfMonth || $currentDay > $lastDayOfMonth) {
                     array_push($line, null);
