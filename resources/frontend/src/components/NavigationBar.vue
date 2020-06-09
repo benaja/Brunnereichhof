@@ -12,7 +12,7 @@
             <v-btn
               v-if="$auth.check()
                 && $auth.user().hasPermission(
-                  ['superadmin'],
+                  ['superadmin', 'customer'],
                   ['customer_read',
                    'employee_read',
                    'employee_preview_read',

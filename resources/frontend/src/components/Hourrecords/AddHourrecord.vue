@@ -28,6 +28,8 @@
             <date-picker
               v-if="!week"
               v-model="hourrecord.date"
+              :min="$moment().year(year).startOf('year').format('YYYY-MM-DD')"
+              :max="$moment().year(year).endOf('year').format('YYYY-MM-DD')"
               label="Datum"
             ></date-picker>
             <v-row>

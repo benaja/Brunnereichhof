@@ -75,6 +75,7 @@
                   v-for="(navSubItem, i) of navItem.items.filter(item => item.show)"
                   :key="`${index}-${i}`"
                   link
+                  class="ml-2"
                   :to="navSubItem.to"
                 >
                   <v-list-item-icon>

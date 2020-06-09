@@ -1,57 +1,63 @@
 <template>
-  <v-container>
-    <h1 class="display-1">
-      Arbeiten im {{ (new Date()).getFullYear() }}
-    </h1>
-    <h2
-      class="mb-4 headline"
-    >
-      Wählen sie alle Kallenderwochen aus, in denen Sie Arbeiten vorgesehen haben.
-    </h2>
-    <v-row>
-      <v-col
-        v-for="week of activeWeeks"
-        :key="week.week"
-        cols="12"
-        sm6
-        md="4"
-        lg="3"
+  <fragment>
+    <navigation-bar
+      :title="`Arbeiten im ${(new Date()).getFullYear()}`"
+      :loading="$store.getters.isLoading.settings || isLoading"
+    ></navigation-bar>
+    <v-container>
+      <h2
+        class="mb-4 headline"
       >
-        <v-checkbox
-          v-model="week.isSelected"
-          :disabled="!week.active"
-          class="mt-0"
+        Wählen sie alle Kallenderwochen aus, in denen Sie Arbeiten vorgesehen haben.
+      </h2>
+      <v-row>
+        <v-col
+          v-for="week of activeWeeks"
+          :key="week.week"
+          cols="12"
+          sm6
+          md="4"
+          lg="3"
         >
-          <div slot="label">
-            <p class="my-0">
-              <span class="font-weight-bold">KW {{ week.week }}</span>
-              ({{ week.monday.toLocaleDateString() }} - {{ week.sunday.toLocaleDateString() }})
-            </p>
-          </div>
-        </v-checkbox>
-      </v-col>
-    </v-row>
-    <v-btn
-      class="mb-4 next-button"
-      :disabled="selectedWeeks.length === 0"
-      color="primary"
-      @click="save"
-    >
-      Weiter
-    </v-btn>
-  </v-container>
+          <v-checkbox
+            v-model="week.isSelected"
+            :disabled="!week.active"
+            class="mt-0"
+          >
+            <div slot="label">
+              <p class="my-0">
+                <span class="font-weight-bold">KW {{ week.week }}</span>
+                ({{ week.monday.toLocaleDateString() }} - {{ week.sunday.toLocaleDateString() }})
+              </p>
+            </div>
+          </v-checkbox>
+        </v-col>
+      </v-row>
+      <v-btn
+        class="mb-4 next-button"
+        :disabled="selectedWeeks.length === 0"
+        :loading="isSaving"
+        color="primary"
+        depressed
+        @click="save"
+      >
+        Weiter
+      </v-btn>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'WorkRecord',
   data() {
     return {
       date: new Date(new Date().getFullYear(), 0, 1),
       weeks: this.$store.getters.recordWeeks,
-      hourRecords: this.$store.getters.hourRecords
+      hourRecords: this.$store.getters.hourRecords,
+      isLoading: false,
+      isSaving: false
     }
   },
   computed: {
@@ -72,18 +78,11 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
-    this.axios
-      .get('/settings/hourrecords')
-      .then(response => {
-        this.$store.commit('settings', response.data)
-        if (!this.$store.getters.isEditTime) {
-          this.$router.push('/kundenportal/erfassen/details')
-        }
-      })
-      .finally(() => {
-        this.$store.commit('isLoading', false)
-      })
+    this.$store.dispatch('fetchHourrecordSettings').then(() => {
+      if (!this.$store.getters.isEditTime) {
+        this.$router.push('/kundenportal/erfassen/details')
+      }
+    })
     if (this.weeks.length === 0) {
       let monday = this.getMonday(this.date)
       for (let i = 1; i <= 52; i++) {
@@ -102,13 +101,16 @@ export default {
       }
     }
     if (this.hourRecords.length === 0) {
-      this.$store.commit('isLoading', true)
-      this.axios.get('hourrecord').then(response => {
+      this.isLoading = true
+      this.axios.get('hourrecords').then(response => {
         this.hourRecords = response.data
         for (const key in this.hourRecords) {
           this.weeks[key - 1].isSelected = true
         }
-        this.$store.commit('isLoading', false)
+      }).catch(() => {
+        this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
+      }).finally(() => {
+        this.isLoading = false
       })
     } else {
       for (const key in this.hourRecords) {
@@ -123,24 +125,23 @@ export default {
       return new Date(date.setDate(diff))
     },
     save() {
-      this.$store.commit('isLoading', true)
+      this.isSaving = true
       this.axios
-        .post('hourrecord', {
+        .post('hourrecords', {
           weeks: this.selectedWeeks
         })
         .then(response => {
-          this.$store.commit('isLoading', false)
           this.$store.commit('hourRecords', response.data)
           this.$router.push('/kundenportal/erfassen/details')
         })
         .catch(error => {
           if (error.includes('the edit duration is over')) {
-            this.$store.commit('isLoading', false)
             this.$swal('Fehler', 'Die Bearbeitungszeit für dieses Jahr ist vorbei.', 'error')
           } else {
-            this.$store.commit('isLoading', false)
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten. Versuchen Sie es bitte später erneut.', 'error')
           }
+        }).finally(() => {
+          this.isSaving = false
         })
     }
   }

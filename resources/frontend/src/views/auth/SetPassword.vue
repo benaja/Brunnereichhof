@@ -5,8 +5,7 @@
     </h1>
     <v-form
       ref="form"
-      on-submit="return false;"
-      @submit="setPassword"
+      @keyup.native.enter="setPassword"
     >
       <v-text-field
         v-model="password"
@@ -29,10 +28,11 @@
         @blur="errorMessage = null"
       ></v-text-field>
       <v-btn
-        type="submit"
         color="primary"
         class="set-password-button"
+        depressed
         :loading="isLoading"
+        @click="setPassword"
       >
         Speichern
       </v-btn>
@@ -45,7 +45,6 @@ import FormContainer from '@/components/general/FormContainer'
 import { rules } from '@/utils'
 
 export default {
-  name: 'SetPassword',
   components: {
     FormContainer
   },

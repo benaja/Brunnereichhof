@@ -1,118 +1,113 @@
 <template>
-  <v-container>
-    <div class="d-flex flex-wrap">
-      <h1 class="display-1">
-        Arbeiten im {{ (new Date()).getFullYear() }}
-      </h1>
+  <fragment>
+    <navigation-bar
+      :title="`Arbeiten im ${(new Date()).getFullYear()}`"
+      :loading="$store.getters.isLoading.settings || isLoading"
+    >
       <v-btn
         v-if="!editMode && $store.getters.isEditTime"
         color="primary"
         depressed
-        class="ml-auto mt-3"
+        class="ml-auto"
         @click="toggleEditMode"
       >
         <v-icon class="mr-2">
           edit
         </v-icon>Bearbeiten
       </v-btn>
-    </div>
-    <h2
-      class="mb-4 headline pre-wrap-text"
-    >
-      {{ $store.getters.isEditTime ? $store.getters.settings.hourrecordValid :
-        $store.getters.settings.hourrecordInvalid }}
-    </h2>
-    <v-form ref="form">
-      <week
-        v-for="(week, index) of weeks"
-        :key="index"
-        :week="week"
-        :cultures="cultures"
-        :year="$moment().format('YYYY')"
-        :edit="editMode"
-        @input="w => (week = w)"
-        @remove="removeWeek(index)"
-      ></week>
-    </v-form>
-    <v-row class="px-3">
-      <v-col
-        cols="12"
-        class="pa-2"
+    </navigation-bar>
+    <v-container>
+      <div class="d-flex flex-wrap">
+      </div>
+      <h2
+        class="mb-4 headline pre-wrap-text"
+        v-html="$store.getters.isEditTime ?
+          $store.getters.hourrecordSettings.hourrecordValid :
+          $store.getters.hourrecordSettings.hourrecordInvalid"
       >
-        <v-alert
-          :value="!allValid && trySave"
-          type="error"
+      </h2>
+      <v-form ref="form">
+        <week
+          v-for="(week, index) of weeks"
+          :key="index"
+          :week="week"
+          :cultures="cultures"
+          :year="$moment().format('YYYY')"
+          :edit="editMode"
+          @input="w => (week = w)"
+          @remove="removeWeek(index)"
+        ></week>
+      </v-form>
+      <v-row class="px-3">
+        <v-col
+          cols="12"
+          class="pa-2"
         >
-          Überprüffen sie ob überall eine Kultur/Arbeit ausgewählt wurde.
-        </v-alert>
-      </v-col>
-    </v-row>
-    <div
-      v-if="editMode || $store.getters.isEditTime"
-      class="d-flex flex-wrap"
-    >
-      <v-btn
-        v-if="editMode"
-        class="mb-4"
-        to="/kundenportal/erfassen"
-        color="primary"
-        depressed
+          <v-alert
+            :value="!allValid && trySave"
+            type="error"
+          >
+            Überprüffen sie ob überall eine Kultur/Arbeit ausgewählt wurde.
+          </v-alert>
+        </v-col>
+      </v-row>
+      <div
+        v-if="editMode || $store.getters.isEditTime"
+        class="d-flex flex-wrap"
       >
-        <v-icon class="mr-2">
-          keyboard_arrow_left
-        </v-icon>Zur Wochenauswahl
-      </v-btn>
-      <v-btn
-        v-if="editMode"
-        color="primary"
-        class="mb-4 mr-2 ml-sm-auto ml-0"
-        outlined
-        @click="addHourrecordDialog = true"
-      >
-        <v-icon class="mr-2">
-          add
-        </v-icon>Woche/Kultur hinzufügen
-      </v-btn>
-      <v-btn
-        v-if="editMode"
-        class="mb-4"
-        color="primary"
-        depressed
-        @click="saveAll"
-      >
-        <v-icon class="mr-2">
-          check
-        </v-icon>Fertig
-      </v-btn>
-      <v-btn
-        v-else-if="weeksLength > 6"
-        color="primary"
-        depressed
-        class="mb-4 ml-auto"
-        @click="toggleEditMode"
-      >
-        <v-icon class="mr-2">
-          edit
-        </v-icon>Bearbeiten
-      </v-btn>
-    </div>
-    <add-hourrecord
-      v-model="addHourrecordDialog"
-      title="Woche/Kultur hinzufügen"
-      :cultures="cultures"
-      :customer="$auth.user().customer"
-      :year="$moment().format('YYYY')"
-      @add="addHourrecord"
-    ></add-hourrecord>
-  </v-container>
+        <v-btn
+          v-if="editMode"
+          class="mb-4"
+          to="/kundenportal/erfassen"
+          color="primary"
+          depressed
+        >
+          <v-icon class="mr-2">
+            keyboard_arrow_left
+          </v-icon>Zur Wochenauswahl
+        </v-btn>
+        <v-btn
+          v-if="editMode"
+          color="primary"
+          class="mb-4 mr-2 ml-sm-auto ml-0"
+          outlined
+          @click="addHourrecordDialog = true"
+        >
+          <v-icon class="mr-2">
+            add
+          </v-icon>Woche/Kultur hinzufügen
+        </v-btn>
+        <v-btn
+          v-if="editMode"
+          class="mb-4"
+          color="primary"
+          depressed
+          :loading="isSaving"
+          @click="saveAll"
+        >
+          <v-icon class="mr-2">
+            check
+          </v-icon>Fertig
+        </v-btn>
+      </div>
+      <add-hourrecord
+        v-model="addHourrecordDialog"
+        title="Woche/Kultur hinzufügen"
+        :cultures="cultures"
+        :customer="$auth.user().customer"
+        :year="$moment().format('YYYY')"
+        @add="addHourrecord"
+      ></add-hourrecord>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
 import Week from '@/components/CustomerPortal/Week'
 import AddHourrecord from '@/components/Hourrecords/AddHourrecord'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'WorkRecordDetails',
   components: {
     Week,
     AddHourrecord
@@ -120,16 +115,19 @@ export default {
   data() {
     return {
       weeks: this.$store.getters.hourRecords,
-      cultures: [],
       trySave: false,
       addHourrecordDialog: false,
-      editMode: false
+      editMode: false,
+      isLoading: false,
+      isSaving: false
     }
   },
   computed: {
+    ...mapGetters(['cultures']),
     allValid() {
-      if (this.weeks.length === 0) return false
-      if (this.weeks.find(week => week.find(culture => !culture.culture))) return false
+      if (!Object.keys(this.weeks).length) return false
+      if (Object.keys(this.weeks)
+        .find(key => this.weeks[key].find(culture => !culture.culture))) return false
       return true
     },
     isEditModeEnabled() {
@@ -152,20 +150,19 @@ export default {
   },
   mounted() {
     this.editMode = this.isEditModeEnabled
-    this.axios.get('/culture').then(response => {
-      this.cultures = response.data
-    })
+    this.$store.dispatch('fetchCultures')
     if (this.weeks.length === 0) {
-      this.$store.commit('isLoading', true)
-      this.axios.get('/hourrecord').then(response => {
+      this.isLoading = true
+      this.axios.get('/hourrecords').then(response => {
         this.weeks = response.data
-        this.$store.commit('isLoading', false)
+      }).catch(() => {
+        this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
+      }).finally(() => {
+        this.isLoading = false
       })
     }
-    if (!this.$store.getters.settings.hourrecordStartDate) {
-      this.axios.get('/settings/hourrecords').then(response => {
-        this.$store.commit('settings', response.data)
-      })
+    if (!this.$store.getters.hourrecordSettings.hourrecordStartDate) {
+      this.$store.dispatch('fetchHourrecordSettings')
     }
   },
   methods: {
@@ -185,8 +182,9 @@ export default {
     },
     saveAll() {
       if (this.$refs.form.validate()) {
+        this.isSaving = true
         this.axios
-          .patch('/hourrecord', this.weeksFlat)
+          .patch('/hourrecords', this.weeksFlat)
           .then(() => {
             this.toggleEditMode()
             this.$swal('Danke', 'Alle Ihre vorgesehenen Arbeiten wurden erfolgreich gespeichert. Vielen Dank für Ihre Zeit.', 'success')
@@ -198,6 +196,8 @@ export default {
                 Bitte versuchen Sie es später erneut oder melden Sie sich bei uns.`,
               'error',
             )
+          }).finally(() => {
+            this.isSaving = false
           })
       } else {
         this.$swal('Nicht alles ausgefüllt', 'Bitte füllen Sie alle fehlenden Felder aus.')

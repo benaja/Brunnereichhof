@@ -91,20 +91,6 @@ export default new Vuex.Store({
     saveState: state => state.saveState,
     isSaving: state => state.saveState.isSaving,
     saved: state => state.saveState.saved,
-    isEditTime: state => {
-      let startdate = new Date(state.settings.hourrecordStartDate)
-      let endDate = new Date(state.settings.hourrecordEndDate)
-
-      if (startdate instanceof Date && !isNaN(startdate)) {
-        let today = new Date()
-        // make shure that the time is everywhere the same
-        today = new Date(today.toDateString())
-        endDate = new Date(endDate.toDateString())
-        startdate = new Date(startdate.toDateString())
-        return startdate <= today && endDate >= today
-      }
-      return true
-    },
     alerts: state => state.alerts,
     navigationBarModel: state => state.navigationBarModel,
     preventFormSubmit: state => state.preventFormSubmit

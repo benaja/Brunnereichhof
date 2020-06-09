@@ -1,6 +1,9 @@
 <template>
   <fragment>
-    <navigation-bar title="Rapportübersicht"></navigation-bar>
+    <navigation-bar
+      title="Rapportübersicht"
+      :loading="isLoading"
+    ></navigation-bar>
     <v-container>
       <v-row
         justify="center"
@@ -41,6 +44,9 @@
           </v-list>
         </v-col>
       </v-row>
+      <p v-if="!isLoading && !rapports.length">
+        Keine Einträge vorhanden
+      </p>
     </v-container>
   </fragment>
 </template>
@@ -49,13 +55,14 @@
 export default {
   data() {
     return {
-      rapports: []
+      rapports: [],
+      isLoading: true
     }
   },
   mounted() {
-    this.$store.commit('isLoading', true)
+    this.isLoading = true
     this.axios
-      .get('/rapport')
+      .get('/rapports')
       .then(response => {
         this.rapports = response.data
       })
@@ -63,7 +70,7 @@ export default {
         this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
       })
       .finally(() => {
-        this.$store.commit('isLoading', false)
+        this.isLoading = false
       })
   },
   methods: {

@@ -1,38 +1,45 @@
 <template>
-  <v-container>
-    <h1 class="display-1 my-4 text-center text-md-left">
-      {{ settings.welcomeText }}
-    </h1>
-    <h2 class="mb-4 headline text-center text-md-left">
-      {{ settings.subtitle }}
-    </h2>
-    <div :class="{card: $vuetify.breakpoint.mdAndUp}">
-      <v-row>
-        <front-page-card
-          icon="/icons/write.svg"
-          :title="settings.hourrecordTitle"
-          :text="$store.getters.isEditTime ? settings.hourrecordValid : settings.hourrecordInvalid"
-          :button-text="$store.getters.isEditTime ? 'Arbeiten Erfassen' : 'Arbeiten Anschauen'"
-          :button-link="$store.getters.isEditTime ? '/kundenportal/erfassen'
-            : '/kundenportal/erfassen/details'"
-        ></front-page-card>
-        <front-page-card
-          icon="/icons/see.svg"
-          :title="settings.weekRapportTitle"
-          :text="settings.weekRapportText"
-          button-text="Zu den Wochenrapporten"
-          button-link="/kundenportal/wochenrapport"
-        ></front-page-card>
-        <front-page-card
-          icon="/icons/survey.svg"
-          :title="settings.surveyTitle"
-          :text="settings.surveyText"
-          button-text="Zur Umfrage"
-          @clickLink="openSurvey"
-        ></front-page-card>
-      </v-row>
-    </div>
-  </v-container>
+  <fragment>
+    <navigation-bar
+      title="Kundenportal"
+      :loading="$store.getters.isLoading.settings"
+    ></navigation-bar>
+    <v-container>
+      <h1 class="display-1 my-4 text-center text-md-left">
+        {{ settings.welcomeText }}
+      </h1>
+      <h2 class="mb-4 headline text-center text-md-left">
+        {{ settings.subtitle }}
+      </h2>
+      <div :class="{card: $vuetify.breakpoint.mdAndUp}">
+        <v-row>
+          <front-page-card
+            icon="/icons/write.svg"
+            :title="settings.hourrecordTitle"
+            :text="$store.getters.isEditTime
+              ? settings.hourrecordValid : settings.hourrecordInvalid"
+            :button-text="$store.getters.isEditTime ? 'Arbeiten Erfassen' : 'Arbeiten Anschauen'"
+            :button-link="$store.getters.isEditTime ? '/kundenportal/erfassen'
+              : '/kundenportal/erfassen/details'"
+          ></front-page-card>
+          <front-page-card
+            icon="/icons/see.svg"
+            :title="settings.weekRapportTitle"
+            :text="settings.weekRapportText"
+            button-text="Zu den Wochenrapporten"
+            button-link="/kundenportal/wochenrapport"
+          ></front-page-card>
+          <front-page-card
+            icon="/icons/survey.svg"
+            :title="settings.surveyTitle"
+            :text="settings.surveyText"
+            button-text="Zur Umfrage"
+            @clickLink="openSurvey"
+          ></front-page-card>
+        </v-row>
+      </div>
+    </v-container>
+  </fragment>
 </template>
 
 <script>
@@ -44,15 +51,15 @@ export default {
     FrontPageCard
   },
   computed: {
-    ...mapGetters(['settings']),
+    ...mapGetters({
+      settings: 'hourrecordSettings'
+    }),
     endDate() {
       return new Date(this.settings.hourrecordEndDate)
     }
   },
   mounted() {
-    this.axios.get('/settings/hourrecords').then(response => {
-      this.$store.commit('settings', response.data)
-    })
+    this.$store.dispatch('fetchHourrecordSettings')
   },
   methods: {
     openSurvey() {

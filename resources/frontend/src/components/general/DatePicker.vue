@@ -35,10 +35,11 @@
           ? $moment()
             .add(3, 'years')
             .format('YYYY-MM-DD')
-          : undefined
+          : max
       "
       show-week
       :locale-first-day-of-year="7"
+      :min="min"
       @input="model = false"
     ></v-date-picker>
   </v-menu>
@@ -78,6 +79,14 @@ export default {
     fullWidth: {
       type: Boolean,
       default: false
+    },
+    min: {
+      type: String,
+      default: undefined
+    },
+    max: {
+      type: String,
+      default: undefined
     }
   },
   data() {
