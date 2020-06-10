@@ -229,9 +229,11 @@ class WorkerPdfController extends Controller
                     array_push($line, null);
                 } else {
                     $timerecord = $worker->timerecords->where('date', $currentDay->format('Y-m-d'))->first();
-                    if ($timerecord == null) {
+                    if (!$timerecord || count($timerecord->hours) === 0) {
                         array_push($line, 0);
                     } else {
+                        $cell = "";
+                        $hoursPerWorktype = [];
                         foreach ($timerecord->hours as $hour) {
                             if ($hour->comment) {
                                 array_push($comments, [
@@ -239,14 +241,25 @@ class WorkerPdfController extends Controller
                                     'date' => $timerecord->date
                                 ]);
                             }
+                            if (isset($hoursPerWorktype[$hour->worktype->short_name])) {
+                                $hoursPerWorktype[$hour->worktype->short_name] += $hour->hours();
+                            } else {
+                                $hoursPerWorktype[$hour->worktype->short_name] = $hour->hours();
+                            }
+                        }
+
+                        foreach ($hoursPerWorktype as $worktype => $hours) {
+                            if ($cell) {
+                                $cell .= ", ";
+                            }
+                            $cell .= $hours;
+                            if ($worktype !== 'P') {
+                                $cell .= "({$worktype})";
+                            }
                         }
                         $hours = $timerecord->totalHours();
                         $totalHoursOfWeek += $hours;
-                        $worktypeShortName = "";
-                        if ($timerecord->worktype() && $timerecord->worktype()->short_name) {
-                            $worktypeShortName = "({$timerecord->worktype()->short_name})";
-                        }
-                        array_push($line, "{$hours} {$worktypeShortName}");
+                        array_push($line, $cell);
                     }
                 }
                 $currentDay->modify('+1 day');

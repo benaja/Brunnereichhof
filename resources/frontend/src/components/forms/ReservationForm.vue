@@ -73,7 +73,7 @@ export default {
     return {
       rules: {
         ...rules,
-        after: () => new Date(this.value.entry) <= new Date(this.value.exit) || 'Das Datum muss nach dem Startdatum sein.'
+        after: () => this.$moment(this.value.entry).isSameOrBefore(this.value.exit, 'day') || 'Das Datum muss nach dem Startdatum sein.'
       },
       beds: [],
       loadingBeds: false

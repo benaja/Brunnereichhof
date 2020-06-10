@@ -163,12 +163,20 @@ class TimeController extends Controller
         $this->isAllowedToEdit($userId);
 
         $hour = Hour::find($id);
-        $timerecordId = $hour->timerecord->id;
+        $timerecord = $hour->timerecord;
 
         if ($hour->timerecord->user->id == $userId) {
             Hour::destroy($id);
 
-            return $this->getHoursWidthLunch($timerecordId);
+            if (count($timerecord->hours) === 0) {
+                $timerecord->update([
+                    'breakfast' => false,
+                    'lunch' => false,
+                    'dinner' => false
+                ]);
+            }
+
+            return $this->getHoursWidthLunch($timerecord->id);
         } else {
             return response('access denied', 401);
         }

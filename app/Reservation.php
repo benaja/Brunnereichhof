@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 
 class Reservation extends Model
 {
@@ -66,5 +67,10 @@ class Reservation extends Model
             $sleepOver += $sleepDays;
         }
         return $sleepOver;
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

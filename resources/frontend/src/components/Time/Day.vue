@@ -20,14 +20,6 @@
         ></time-element>
       </div>
     </div>
-    <v-btn
-      fab
-      color="primary"
-      class="overview-button hidden-md-and-up"
-      @click="$emit('openOveriew')"
-    >
-      <v-icon>assessment</v-icon>
-    </v-btn>
   </div>
 </template>
 

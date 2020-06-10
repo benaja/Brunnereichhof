@@ -45,6 +45,11 @@ class Hour extends Model
         return $this->belongsTo(Worktype::class);
     }
 
+    public function hours() {
+        $different = $this->from()->diff($this->to());
+        return $different->h + number_format((float) $different->i / 60, 2, '.', '');
+    }
+
     public function duration()
     {
         $different = $this->from()->diff($this->to());

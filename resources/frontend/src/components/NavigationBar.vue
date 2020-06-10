@@ -32,7 +32,7 @@
             <div class="nav-title">
               <h1
                 class="display-1 ma-0 d-md-block"
-                :class="{'d-none': mobileTitleBelow}"
+                :class="{'d-none': mobileTitleBelow || $vuetify.breakpoint.smAndDown}"
               >
                 {{ title }}
               </h1>
@@ -180,6 +180,10 @@ export default {
 @media only screen and (max-width: 600px) {
   .toolbar {
     height: 56px;
+  }
+
+  .nav-content-container {
+    max-height: 45px;
   }
 
   .nav-bar {

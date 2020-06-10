@@ -5,7 +5,16 @@
       title="Zeiterfassung"
       full-width
       :loading="isLoading"
-    ></navigation-bar>
+    >
+      <v-btn
+        outlined
+        color="primary"
+        class="ml-auto hidden-md-and-up"
+        @click="isOverviewOpen = true"
+      >
+        Bezogenen Stunden
+      </v-btn>
+    </navigation-bar>
     <div class="time-container">
       <!-- mobile -->
       <v-row

@@ -136,8 +136,8 @@
         <create-reservation
           v-model="reservationModel.open"
           :reservation="reservationModel.reservation"
-          @add="reservation => reservations.push(reservation)"
-          @updateAll="newReservations => reservations = newReservations"
+          @add="addReservation"
+          @updateAll="updateAllReservations"
         ></create-reservation>
       </v-menu>
       <v-menu
@@ -281,8 +281,15 @@ export default {
     amountOfDays() {
       return this.lastDate.diff(this.firstDate, 'days') + 1
     },
+    reservationsWithSearchText() {
+      return this.reservations.map(r => ({
+        ...r,
+        searchText: `${r.employee.lastname} ${r.employee.firstname} ${r.bed_room_pivot.room.name} ${r.bed_room_pivot.room.id}`
+          .toLowerCase()
+      }))
+    },
     reservationsForSelectedTime() {
-      return this.reservations.filter(
+      return this.reservationsWithSearchText.filter(
         r => this.$moment(r.entry, 'YYYY-MM-DD').isSameOrBefore(this.lastDate, 'day')
           && this.$moment(r.exit, 'YYYY-MM-DD').isSameOrAfter(this.firstDate, 'day')
           && (!this.searchString || r.searchText.includes(this.searchString.toLowerCase()))
@@ -360,11 +367,7 @@ export default {
       this.isLoading = true
       this.axios.get(`/reservations?start=${this.firstDate.format('YYYY-MM-DD')}&end=${this.lastDate.format('YYYY-MM-DD')}`)
         .then(response => {
-          this.reservations = response.data.map(r => ({
-            ...r,
-            searchText: `${r.employee.lastname} ${r.employee.firstname} ${r.bed_room_pivot.room.name} ${r.bed_room_pivot.room.id}`
-              .toLowerCase()
-          }))
+          this.reservations = response.data
           this.isLoading = false
         })
     },
@@ -419,12 +422,22 @@ export default {
     deleteReservation(reservation) {
       this.reservations.splice(this.reservations.indexOf(reservation), 1)
       this.detailsModel.open = false
+      this.$refs.stats.getStats()
     },
     updateReservation(originalReservation, reservation) {
-      this.reservations = this.reservations.map(r => {
+      this.reservations = this.reservationsWithSearchText.map(r => {
         if (r !== originalReservation) return r
         return reservation
       })
+      this.$refs.stats.getStats()
+    },
+    addReservation(reservation) {
+      this.reservations.push(reservation)
+      this.$refs.stats.getStats()
+    },
+    updateAllReservations(reservations) {
+      this.reservations = reservations
+      this.$refs.stats.getStats()
     },
     searchDebounce: _.debounce(function (value) {
       this.searchString = value

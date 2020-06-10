@@ -269,14 +269,22 @@ export default {
     },
     updateExistingReservation(response) {
       this.editMode = false
-      this.value.id = response.data.id
-      this.value.bed_room_pivot = response.data.bed_room_pivot
-      this.value.employee = response.data.employee
-      this.value.bed_room_pivot.bed.pivot = {
-        id: this.value.bed_room_pivot.id
-      }
+      this.$emit('input', {
+        ...response.data,
+        bed_room_pivot: {
+          ...response.data.bed_room_pivot,
+          bed: {
+            ...response.data.bed_room_pivot.bed,
+            pivot: {
+              id: this.value.bed_room_pivot.id
+            }
+          }
+        }
+      })
       this.originalRoomId = this.value.bed_room_pivot.room_id
-      this.$emit('update', this._.cloneDeep(this.value))
+      this.$nextTick(() => {
+        this.$emit('update', this._.cloneDeep(this.value))
+      })
     },
     cancel() {
       this.editMode = false

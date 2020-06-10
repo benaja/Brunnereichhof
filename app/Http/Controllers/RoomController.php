@@ -163,7 +163,7 @@ class RoomController extends Controller
                         'id' => $bedPivot->id
                     ];
                     return $bed;
-                });
+                })->values();
         }
 
         return Room::find($id)->beds;

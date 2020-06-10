@@ -102,9 +102,18 @@ export default {
       if (hoursToAdd >= 0.075 || hoursToAdd <= -0.075) {
         this.moving = true
         this.hasDragged = true
-        const minutes = (this.startHour + hoursToAdd) * 60
+        let minutes = (this.startHour + hoursToAdd) * 60
+        // make shure that you cant move the time element below 00:00
+        if (minutes < 0) {
+          minutes = 0
+        }
+        // make shure that you cant move the time element above 24:00
+        if (minutes / 60 + this.difference > 24) {
+          minutes = (24 - this.difference) * 60
+        }
         this.startHour = (Math.round(minutes / 5) * 5) / 60
         this.lastPosition = positionY
+        // make a copy of difference
         const { difference } = this
         this.value.from = this.getTimeString(this.startHour)
         this.value.to = this.getTimeString(this.startHour + difference)
