@@ -35,6 +35,7 @@
               color="blue"
               class="white--text text-center"
               depressed
+              :loading="isLoadingPdf"
               @click="generatePdf"
             >
               PDF
@@ -82,13 +83,13 @@
 import { downloadFile } from '@/utils'
 
 export default {
-  name: 'RoomdispositionerEvaluation',
   data() {
     return {
       date: this.$moment(new Date()).format('YYYY-MM-DD'),
       roomsWithReservations: [],
       showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds')),
-      isLoading: false
+      isLoading: false,
+      isLoadingPdf: false
     }
   },
   watch: {
@@ -117,7 +118,12 @@ export default {
         })
     },
     generatePdf() {
-      downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`)
+      this.isLoadingPdf = true
+      downloadFile(`rooms/evaluation/${this.date}/pdf?showFreeBeds=${this.showFreeBeds}`).catch(() => {
+        this.$store.commit('error', 'Fehler beim Generieren des PDFs')
+      }).finally(() => {
+        this.isLoadingPdf = false
+      })
     }
   }
 }
