@@ -13,88 +13,53 @@
         "{{ rapport.customer.firstname }} {{ rapport.customer.lastname }}"
         / Woche {{ formatedWeek }}
       </h1>
-      <v-row>
-        <!-- Controls -->
-        <v-col
-          cols="12"
-          md="6"
-          lg="3"
-          class="text-center"
+      <div class="d-flex justify-space-between flex-wrap">
+        <v-btn
+          color="primary"
+          class="my-2"
+          :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          outlined
+          @click="isEmployeePopupOpen = true"
         >
-          <v-btn
-            color="primary"
-            :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
-            outlined
-            @click="isEmployeePopupOpen = true"
-          >
-            <v-icon>edit</v-icon>
-            <span class="ml-3">Mitarbeiter bearbeiten</span>
-          </v-btn>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-          lg="3"
-          class="text-center"
+          <v-icon>edit</v-icon>
+          <span class="ml-3">Mitarbeiter bearbeiten</span>
+        </v-btn>
+        <v-btn
+          slot="activator"
+          color="primary"
+          class="my-2"
+          outlined
+          :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          @click="selectProjectsModel = true"
         >
-          <v-btn
-            slot="activator"
-            color="primary"
-            outlined
-            :disabled="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
-            @click="selectProjectsModel = true"
-          >
-            <v-icon>edit</v-icon>
-            <span class="ml-3">Projekte bearbeiten</span>
-          </v-btn>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-          lg="2"
-          class="text-center"
-        >
-          <v-btn
-            color="primary"
-            outlined
-            :loading="loadingPdf"
-            @click="generatePdf"
-          >
-            <v-icon>picture_as_pdf</v-icon>
-            <span class="ml-3">PDF generieren</span>
-          </v-btn>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-          lg="2"
-          class="text-center"
-        >
-          <day-total v-model="dayTotalModel"></day-total>
-        </v-col>
-        <v-col
-          cols="4"
-          md="4"
-          lg="2"
-          offset="4"
-          offset-md="2"
-          offset-lg="0"
-        >
-          <div class="text-center">
-            <v-checkbox
-              v-model="rapport.isFinished"
-              label="Abgeschlossen"
-              class="my-0 mx-auto text-center"
-              :readonly="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
-              @change="debounce('isFinished', $event)"
-            ></v-checkbox>
-          </div>
-        </v-col>
+          <v-icon>edit</v-icon>
+          <span class="ml-3">Projekte bearbeiten</span>
+        </v-btn>
 
+        <v-btn
+          color="primary"
+          outlined
+          :loading="loadingPdf"
+          class="my-2"
+          @click="generatePdf"
+        >
+          <v-icon>picture_as_pdf</v-icon>
+          <span class="ml-3">PDF generieren</span>
+        </v-btn>
+        <day-total v-model="dayTotalModel"></day-total>
+        <v-checkbox
+          v-model="rapport.isFinished"
+          label="Abgeschlossen"
+          class="my-2 "
+          :readonly="!$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
+          @change="debounce('isFinished', $event)"
+        ></v-checkbox>
+      </div>
+      <div>
         <!-- Table -->
         <v-col
           cols="12"
-          class="elevation-1 table"
+          class="table"
         >
           <v-row>
             <v-col
@@ -187,7 +152,7 @@
             </v-btn>
           </p>
         </v-col>
-      </v-row>
+      </div>
       <div class="alert">
         <v-alert
           :value="savedSuccessful"

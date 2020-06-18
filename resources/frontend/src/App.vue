@@ -100,7 +100,7 @@
                 </v-icon>
                 <span
                   class="ml-2"
-                >Logout</span>
+                >Abmelden</span>
               </v-btn>
             </div>
           </template>

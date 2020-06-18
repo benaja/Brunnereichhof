@@ -8,12 +8,12 @@ class Pdf extends Fpdi
 {
   private $documentWidth = 270;
   private $pageBreakeWidth = 180;
-  private $landscape = 'L';
   private $topOfTable = 0;
   private $pagePaddingLeft = 0;
   private $currentRow = 0;
   private $topRowPosition = 0;
   private $fontName = 'Helvetica';
+  public $landscape = 'L';
   public $textSize = 11;
   public $titleSize = 15;
   public $textToInsertOnPageBreak = "";

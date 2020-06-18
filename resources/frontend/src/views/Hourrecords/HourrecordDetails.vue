@@ -205,7 +205,10 @@ export default {
     },
     generatePdf() {
       this.loadingPdf = true
-      downloadFile(`/pdf/hourrecords?date=${this.monday.format('YYYY-MM-DD')}`).catch(() => {
+      downloadFile('/pdf/hourrecords', {
+        week: this.$route.params.week,
+        year: this.$route.params.year
+      }).catch(() => {
         this.$store.dispatch('error', 'PDF konnte nicht erstellt werden')
       }).finally(() => {
         this.loadingPdf = false

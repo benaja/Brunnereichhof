@@ -221,21 +221,23 @@ class HourrecordController extends Controller
         ])->get()->groupBy('week');
     }
 
-    // GET /pdf/hourrecord?week=23
+    // GET /pdf/hourrecord?week=23?year=2020
     public function pdfByWeek(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['hourrecord_read']);
 
         $this->validate($request, [
-            'date' => 'required|date'
+            'week' => 'required|string',
+            'year' => 'required|string'
         ]);
-        $date = new \DateTime($request->date);
+        $date = new \DateTime();
+        $date->setISODate($request->year, $request->week);
         $this->pdf = new Pdf();
         $startOfWeek = (clone $date)->modify('monday this week');
         $endOfWeek = (clone $date)->modify('sunday this week');
         $headline = "Stundenangaben KW {$date->format('W')} ({$startOfWeek->format('d.m.Y')} - {$endOfWeek->format('d.m.Y')})";
         $this->pdf->textToInsertOnPageBreak = $headline;
-        $hourrecords = Hourrecord::where('week', $date->format('W'))->where('year', $date->format('Y'));
+        $hourrecords = Hourrecord::where('week', $request->week)->where('year', $request->year);
 
         $this->pdf->documentTitle($headline);
         $this->pdf->documentTitle("Stunden: {$hourrecords->sum('hours')}");

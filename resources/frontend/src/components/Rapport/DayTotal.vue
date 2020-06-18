@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <div>
     <v-dialog
       v-model="isOpen"
       max-width="600px"
@@ -8,6 +8,7 @@
         <v-btn
           color="primary"
           outlined
+          class="my-2"
           v-on="on"
         >
           <v-icon>today</v-icon>
@@ -79,7 +80,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-  </v-row>
+  </div>
 </template>
 
 <script>

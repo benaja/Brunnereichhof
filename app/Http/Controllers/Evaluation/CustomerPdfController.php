@@ -184,7 +184,8 @@ class CustomerPdfController extends Controller
         foreach ($rapportsByWeek as $rapport) {
             $hours = $rapport->rapportdetails->sum('hours');
             if ($hours > 0) {
-                $this->pdf->addNewPage('L');
+                $this->pdf->landscape = 'L';
+                $this->pdf->addNewPage();
                 $this->weekRapportForSingleCustomer($rapport);
             }
         }
