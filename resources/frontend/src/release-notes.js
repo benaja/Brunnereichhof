@@ -1,5 +1,21 @@
 export default [
   {
+    version: '2.0',
+    changes: [
+      'Das Design und Layout wurde überarbeitet.',
+      'Version des Frameworks upgedated.',
+      'Änderungen beim Bearbeiten werden nun zuverlässiger gespeichert.',
+      'In der Navigation ist zu sehen ob alle Änderunge gespeichert sind.',
+      'Einzelne Änderungen können rückgängig gemacht werden.',
+      'Einträge beim Roomdispositioner können durchsucht werden.',
+      'Die Zeitspanne beim Roomdispositioner kann beliebig angepasst werden (bis zu einem Jahr).',
+      'Zusätzliche Auswertungen beim Roomdispositioner.',
+      'Ladeanimationen beim generieren der PDFs.',
+      'Das Hochladen des Profilbildes eines Mitarbeiters wurde überarbeitet.'
+    ],
+    bugfixes: ['Kallenderwochen stimmen nun.', 'Diverse Bugs behoben, die du nichtmal bemerkt haben solltest.']
+  },
+  {
     version: '1.12',
     changes: [
       'Arbeitseintrittsjahr und Führerschein als neues Feld zu Mitarbeiter hinzugefügt.',
