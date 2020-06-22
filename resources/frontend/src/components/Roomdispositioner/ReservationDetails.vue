@@ -259,7 +259,6 @@ export default {
       })
     },
     generatePdf() {
-      console.log(this.selectedDay)
       this.loadingPdf = true
       downloadFile('pdf/reservations', {
         date: this.selectedDay.format('YYYY-MM-DD'),
