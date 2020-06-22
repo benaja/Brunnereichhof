@@ -259,8 +259,12 @@ export default {
       })
     },
     generatePdf() {
+      console.log(this.selectedDay)
       this.loadingPdf = true
-      downloadFile(`pdf/reservation/employee/${this.value.employee_id}?date=${this.selectedDay.format('YYYY-MM-DD')}`)
+      downloadFile('pdf/reservations', {
+        date: this.selectedDay.format('YYYY-MM-DD'),
+        employeeId: this.value.employee_id
+      })
         .catch(() => {
           this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
         }).finally(() => {
