@@ -38,10 +38,6 @@ class AuthController extends Controller
         }
 
         return $this->respondWithToken($token);
-
-        // return response([
-        //     'status' => 'success'
-        // ])->header('Authorization', $token);
     }
 
     public function refresh()

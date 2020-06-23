@@ -91,7 +91,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.MONTH_PICKER
                 }
               ],
-              url: 'pdf/rapports/employees?date={month}',
+              url: 'pdf/employees/month-rapport?date={month}',
               rules: {
                 month: v => !!v
               }
@@ -110,7 +110,7 @@ export default {
                   type: EVALUATION_INPUT_TYPES.YEAR_PICKER
                 }
               ],
-              url: 'pdf/rapports/employees/{employee}?date={year}',
+              url: 'pdf/employees/{employee}/year-rapport?date={year}',
               rules: {
                 year: v => !!v,
                 employee: v => !!v
