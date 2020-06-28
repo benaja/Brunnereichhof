@@ -116,13 +116,10 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
 
-        $pivot = BedRoomPivot::create();
-
-        $pivot->room()->associate($roomId);
-        $pivot->bed()->associate($bedId);
-        $pivot->save();
-
-        return $pivot;
+        return BedRoomPivot::create([
+            'bed_id' => $bedId,
+            'room_id' => $roomId
+        ]);
     }
 
     public function removeBed($roomId, $pivotId)

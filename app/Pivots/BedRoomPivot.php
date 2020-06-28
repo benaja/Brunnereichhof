@@ -11,8 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BedRoomPivot extends Pivot
 {
     use SoftDeletes;
+    public $incrementing = true;
 
     public $table = "bed_room";
+
+    protected $fillable = ['bed_id', 'room_id'];
 
     public function bed()
     {
