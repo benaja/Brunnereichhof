@@ -6,6 +6,7 @@ use App\Bed;
 use App\Employee;
 use App\Reservation;
 use App\Helpers\Pdf;
+use App\Helpers\Utils;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -70,5 +71,53 @@ class ReservationPdfController extends Controller
 
         $employeename = count($employees) == 1 ? " $employee->lastname $employee->firstname" : "";
         return $this->pdf->export('Raumbelegung ' . (new \DateTime($request->date))->format('d-m-Y') . $employeename . '.pdf');
+    }
+
+    public function sleepOversPerEmployee(Request $request) {
+        auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
+        $firstDate = Utils::firstDate($request->dateRangeType, $request->date);
+        $lastDate = Utils::lastDate($request->dateRangeType, $request->date);
+
+        $reservations = Reservation::where('entry', '<=', $lastDate->format('Y-m-d'))
+            ->where('exit', '>=', $firstDate->format('Y-m-d'))
+            ->get();
+
+        $sleepOversByEmployee = [];
+        foreach($reservations as $reservation) {
+            $sleepOvers = $reservation->sleepOver($firstDate, $lastDate);
+            if (isset($sleepOversByEmployee[$reservation->employee_id])) {
+                $sleepOversByEmployee[$reservation->employee_id] += $sleepOvers;
+            } else {
+                $sleepOversByEmployee[$reservation->employee_id] = $sleepOvers;
+            }
+        }
+
+        $columns = [];
+        $employees = Employee::withTrashed()
+            ->whereIn('id', array_keys($sleepOversByEmployee))
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+            
+        foreach($employees as $employee) {
+            array_push($columns, [$employee->name(), $sleepOversByEmployee[$employee->id]]);
+        }
+        
+        $documentTitle = "Übernachtungen pro Mitarbeiter \n";
+        if ($request->dateRangeType === 'year') {
+            $documentTitle .= "Jahr: {$firstDate->format('Y')}";
+        } else {
+            $documentTitle .= "Monat: {$firstDate->format('m.Y')}";
+        }
+
+        $pdf = new Pdf();
+        $pdf->documentTitle($documentTitle);
+        $pdf->table(['Mitarbeiter', 'Übernachtungen'], $columns);
+        if ($request->dateRangeType === 'year') {
+            return $pdf->export("Übernachtungen pro Mitarbeiter {$firstDate->format('Y')}.pdf");
+        } else {
+            return $pdf->export("Übernachtungen pro Mitarbeiter {$firstDate->format('m-Y')}.pdf");
+        }
     }
 }

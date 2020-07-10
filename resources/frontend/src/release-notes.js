@@ -1,6 +1,9 @@
 export default [
   {
     version: '2.0.2',
+    changes: [
+      'Pdf generieren für die Übernachtungen pro Mitarbeiter.'
+    ],
     bugfixes: [
       'But beim Löschen eines Mitarbeites beim Wochenrapport behoben.',
       'Mann muss sich nun weniger oft erneut anmelden'

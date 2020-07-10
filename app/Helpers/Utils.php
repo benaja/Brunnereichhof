@@ -5,12 +5,13 @@ namespace App\Helpers;
 use App\Rapportdetail;
 use App\Timerecord;
 use App\User;
+use Illuminate\Support\Str;
 
 class Utils
 {
     public static function getUniqueUsername($username)
     {
-        $username = strtolower($username);
+        $username = Str::ascii(strtolower($username));
 
         if (Utils::checkIfUsernameExist($username)) {
             $usernameIsUnique = false;

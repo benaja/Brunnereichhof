@@ -97,6 +97,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::resource('/rooms', 'RoomController');
     Route::get('rooms/{roomId}/reservations', 'RoomController@reservations');
     Route::get('pdf/sleep-over/rooms', 'RoomController@sleepOver');
+    Route::get('pdf/sleep-over/employees', 'ReservationPdfController@sleepOversPerEmployee');
     
     Route::patch('beds/{bedId}/inventars/{inventarId}', 'BedController@addInventar');
     Route::delete('beds/{bedId}/inventars/{inventarId}', 'BedController@removeInventar');

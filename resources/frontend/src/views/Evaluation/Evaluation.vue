@@ -163,6 +163,23 @@ export default {
               }
             },
             {
+              title: 'Übernachtungen pro Mitarbeiter',
+              inputFields: [
+                {
+                  key: 'date',
+                  type: EVALUATION_INPUT_TYPES.MONTH_OR_YEAR_PICKER
+                }
+              ],
+              errors: [{
+                message: 'Employee has no entries',
+                alert: { text: 'Mitarbeiter hat keine Stundenangaben zur gewählten Zeit', type: 'warning' }
+              }],
+              url: 'pdf/sleep-over/employees?{date}',
+              rules: {
+                date: v => !!v
+              }
+            },
+            {
               title: 'Verpflegungen auf Eichhof',
               inputFields: [
                 {
