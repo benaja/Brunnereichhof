@@ -1,5 +1,12 @@
 export default [
   {
+    version: '2.0.2',
+    bugfixes: [
+      'But beim Löschen eines Mitarbeites beim Wochenrapport behoben.',
+      'Mann muss sich nun weniger oft erneut anmelden'
+    ]
+  },
+  {
     version: '2.0.1',
     bugfixes: ['Pdf erstellen für Reservation funktioniert wieder.']
   },

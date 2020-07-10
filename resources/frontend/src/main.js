@@ -67,7 +67,9 @@ Vue.use(auth, {
       }
     }
     return user
-  }
+  },
+  refreshData: { enabled: false, interval: 0 }
+
 })
 
 const vuetifyOpts = {

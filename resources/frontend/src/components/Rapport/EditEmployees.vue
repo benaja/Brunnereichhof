@@ -132,7 +132,7 @@ export default {
             .delete(`rapports/${this.$route.params.id}/employee/${employee.id}`)
             .then(() => {
               const rapportdetail = this.rapport.rapportdetails
-                .find(r => r[0].employee_id === employee)
+                .find(r => r[0].employee_id === employee.id)
               const index = this.rapport.rapportdetails.indexOf(rapportdetail)
               this.rapport.rapportdetails.splice(index, 1)
               this.rapport.rapportdetails = [...this.rapport.rapportdetails]

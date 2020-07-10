@@ -185,6 +185,7 @@ class RapportController extends Controller
             ]);
             foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
+                    $rapportdetailID = $newRapportdetail['id'];
                     $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
                     $rapportdetail->update([
                         'hours' => $newRapportdetail['hours'],

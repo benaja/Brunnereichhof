@@ -432,7 +432,7 @@ class EmployeeController extends Controller
                     }
                     array_push($lines, $cells);
                     $cells = [""];
-                    $totalHours += $rapportdetail->hours;
+                    $totalHours += $hours;
                 }
             }
             if (count($rapportdetails) > 1 && $totalHours > 0) {

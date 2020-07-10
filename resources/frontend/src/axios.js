@@ -1,10 +1,17 @@
 import axios from 'axios'
 import Vue from 'vue'
+import { get } from 'lodash'
 import router from './router'
 
 axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.interceptors.response.use(
-  response => response,
+  response => {
+    const newtoken = get(response, 'headers.authorization')
+    if (newtoken) {
+      Vue.auth.token(null, newtoken.slice(7, newtoken.length))
+    }
+    return response
+  },
   error => {
     error.includes = (string, key = null) => {
       if (!error.response) return false

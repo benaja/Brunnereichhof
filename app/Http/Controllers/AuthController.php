@@ -42,7 +42,7 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return auth()->tokenById(auth()->user()->id);
     }
 
     public function resetPassword(Request $request)
