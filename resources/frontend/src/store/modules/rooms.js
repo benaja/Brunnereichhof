@@ -7,6 +7,7 @@ export default {
   },
   getters: {
     rooms: state => state.rooms.filter(r => !r.deleted_at),
+    activeRooms: state => state.rooms.filter(r => !r.deleted_at && r.isActive),
     allRooms: state => state.rooms,
     deletedRooms: state => state.rooms.filter(r => r.deleted_at)
   },

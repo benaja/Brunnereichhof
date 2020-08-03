@@ -38,8 +38,17 @@
         label="Raum suchen"
         color="blue"
         :items="rooms"
+        :custom-filter-function="filterActive"
         @showDeleted="s => showDeleted = s"
-      ></search-bar>
+      >
+        <v-switch
+          slot="custom-filter"
+          v-model="showActive"
+          color="blue"
+          label="Aktiv"
+          :disabled="showDeleted"
+        ></v-switch>
+      </search-bar>
       <v-list class="pa-0 elevation-2">
         <v-list-item
           v-for="room of roomsSorted"
@@ -104,7 +113,8 @@ export default {
         { text: 'Nummber', value: 'number' }
       ],
       roomsFiltered: [],
-      showDeleted: false
+      showDeleted: false,
+      showActive: true
     }
   },
   computed: {
@@ -134,6 +144,9 @@ export default {
     },
     activeBeds(room) {
       return room.beds.filter(b => !b.pivot || !b.pivot.deleted_at)
+    },
+    filterActive(room) {
+      return !room.isActive === !this.showActive
     }
   }
 }

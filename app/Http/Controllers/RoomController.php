@@ -11,8 +11,10 @@ use App\Helpers\Utils;
 use App\Pivots\BedRoomPivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\RoomActiveHistory;
 use App\RoomImage;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -48,8 +50,16 @@ class RoomController extends Controller
                 'name' => $request->name,
                 'location' => $request->location,
                 'comment' => $request->comment,
-                'number' => $request->number
+                'number' => $request->number,
+                'isActive' => $request->isActive
             ]);
+
+            if ($request->isActive) {
+                RoomActiveHistory::create([
+                    'room_id' => $room->id,
+                    'active_from' => new DateTime()
+                ]);
+            }
 
             $beds = json_decode($request->beds, true);
             $bedIds = array_map(function ($bed) {
@@ -92,6 +102,34 @@ class RoomController extends Controller
 
         $room->$updatetKey = $updatedValue;
         $room->save();
+
+        if ($updatetKey == 'isActive') {
+            if ($updatedValue) {
+                // Check if there is already an active history from today.
+                // This is used, that there are no active histories with the same active_from date.
+                $roomActiveHistory = RoomActiveHistory::where('room_id', $id)
+                ->where('active_from', (new DateTime())->format('Y-m-d'))
+                ->first();
+                if ($roomActiveHistory) {
+                    $roomActiveHistory->update([
+                        'active_to' => null
+                    ]);
+                } else {
+                    RoomActiveHistory::create([
+                        'room_id' => $id,
+                        'active_from' => new DateTime()
+                    ]);
+                }
+            } else {
+                $roomActiveHistory = RoomActiveHistory::where('room_id', $id)
+                    ->whereNull('active_to')
+                    ->first();
+
+                $roomActiveHistory->update([
+                    'active_to' => new DateTime()
+                ]);
+            }
+        }
 
         return $room;
     }
@@ -246,7 +284,7 @@ class RoomController extends Controller
 
         $firstDate = Utils::firstDate($request->dateRangeType, $request->date);
         $lastDate = Utils::lastDate($request->dateRangeType, $request->date);
-        
+
         $this->pdf->documentTitle("Reservationen für Raum: {$room->name}");
         if ($request->dateRangeType === 'year') {
             $this->pdf->documentTitle("Jahr: {$firstDate->format('Y')}");
@@ -349,7 +387,7 @@ class RoomController extends Controller
             ]);
         }
         $this->pdf->table($headers, $columns);
-    } 
+    }
 
     private function getReservationsByRoomAndTime($roomId, $firstDate, $lastdate)
     {

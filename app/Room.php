@@ -12,7 +12,7 @@ class Room extends Model
 
     public $table = "room";
 
-    protected $fillable = ['name', 'location', 'comment', 'number'];
+    protected $fillable = ['name', 'location', 'comment', 'number', 'isActive'];
 
     public function beds()
     {

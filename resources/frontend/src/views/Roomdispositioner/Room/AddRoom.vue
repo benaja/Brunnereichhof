@@ -44,7 +44,8 @@ export default {
     return {
       room: {
         beds: [],
-        images: []
+        images: [],
+        isActive: 1
       },
       rules,
       isLoading: false
@@ -62,6 +63,7 @@ export default {
         formData.append('location', this.room.location)
         formData.append('number', this.room.number)
         formData.append('comment', this.room.comment || '')
+        formData.append('isActive', this.room.isActive)
         formData.append('beds', JSON.stringify(this.room.beds))
         const config = {
           headers: { 'Content-Type': 'multipart/form-data' },

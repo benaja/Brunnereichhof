@@ -191,6 +191,12 @@ export default {
               show: true
             },
             {
+              to: '/roomdispositioner/show-room',
+              text: 'Zimmer anzeigen',
+              icon: 'visibility',
+              show: true
+            },
+            {
               to: '/rooms',
               text: 'Räume',
               icon: 'apartment',

@@ -62,6 +62,17 @@
           @change="$emit('change', 'comment')"
         ></text-field>
       </v-col>
+      <v-col cols="12">
+        <v-checkbox
+          v-model="value.isActive"
+          label="Aktiv"
+          color="blue"
+          :false-value="0"
+          :true-value="1"
+          :readonly="readonly"
+          @change="$emit('change', 'isActive')"
+        ></v-checkbox>
+      </v-col>
       <v-col
         v-if="!readonly"
         cols="12"
