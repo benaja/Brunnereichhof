@@ -72,16 +72,22 @@ class WorkerPdfController extends Controller
     // Helpers
     private function timerecordsMonthRapport($workerId, $date) {
         $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
+        $lastDayOfMonth = Utils::lastDate('month', new \DateTime($date));
 
-        $workers = [];
-        if ($workerId !== 'all') {
-            array_push($workers, User::find($workerId));
-        } else {
-            foreach (User::workers()->withTrashed()->orderby('lastname')->get() as $worker) {
-                if ($worker->totalHoursByMonth($firstDayOfMonth) > 0) {
-                    array_push($workers, $worker);
-                }
-            }
+        $workers = User::workers()->with(['timerecords' => function($query) use ($firstDayOfMonth, $lastDayOfMonth) {
+            $query->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
+                ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
+                ->with('hours.worktype');
+        }])->when($workerId !== 'all', function($query) use ($workerId) {
+            $query->where('id', $workerId);
+        })->withTrashed()
+            ->orderby('lastname')
+            ->get();
+
+        if ($workerId === 'all') {
+            $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) { 
+                return $worker->totalHoursByMonth($firstDayOfMonth) > 0;
+            });
         }
 
         $this->pdf = new Pdf();
@@ -121,8 +127,13 @@ class WorkerPdfController extends Controller
     private function timerecordsYearRapport($workerId, $date)
     {
         $firstDayOfYear = Utils::firstDate('year', new \DateTime($date));
+        $lastDayOfYear = Utils::lastDate('year', new \DateTime($date));
 
-        $worker = User::find($workerId);
+        $worker = User::with(['timerecords' => function($query) use ($firstDayOfYear, $lastDayOfYear) {
+            $query->where('date', '>=', $firstDayOfYear->format('Y-m-d'))
+                ->where('date', '<=', $lastDayOfYear->format('Y-m-d'))
+                ->with('hours.worktype');
+        }])->find($workerId);
         $this->pdf = new Pdf();
         $this->pdf->documentTitle('Jahresrapport Hofmitarbeiter');
         $this->pdf->documentTitle($worker->fullName());
