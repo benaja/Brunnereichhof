@@ -56,32 +56,23 @@
               <v-list-group
                 v-else-if="navItem.show"
                 :key="index"
+                :prepend-icon="navItem.icon"
+                no-action
               >
                 <template v-slot:activator>
-                  <v-list-item
-                    link
-                    :to="navItem.to"
-                    :class="`ma-0 ${navItem.to ? '' : 'no-link'}`"
-                  >
-                    <v-list-item-icon>
-                      <v-icon :class="navItem.to">
-                        {{ navItem.icon }}
-                      </v-icon>
-                    </v-list-item-icon>
+                  <v-list-item-content>
                     <v-list-item-title>{{ navItem.text }}</v-list-item-title>
-                  </v-list-item>
+                  </v-list-item-content>
                 </template>
                 <v-list-item
                   v-for="(navSubItem, i) of navItem.items.filter(item => item.show)"
                   :key="`${index}-${i}`"
                   link
-                  class="ml-2"
                   :to="navSubItem.to"
                 >
-                  <v-list-item-icon>
-                    <v-icon>{{ navSubItem.icon }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title>{{ navSubItem.text }}</v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ navSubItem.text }}</v-list-item-title>
+                  </v-list-item-content>
                 </v-list-item>
               </v-list-group>
             </template>
@@ -173,11 +164,16 @@ export default {
           show: this.hasPermission([], ['timerecord_read_write'])
         },
         {
-          to: '/roomdispositioner',
           text: 'Roomdispositioner',
           icon: 'house',
           show: this.hasPermission(['superadmin'], ['roomdispositioner_read']),
           items: [
+            {
+              to: '/roomdispositioner/reservationen',
+              text: 'Reservationen',
+              icon: 'show_chart',
+              show: true
+            },
             {
               to: '/roomdispositioner/evaluation',
               text: 'Auswertung',
@@ -338,15 +334,15 @@ body {
   z-index: 1000;
 }
 
-.v-navigation-drawer .v-list--nav {
-  .v-list-group__header {
-    padding-left: 0;
+// .v-navigation-drawer .v-list--nav {
+//   .v-list-group__header {
+//     padding-left: 0;
 
-    .no-link + * .v-icon {
-      margin-right: 4px;
-    }
-  }
-}
+//     .no-link + * .v-icon {
+//       margin-right: 4px;
+//     }
+//   }
+// }
 
 .logo {
   width: 80%;

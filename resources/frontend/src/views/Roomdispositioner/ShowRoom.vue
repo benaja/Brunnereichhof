@@ -50,7 +50,40 @@
         :custom-sort="sortItems"
         :sort-by="['entry']"
         not-data-text="Keine Einträge vorhanden"
-      ></v-data-table>
+      >
+        <template v-slot:item="{item}">
+          <v-menu
+            v-model="item.model"
+            :close-on-content-click="false"
+            z-index="4"
+            max-width="100%"
+            min-width="300"
+            close-delay="10"
+          >
+            <template v-slot:activator="{on}">
+              <tr
+                class="row-item"
+                :class="{'blue lighten-5': item.active}"
+                v-on="on"
+              >
+                <td>{{ item.entry }}</td>
+                <td>{{ item.exit }}</td>
+                <td>{{ item.employeeName }}</td>
+                <td>{{ item.bedName }}</td>
+              </tr>
+            </template>
+            <reservation-details
+              v-model="item.reservation"
+              :original="item.original"
+              :selected-day="$moment(item.entry)"
+              @close="item.model = false"
+              @delete="deleteReservation"
+              @update="getReservations"
+              @updateAll="getReservations"
+            />
+          </v-menu>
+        </template>
+      </v-data-table>
     </v-container>
   </fragment>
 </template>
@@ -58,10 +91,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import DatePicker from '@/components/general/DatePicker'
+import ReservationDetails from '@/components/Roomdispositioner/ReservationDetails'
 
 export default {
   components: {
-    DatePicker
+    DatePicker,
+    ReservationDetails
   },
   data() {
     return {
@@ -96,16 +131,7 @@ export default {
   computed: {
     ...mapGetters(['activeRooms']),
     reservationTableItems() {
-      const reservations = []
-      for (const reservation of this.reservations) {
-        reservations.push({
-          entry: this.$moment(reservation.entry).format('DD.MM.YYYY'),
-          exit: this.$moment(reservation.exit).format('DD.MM.YYYY'),
-          employeeName: `${reservation.employee.lastname} ${reservation.employee.firstname}`,
-          bedName: reservation.bed_room_pivot.bed.name
-        })
-      }
-      return reservations
+      return this.reservations.map(reservation => this.mapReservation(reservation))
     }
   },
   mounted() {
@@ -145,11 +171,40 @@ export default {
         })
       }
       return items
+    },
+    mapReservation(reservation) {
+      return {
+        id: reservation.id,
+        entry: this.$moment(reservation.entry).format('DD.MM.YYYY'),
+        exit: this.$moment(reservation.exit).format('DD.MM.YYYY'),
+        employeeName: `${reservation.employee.lastname} ${reservation.employee.firstname}`,
+        bedName: reservation.bed_room_pivot.bed.name,
+        active: this.$moment(reservation.entry).isSameOrBefore(this.$moment(), 'day')
+            && this.$moment(reservation.exit).isSameOrAfter(this.$moment(), 'day'),
+        reservation: this._.cloneDeep(reservation),
+        original: this._.cloneDeep(reservation),
+        model: false
+      }
+    },
+    deleteReservation(r) {
+      const reservation = this.reservations.find(res => res.id === r.id)
+      this.reservations.splice(this.reservations.indexOf(reservation), 1)
+    },
+    updateReservation(originalReservation, reservation) {
+      this.reservations = this.reservations.map(r => {
+        if (r.id !== originalReservation.id) return r
+        return reservation
+      })
+    },
+    updateAllReservations(reservations) {
+      this.reservations = reservations
     }
   }
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.row-item {
+  cursor: pointer;
+}
 </style>

@@ -245,7 +245,7 @@ export default new Router({
       props: true
     },
     {
-      path: '/roomdispositioner',
+      path: '/roomdispositioner/reservationen',
       name: 'Roomdispositioner',
       component: () => import('./views/Roomdispositioner/Dashboard'),
       meta: {

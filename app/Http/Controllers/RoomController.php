@@ -391,8 +391,7 @@ class RoomController extends Controller
 
     private function getReservationsByRoomAndTime($roomId, $firstDate, $lastdate)
     {
-        return Reservation::with('employee')
-            ->with('BedRoomPivot.Bed')
+        return Reservation::with(['employee', 'bedRoomPivot', 'bedRoomPivot.bed', 'bedRoomPivot.room'])
             ->join('bed_room', 'bed_room.id', '=', 'reservation.bed_room_id')
             ->where('bed_room.room_id', $roomId)
             ->where('entry', '<=', $lastdate->format('Y-m-d'))
