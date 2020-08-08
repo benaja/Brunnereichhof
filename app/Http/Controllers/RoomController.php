@@ -404,10 +404,8 @@ class RoomController extends Controller
 
     private function getRoomsforEvaluation(\DateTime $date)
     {
-        $rooms = Room::all();
-        foreach ($rooms as $room) {
-            $room->bed_room_pivots = $room->bedRoomPivots()
-                ->withTrashed()
+        $rooms = Room::with(['bedRoomPivots' => function ($query) use ($date) {
+            $query->withTrashed()
                 ->where(function ($query) use ($date) {
                     $query->where('deleted_at', '>', $date->format('Y-m-d') . ' 23:59:59')
                         ->orWhere('deleted_at', null);
@@ -416,13 +414,12 @@ class RoomController extends Controller
                     $query->where('created_at', '<=', $date->format('Y-m-d') . ' 23:59:59')
                         ->orWhere('created_at', null);
                 })
-                ->with(['Reservations' => function ($query) use ($date) {
-                    $query->with('Employee');
-                    $query->where('reservation.entry', '<=', $date->format('Y-m-d'));
-                    $query->where('reservation.exit', '>=', $date->format('Y-m-d'));
-                }])->with('Bed')
-                ->get()->toArray();
-        }
+                ->with(['reservations' => function ($query) use ($date) {
+                    $query->with('employee')
+                        ->where('reservation.entry', '<=', $date->format('Y-m-d'))
+                        ->where('reservation.exit', '>=', $date->format('Y-m-d'));
+                }])->with('bed');
+        }])->with('activeHistory')->get();
         return $this->sortAndFormatRoomsForEvaluation($rooms->toArray());
     }
 

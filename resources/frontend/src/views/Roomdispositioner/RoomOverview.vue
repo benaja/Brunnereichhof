@@ -7,8 +7,13 @@
       full-width
     >
       <v-switch
+        v-model="onlyActiveRooms"
+        class="ml-auto mr-4"
+        color="blue"
+        label="Nur aktive Räume"
+      ></v-switch>
+      <v-switch
         v-model="showFreeBeds"
-        class="ml-auto"
         color="blue"
         label="Freie Betten anzeigen"
       ></v-switch>
@@ -47,7 +52,7 @@
         </v-col>
         <v-col class="content-container">
           <div
-            v-for="room of roomsWithReservations"
+            v-for="room of rooms"
             :key="'room-' + room.id"
             class="mb-3"
           >
@@ -89,7 +94,17 @@ export default {
       roomsWithReservations: [],
       showFreeBeds: JSON.parse(localStorage.getItem('showFreeBeds')),
       isLoading: false,
-      isLoadingPdf: false
+      isLoadingPdf: false,
+      onlyActiveRooms: true
+    }
+  },
+  computed: {
+    rooms() {
+      const selectedDate = this.$moment(this.date)
+      return this.roomsWithReservations
+        .filter(r => !this.onlyActiveRooms
+          || r.active_history.find(a => this.$moment(a.active_from).isBefore(selectedDate)
+            && (!a.active_to || this.$moment(a.active_to).isAfter(selectedDate))))
     }
   },
   watch: {

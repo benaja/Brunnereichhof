@@ -14,6 +14,8 @@ class Employee extends Model
 
     public $table = "employee";
 
+    protected $with = ['user'];
+
     protected $fillable = [
         'callname',
         'nationality',

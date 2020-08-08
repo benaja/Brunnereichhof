@@ -28,4 +28,8 @@ class Room extends Model
     {
         return $this->hasMany(RoomImage::class);
     }
+
+    public function activeHistory() {
+        return $this->hasMany(RoomActiveHistory::class);
+    }
 }

@@ -49,8 +49,8 @@ class DashboardController extends Controller
 
         $allBeds = BedRoomPivot::with(['bed', 'room'])->get()->toArray();
         $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
-            if ($bedRoomPivot['room']['deleted_at']) return 0;
-            return $bedRoomPivot['bed']['places'];
+            if ($bedRoomPivot['room'] && $bedRoomPivot['room']['deleted_at']) return 0;
+            return $bedRoomPivot['bed'] && $bedRoomPivot['bed']['places'];
         }, $allBeds));
         $stats = [
             'freePlaces' => $amountOfAllBeds - count($beds),

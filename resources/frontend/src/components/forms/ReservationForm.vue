@@ -80,7 +80,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['rooms']),
+    ...mapGetters({ rooms: 'activeRooms' }),
     availableRooms() {
       const rooms = [...this.rooms]
       if (this.originalRoomId && !this.rooms.find(r => r.id === this.originalRoomId)) {
