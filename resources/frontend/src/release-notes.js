@@ -1,5 +1,17 @@
 export default [
   {
+    version: '2.1',
+    changes: [
+      'Räume können auf aktiv oder nicht aktiv gesetzt werden.',
+      `Neue Seite "Zimmer Anzeigen": Raum und Jahr kann ausgewählt werden und sieht
+        dann die history der Reservationen für diesen Raum`,
+      'Bessere Performance bei der Generierung einiger Pdfs'
+    ],
+    bugfixes: [
+      'Reservations Statistiken funktionieren wieder.'
+    ]
+  },
+  {
     version: '2.0.2',
     changes: [
       'Pdf generieren für die Übernachtungen pro Mitarbeiter.'
