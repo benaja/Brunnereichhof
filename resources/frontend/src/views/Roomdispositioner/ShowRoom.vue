@@ -75,7 +75,7 @@
             <reservation-details
               v-model="item.reservation"
               :original="item.original"
-              :selected-day="$moment(item.entry)"
+              :selected-day="$moment(item.entry, 'DD.MM.YYYY')"
               @close="item.model = false"
               @delete="deleteReservation"
               @update="getReservations"

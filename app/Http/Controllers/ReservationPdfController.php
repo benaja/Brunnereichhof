@@ -24,32 +24,33 @@ class ReservationPdfController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $this->pdf = new Pdf();
+        $date = (new \DateTime($request->date))->format('Y-m-d');
 
-        $employees = Employee::withTrashed()->find($request->employeeId);
-        if (!$employees) {
-            $employees = Employee::with('user')
-                ->withTrashed()
-                ->get()
-                ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
-                ->values();
-        } else {
-            $employees = [$employees];
-        }
-        $usedEmployees = [];
+        $employees = Employee::with(['reservations' => function ($query) use ($date) {
+            $query->where('entry', '<=', $date)
+                ->where('exit', '>=', $date)
+                ->with('bedRoomPivot.bed.inventars')
+                ->with('bedRoomPivot.room')
+                ->with('employee');
+        }])->withTrashed()
+            ->when($request->employeeId, function($query, $employeeId) {
+                $query->where('id', $employeeId);
+            })
+            ->get()
+            ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
         $counter = 0;
         foreach ($employees as $employee) {
-            $date = (new \DateTime($request->date))->format('Y-m-d');
-            $reservation = Reservation::where('employee_id', '=', $employee->id)
-                ->where('entry', '<=', $date)
-                ->where('exit', '>=', $date)->first();
-            if (!in_array($employee->id, $usedEmployees) && $reservation) {
+            if (count($employee->reservations) > 0) {
+                $reservation = $employee->reservations[0];
                 if ($counter != 0) {
                     $this->pdf->addNewPage();
                 }
                 $bed = $reservation->bedRoomPivot->bed;
 
                 $lines = [];
-                $inventars = Bed::withTrashed()->find($bed->id)->inventars;
+                $inventars = $bed->inventars;
                 foreach ($inventars as $inventar) {
                     $amount = $inventar->pivot->amount;
                     array_push($lines, [$amount, $inventar->name, 'CHF ' . number_format($inventar->price, 2), '', '', '']);
