@@ -363,6 +363,14 @@ export default new Router({
       meta: {
         auth: true
       }
+    },
+    {
+      path: '/transactions',
+      name: 'Transactions',
+      component: () => import('./views/transactions/Transactions'),
+      meta: {
+        auth: true
+      }
     }
   ],
   scrollBehavior() {

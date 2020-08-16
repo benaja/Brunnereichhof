@@ -271,6 +271,11 @@ export default {
           show: this.hasPermission(['superadmin'], ['transaction_read']),
           items: [
             {
+              to: '/transactions',
+              text: 'Erfassen',
+              show: true
+            },
+            {
               to: '/transaction-types',
               text: 'Vorschuss Typen',
               show: true
