@@ -12,7 +12,8 @@ export default {
       dashboard: false,
       evaluation: false,
       worktypes: false,
-      settings: false
+      settings: false,
+      transactionTypes: false
     }
   },
   getters: {

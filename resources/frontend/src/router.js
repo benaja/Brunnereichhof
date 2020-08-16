@@ -355,6 +355,14 @@ export default new Router({
       meta: {
         auth: true
       }
+    },
+    {
+      path: '/transaction-types',
+      name: 'TransactionTypes',
+      component: () => import('./views/transactions/TransactionTypes'),
+      meta: {
+        auth: true
+      }
     }
   ],
   scrollBehavior() {

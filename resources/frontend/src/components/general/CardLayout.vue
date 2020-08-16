@@ -4,6 +4,9 @@
   >
     <h3 class="pa-4 title">
       {{ title }}
+      <span class="float-right">
+        <slot name="title-action"></slot>
+      </span>
     </h3>
     <div class="card-content">
       <slot></slot>

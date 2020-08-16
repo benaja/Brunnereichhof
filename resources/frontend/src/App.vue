@@ -266,6 +266,18 @@ export default {
           show: this.hasPermission(['superadmin'], ['hourrecord_read'])
         },
         {
+          text: 'Vorschuss Manager',
+          icon: 'attach_money',
+          show: this.hasPermission(['superadmin'], ['transaction_read']),
+          items: [
+            {
+              to: '/transaction-types',
+              text: 'Vorschuss Typen',
+              show: true
+            }
+          ]
+        },
+        {
           to: '/roles',
           text: 'Rollen',
           icon: 'fingerprint',

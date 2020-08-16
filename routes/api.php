@@ -1,4 +1,8 @@
 <?php
+
+use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\TransactionTypesController;
+
 Route::post('auth/login', 'AuthController@login');
 
 Route::group(['middleware' => 'jwt'], function () {
@@ -111,4 +115,7 @@ Route::group(['middleware' => 'jwt'], function () {
     
     Route::resource('worktypes', 'WorktypeController');
 
+    // transactions
+    Route::resource('transaction-types', 'TransactionTypesController', ['except' => ['create', 'edit']]);
+    Route::resource('transactions', TransactionsController::class, ['except' => ['create', 'edit']]);
 });
