@@ -3,8 +3,8 @@
     <v-row class="filter-controlls">
       <v-col
         cols="12"
-        :md="customFilterFunction ? 7 : 9"
-        :lg="customFilterFunction ? 9 : 10"
+        :md="disableDeleted ? 12 : customFilterFunction ? 7 : 9"
+        :lg="disableDeleted ? 12 : customFilterFunction ? 9 : 10"
       >
         <v-text-field
           v-model="searchString"
@@ -22,6 +22,7 @@
         <slot name="custom-filter"></slot>
       </v-col>
       <v-col
+        v-if="!disableDeleted"
         :cols="customFilterFunction ? 6 : 12"
         md="3"
         lg="2"
@@ -67,6 +68,10 @@ export default {
     color: {
       type: String,
       default: 'primary'
+    },
+    disableDeleted: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

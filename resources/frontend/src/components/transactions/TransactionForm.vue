@@ -3,38 +3,38 @@
     ref="form"
     @keyup.native.enter="$emit('submit')"
   > -->
-  <tr>
+  <tr v-if="loaded">
     <td>{{ value.name }}</td>
     <td>
       <select-field
-        v-model="transaction.positive_transaction_type_id"
+        v-model="value.transaction.positive_transaction_type_id"
         label="Hinzufügen"
         :items="transactionTypes.filter(t => t.is_positive)"
         item-text="name"
         item-value="id"
-        @input="transaction.negative_transaction_type_id = null"
+        @input="value.transaction.negative_transaction_type_id = null"
       ></select-field>
     </td>
     <td>
       <select-field
-        v-model="transaction.negative_transaction_type_id"
+        v-model="value.transaction.negative_transaction_type_id"
         label="Entfernen"
         :items="transactionTypes.filter(t => !t.is_positive)"
         item-text="name"
         item-value="id"
-        @input="transaction.positive_transaction_type_id = null"
+        @input="value.transaction.positive_transaction_type_id = null"
       ></select-field>
     </td>
     <td>
       <text-field
-        v-model="transaction.amount"
+        v-model="value.transaction.amount"
         label="Menge in CHF"
         type="number"
       ></text-field>
     </td>
     <td>
       <text-field
-        v-model="transaction.comment"
+        v-model="value.transaction.comment"
         label="Kommentar"
       ></text-field>
     </td>
@@ -69,11 +69,16 @@ export default {
   data() {
     return {
       rules,
-      transaction: {}
+      transaction: {},
+      loaded: false
     }
   },
   computed: {
     ...mapGetters(['transactionTypes'])
+  },
+  mounted() {
+    this.value.transaction = this.value.transaction || {}
+    this.loaded = true
   },
   methods: {
     validate() {

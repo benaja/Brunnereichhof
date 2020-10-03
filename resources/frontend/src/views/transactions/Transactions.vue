@@ -5,12 +5,25 @@
       :loading="isLoading.employees"
     ></navigation-bar>
     <v-container>
+      <search-bar
+        ref="searchBar"
+        v-model="employeesFiltered"
+        name="employees"
+        label="Mitarbeiter suchen"
+        disable-deleted
+        :items="mapedEmployees"
+      >
+      </search-bar>
       <v-data-table
-        :items="activeEmployees"
+        :items="employeesFiltered"
         :headers="headers"
       >
-        <template v-slot:item="{item}">
-          <transaction-form v-model="item"></transaction-form>
+        <template v-slot:body="{items}">
+          <transaction-form
+            v-for="item of items"
+            :key="item.id"
+            :value="item"
+          ></transaction-form>
         </template>
       </v-data-table>
     </v-container>
@@ -19,11 +32,13 @@
 
 <script>
 import TransactionForm from '@/components/transactions/TransactionForm'
+import SearchBar from '@/components/general/SearchBar'
 import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    TransactionForm
+    TransactionForm,
+    SearchBar
   },
   data() {
     return {
@@ -44,11 +59,18 @@ export default {
         {
           text: 'Kommentar'
         }
-      ]
+      ],
+      employeesFiltered: []
     }
   },
   computed: {
-    ...mapGetters(['activeEmployees', 'isLoading'])
+    ...mapGetters(['activeEmployees', 'isLoading']),
+    mapedEmployees() {
+      return this.activeEmployees.map(e => ({
+        ...e,
+        transaction: e.transaction || {}
+      }))
+    }
   },
   async mounted() {
     await this.$store.dispatch('fetchEmployees')
