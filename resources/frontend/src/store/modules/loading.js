@@ -13,7 +13,8 @@ export default {
       evaluation: false,
       worktypes: false,
       settings: false,
-      transactionTypes: false
+      transactionTypes: false,
+      transactions: false
     }
   },
   getters: {

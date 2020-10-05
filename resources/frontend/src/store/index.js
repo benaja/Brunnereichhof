@@ -12,6 +12,7 @@ import authorizationRules from './modules/authorizationRules'
 import timerecords from './modules/timerecords'
 import settings from './modules/settings'
 import transactionTypes from './modules/transactionTypes'
+import transactions from './modules/transactions'
 
 Vue.use(Vuex)
 
@@ -28,7 +29,8 @@ export default new Vuex.Store({
     authorizationRules,
     timerecords,
     settings,
-    transactionTypes
+    transactionTypes,
+    transactions
   },
   state: {
     isMobile: false,

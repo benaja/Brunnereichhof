@@ -365,6 +365,14 @@ export default new Router({
       }
     },
     {
+      path: '/add-transactions',
+      name: 'AddTransactions',
+      component: () => import('./views/transactions/AddTransactions'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/transactions',
       name: 'Transactions',
       component: () => import('./views/transactions/Transactions'),

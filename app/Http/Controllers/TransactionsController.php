@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TransactionBulkRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Transaction;
@@ -16,7 +17,15 @@ class TransactionsController extends Controller
      */
     public function index()
     {
-        return TransactionResource::collection(Transaction::all());
+        $transactions = Transaction::with(['employee', 'type'])
+            ->orderBy('created_at', 'desc');
+
+        if (request()->get('per_page') > 0) {
+            $transactions = $transactions->paginate(request()->get('per_page'));
+        } else {
+            $transactions = $transactions->get();
+        }
+        return TransactionResource::collection($transactions);
     }
 
     /**
@@ -25,9 +34,13 @@ class TransactionsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TransactionRequest $request)
     {
         return TransactionResource::make($request->store());
+    }
+
+    public function bulkCreate(TransactionBulkRequest $request) {
+        return $request->store();
     }
 
     /**
@@ -48,9 +61,9 @@ class TransactionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(TransactionRequest $request, Transaction $transaction)
     {
-        //
+        return TransactionResource::make($request->update($transaction));
     }
 
     /**
@@ -59,8 +72,8 @@ class TransactionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Transaction $transaction)
     {
-        //
+        $transaction->delete();
     }
 }

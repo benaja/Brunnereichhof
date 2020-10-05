@@ -1,84 +1,122 @@
 <template>
   <fragment>
     <navigation-bar
-      title="Vorschuss Manager"
-      :loading="isLoading.employees"
-    ></navigation-bar>
+      title="Vorschüsse Anzeigen"
+      :loading="isLoading.transactions"
+    >
+    </navigation-bar>
     <v-container>
-      <search-bar
-        ref="searchBar"
-        v-model="employeesFiltered"
-        name="employees"
-        label="Mitarbeiter suchen"
-        disable-deleted
-        :items="mapedEmployees"
-      >
-      </search-bar>
       <v-data-table
-        :items="employeesFiltered"
+        :items="transactions"
         :headers="headers"
+        :items-per-page="15"
+        :server-items-length="transactionsMeta.total || transactions.length"
+        :footer-props=" {itemsPerPageOptions: [15, 30, -1]}"
+        @pagination="paginate"
       >
-        <template v-slot:body="{items}">
-          <transaction-form
-            v-for="item of items"
-            :key="item.id"
-            :value="item"
-          ></transaction-form>
+        <template v-slot:item="{item}">
+          <tr>
+            <td>{{ item.employee.lastname }} {{ item.employee.firstname }}</td>
+            <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
+            <td>{{ item.type.name }}</td>
+            <td>{{ item.amount }}</td>
+            <td>{{ item.comment }}</td>
+            <td class="d-flex justify-end">
+              <v-btn
+                icon
+                @click="editTransaction = item"
+              >
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                @click="deleteTransaction(item)"
+              >
+                <v-icon>delete</v-icon>
+              </v-btn>
+            </td>
+          </tr>
         </template>
       </v-data-table>
     </v-container>
+    <v-dialog
+      :value="!!editTransaction"
+      width="900"
+      @input="editTransaction = null"
+    >
+      <edit-transaction
+        v-model="editTransaction"
+        @update="updateTransactions"
+        @cancel="editTransaction = null"
+      ></edit-transaction>
+    </v-dialog>
   </fragment>
 </template>
 
 <script>
-import TransactionForm from '@/components/transactions/TransactionForm'
-import SearchBar from '@/components/general/SearchBar'
 import { mapGetters } from 'vuex'
+import { confirmAction } from '@/utils'
+import EditTransaction from '@/components/transactions/EditTransaction'
 
 export default {
   components: {
-    TransactionForm,
-    SearchBar
+    EditTransaction
   },
   data() {
     return {
+      editTransaction: null,
+      paginations: {},
       headers: [
         {
-          text: 'Name',
-          value: 'name'
+          text: 'Mitarbeiter',
+          value: 'employee.lastname'
         },
         {
-          text: 'Hinzufügen'
+          text: 'Datum',
+          value: 'date'
         },
         {
-          text: 'Entfernen'
+          text: 'Vorschuss Typ',
+          value: 'type.name'
         },
         {
-          text: 'Menge'
+          text: 'Menge in CHF',
+          value: 'amount'
         },
         {
-          text: 'Kommentar'
+          text: 'Kommentar',
+          value: 'comment'
+        },
+        {
+          text: 'Aktionen'
         }
-      ],
-      employeesFiltered: []
+      ]
     }
   },
   computed: {
-    ...mapGetters(['activeEmployees', 'isLoading']),
-    mapedEmployees() {
-      return this.activeEmployees.map(e => ({
-        ...e,
-        transaction: e.transaction || {}
-      }))
-    }
+    ...mapGetters(['transactions', 'isLoading', 'transactionsMeta'])
   },
-  async mounted() {
-    await this.$store.dispatch('fetchEmployees')
-    await this.$store.dispatch('fetchTransactionTypes')
+  methods: {
+    updateTransactions() {
+      this.editTransaction = null
+      this.$store.dispatch('fetchTransactions', this.paginations)
+    },
+    paginate(paginations) {
+      this.paginations = paginations
+      this.$store.dispatch('fetchTransactions', paginations)
+    },
+    deleteTransaction(transaction) {
+      confirmAction().then(value => {
+        if (value) {
+          this.axios.delete(`transactions/${transaction.id}`).then(() => {
+            this.$store.dispatch('alert', { text: 'Vorschuss wurde erfolgreich gelöscht' })
+            this.$store.dispatch('fetchTransactions', this.paginations)
+          }).catch(() => {
+            this.$store.dispatch('error', 'Vorschuss konnte nicht gelöscht werden')
+          })
+        }
+      })
+    }
   }
 }
 </script>
-
-<style>
-
-</style>

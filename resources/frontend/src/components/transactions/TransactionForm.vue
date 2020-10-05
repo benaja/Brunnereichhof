@@ -3,40 +3,63 @@
     ref="form"
     @keyup.native.enter="$emit('submit')"
   > -->
-  <tr v-if="loaded">
+  <tr>
     <td>{{ value.name }}</td>
     <td>
-      <select-field
+      <div class="mt-3">
+        <date-picker
+          v-model="value.transaction.date"
+          outlined
+          no-icon
+          label="Datum"
+          dense
+        ></date-picker>
+      </div>
+    </td>
+    <td>
+      <v-select
         v-model="value.transaction.positive_transaction_type_id"
+        class="mt-3"
         label="Hinzufügen"
         :items="transactionTypes.filter(t => t.is_positive)"
         item-text="name"
         item-value="id"
+        outlined
+        dense
         @input="value.transaction.negative_transaction_type_id = null"
-      ></select-field>
+      ></v-select>
     </td>
     <td>
-      <select-field
+      <v-select
         v-model="value.transaction.negative_transaction_type_id"
+        class="mt-3"
         label="Entfernen"
         :items="transactionTypes.filter(t => !t.is_positive)"
         item-text="name"
         item-value="id"
+        outlined
+        dense
         @input="value.transaction.positive_transaction_type_id = null"
-      ></select-field>
+      ></v-select>
     </td>
     <td>
-      <text-field
+      <v-text-field
         v-model="value.transaction.amount"
+        class="mt-3"
         label="Menge in CHF"
         type="number"
-      ></text-field>
+        dense
+        outlined
+      ></v-text-field>
     </td>
     <td>
-      <text-field
+      <v-text-field
         v-model="value.transaction.comment"
+        class="mt-3"
         label="Kommentar"
-      ></text-field>
+        dense
+        outlined
+      ></v-text-field>
     </td>
   </tr>
   <!-- </v-form> -->
@@ -44,13 +67,12 @@
 
 <script>
 import { rules } from '@/utils'
-import { SelectField, TextField } from '@/components/FormComponents'
+import DatePicker from '@/components/general/DatePicker'
 import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    TextField,
-    SelectField
+    DatePicker
   },
   props: {
     value: {
@@ -76,9 +98,15 @@ export default {
   computed: {
     ...mapGetters(['transactionTypes'])
   },
-  mounted() {
-    this.value.transaction = this.value.transaction || {}
-    this.loaded = true
+  watch: {
+    'value.transaction': {
+      deep: true,
+      handler: transaction => {
+        transaction.isValid = (transaction.positive_transaction_type_id
+          || transaction.negative_transaction_type_id)
+          && transaction.date && transaction.amount
+      }
+    }
   },
   methods: {
     validate() {
@@ -86,6 +114,9 @@ export default {
     },
     reset() {
       return this.$refs.form.reset()
+    },
+    updateDate(date) {
+      console.log(date)
     }
   }
 }

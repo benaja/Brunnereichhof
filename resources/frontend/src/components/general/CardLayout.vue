@@ -23,6 +23,7 @@
         :color="color"
         :loading="saving"
         depressed
+        :disabled="!valid"
         class="white--text"
         @click="$emit('save')"
       >
@@ -60,6 +61,10 @@ export default {
     title: {
       type: String,
       default: null
+    },
+    valid: {
+      type: Boolean,
+      default: true
     }
   }
 }

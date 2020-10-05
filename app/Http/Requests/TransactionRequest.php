@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Transaction;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TransactionRequest extends FormRequest
@@ -24,7 +25,7 @@ class TransactionRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => ['required', 'float'],
+            'amount' => ['required', 'numeric'],
             'date' => ['required','date'],
             'comment' => ['nullable', 'string'],
             'transaction_type_id' => ['required', 'exists:transaction_types,id'],
@@ -32,7 +33,10 @@ class TransactionRequest extends FormRequest
         ];
     }
 
-    public function store() {
+    public function update(Transaction $transaction) {
         $data = $this->validated();
+
+        $transaction->update($data);
+        return $transaction;
     }
 }

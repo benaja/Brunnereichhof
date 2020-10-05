@@ -271,8 +271,13 @@ export default {
           show: this.hasPermission(['superadmin'], ['transaction_read']),
           items: [
             {
+              to: '/add-transactions',
+              text: 'Stapelverarbeitung',
+              show: true
+            },
+            {
               to: '/transactions',
-              text: 'Erfassen',
+              text: 'Vorschüsse Anzeigen',
               show: true
             },
             {

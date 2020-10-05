@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 
 class Transaction extends Model
 {
@@ -26,6 +27,11 @@ class Transaction extends Model
     }
 
     public function type() {
-        return $this->belongsTo(TransactionType::class);
+        return $this->belongsTo(TransactionType::class, 'transaction_type_id');
+    }
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

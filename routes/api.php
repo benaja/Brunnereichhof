@@ -117,5 +117,6 @@ Route::group(['middleware' => 'jwt'], function () {
 
     // transactions
     Route::resource('transaction-types', 'TransactionTypesController', ['except' => ['create', 'edit']]);
-    Route::resource('transactions', TransactionsController::class, ['except' => ['create', 'edit']]);
+    Route::post('transactions/bulk', 'TransactionsController@bulkCreate');
+    Route::resource('transactions', 'TransactionsController');
 });

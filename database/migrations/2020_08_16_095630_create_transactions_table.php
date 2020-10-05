@@ -23,7 +23,7 @@ class CreateTransactionsTable extends Migration
 
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->float('amount');
+            $table->float('amount', 12, 2);
             $table->date('date');
             $table->string('comment')->nullable();
             $table->foreignId('transaction_type_id')->constrained();

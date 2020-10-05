@@ -11,8 +11,8 @@
       <v-text-field
         :value="formatedDate"
         :label="label"
-        :prepend-inner-icon="outlined ? 'event' : null"
-        :prepend-icon="outlined ? null : 'event'"
+        :prepend-inner-icon="outlined && !noIcon ? 'event' : null"
+        :prepend-icon="outlined || noIcon ? null : 'event'"
         :rules="rules"
         :color="color"
         :outlined="outlined"
@@ -87,6 +87,10 @@ export default {
     max: {
       type: String,
       default: undefined
+    },
+    noIcon: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
