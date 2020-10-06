@@ -11,6 +11,7 @@ use App\Foodtype;
 use App\Rapportdetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RapportResource;
 use Illuminate\Support\Facades\Log;
 
 class RapportController extends Controller
@@ -29,9 +30,21 @@ class RapportController extends Controller
             return Rapport::where('customer_id', auth()->user()->customer->id)->orderBy('startdate')->get();
             // return auth()->user()->customer->rapports->sortBy('startdate');
         } else {
-            $rapports = Rapport::get()->sortBy('startdate')->groupBy('startdate');
 
-            $rapportWeeks = array();
+            if ($request->get('per_page') > 0) {
+                $paginatedResult = Rapport::orderBy('startdate', 'desc')
+                    ->groupBy('startdate')
+                    ->paginate($request->get('per_page'));
+;
+                $rapports = Rapport::whereIn('startdate', $paginatedResult->pluck('startdate'))
+                    ->orderBy('startdate', 'desc')
+                    ->get()
+                    ->groupBy('startdate');
+            } else {
+                $rapports = Rapport::orderBy('startdate', 'desc')->get()->groupBy('startdate');
+            }
+
+            $rapportWeeks = collect();
             foreach ($rapports as $rapportGroup) {
                 $date = new \DateTime($rapportGroup[0]->startdate);
                 $isFinished = true;
@@ -47,12 +60,15 @@ class RapportController extends Controller
                     'hours' => $hours,
                     'isFinished' => $isFinished
                 ];
-                array_push($rapportWeeks, $week);
+                $rapportWeeks->push($week);
             }
 
-            $rapportWeeks = array_reverse($rapportWeeks);
+            if ($request->get('per_page') > 0) {
+                $paginatedResult->setCollection($rapportWeeks);
+                return RapportResource::collection($paginatedResult);
+            }
 
-            return $rapportWeeks;
+            return RapportResource::collection($rapportWeeks);
         }
     }
 

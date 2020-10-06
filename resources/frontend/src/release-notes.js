@@ -1,5 +1,12 @@
 export default [
   {
+    version: '2.3',
+    changes: [
+      'Beim Wochenrapport kann zwischen Werksvertrag und Personalverleih unterschieden werden.',
+      'Stunden für Personalverleich und Werksvertrag werden auf der Auswertung des Wochenrapports angezeigt.'
+    ]
+  },
+  {
     version: '2.2',
     changes: [
       'Vorschüsse erfassen',
