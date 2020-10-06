@@ -273,22 +273,22 @@ export default {
             {
               to: '/employee-transactions',
               text: 'Vorschüsse erstellen',
-              show: true
+              show: this.hasPermission(['superadmin'], ['transaction_write'])
             },
             {
               to: '/add-transactions',
               text: 'Stapelverarbeitung',
-              show: true
+              show: this.hasPermission(['superadmin'], ['transaction_write'])
             },
             {
               to: '/transactions',
               text: 'Vorschüsse Anzeigen',
-              show: true
+              show: this.hasPermission(['superadmin'], ['transaction_read'])
             },
             {
               to: '/transaction-types',
               text: 'Vorschuss Typen',
-              show: true
+              show: this.hasPermission(['superadmin'], ['transaction_write'])
             }
           ]
         },

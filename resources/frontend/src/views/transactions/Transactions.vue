@@ -12,50 +12,7 @@
         with-employee
         @pagination="paginate"
       ></transactions-table>
-      <!-- <v-data-table
-        :items="transactions"
-        :headers="headers"
-        :items-per-page="15"
-        :server-items-length="transactionsMeta.total || transactions.length"
-        :footer-props=" {itemsPerPageOptions: [15, 30, -1]}"
-        @pagination="paginate"
-      >
-        <template v-slot:item="{item}">
-          <tr>
-            <td>{{ item.employee.lastname }} {{ item.employee.firstname }}</td>
-            <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
-            <td>{{ item.type.name }}</td>
-            <td>{{ item.amount }}</td>
-            <td>{{ item.comment }}</td>
-            <td class="d-flex justify-end">
-              <v-btn
-                icon
-                @click="editTransaction = item"
-              >
-                <v-icon>edit</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                @click="deleteTransaction(item)"
-              >
-                <v-icon>delete</v-icon>
-              </v-btn>
-            </td>
-          </tr>
-        </template>
-      </v-data-table> -->
     </v-container>
-    <!-- <v-dialog
-      :value="!!editTransaction"
-      width="900"
-      @input="editTransaction = null"
-    >
-      <edit-transaction
-        v-model="editTransaction"
-        @update="updateTransactions"
-        @cancel="editTransaction = null"
-      ></edit-transaction>
-    </v-dialog> -->
   </fragment>
 </template>
 

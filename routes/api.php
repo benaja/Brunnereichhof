@@ -121,5 +121,5 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::resource('transactions', 'TransactionsController');
     Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
     Route::get('employees/{employee}/transactions/sum', 'TransactionsController@saldo');
-    Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TimerecordPdfController@saldo');
+    Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
 });

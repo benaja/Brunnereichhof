@@ -7,7 +7,7 @@ use App\Helpers\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class TimerecordPdfController extends Controller
+class TransactionPdfController extends Controller
 {
     private Pdf $pdf;
 

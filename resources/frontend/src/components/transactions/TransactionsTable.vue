@@ -18,7 +18,10 @@
           <td>{{ item.type.name }}</td>
           <td>{{ item.amount }}</td>
           <td>{{ item.comment }}</td>
-          <td class="d-flex justify-end">
+          <td
+            v-if="$auth.user().hasPermission(['superadmin'], ['transaction_write'])"
+            class="d-flex justify-end"
+          >
             <v-btn
               icon
               @click="editTransaction = item"
@@ -99,15 +102,17 @@ export default {
         {
           text: 'Kommentar',
           value: 'comment'
-        },
-        {
-          text: 'Aktionen'
         }
       ]
       if (this.withEmployee) {
         headers.unshift({
           text: 'Mitarbeiter',
           value: 'employee.lastname'
+        })
+      }
+      if (this.$auth.user().hasPermission(['superadmin'], ['transaction_write'])) {
+        headers.push({
+          text: 'Aktionen'
         })
       }
       return headers

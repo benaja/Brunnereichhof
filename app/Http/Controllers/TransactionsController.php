@@ -65,10 +65,14 @@ class TransactionsController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
+        auth()->user()->authorize(['superadmin'], ['transaction_write']);
+
         $transaction->delete();
     }
 
     public function getByEmployee(Employee $employee) {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+
         $transactions = $employee->transactions()->with('type')
             ->orderBy('created_at', 'desc');
 
@@ -81,6 +85,8 @@ class TransactionsController extends Controller
     }
 
     public function saldo (Employee $employee) {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+        
         return [
             'data' => $employee->transactions()->sum('amount')
         ];
