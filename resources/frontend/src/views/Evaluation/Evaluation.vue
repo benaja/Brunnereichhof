@@ -193,6 +193,23 @@ export default {
               }
             },
             {
+              title: 'Saldo',
+              inputFields: [
+                {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  getter: 'activeEmployees',
+                  label: 'Mitarbeiter',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                }
+              ],
+              url: 'pdf/employees/{employee}/saldo',
+              rules: {
+                employee: v => !!v
+              }
+            },
+            {
               title: 'Mitarbeiterliste',
               inputFields: [],
               url: 'pdf/employees',

@@ -89,7 +89,7 @@ export default {
       do {
         const matches = regex.exec(url)
         if (!matches) {
-          pdfUrl = url
+          pdfUrl += url
           url = null
         } else {
           pdfUrl += matches[1] + this.getValue(matches[2])

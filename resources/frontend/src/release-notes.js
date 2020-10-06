@@ -1,5 +1,15 @@
 export default [
   {
+    version: '2.2',
+    changes: [
+      'Vorschüsse erfassen',
+      'Vorschüsse können Mithilfe von Stapelverarbeitung erfasst werden.',
+      'Vorschüsse können für einzelne Mitarbeiter erfasst und angepasst werden.',
+      'Es kann eine Auswertung über das Saldo der Mitarbeiter erstellt werden.',
+      'Beim Mitarbeiter kann das Saldo angesehen werden.'
+    ]
+  },
+  {
     version: '2.1',
     changes: [
       'Räume können auf aktiv oder nicht aktiv gesetzt werden.',
