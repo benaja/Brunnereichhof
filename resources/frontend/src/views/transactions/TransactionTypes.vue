@@ -52,6 +52,7 @@
     <v-dialog
       :value="!!editTransactionType"
       width="700"
+      @input="editTransactionType = null"
     >
       <edit-transaction-type
         :value="editTransactionType"
