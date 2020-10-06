@@ -28,6 +28,7 @@
         @change="changed"
         @submit="saveChanges"
       ></employee-form>
+      <p><strong>Saldo:</strong> {{ employee.saldo }} CHF</p>
       <v-btn
         v-if="isUserAllowedToEdit"
         color="red white--text my-4"

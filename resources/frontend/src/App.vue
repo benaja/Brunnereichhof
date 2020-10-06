@@ -271,6 +271,11 @@ export default {
           show: this.hasPermission(['superadmin'], ['transaction_read']),
           items: [
             {
+              to: '/employee-transactions',
+              text: 'Vorschüsse erstellen',
+              show: true
+            },
+            {
               to: '/add-transactions',
               text: 'Stapelverarbeitung',
               show: true

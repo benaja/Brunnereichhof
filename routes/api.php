@@ -119,4 +119,6 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::resource('transaction-types', 'TransactionTypesController', ['except' => ['create', 'edit']]);
     Route::post('transactions/bulk', 'TransactionsController@bulkCreate');
     Route::resource('transactions', 'TransactionsController');
+    Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
+    Route::get('employees/{employee}/transactions/sum', 'TransactionsController@saldo');
 });

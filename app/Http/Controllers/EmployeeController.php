@@ -153,6 +153,7 @@ class EmployeeController extends Controller
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
         $employee->profileimage = $employee->getProfileimageUrl();
+        $employee->saldo = $employee->transactions()->sum('amount');
         return $employee;
     }
 

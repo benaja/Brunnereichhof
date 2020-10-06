@@ -373,6 +373,14 @@ export default new Router({
       }
     },
     {
+      path: '/employee-transactions',
+      name: 'EmployeeTransactions',
+      component: () => import('./views/transactions/EmployeeTransactions'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/transactions',
       name: 'Transactions',
       component: () => import('./views/transactions/Transactions'),

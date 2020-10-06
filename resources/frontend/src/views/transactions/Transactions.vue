@@ -6,7 +6,13 @@
     >
     </navigation-bar>
     <v-container>
-      <v-data-table
+      <transactions-table
+        :transactions="transactions"
+        :meta="transactionsMeta"
+        with-employee
+        @pagination="paginate"
+      ></transactions-table>
+      <!-- <v-data-table
         :items="transactions"
         :headers="headers"
         :items-per-page="15"
@@ -37,9 +43,9 @@
             </td>
           </tr>
         </template>
-      </v-data-table>
+      </v-data-table> -->
     </v-container>
-    <v-dialog
+    <!-- <v-dialog
       :value="!!editTransaction"
       width="900"
       @input="editTransaction = null"
@@ -49,18 +55,18 @@
         @update="updateTransactions"
         @cancel="editTransaction = null"
       ></edit-transaction>
-    </v-dialog>
+    </v-dialog> -->
   </fragment>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { confirmAction } from '@/utils'
-import EditTransaction from '@/components/transactions/EditTransaction'
+import TransactionsTable from '@/components/transactions/TransactionsTable'
 
 export default {
   components: {
-    EditTransaction
+    TransactionsTable
   },
   data() {
     return {

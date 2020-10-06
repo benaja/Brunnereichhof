@@ -54,6 +54,10 @@ class Employee extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    public function transactions() {
+        return $this->hasMany(Transaction::class);
+    }
+
     public function name()
     {
         return "$this->lastname $this->firstname";

@@ -12,7 +12,6 @@
       <v-row>
         <v-col
           cols="12"
-          md="6"
         >
           <v-autocomplete
             v-model="transaction.employee_id"

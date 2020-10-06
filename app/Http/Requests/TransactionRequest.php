@@ -33,6 +33,12 @@ class TransactionRequest extends FormRequest
         ];
     }
 
+    public function store() {
+        $data = $this->validated();
+
+        return Transaction::create($data);
+    }
+
     public function update(Transaction $transaction) {
         $data = $this->validated();
 

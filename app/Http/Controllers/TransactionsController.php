@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Employee;
 use App\Http\Requests\TransactionBulkRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
@@ -43,16 +44,6 @@ class TransactionsController extends Controller
         return $request->store();
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -75,5 +66,23 @@ class TransactionsController extends Controller
     public function destroy(Transaction $transaction)
     {
         $transaction->delete();
+    }
+
+    public function getByEmployee(Employee $employee) {
+        $transactions = $employee->transactions()->with('type')
+            ->orderBy('created_at', 'desc');
+
+        if (request()->get('per_page') > 0) {
+            $transactions = $transactions->paginate(request()->get('per_page'));
+        } else {
+            $transactions = $transactions->get();
+        }
+        return TransactionResource::collection($transactions);
+    }
+
+    public function saldo (Employee $employee) {
+        return [
+            'data' => $employee->transactions()->sum('amount')
+        ];
     }
 }
