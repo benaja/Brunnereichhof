@@ -136,6 +136,7 @@ class RapportController extends Controller
                 $rapportdetail = Rapportdetail::create([
                     'date' => $date->format('Y-m-d'),
                     'day' => $i,
+                    'contract_type' => 'work_contract'
                 ]);
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
@@ -185,12 +186,12 @@ class RapportController extends Controller
             ]);
             foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
-                    $rapportdetailID = $newRapportdetail['id'];
                     $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
                     $rapportdetail->update([
                         'hours' => $newRapportdetail['hours'],
                         'foodtype_id' => $newRapportdetail['foodtype_id'],
-                        'project_id' => $newRapportdetail['project_id']
+                        'project_id' => $newRapportdetail['project_id'],
+                        'contract_type' => $newRapportdetail['contract_type']
                     ]);
                 }
             }
@@ -229,7 +230,7 @@ class RapportController extends Controller
         }
         $rapportdetail->save();
 
-        Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
+        // Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
         return [
             'foodtype_ok' => $rapportdetail->foodtype_ok
         ];
@@ -244,6 +245,7 @@ class RapportController extends Controller
             $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
             $rapportdetail->project_id = $newRapportdetail['project_id'];
             $rapportdetail->foodtype_id = $newRapportdetail['foodtype_id'];
+            $rapportdetail->contract_type = $newRapportdetail['contract_type'];
             $rapportdetail->save();
             array_push($rapportdetails, $rapportdetail);
         }

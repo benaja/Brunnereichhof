@@ -24,6 +24,8 @@
         label="Verpflegung"
         :items="foodTypes"
         color="black"
+        dense
+        class="mt-3"
         :readonly="!hasPermisstionToChangeRapport"
       ></v-select>
       <v-select
@@ -32,6 +34,15 @@
         :items="projects"
         item-value="id"
         item-text="name"
+        dense
+        :class="{'mt-3': !settings.rapportFoodTypeEnabled}"
+        :readonly="!hasPermisstionToChangeRapport"
+      ></v-select>
+      <v-select
+        v-model="defaultContractType"
+        label="Vertrag"
+        :items="contractTypes"
+        dense
         :readonly="!hasPermisstionToChangeRapport"
       ></v-select>
     </div>
@@ -54,6 +65,8 @@
         :tabindex="day*1000 + index+1"
         :readonly="!hasPermisstionToChangeRapport"
         min="0"
+        dense
+        class="mt-3"
         @input="change('hours', rapportdetail)"
         @wheel="event => event.preventDefault()"
       ></v-text-field>
@@ -64,6 +77,7 @@
         :color="rapportdetail.foodtype_ok ? 'primary' : 'red'"
         label="Verpflegung"
         :items="foodTypes"
+        dense
         :readonly="!hasPermisstionToChangeRapport"
         @change="change('foodtype_id', rapportdetail)"
       ></v-select>
@@ -73,8 +87,17 @@
         :items="projects"
         item-value="id"
         item-text="name"
+        dense
         :readonly="!hasPermisstionToChangeRapport"
         @change="change('project_id', rapportdetail)"
+      ></v-select>
+      <v-select
+        v-model="rapportdetail.contract_type"
+        label="Vertrag"
+        :items="contractTypes"
+        :readonly="!hasPermisstionToChangeRapport"
+        dense
+        @change="change('contract_type', rapportdetail)"
       ></v-select>
     </div>
     <p class="pl-1 mt-4">
@@ -123,6 +146,17 @@ export default {
     return {
       defaultProject: this.rapport.default_project_id,
       defaultFoodType: 1,
+      defaultContractType: this.rapportdetails.length > 0 ? this.rapportdetails[0].contract_type : 'work_contract',
+      contractTypes: [
+        {
+          value: 'work_contract',
+          text: 'Werksvertrag'
+        },
+        {
+          value: 'staff_grant',
+          text: 'Personalverleih'
+        }
+      ],
       foodTypes: [
         {
           value: 1,
@@ -163,6 +197,21 @@ export default {
     }
   },
   watch: {
+    defaultContractType() {
+      for (const rapportdetail of this.rapportdetails) {
+        rapportdetail.contract_type = this.defaultContractType
+      }
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch('/rapportdetails', {
+          rapportdetails: this.rapportdetails
+        })
+        .catch(() => {
+          this.$swal('Fehler', 'Das Projekt konnte nicht geändert werden', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
+    },
     defaultProject() {
       for (const rapportdetail of this.rapportdetails) {
         rapportdetail.project_id = this.defaultProject
@@ -209,7 +258,7 @@ export default {
     this.hasPermisstionToChangeRapport = this.$auth.user().hasPermission(['superadmin'], ['rapport_write'])
   },
   methods: {
-    change: _.debounce(function(changedElement, rapportdetail) {
+    change(changedElement, rapportdetail) {
       if (changedElement === 'hours' && rapportdetail.hours < 0) rapportdetail.hours = 0
       this.$store.commit('isSaving', true)
       this.axios
@@ -226,7 +275,7 @@ export default {
         }).finally(() => {
           this.$store.commit('isSaving', false)
         })
-    }, 400),
+    },
     updateComment: _.debounce(function() {
       this.$store.commit('isSaving', true)
       this.axios
@@ -254,20 +303,20 @@ export default {
 }
 @media only screen and (min-width: 600px) {
   .all-days {
-    height: 150px;
+    height: 160px;
     overflow: hidden;
 
     &.small-height {
-      height: 75px;
+      height: 100px;
     }
   }
 
   .rapportday {
-    height: 230px;
+    height: 220px;
     overflow: hidden;
 
     &.small-height {
-      height: 150px;
+      height: 170px;
     }
   }
 }

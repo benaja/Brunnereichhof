@@ -370,18 +370,18 @@ export default {
 
 .all-employees {
   margin-top: 50px;
-  margin-bottom: 150px;
+  margin-bottom: 170px;
 
   &.small-height {
-    margin-bottom: 90px;
+    margin-bottom: 110px;
   }
 }
 
 .employee-name {
-  height: 230px;
+  height: 220px;
 
   &.small-height {
-    height: 150px;
+    height: 170px;
   }
 }
 

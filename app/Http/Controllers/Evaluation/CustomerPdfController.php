@@ -48,10 +48,12 @@ class CustomerPdfController extends Controller
         $this->pdf = new Pdf();
 
         if ($customerId == 'all') {
-            $customers = Customer::all();
+            $customers = Customer::with(['rapports' => function ($query) use ($monday) {
+                $query->where('startdate', $monday->format('Y-m-d'));
+            }])->get();
             $customersAdded = 0;
             foreach ($customers as $customer) {
-                $rapport = $customer->rapports->where('startdate', $monday->format('Y-m-d'))->first();
+                $rapport = $customer->rapports->first();
                 if ($rapport) {
                     $hours = $rapport->rapportdetails->sum('hours');
                     if ($hours > 0) {
@@ -206,6 +208,13 @@ class CustomerPdfController extends Controller
         $totalHours = $rapport->rapportdetails->sum('hours');
         $this->pdf->documentTitle("Stunden: $totalHours");
 
+        $staffGrantHours = $rapport->rapportdetails->where('contract_type', 'staff_grant')->sum('hours');
+
+        if ($staffGrantHours > 0) {
+            $workContractHours = $rapport->rapportdetails->where('contract_type', 'work_contract')->sum('hours');
+            $this->pdf->documentTitle("Werksvertrag: $workContractHours, Personalverlei: $staffGrantHours");
+        }
+
         if ($this->rapportFoodTypeEnabled) {
             $meals = $rapport->rapportdetails->where('foodtype_id', '=', FoodTypeEnum::Customer)->count();
             $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
@@ -250,7 +259,7 @@ class CustomerPdfController extends Controller
             foreach ($rapportdetails as $rapportdetail) {
                 $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
                 // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
-                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein") {
+                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein" && $cell > 0) {
                     $cell = "{$cell} ({$rapportdetail->project->name})";
                 }
                 array_push($cells, $cell);
