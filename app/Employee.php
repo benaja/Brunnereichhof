@@ -104,7 +104,7 @@ class Employee extends Model
         if ($this->profileimage) {
             return Storage::disk('s3')->temporaryUrl(
                 $this->profileimage,
-                now()->addMinutes(5)
+                now()->addHours(5)
             );
         } else {
             return null;
