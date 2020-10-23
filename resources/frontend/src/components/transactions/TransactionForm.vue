@@ -1,8 +1,4 @@
 <template>
-  <!-- <v-form
-    ref="form"
-    @keyup.native.enter="$emit('submit')"
-  > -->
   <tr>
     <td>{{ value.name }}</td>
     <td>
@@ -53,6 +49,13 @@
       ></v-text-field>
     </td>
     <td>
+      <v-switch
+        v-model="value.transaction.entered"
+        outlined
+        dense
+      ></v-switch>
+    </td>
+    <td>
       <v-text-field
         v-model="value.transaction.comment"
         class="mt-3"
@@ -62,7 +65,6 @@
       ></v-text-field>
     </td>
   </tr>
-  <!-- </v-form> -->
 </template>
 
 <script>

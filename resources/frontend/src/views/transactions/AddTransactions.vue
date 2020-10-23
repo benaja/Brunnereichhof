@@ -62,6 +62,7 @@
                 {{ getTransactionName(item.transaction.negative_transaction_type_id) }}
               </td>
               <td>{{ item.transaction.amount }}</td>
+              <td>{{ item.transaction.entered ? 'Ja' : 'Nein' }}</td>
               <td>{{ item.transaction.comment }}</td>
             </tr>
           </template>
@@ -107,6 +108,11 @@ export default {
         {
           text: 'Menge',
           value: 'transaction.amount'
+        },
+        {
+          text: 'Verbucht',
+          value: 'transactions.entered',
+          width: 110
         },
         {
           text: 'Kommentar',
@@ -162,7 +168,8 @@ export default {
         transaction_type_id: e.transaction.positive_transaction_type_id
           || e.transaction.negative_transaction_type_id,
         amount: e.transaction.positive_transaction_type_id
-          ? Math.abs(e.transaction.amount) : -Math.abs(e.transaction.amount)
+          ? Math.abs(e.transaction.amount) : -Math.abs(e.transaction.amount),
+        entered: !!e.transaction.entered
       }))
       this.axios.post('transactions/bulk', {
         transactions

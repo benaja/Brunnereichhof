@@ -29,8 +29,9 @@ class TransactionBulkRequest extends FormRequest
             'transactions.*.amount' => ['required', 'numeric'],
             'transactions.*.date' => ['required','date'],
             'transactions.*.comment' => ['nullable', 'string'],
+            'transactions.*.entered' => ['nullable', 'boolean'],
             'transactions.*.transaction_type_id' => ['required', 'exists:transaction_types,id'],
-            'transactions.*.employee_id' => ['required', 'exists:employee,id']
+            'transactions.*.employee_id' => ['required', 'exists:employee,id'],
         ];
     }
 
