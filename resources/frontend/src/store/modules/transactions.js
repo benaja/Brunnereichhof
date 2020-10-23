@@ -24,7 +24,9 @@ export default {
         axios.get('transactions', {
           params: {
             page: pagination.page,
-            per_page: pagination.itemsPerPage
+            per_page: pagination.itemsPerPage,
+            sort_by: pagination.sortBy,
+            sort_desc: pagination.sortDesc
           }
         }).then(response => {
           commit('setTransactions', response.data.data)

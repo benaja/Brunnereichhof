@@ -11,6 +11,7 @@
         :meta="transactionsMeta"
         with-employee
         @pagination="paginate"
+        @sortBy="sortBy"
       ></transactions-table>
     </v-container>
   </fragment>
@@ -66,7 +67,12 @@ export default {
     },
     paginate(paginations) {
       this.paginations = paginations
-      this.$store.dispatch('fetchTransactions', paginations)
+      console.log(this.paginations)
+      // this.$store.dispatch('fetchTransactions', paginations)
+    },
+    sortBy(options) {
+      this.$store.dispatch('fetchTransactions', options)
+      console.log(options)
     },
     deleteTransaction(transaction) {
       confirmAction().then(value => {

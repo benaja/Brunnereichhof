@@ -7,7 +7,9 @@ use App\Http\Requests\TransactionBulkRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Transaction;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TransactionsController extends Controller
 {
@@ -16,10 +18,41 @@ class TransactionsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $dir = $request->get('sort_desc') === 'true' ? 'desc' : 'asc';
         $transactions = Transaction::with(['employee', 'type'])
-            ->orderBy('created_at', 'desc');
+            ->when(
+                $request->has('sort_by') &&
+                Str::is('employee.lastname', $request->get('sort_by')),
+                function (Builder $query) use ($dir) {
+                    return $query->select('transactions.*')
+                        ->leftJoin('employee', 'employee.id', '=', 'transactions.employee_id')
+                        ->leftJoin('user', 'user.id', '=', 'employee.user_id')
+                        ->orderByRaw("user.lastname $dir");
+                }
+            )
+            ->when(
+                $request->has('sort_by') &&
+                !Str::is('employee.lastname', $request->get('sort_by')) && 
+                $request->get('sort_by') !== 'type.name',
+                function (Builder $query) use ($request, $dir) {
+                    return $query->orderBy($request->get('sort_by'), $dir);
+                }
+            )
+            ->when($request->get('sort_by') === 'type.name', function (Builder $query) use ($dir){
+                return $query->select('transactions.*')
+                    ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
+                    ->orderByRaw("transaction_types.name $dir");
+            })
+            ->when(!$request->has('sort_by'), function (Builder $query) {
+                return $query->orderBy('created_at', 'desc');
+            });
+
+        // if ($request->get('sort_by')) {
+        //     $transactions->oderBy()
+        // }
+        //     ->orderBy('created_at', 'desc');
 
         if (request()->get('per_page') > 0) {
             $transactions = $transactions->paginate(request()->get('per_page'));

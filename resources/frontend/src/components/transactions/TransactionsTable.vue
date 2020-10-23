@@ -8,6 +8,7 @@
       :footer-props=" {itemsPerPageOptions: [15, 30, -1]}"
       :loading="loading"
       @pagination="paginate"
+      @update:options="sortBy"
     >
       <template v-slot:item="{item}">
         <tr>
@@ -144,6 +145,13 @@ export default {
             this.$store.dispatch('error', 'Vorschuss konnte nicht gelöscht werden')
           })
         }
+      })
+    },
+    sortBy(options) {
+      this.$emit('sortBy', {
+        ...options,
+        sortBy: options.sortBy[0],
+        sortDesc: options.sortDesc[0]
       })
     }
   }
