@@ -6,17 +6,40 @@
     >
     </navigation-bar>
     <v-container>
-      <v-autocomplete
-        v-model="selectedEmployee"
-        label="Mitarbeiter"
-        :items="activeEmployees"
-        item-value="id"
-        item-text="name"
-        no-data-text="keine Daten"
-        autocomplete="off"
-        return-object
-        clearable
-      ></v-autocomplete>
+      <v-row>
+        <v-col
+          cols="12"
+          sm="6"
+          md="8"
+          lg="9"
+        >
+          <v-autocomplete
+            v-model="selectedEmployee"
+            label="Mitarbeiter"
+            :items="employees"
+            item-value="id"
+            item-text="name"
+            no-data-text="keine Daten"
+            autocomplete="off"
+            return-object
+            clearable
+          ></v-autocomplete>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="6"
+          md="4"
+          lg="3"
+        >
+          <v-switch
+            v-model="onlyActive"
+            label="Nur Aktive Mitarbeiter"
+          ></v-switch>
+        </v-col>
+      </v-row>
+
+      <v-divider class="mb-10"></v-divider>
+
       <template v-if="selectedEmployee">
         <add-transaction
           v-model="transaction"
@@ -101,11 +124,15 @@ export default {
       saldo: null,
       transactions: null,
       transactionsMeta: {},
-      loadingTransactions: false
+      loadingTransactions: false,
+      onlyActive: true
     }
   },
   computed: {
-    ...mapGetters(['activeEmployees', 'isLoading'])
+    ...mapGetters(['isLoading']),
+    employees() {
+      return this.$store.getters[this.onlyActive ? 'activeEmployees' : 'employees']
+    }
   },
   watch: {
     selectedEmployee() {

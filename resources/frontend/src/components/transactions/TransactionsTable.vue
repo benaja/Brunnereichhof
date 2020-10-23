@@ -17,6 +17,7 @@
           <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
           <td>{{ item.type.name }}</td>
           <td>{{ item.amount }}</td>
+          <td>{{ item.entered ? 'Ja' : 'Nein' }}</td>
           <td>{{ item.comment }}</td>
           <td
             v-if="$auth.user().hasPermission(['superadmin'], ['transaction_write'])"
@@ -98,6 +99,10 @@ export default {
         {
           text: 'Menge in CHF',
           value: 'amount'
+        },
+        {
+          text: 'Verbucht',
+          value: 'entered'
         },
         {
           text: 'Kommentar',

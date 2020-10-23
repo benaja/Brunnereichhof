@@ -10,6 +10,7 @@ use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
+use App\Http\Resources\EmployeeResource;
 use App\Reservation;
 use App\Role;
 use App\User;
@@ -32,6 +33,23 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
+
+        if ($request->get('paginate') === 'true') {
+            $query = Employee::join('user', 'user.id', '=', 'employee.user_id')
+                ->select('employee.*', 'user.lastname');
+
+            if ($request->get('withGuests') !== 'true') {
+                $query->where('employee.isGuest', false);
+            }
+            if ($request->get('witInactive') !== 'true') {
+                $query->where('employee.isActive', false);
+            }
+
+            $employees = $query->orderBy('lastname')->paginate($request->get('per_page') ?? 10);
+
+            return EmployeeResource::collection($employees);
+        }
+
 
         $employees = [];
         if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
@@ -153,7 +171,7 @@ class EmployeeController extends Controller
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
         $employee->profileimage = $employee->getProfileimageUrl();
-        $employee->saldo = $employee->transactions()->sum('amount');
+        $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
         return $employee;
     }
 

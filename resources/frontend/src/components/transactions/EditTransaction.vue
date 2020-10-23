@@ -16,7 +16,7 @@
           <v-autocomplete
             v-model="transaction.employee_id"
             label="Mitarbeiter"
-            :items="activeEmployees"
+            :items="employees"
             item-value="id"
             item-text="name"
             no-data-text="keine Daten"
@@ -36,11 +36,20 @@
         </v-col>
         <v-col
           cols="12"
-          md="6"
+          md="3"
         >
           <v-switch
             v-model="isPositive"
             label="Positiver Betrag"
+          ></v-switch>
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-switch
+            v-model="transaction.entered"
+            label="Verbucht"
           ></v-switch>
         </v-col>
         <v-col
@@ -103,7 +112,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['activeEmployees', 'transactionTypes'])
+    ...mapGetters(['employees', 'transactionTypes'])
   },
   watch: {
     value() {

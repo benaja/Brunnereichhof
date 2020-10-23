@@ -88,7 +88,7 @@ class TransactionsController extends Controller
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
         
         return [
-            'data' => $employee->transactions()->sum('amount')
+            'data' => $employee->transactions()->where('entered', false)->sum('amount')
         ];
     }
 }

@@ -3,7 +3,8 @@ import moment from 'moment'
 
 export default {
   state: {
-    employees: []
+    employees: [],
+    employeesMeta: {}
   },
   getters: {
     employees: state => state.employees.filter(e => !e.deleted_at && !e.isGuest),
@@ -14,7 +15,9 @@ export default {
     deletedGuests: state => state.employees.filter(e => e.deleted_at && e.isGuest),
     employeesWithGuests: state => state.employees.filter(e => !e.deleted_at),
     allEmployeesWithGuests: state => state.employees,
-    activeEmployees: state => state.employees.filter(e => !e.deleted_at && !e.isGuest && e.isActive)
+    activeEmployees: state => state.employees
+      .filter(e => !e.deleted_at && !e.isGuest && e.isActive),
+    employeesMeta: state => state.employeesMeta
   },
   mutations: {
     setEmployees(state, employees) {
@@ -37,9 +40,63 @@ export default {
       const index = state.employees.indexOf(employee)
       employee.deleted_at = moment().format('YYYY-MM-DD HH:mm:ss')
       state.employees[index] = employee
+    },
+    setEmployeesMeta(state, value) {
+      state.employeesMeta = value || {}
     }
   },
   actions: {
+    loadEmployees({ commit, getters, dispatch }, { withGuests, withInactive }) {
+      return new Promise((resolve, reject) => {
+        commit('loading', { employees: true })
+        axios
+          .get('/employees', {
+            params: {
+              withGuests,
+              withInactive,
+              paginate: true
+            }
+          })
+          .then(response => {
+            commit('setEmployees', response.data.data)
+            commit('setEmployeesMeta', response.data.meta)
+            resolve(getters.allEmployeesWithGuests)
+          })
+          .catch(error => {
+            dispatch('error', 'Fehler beim Laden der Mitarbeiter.')
+            reject(error)
+          })
+          .finally(() => {
+            commit('loading', { employees: false })
+          })
+      })
+    },
+    loadMoreEmployees({ commit, getters, dispatch }, { withGuests, withInactive }) {
+      return new Promise((resolve, reject) => {
+        commit('loading', { employees: true })
+        axios
+          .get('/employees', {
+            params: {
+              withGuests,
+              withInactive,
+              paginate: true,
+              page: getters.employeesMeta.current_page + 1
+            }
+          })
+          .then(response => {
+            commit('setEmployees', [...getters.allEmployeesWithGuests, ...response.data.data])
+            commit('setEmployeesMeta', response.data.meta)
+            resolve(getters.allEmployeesWithGuests)
+          })
+          .catch(error => {
+            dispatch('error', 'Fehler beim Laden der Mitarbeiter.')
+            reject(error)
+          })
+          .finally(() => {
+            commit('loading', { employees: false })
+          })
+      })
+    },
     fetchEmployees({ commit, getters, dispatch }) {
       return new Promise((resolve, reject) => {
         commit('loading', { employees: true })

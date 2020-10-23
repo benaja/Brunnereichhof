@@ -36,7 +36,7 @@ class TransactionPdfController extends Controller
 
 
         $columns = $employees->map(function ($employee) {
-            return [$employee->name(), $employee->transactions()->sum('amount')];
+            return [$employee->name(), $employee->transactions()->where('entered', false)->sum('amount')];
         });
 
         $this->pdf->table(['Mitarbeiter', 'Saldo in CHF'], $columns);
@@ -51,7 +51,7 @@ class TransactionPdfController extends Controller
         }])->find($employeeId);
 
         $this->pdf->documentTitle("Saldo Übersicht für {$employee->name()}");
-        $this->pdf->documentTitle("Saldo: {$employee->transactions()->sum('amount')} CHF");
+        $this->pdf->documentTitle("Saldo: {$employee->transactions()->where('entered', false)->sum('amount')} CHF");
         $this->pdf->newLine();
         $this->pdf->textToInsertOnPageBreak = "Saldo Übersicht für {$employee->name()}";
 

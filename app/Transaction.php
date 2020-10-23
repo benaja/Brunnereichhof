@@ -15,7 +15,8 @@ class Transaction extends Model
         'date',
         'comment',
         'transaction_type_id',
-        'employee_id'
+        'employee_id',
+        'entered'
     ];
 
     protected $dates = [
