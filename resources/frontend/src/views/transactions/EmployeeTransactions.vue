@@ -98,6 +98,16 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
+        <div class="text-center mt-10 mb-5">
+          <v-btn
+            depressed
+            color="primary"
+            :loading="isLoadingPdf"
+            @click="generatePdf"
+          >
+            Pdf erstellen
+          </v-btn>
+        </div>
       </template>
     </v-container>
   </fragment>
@@ -105,6 +115,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { downloadFile } from '@/utils'
 import AddTransaction from '@/components/transactions/AddTransaction'
 import TransactionsTable from '@/components/transactions/TransactionsTable'
 
@@ -125,7 +136,8 @@ export default {
       transactions: null,
       transactionsMeta: {},
       loadingTransactions: false,
-      onlyActive: true
+      onlyActive: true,
+      isLoadingPdf: false
     }
   },
   computed: {
@@ -195,6 +207,14 @@ export default {
       if (this.transactions !== null) {
         await this.loadTransactions()
       }
+    },
+    generatePdf() {
+      this.isLoadingPdf = true
+      downloadFile(`pdf/employees/${this.selectedEmployee.id}/saldo`).catch(() => {
+        this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
+      }).finally(() => {
+        this.isLoadingPdf = false
+      })
     }
   }
 }

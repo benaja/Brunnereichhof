@@ -38,7 +38,7 @@ class TransactionBulkRequest extends FormRequest
     public function store() {
         $data = $this->validated();
 
-        $l = array_map(function ($transaction) {
+        $transactions = array_map(function ($transaction) {
             $transaction['created_at'] = Carbon::now();
             $transaction['updated_at'] = Carbon::now();
             return $transaction;

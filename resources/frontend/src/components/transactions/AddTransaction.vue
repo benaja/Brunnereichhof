@@ -16,20 +16,11 @@
       </v-col>
       <v-col
         cols="12"
-        md="3"
+        md="6"
       >
         <v-switch
           v-model="isPositive"
           label="Positiver Betrag"
-        ></v-switch>
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <v-switch
-          v-model="value.entered"
-          label="Verbucht"
         ></v-switch>
       </v-col>
       <v-col
@@ -115,7 +106,6 @@ export default {
           this.value.transaction_type_id = null
           this.value.amount = null
           this.value.comment = null
-          this.value.entered = false
           this.$refs.form.resetValidation()
         }).catch(() => {
           this.$store.dispatch('error', 'Vorschuss konnte nicht erstellt werden')

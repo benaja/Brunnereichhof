@@ -62,7 +62,6 @@
                 {{ getTransactionName(item.transaction.negative_transaction_type_id) }}
               </td>
               <td>{{ item.transaction.amount }}</td>
-              <td>{{ item.transaction.entered ? 'Ja' : 'Nein' }}</td>
               <td>{{ item.transaction.comment }}</td>
             </tr>
           </template>
@@ -108,11 +107,6 @@ export default {
         {
           text: 'Menge',
           value: 'transaction.amount'
-        },
-        {
-          text: 'Verbucht',
-          value: 'transactions.entered',
-          width: 110
         },
         {
           text: 'Kommentar',

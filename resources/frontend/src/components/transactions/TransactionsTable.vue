@@ -20,22 +20,28 @@
           <td>{{ item.amount }}</td>
           <td>{{ item.entered ? 'Ja' : 'Nein' }}</td>
           <td>{{ item.comment }}</td>
-          <td
-            v-if="$auth.user().hasPermission(['superadmin'], ['transaction_write'])"
-            class="d-flex justify-end"
-          >
-            <v-btn
-              icon
-              @click="editTransaction = item"
-            >
-              <v-icon>edit</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              @click="deleteTransaction(item)"
-            >
-              <v-icon>delete</v-icon>
-            </v-btn>
+          <td v-if="$auth.user().hasPermission(['superadmin'], ['transaction_write'])">
+            <div class="d-flex justify-end">
+              <v-btn
+                v-if="!item.entered"
+                icon
+                @click="setEntered(item)"
+              >
+                <v-icon>check</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                @click="editTransaction = item"
+              >
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                @click="deleteTransaction(item)"
+              >
+                <v-icon>delete</v-icon>
+              </v-btn>
+            </div>
           </td>
         </tr>
       </template>
@@ -83,7 +89,8 @@ export default {
   data() {
     return {
       editTransaction: null,
-      pagination: {}
+      pagination: {},
+      sortOptions: {}
     }
   },
   computed: {
@@ -95,15 +102,18 @@ export default {
         },
         {
           text: 'Vorschuss Typ',
-          value: 'type.name'
+          value: 'type.name',
+          width: 200
         },
         {
           text: 'Menge in CHF',
-          value: 'amount'
+          value: 'amount',
+          width: 130
         },
         {
           text: 'Verbucht',
-          value: 'entered'
+          value: 'entered',
+          width: 100
         },
         {
           text: 'Kommentar',
@@ -118,7 +128,8 @@ export default {
       }
       if (this.$auth.user().hasPermission(['superadmin'], ['transaction_write'])) {
         headers.push({
-          text: 'Aktionen'
+          text: 'Aktionen',
+          width: 100
         })
       }
       return headers
@@ -148,10 +159,36 @@ export default {
       })
     },
     sortBy(options) {
+      this.sortOptions = options
       this.$emit('sortBy', {
         ...options,
         sortBy: options.sortBy[0],
         sortDesc: options.sortDesc[0]
+      })
+    },
+    setEntered(transaction) {
+      let text
+      if (transaction.employee) {
+        text = `Willst du die Transaktion von "${transaction.employee.lastname} ${transaction.employee.firstname}",
+          Typ: "${transaction.type.name}", Menge: ${transaction.amount} CHF, Datum ${this.$moment(transaction.date).format('DD.MM.YYYY')}
+          wirklich auf verbucht setzten?`
+      } else {
+        text = `Willst du die Transaktion mit dem Typ: "${transaction.type.name}", Menge: ${transaction.amount} CHF,
+          Datum ${this.$moment(transaction.date).format('DD.MM.YYYY')} wirklich auf verbucht setzten?`
+      }
+
+      confirmAction(text, 'Ja').then(value => {
+        if (value) {
+          this.axios.patch(`transactions/${transaction.id}`, {
+            entered: true
+          }).then(() => {
+            if (transaction.employee) {
+              this.sortBy(this.sortOptions)
+            } else {
+              this.paginate(this.pagination)
+            }
+          })
+        }
       })
     }
   }

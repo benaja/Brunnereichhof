@@ -9,6 +9,7 @@ use App\Http\Resources\TransactionResource;
 use App\Transaction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class TransactionsController extends Controller
@@ -22,14 +23,15 @@ class TransactionsController extends Controller
     {
         $dir = $request->get('sort_desc') === 'true' ? 'desc' : 'asc';
         $transactions = Transaction::with(['employee', 'type'])
+            ->select('transactions.*')
+            ->leftJoin('employee', 'employee.id', '=', 'transactions.employee_id')
+            ->leftJoin('user', 'user.id', '=', 'employee.user_id')
+            ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
             ->when(
                 $request->has('sort_by') &&
                 Str::is('employee.lastname', $request->get('sort_by')),
                 function (Builder $query) use ($dir) {
-                    return $query->select('transactions.*')
-                        ->leftJoin('employee', 'employee.id', '=', 'transactions.employee_id')
-                        ->leftJoin('user', 'user.id', '=', 'employee.user_id')
-                        ->orderByRaw("user.lastname $dir");
+                    return $query->orderByRaw("user.lastname $dir");
                 }
             )
             ->when(
@@ -41,18 +43,21 @@ class TransactionsController extends Controller
                 }
             )
             ->when($request->get('sort_by') === 'type.name', function (Builder $query) use ($dir){
-                return $query->select('transactions.*')
-                    ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
-                    ->orderByRaw("transaction_types.name $dir");
+                return $query->orderByRaw("transaction_types.name $dir");
             })
             ->when(!$request->has('sort_by'), function (Builder $query) {
                 return $query->orderBy('created_at', 'desc');
+            })
+            ->when($request->has('search'), function (Builder $query) use ($request) {
+                $query->where(function (Builder $query) use ($request) {
+                    $search = $request->get('search');
+                    $query->where('user.lastname', 'like', "%$search%")
+                        ->orWhere('user.firstname', 'like', "%$search%")
+                        ->orWhere(DB::raw("concat(user.lastname, ' ', user.firstname)"), 'like', "%$search%")
+                        ->orWhere('transactions.comment', 'like', "%$search%")
+                        ->orWhere('transaction_types.name', 'like', "%$search%");
+                });
             });
-
-        // if ($request->get('sort_by')) {
-        //     $transactions->oderBy()
-        // }
-        //     ->orderBy('created_at', 'desc');
 
         if (request()->get('per_page') > 0) {
             $transactions = $transactions->paginate(request()->get('per_page'));

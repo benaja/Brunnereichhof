@@ -49,13 +49,6 @@
       ></v-text-field>
     </td>
     <td>
-      <v-switch
-        v-model="value.transaction.entered"
-        outlined
-        dense
-      ></v-switch>
-    </td>
-    <td>
       <v-text-field
         v-model="value.transaction.comment"
         class="mt-3"

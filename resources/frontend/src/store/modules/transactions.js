@@ -26,7 +26,8 @@ export default {
             page: pagination.page,
             per_page: pagination.itemsPerPage,
             sort_by: pagination.sortBy,
-            sort_desc: pagination.sortDesc
+            sort_desc: pagination.sortDesc,
+            search: pagination.search
           }
         }).then(response => {
           commit('setTransactions', response.data.data)

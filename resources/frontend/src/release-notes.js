@@ -1,5 +1,15 @@
 export default [
   {
+    version: '2.3.1',
+    changes: [
+      'Vorschüsse können auf Verbucht gesetzt werden.',
+      'Suchfunktion bei den Vorschüssen.',
+      'Vorschuss-Tabelle kann sortiert werden.',
+      'Saldo Pdf kann direkt aus der Mitarbeiter Ansicht generiert werden.'
+    ],
+    date: '31.10.2020'
+  },
+  {
     version: '2.3',
     changes: [
       'Beim Wochenrapport kann zwischen Werksvertrag und Personalverleih unterschieden werden.',

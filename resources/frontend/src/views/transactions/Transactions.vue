@@ -6,10 +6,18 @@
     >
     </navigation-bar>
     <v-container>
+      <v-text-field
+        v-model="searchString"
+        label="Suchen"
+        prepend-icon="search"
+        @input="debounceSearch"
+      ></v-text-field>
       <transactions-table
         :transactions="transactions"
         :meta="transactionsMeta"
         with-employee
+        @update="sortBy(options)"
+        @delete="sortBy(options)"
         @pagination="paginate"
         @sortBy="sortBy"
       ></transactions-table>
@@ -29,7 +37,9 @@ export default {
   data() {
     return {
       editTransaction: null,
+      searchString: null,
       paginations: {},
+      options: {},
       headers: [
         {
           text: 'Mitarbeiter',
@@ -58,7 +68,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['transactions', 'isLoading', 'transactionsMeta'])
+    ...mapGetters(['transactions', 'isLoading', 'transactionsMeta']),
+    debounceSearch() {
+      return this._.debounce(() => {
+        this.sortBy({
+          ...this.options,
+          page: 1
+        })
+      }, 300)
+    }
   },
   methods: {
     updateTransactions() {
@@ -67,12 +85,13 @@ export default {
     },
     paginate(paginations) {
       this.paginations = paginations
-      console.log(this.paginations)
-      // this.$store.dispatch('fetchTransactions', paginations)
     },
     sortBy(options) {
-      this.$store.dispatch('fetchTransactions', options)
-      console.log(options)
+      this.options = options
+      this.$store.dispatch('fetchTransactions', {
+        ...options,
+        search: this.searchString
+      })
     },
     deleteTransaction(transaction) {
       confirmAction().then(value => {

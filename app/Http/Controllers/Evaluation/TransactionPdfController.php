@@ -60,6 +60,7 @@ class TransactionPdfController extends Controller
                 $transaction->date->format('d.m.Y'),
                 $transaction->type->name,
                 $transaction->amount,
+                $transaction->entered ? 'Ja' : 'Nein',
                 $transaction->comment
             ];
         });
@@ -68,8 +69,9 @@ class TransactionPdfController extends Controller
             'Datum',
             'Vorschuss Typ',
             'Menge in CHF',
+            'Verbucht',
             'Kommentar'
-        ], $columns, [0.6, 0.9, 0.7, 1.5]);
+        ], $columns, [0.6, 0.9, 0.7, 0.5, 1.5]);
 
         return $this->pdf->export("Saldo {$employee->name()}.pdf");
     }

@@ -28,7 +28,27 @@
         @change="changed"
         @submit="saveChanges"
       ></employee-form>
-      <p><strong>Saldo:</strong> {{ employee.saldo }} CHF</p>
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <p><strong>Saldo:</strong> {{ employee.saldo }} CHF</p>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-btn
+            depressed
+            color="primary"
+            :loading="isLoadingSaldoPdf"
+            @click="generateSaldoPdf"
+          >
+            Saldo Pdf erstellen
+          </v-btn>
+        </v-col>
+      </v-row>
       <v-btn
         v-if="isUserAllowedToEdit"
         color="red white--text my-4"
@@ -46,7 +66,7 @@
 </template>
 
 <script>
-import { rules } from '@/utils'
+import { rules, downloadFile } from '@/utils'
 import EmployeeForm from '@/components/forms/EmployeeForm'
 
 export default {
@@ -69,7 +89,8 @@ export default {
       isLoadingRevert: false,
       isLoadingDelete: false,
       isUploadingImage: false,
-      isDeleteingImage: false
+      isDeleteingImage: false,
+      isLoadingSaldoPdf: false
     }
   },
   computed: {
@@ -152,6 +173,14 @@ export default {
       }).catch(() => {
         this.isLoadingDelete = false
         this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
+      })
+    },
+    generateSaldoPdf() {
+      this.isLoadingSaldoPdf = true
+      downloadFile(`pdf/employees/${this.employee.id}/saldo`).catch(() => {
+        this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
+      }).finally(() => {
+        this.isLoadingSaldoPdf = false
       })
     }
   }
