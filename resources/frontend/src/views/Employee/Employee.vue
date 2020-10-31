@@ -33,7 +33,7 @@
           cols="12"
           md="6"
         >
-          <p><strong>Saldo:</strong> {{ employee.saldo }} CHF</p>
+          <p><strong>Saldo:</strong> {{ employee.saldo | round }} CHF</p>
         </v-col>
         <v-col
           cols="12"

@@ -23,6 +23,7 @@ import axios from './axios'
 import store from './store'
 import router from './router'
 import App from './App'
+import './filters'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)

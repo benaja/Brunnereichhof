@@ -55,7 +55,8 @@ class TransactionsController extends Controller
                         ->orWhere('user.firstname', 'like', "%$search%")
                         ->orWhere(DB::raw("concat(user.lastname, ' ', user.firstname)"), 'like', "%$search%")
                         ->orWhere('transactions.comment', 'like', "%$search%")
-                        ->orWhere('transaction_types.name', 'like', "%$search%");
+                        ->orWhere('transaction_types.name', 'like', "%$search%")
+                        ->orWhere('transactions.amount', 'like', "%$search%");
                 });
             });
 
@@ -127,6 +128,18 @@ class TransactionsController extends Controller
         
         return [
             'data' => $employee->transactions()->where('entered', false)->sum('amount')
+        ];
+    }
+
+    public function stats () {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+
+        return [
+            'data' => [
+                'positive' => Transaction::where('entered', false)->where('amount', '>', 0)->sum('amount'),
+                'negative' => Transaction::where('entered', false)->where('amount', '<', 0)->sum('amount'),
+                'total' => Transaction::where('entered', false)->sum('amount')
+            ]
         ];
     }
 }

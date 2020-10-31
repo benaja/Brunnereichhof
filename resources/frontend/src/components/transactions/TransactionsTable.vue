@@ -13,7 +13,12 @@
       <template v-slot:item="{item}">
         <tr>
           <td v-if="withEmployee">
-            {{ item.employee.lastname }} {{ item.employee.firstname }}
+            <router-link
+              :to="`/employee/${item.employee.id}`"
+              class="employee-link"
+            >
+              {{ item.employee.lastname }} {{ item.employee.firstname }}
+            </router-link>
           </td>
           <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
           <td>{{ item.type.name }}</td>
@@ -183,7 +188,7 @@ export default {
             entered: true
           }).then(() => {
             if (transaction.employee) {
-              this.sortBy(this.sortOptions)
+              this.$emit('update')
             } else {
               this.paginate(this.pagination)
             }
@@ -194,3 +199,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.employee-link {
+  text-decoration: none;
+  color: black;
+}
+</style>

@@ -1,5 +1,13 @@
 export default [
   {
+    version: '2.3.2',
+    changes: [
+      'Statistiken für Vorschuss Manager.',
+      'Link zu Mitarbeiter bei Vorschüsse Anezigen.'
+    ],
+    date: '31.10.2020'
+  },
+  {
     version: '2.3.1',
     changes: [
       'Vorschüsse können auf Verbucht gesetzt werden.',

@@ -52,7 +52,7 @@
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <p v-if="saldo !== null">
-                <strong>Saldo: </strong>{{ saldo }} CHF
+                <strong>Saldo: </strong>{{ saldo | round }} CHF
               </p>
               <v-btn
                 text
