@@ -1,14 +1,21 @@
 <template>
   <v-expansion-panel>
-    <v-expansion-panel-header hide-actions>
+    <v-expansion-panel-header
+      hide-actions
+      :color="source.is_blacklisted ? 'grey darken-4' : null"
+      :class="{'white--text': source.is_blacklisted}"
+    >
       <p class="header-text ">
-        <v-icon class="account-icon">
+        <v-icon
+          class="account-icon"
+          :color="source.is_blacklisted ? 'white' : null"
+        >
           account_circle
         </v-icon>
-        <span class="font-weight-bold">{{ source.lastname }} {{ source.firstname }}</span>
+        <span class="font-weight-bold">{{ source.customer_number }}<span v-if="source.customer_number">, </span>{{ source.lastname }} {{ source.firstname }}</span>
         <span
           class="font-italic hidden-xs-only"
-        >&nbsp; {{ source.address.street }}, {{ source.address.place }}
+        >&nbsp; {{ source.address.street }}<span v-if="source.address.street">, </span>{{ source.address.place }}
           {{ source.address.plz }}</span>
       </p>
       <v-btn
@@ -30,7 +37,10 @@
         Details
       </v-btn>
     </v-expansion-panel-header>
-    <v-expansion-panel-content>
+    <v-expansion-panel-content
+      :color="source.is_blacklisted ? 'grey darken-4' : null"
+      :class="{'white--text': source.is_blacklisted}"
+    >
       <v-row wrap>
         <v-col
           cols="12"
@@ -55,7 +65,7 @@
           md="6"
           lg="4"
         >
-          <h4>Username und E-Mail</h4>
+          <h4>Benutzername (Knr.) und E-Mail</h4>
           <p>{{ source.username }}</p>
           <p>{{ source.email }}</p>
         </v-col>

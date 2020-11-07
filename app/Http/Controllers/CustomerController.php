@@ -13,6 +13,7 @@ use App\Mail\CustomerCreated;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class CustomerController extends Controller
 {
@@ -85,7 +86,9 @@ class CustomerController extends Controller
                 'user_id' => $user->id,
                 'customer_number' => request('customer_number'),
                 'needs_payment_order' => request('needs_payment_order'),
-                'differingBillingAddress' => request('differingBillingAddress')
+                'differingBillingAddress' => request('differingBillingAddress'),
+                'is_blacklisted' => request('is_blacklisted'),
+                'blacklist_comment' => request('blacklist_comment')
             ]);
 
             $address = Address::create($request->address);
@@ -131,7 +134,9 @@ class CustomerController extends Controller
         //return view('pages.admin.customer.show', compact('customer'));
         $customer->email = $customer->user->email;
         if ($customer->secret != null) {
-            $customer->secret = decrypt($customer->secret);
+            try {
+                $customer->secret = decrypt($customer->secret);
+            } catch(Throwable $e) {}
         }
         return response($customer);
     }
@@ -165,7 +170,9 @@ class CustomerController extends Controller
             'maps' => $request->maps,
             'customer_number' => $request->customer_number,
             'needs_payment_order' => $request->needs_payment_order,
-            'differingBillingAddress' => $request->differingBillingAddress
+            'differingBillingAddress' => $request->differingBillingAddress,
+            'is_blacklisted' => $request->is_blacklisted,
+            'blacklist_comment' => $request->blacklist_comment
         ]);
         $customer->user->username = $request->customer_number;
         $customer->user->save();
@@ -259,7 +266,9 @@ class CustomerController extends Controller
         'maps' => 'nullable|string|max:1000',
         'customer_number' => 'nullable|numeric',
         'needs_payment_order' => 'nullable|boolean',
-        'differingBillingAddress' => 'nullable|boolean'
+        'differingBillingAddress' => 'nullable|boolean',
+        'is_blacklisted' => 'nullable|boolean',
+        'blacklist_comment' => 'nullable|string|max:1000'
     ];
 
     private function validateAddress($request, $addressType)

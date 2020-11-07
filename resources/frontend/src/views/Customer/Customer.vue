@@ -111,9 +111,12 @@ export default {
       if (!response.data.billing_address) response.data.billing_address = {}
       this.customer = response.data
       this.original = this._.cloneDeep(this.customer)
-    }).finally(() => {
-      this.isLoading = false
+    }).catch(() => {
+      this.$store.dispatch('error', 'Unbekannter Fehler beim Laden des Kunden')
     })
+      .finally(() => {
+        this.isLoading = false
+      })
     this.isUserAllowedToEdit = this.$auth.user().hasPermission(['superadmin'], ['customer_write'])
   },
   methods: {

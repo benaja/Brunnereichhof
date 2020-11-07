@@ -1,5 +1,14 @@
 export default [
   {
+    version: '2.4',
+    changes: [
+      'Kunden können neu auf die schwarze Liste gesetzt werden und man kann dazu ein Kommentar hinzufügen.',
+      'Kunden auf der schwarzen Liste sind auf der Übersicht schwarz gekennzeichnet.',
+      'Kundennummer wird auf der Kundenübersicht angezeigt und es kann auch nach Kundennummer gesucht werden.'
+    ],
+    date: '07.11.2020'
+  },
+  {
     version: '2.3.2',
     changes: [
       'Statistiken für Vorschuss Manager.',

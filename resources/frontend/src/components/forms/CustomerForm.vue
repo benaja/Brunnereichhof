@@ -214,12 +214,36 @@
           @change="$emit('change', 'projects')"
         ></edit-projects>
       </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-checkbox
+          v-model="value.is_blacklisted"
+          label="Auf schwarzer Liste"
+          color="primary"
+          :readonly="readonly"
+          @change="$emit('change', 'is_blacklisted')"
+        ></v-checkbox>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <text-area
+          v-if="value.is_blacklisted"
+          v-model="value.blacklist_comment"
+          label="Kommentar scharze Liste"
+          :original="original.blacklist_comment"
+          @change="$emit('change', 'blacklist_comment')"
+        ></text-area>
+      </v-col>
     </v-row>
   </v-form>
 </template>
 
 <script>
-import { TextField } from '@/components/FormComponents'
+import { TextField, TextArea } from '@/components/FormComponents'
 import EditAddress from '@/components/customer/EditAddress'
 import { rules } from '@/utils'
 import EditProjects from '@/components/customer/EditProjects'
@@ -228,7 +252,8 @@ export default {
   components: {
     TextField,
     EditAddress,
-    EditProjects
+    EditProjects,
+    TextArea
   },
   props: {
     value: {
