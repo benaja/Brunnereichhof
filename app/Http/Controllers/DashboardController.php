@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\Helpers\Settings;
 use App\Hour;
 use App\Pivots\BedRoomPivot;
 use App\Rapportdetail;
-use App\Stats;
-use App\Timerecord;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -17,20 +17,51 @@ class DashboardController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function allStats()
+    public function allStats(Request $request)
     {
         auth()->user()->authorize(['superadmin']);
 
-        $sum = Hour::groupBy(DB::raw('MONTH(date) + '.' + YEAR(date)'))->get();
+        $startDate = Carbon::now()->subtract('year', 1)->startOfMonth();
+        $endDate = Carbon::now();
 
-        return $sum;
+        if ($request->get('dateRange') === 'all') {
+            $startDate = new Carbon('2018-10-01');
+        } else if ($request->get('dateRange') && $request->get('dateRange') !== 'last-12-months') {
+            $startDate = Carbon::now()->year($request->get('dateRange'))->startOfYear();
+            $endDate = $startDate->clone()->endOfYear();
+        }
+
+        $workerHoursByMonth = [$this->workerHoursByMonth($startDate, $endDate)];
+
+        $workerTotalHours = Hour::where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->sum('duration');
+
+        $employeeHoursByMonth = [$this->employeeHoursByMonth($startDate, $endDate)];
+
+        $employeeTotalHours = Rapportdetail::where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->sum('hours');
+
+
+        if ($request->get('withPreviousYear') && $request->get('withPreviousYear') === 'true' && $request->get('dateRange') !== 'all') {
+            $startDateLastYear = $startDate->clone()->subtract('year', 1);
+            $endDateLastYear = $endDate->clone()->subtract('year', 1);
+
+            array_push($workerHoursByMonth, $this->workerHoursByMonth($startDateLastYear, $endDateLastYear));
+            array_push($employeeHoursByMonth, $this->employeeHoursByMonth($startDateLastYear, $endDateLastYear));
+        }
 
         return [
-            'employeeHoursByMonth' => Stats::values('employeeHoursByMonth'),
-            'employeeTotalNumbers' => $this->employeeTotalNumbers(),
-            'workerHoursByMonth' => Stats::values('workerHoursByMonth'),
-            'workerTotalNumbers' => Stats::values('workerTotalNumbers'),
-            'updatedAt' => Stats::values('lastCronJob'),
+            'employees' => [
+                'hoursByMonth' => $employeeHoursByMonth,
+                'totalHours' => trim(number_format($employeeTotalHours, 2, '.', "'"), '0'),
+                'active' => Employee::where('isActive', 1)->count()
+            ],
+            'workers' => [
+                'hoursByMonth' => $workerHoursByMonth,
+                'totalHours' => trim(number_format($workerTotalHours, 2, '.', "'"), '0')
+            ]
         ];
     }
 
@@ -65,21 +96,53 @@ class DashboardController extends Controller
         return $stats;
     }
 
-    private function employeeTotalNumbers()
-    {
-        $firstOfThisYear = new \DateTime('first day of January this year');
-        $lastOfThisYear = new \DateTime('last day of December this year');
+    private function workerHoursByMonth($startDate, $endDate) {
+       $hoursByMonth = Hour::selectRaw("date, sum(duration) as duration, MONTH(date) as month, YEAR(date) as year")
+        ->groupBy('month', 'year')
+        ->orderBy('date')
+        ->where('date', '>=', $startDate)
+        ->where('date', '<=', $endDate)
+        ->get();
 
-        $totalHours = Rapportdetail::where('date', '>=', $firstOfThisYear->format('Y-m-d'))
-            ->where('date', '<=', $lastOfThisYear->format('Y-m-d'))->sum('hours');
+        return $this->toLineChart($hoursByMonth, $startDate, $endDate);
+    }
 
-        $employeesAmount = Employee::where('isActive', 1)->count();
+    private function employeeHoursByMonth($startDate, $endDate) {
+        $hoursByMonth = Rapportdetail::selectRaw('date, sum(hours) as duration, MONTH(date) as month, YEAR(date) as year')
+            ->groupBy('month', 'year')
+            ->orderBy('date')
+            ->where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->get();
 
-        $response = [
-            'hours' => round($totalHours, 2),
-            'activeEmployees' => $employeesAmount,
-        ];
+        return $this->toLineChart($hoursByMonth, $startDate, $endDate);
+    }
 
-        return $response;
+    private function toLineChart($items, $startDate, $endDate) {
+        $items = $items->reduce(function ($prev, $curr) {
+            $prev[$this->monthWithYear(new Carbon($curr->date))] = $curr;
+            return $prev;
+        }, []);
+
+        $chart = collect();
+        for($i = $startDate->clone(); $i->lessThanOrEqualTo($endDate); $i->addMonth()) {
+            if (isset($items[$this->monthWithYear($i)])) {
+                $chart->push([
+                    'name' => Settings::getShortMonthName($i),
+                    'hours' => round($items[$this->monthWithYear($i)]->duration, 2)
+                ]);
+            } else {
+                $chart->push([
+                    'name' => Settings::getShortMonthName($i),
+                    'hours' => 0
+                ]);
+            }
+        }
+
+        return $chart;
+    }
+
+    private function monthWithYear($date) {
+        return $date->year . '-' . $date->month;
     }
 }

@@ -24,22 +24,6 @@
         </p>
       </v-list-item-content>
     </v-list-item>
-    <v-card-text class="pt-0">
-      <v-divider></v-divider>
-    </v-card-text>
-    <v-card-actions>
-      <p class="caption ml-2">
-        <v-icon class="mr-1">
-          {{ actionIcon }}
-        </v-icon>
-        <template v-if="updatedAt">
-          Vor {{ lastUpdatedInMinutes }} Minuten aktualisiert
-        </template>
-        <template v-else>
-          {{ actionText }}
-        </template>
-      </p>
-    </v-card-actions>
   </v-card>
 </template>
 
@@ -58,24 +42,6 @@ export default {
     value: {
       type: String,
       default: null
-    },
-    actionIcon: {
-      type: String,
-      default: 'schedule'
-    },
-    actionText: {
-      type: String,
-      default: null
-    },
-    updatedAt: {
-      type: String,
-      default: null
-    }
-  },
-  computed: {
-    lastUpdatedInMinutes() {
-      const date = this.$moment(this.updatedAt).add(1, 'hour')
-      return this.$moment().diff(date, 'minutes')
     }
   }
 }

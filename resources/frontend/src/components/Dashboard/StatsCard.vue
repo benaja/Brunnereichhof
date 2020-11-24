@@ -5,12 +5,11 @@
         class="chart elevation-5"
         :class="color"
       >
-        <chartist
-          ratio="ct-major-second"
-          type="Line"
-          :data="chartData"
+        <line-chart
+          :chart-data="chartData"
           :options="options"
-        ></chartist>
+          :height="null"
+        ></line-chart>
       </div>
       <h3 class="headline">
         {{ title }}
@@ -18,20 +17,18 @@
     </v-card-title>
     <v-card-text>
       <p>{{ text }}</p>
-      <v-divider></v-divider>
     </v-card-text>
-    <v-card-actions>
-      <p class="caption ml-2">
-        <v-icon>schedule</v-icon>
-        Vor {{ lastUpdatedInMinutes }} Minuten aktualisiert
-      </p>
-    </v-card-actions>
   </v-card>
 </template>
 
 <script>
+import LineChart from '@/components/general/LineChart'
+
 export default {
   name: 'StatsCard',
+  components: {
+    LineChart
+  },
   props: {
     title: {
       type: String,
@@ -45,11 +42,7 @@ export default {
       type: String,
       default: 'primary'
     },
-    updatedAt: {
-      type: String,
-      default: null
-    },
-    dataset: {
+    datasets: {
       type: Array,
       default: () => []
     }
@@ -57,32 +50,52 @@ export default {
   data() {
     return {
       options: {
-        low: 0,
-        chartPadding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0
+        gridLines: {
+          color: 'white'
         },
-        height: '190px'
+        legend: {
+          display: false,
+          labels: {
+            fontColor: 'white',
+            fontSize: 18
+          }
+        },
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                display: false
+              },
+              ticks: {
+                fontColor: 'white'
+              }
+            }
+          ],
+          yAxes: [{
+            gridLines: {
+              color: 'rgba(255, 255, 255, 0.5)',
+              zeroLineColor: 'rgba(255, 255, 255, 0.5)'
+            },
+            ticks: {
+              fontColor: 'white'
+            }
+          }]
+        }
       }
     }
   },
   computed: {
-    lastUpdatedInMinutes() {
-      const date = this.$moment(this.updatedAt).add(1, 'hour')
-      return this.$moment().diff(date, 'minutes')
-    },
     chartData() {
-      const labels = []
-      const series = []
-      for (let i = 0; i < this.dataset.length; i++) {
-        labels.push(this.dataset[i].name)
-        series.push(this.dataset[i].hours)
-      }
       return {
-        labels,
-        series: [series]
+        labels: this.datasets[0].map(item => item.name),
+        datasets: this.datasets.map((set, index) => ({
+          label: index === 0 ? 'Aktuelles Jahr' : 'Vorheriges Jahr',
+          borderColor: index === 0 ? 'white' : '#b5b5b5',
+          backgroundColor: index === 0 ? 'rgba(255, 255, 255, 0.3)' : 'rgba(168, 168, 168, 0.3)',
+          data: set.map(item => item.hours)
+        }))
       }
     }
   },
@@ -102,28 +115,13 @@ export default {
 <style lang="scss" scoped>
 .chart {
   width: 100%;
-  height: 200px;
+  // height: 400px;
   margin-top: -30px;
   border-radius: 10px;
-  padding-top: 10px;
-  padding-right: 10px;
+  padding: 30px;
 }
 
 h3 {
   margin-top: 10px;
-}
-</style>
-
-<style lang="scss">
-.ct-series-a .ct-point,
-.ct-series-a .ct-line,
-.ct-series-a .ct-bar,
-.ct-series-a .ct-slice-donut {
-  stroke: white !important;
-}
-
-.ct-labels span {
-  width: 40px !important;
-  margin-right: 5px;
 }
 </style>

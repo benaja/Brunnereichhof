@@ -8,24 +8,46 @@
       <v-row class="mt-4 pt-4">
         <v-col
           cols="12"
-          md="6"
+          md="8"
+          lg="9"
+        >
+          <v-select
+            v-model="dateRange"
+            :items="dateRanges"
+            @change="loadStats"
+          ></v-select>
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+          lg="3"
+        >
+          <v-checkbox
+            v-model="withPreviousYear"
+            label="Vorheriges Jahr anzeigen"
+            @change="loadStats"
+          ></v-checkbox>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="6"
         >
           <stats-card
+            v-if="stats.employees.hoursByMonth"
             title="Mitarbeiter Stunden"
             text="Geleistete Stunden pro Monat"
-            :updated-at="stats.updatedAt.date"
-            :dataset="stats.employeeHoursByMonth"
+            :datasets="stats.employees.hoursByMonth"
           ></stats-card>
         </v-col>
         <v-col
           cols="12"
-          md="6"
+          lg="6"
         >
           <stats-card
+            v-if="stats.workers.hoursByMonth"
             title="Hofmitarbeiter Stunden"
             text="Geleistete Stunden pro Monat"
-            :updated-at="stats.updatedAt.date"
-            :dataset="stats.workerHoursByMonth"
+            :datasets="stats.workers.hoursByMonth"
           ></stats-card>
         </v-col>
         <v-col
@@ -35,8 +57,7 @@
           <single-stat-card
             title="Totale Stunden Mitarbeiter"
             icon="person"
-            :value="`${stats.employeeTotalNumbers.hours} Stunden`"
-            :updated-at="stats.updatedAt.date"
+            :value="`${stats.employees.totalHours} Stunden`"
           ></single-stat-card>
         </v-col>
         <v-col
@@ -46,7 +67,7 @@
           <single-stat-card
             title="Aktive Mitarbeiter"
             icon="person"
-            :value="`${stats.employeeTotalNumbers.activeEmployees}`"
+            :value="`${stats.employees.active}`"
             action-text="Aktuell"
           ></single-stat-card>
         </v-col>
@@ -57,8 +78,7 @@
           <single-stat-card
             title="Totale Stunden Hofmitarbeiter"
             icon="person_outline"
-            :value="`${stats.workerTotalNumbers.hours} Stunden`"
-            :updated-at="stats.updatedAt.date"
+            :value="`${stats.workers.totalHours} Stunden`"
           ></single-stat-card>
         </v-col>
       </v-row>
@@ -82,11 +102,18 @@ export default {
   data() {
     return {
       stats: {
-        employeeTotalNumbers: {},
-        employeeHoursByMonth: [],
-        workerTotalNumbers: {},
-        updatedAt: {}
-      }
+        employees: {
+          hoursByMonth: null,
+          totalHours: null,
+          active: null
+        },
+        workers: {
+          hoursByMonth: null,
+          totalHours: null
+        }
+      },
+      dateRange: JSON.parse(localStorage.getItem('dashboardDateRange')) || 'last-12-months',
+      withPreviousYear: JSON.parse(localStorage.getItem('dashboardWithPreviousYear'))
     }
   },
   computed: {
@@ -100,17 +127,56 @@ export default {
         { text: 'Totale Arbeitsstunden dieses Jahr', value: `${this.stats.employeeTotalNumbers.hours}h` },
         { text: 'Aktive Mitarbeiter', value: this.stats.employeeTotalNumbers.activeEmployees }
       ]
+    },
+    dateRanges() {
+      const dateRanges = [
+        {
+          value: 'last-12-months',
+          text: 'Letzte 12 Monate'
+        },
+        {
+          value: 'all',
+          text: 'Über alles'
+        }
+      ]
+
+      for (let i = this.$moment().year(); i > 2017; i--) {
+        dateRanges.push({
+          value: i,
+          text: i
+        })
+      }
+
+      return dateRanges
+    }
+  },
+  watch: {
+    dateRange() {
+      localStorage.setItem('dashboardDateRange', JSON.stringify(this.dateRange))
+    },
+    withPreviousYear() {
+      localStorage.setItem('dashboardWithPreviousYear', JSON.stringify(this.withPreviousYear))
     }
   },
   mounted() {
-    this.$store.commit('loading', { dashboard: true })
-    this.axios.get('stats').then(response => {
-      this.stats = response.data
-    }).catch(() => {
-      this.$swal('Fehler', 'Satistiken konnten nicht abgeruffen werden', 'error')
-    }).finally(() => {
-      this.$store.commit('loading', { dashboard: false })
-    })
+    this.loadStats()
+  },
+  methods: {
+    loadStats() {
+      this.$store.commit('loading', { dashboard: true })
+      this.axios.get('stats', {
+        params: {
+          dateRange: this.dateRange,
+          withPreviousYear: this.withPreviousYear
+        }
+      }).then(response => {
+        this.stats = response.data
+      }).catch(() => {
+        this.$swal('Fehler', 'Satistiken konnten nicht abgeruffen werden', 'error')
+      }).finally(() => {
+        this.$store.commit('loading', { dashboard: false })
+      })
+    }
   }
 }
 </script>

@@ -56,4 +56,11 @@ class Hour extends Model
         $minutesInHours = 100 / 60 * $different->i;
         return $different->h . "." . number_format((float)$minutesInHours, 0, '.', '');
     }
+
+    protected static function booted()
+    {
+        static::saving(function ($hour) {
+            $hour->duration = $hour->hours();
+        });
+    }
 }

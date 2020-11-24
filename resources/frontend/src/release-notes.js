@@ -1,5 +1,15 @@
 export default [
   {
+    version: '2.5',
+    changes: [
+      'Auf dem Dashboard können nun auch die Vorjahre angezeigt werden.',
+      'Bei den Liniendiagrammen auf dem Dashboard kann zusätzlich das Vorjahr angezeigt werden.',
+      'Alle Zahlen beim Dashboard sind immer aktuell und nicht mehr bis zu einer Stunde verzögert.',
+      'Bei den Release Notes wird auch das Datum angezeigt.'
+    ],
+    date: '24.11.2020'
+  },
+  {
     version: '2.4',
     changes: [
       'Kunden können neu auf die schwarze Liste gesetzt werden und man kann dazu ein Kommentar hinzufügen.',

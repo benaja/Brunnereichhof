@@ -12,6 +12,9 @@
         outlined
         class="mt-4"
       ></v-select>
+      <p v-if="selectedRelease.date">
+        Datum: {{ $moment(selectedRelease.date, 'DD.MM.YYYY').format('DD.MM.YYYY') }}
+      </p>
       <h2 v-if="selectedRelease.changes && selectedRelease.changes.length">
         Neuerungen
       </h2>
