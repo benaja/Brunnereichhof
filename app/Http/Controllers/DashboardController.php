@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Rapportdetail;
 use App\Employee;
 use App\Pivots\BedRoomPivot;
+use App\Rapportdetail;
 use App\Stats;
 use App\Timerecord;
 
 class DashboardController extends Controller
 {
-    private $monthNames = [
-        "Jan.", "Feb.", "März", "Apr.", "Mai", "Juni",
-        "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."
-    ];
-
     public function __construct()
     {
         $this->middleware('jwt.auth');
@@ -29,7 +24,7 @@ class DashboardController extends Controller
             'employeeTotalNumbers' => $this->employeeTotalNumbers(),
             'workerHoursByMonth' => Stats::values('workerHoursByMonth'),
             'workerTotalNumbers' => Stats::values('workerTotalNumbers'),
-            'updatedAt' => Stats::values('lastCronJob')
+            'updatedAt' => Stats::values('lastCronJob'),
         ];
     }
 
@@ -45,17 +40,20 @@ class DashboardController extends Controller
             ->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.deleted_at', null)
-            ->get();;
+            ->get();
 
         $allBeds = BedRoomPivot::with(['bed', 'room'])->get()->toArray();
         $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
-            if ($bedRoomPivot['room'] && $bedRoomPivot['room']['deleted_at']) return 0;
+            if ($bedRoomPivot['room'] && $bedRoomPivot['room']['deleted_at']) {
+                return 0;
+            }
+
             return $bedRoomPivot['bed'] && $bedRoomPivot['bed']['places'];
         }, $allBeds));
         $stats = [
             'freePlaces' => $amountOfAllBeds - count($beds),
             'usedPlaces' => count($beds),
-            'totalPlaces' => $amountOfAllBeds
+            'totalPlaces' => $amountOfAllBeds,
         ];
 
         return $stats;
@@ -73,8 +71,9 @@ class DashboardController extends Controller
 
         $response = [
             'hours' => round($totalHours, 2),
-            'activeEmployees' => $employeesAmount
+            'activeEmployees' => $employeesAmount,
         ];
+
         return $response;
     }
 }

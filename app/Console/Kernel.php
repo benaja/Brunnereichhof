@@ -37,11 +37,11 @@ class Kernel extends ConsoleKernel
         })->hourly();
 
         $schedule->call(function () {
-            $files = glob(storage_path() . "/pdfs/*");
-            var_dump($files);
+            $files = glob(storage_path().'/pdfs/*');
             foreach ($files as $file) {
-                if (is_file($file))
+                if (is_file($file)) {
                     unlink($file);
+                }
             }
         })->daily();
     }
@@ -53,12 +53,12 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }
 
     protected $middlewareGroups = [
-        'throttle' => ['throttle:99,1']
+        'throttle' => ['throttle:99,1'],
     ];
 }

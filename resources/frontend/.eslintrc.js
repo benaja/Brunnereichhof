@@ -16,7 +16,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'space-before-function-paren': 'off',
     'vuetify/no-deprecated-classes': 'error',
-    'linebreak-style': ['error', 'windows'],
+    'linebreak-style': 'off',
     'vue/html-self-closing': ['error', {
       html: {
         void: 'any',
