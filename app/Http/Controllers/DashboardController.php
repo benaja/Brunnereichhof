@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\Hour;
 use App\Pivots\BedRoomPivot;
 use App\Rapportdetail;
 use App\Stats;
 use App\Timerecord;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -18,6 +20,10 @@ class DashboardController extends Controller
     public function allStats()
     {
         auth()->user()->authorize(['superadmin']);
+
+        $sum = Hour::groupBy(DB::raw('MONTH(date) + '.' + YEAR(date)'))->get();
+
+        return $sum;
 
         return [
             'employeeHoursByMonth' => Stats::values('employeeHoursByMonth'),
