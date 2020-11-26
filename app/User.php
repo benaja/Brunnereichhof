@@ -2,11 +2,11 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Enums\WorkTypeEnum;
 use App\Enums\UserTypeEnum;
+use App\Enums\WorkTypeEnum;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -14,10 +14,10 @@ class User extends Authenticatable implements JWTSubject
     use SoftDeletes;
     use Notifiable;
 
-    public $table = "user";
+    public $table = 'user';
 
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive', 'passwordResetToken'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive', 'passwordResetToken',
     ];
 
     protected $hidden = [
@@ -54,13 +54,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Timerecord::class);
     }
 
+    public function hours()
+    {
+        return $this->hasManyThrough(Hour::class, Timerecord::class);
+    }
+
     public function authorize($userTypes, $rules = [])
     {
         if ($this->deleted_at !== null) {
             return abort(401, 'This action is unauthorized.');
         }
 
-        if (count($rules) > 0 && $this->hasRule($rules)) return true;
+        if (count($rules) > 0 && $this->hasRule($rules)) {
+            return true;
+        }
 
         if (is_array($userTypes)) {
             //$role = $roles[0];
@@ -68,6 +75,7 @@ class User extends Authenticatable implements JWTSubject
             return $this->isAnyType($userTypes) ||
                 abort(403, 'This action is forbidden.');
         }
+
         return $this->isType($userTypes) ||
             abort(403, 'This action is forbidden.');
     }
@@ -171,27 +179,35 @@ class User extends Authenticatable implements JWTSubject
 
     public static function workers()
     {
-        return User::where('type_id', UserTypeEnum::Worker);
+        return self::where('type_id', UserTypeEnum::Worker);
     }
 
     private function getTotalHours($startDate, $endDate, $worktype = null)
     {
-        $totalHours = 0;
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $startDate->format('Y-m-d'))
-            ->where('date', '<=', $endDate->format('Y-m-d'));
+        // $totalHours = 0;
+        // $timerecords = $this->timerecords
+        //     ->where('date', '>=', $startDate->format('Y-m-d'))
+        //     ->where('date', '<=', $endDate->format('Y-m-d'));
 
-        foreach ($timerecords as $timerecord) {
-            foreach ($timerecord->hours as $hour) {
-                if (isset($worktype) && $hour->worktype_id == $worktype) {
-                    $totalHours += $hour->duration();
-                } else if (!isset($worktype)) {
-                    $totalHours += $hour->duration();
-                }
-            }
-        }
+        // foreach ($timerecords as $timerecord) {
+        //     foreach ($timerecord->hours as $hour) {
+        //         if (isset($worktype) && $hour->worktype_id == $worktype) {
+        //             $totalHours += $hour->duration();
+        //         } elseif (! isset($worktype)) {
+        //             $totalHours += $hour->duration();
+        //         }
+        //     }
+        // }
 
-        return $totalHours;
+        // return $totalHours;
+
+        return $this->hours()
+            ->where('hours.date', '>=', $startDate)
+            ->where('hours.date', '<=', $endDate)
+            ->when($worktype, function ($query, $worktype) {
+                $query->where('worktype_id', $worktype);
+            })
+            ->sum('duration');
     }
 
     public function getNumberOfMeals($startDate, $endDate)
@@ -203,13 +219,14 @@ class User extends Authenticatable implements JWTSubject
         return [
             'breakfast' => count($timerecords->where('breakfast', 1)),
             'lunch' => count($timerecords->where('lunch', 1)),
-            'dinner' => count($timerecords->where('dinner', 1))
+            'dinner' => count($timerecords->where('dinner', 1)),
         ];
     }
 
     public function getTotalNumberOfMealsBetweenDates($startDate, $endDate)
     {
         $numberOfMealsByTpye = $this->getNumberOfMeals($startDate, $endDate);
+
         return $numberOfMealsByTpye['breakfast'] + $numberOfMealsByTpye['lunch'] + $numberOfMealsByTpye['dinner'];
     }
 
