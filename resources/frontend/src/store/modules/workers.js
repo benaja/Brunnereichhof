@@ -33,11 +33,16 @@ export default {
     }
   },
   actions: {
-    fetchWorkers({ commit, getters, dispatch }) {
+    fetchWorkers({ commit, getters, dispatch }, params) {
       return new Promise((resolve, reject) => {
         commit('loading', { workers: true })
         axios
-          .get('/workers?all=true')
+          .get('/workers', {
+            params: {
+              all: true,
+              ...params
+            }
+          })
           .then(response => {
             commit('setWorkers', response.data)
             resolve(getters.workers)

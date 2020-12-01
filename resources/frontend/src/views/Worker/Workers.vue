@@ -24,7 +24,10 @@
           v-for="worker in workersFiltered"
           :key="worker.id"
         >
-          <v-expansion-panel-header hide-actions>
+          <v-expansion-panel-header
+            hide-actions
+            @click="loadWorker(worker.id)"
+          >
             <p class="pt-2 mt-1">
               <v-icon class="account-icon">
                 account_circle
@@ -51,7 +54,7 @@
             </v-btn>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <v-row>
+            <v-row v-if="activeWorker && activeWorker.id === worker.id">
               <v-col
                 cols="12"
                 md="6"
@@ -59,15 +62,15 @@
               >
                 <h4>Aktueller Monat</h4>
                 <p class="mb-0">
-                  Arbeitsstunden: {{ worker.workHoursThisMonth }}h
+                  Arbeitsstunden: {{ activeWorker.workHoursThisMonth }}h
                 </p>
                 <p class="mb-0">
-                  Frühstück: {{ worker.mealsThisMonth.breakfast }}
+                  Frühstück: {{ activeWorker.mealsThisMonth.breakfast }}
                 </p>
                 <p class="mb-0">
-                  Mittagessen: {{ worker.mealsThisMonth.lunch }}
+                  Mittagessen: {{ activeWorker.mealsThisMonth.lunch }}
                 </p>
-                <p>Abendessen: {{ worker.mealsThisMonth.dinner }}</p>
+                <p>Abendessen: {{ activeWorker.mealsThisMonth.dinner }}</p>
               </v-col>
               <v-col
                 cols="12"
@@ -76,15 +79,15 @@
               >
                 <h4>Vergangener Monat</h4>
                 <p class="mb-0">
-                  Arbeitsstunden: {{ worker.workHoursLastMonth }}h
+                  Arbeitsstunden: {{ activeWorker.workHoursLastMonth }}h
                 </p>
                 <p class="mb-0">
-                  Frühstück: {{ worker.mealsLastMonth.breakfast }}
+                  Frühstück: {{ activeWorker.mealsLastMonth.breakfast }}
                 </p>
                 <p class="mb-0">
-                  Mittagessen: {{ worker.mealsLastMonth.lunch }}
+                  Mittagessen: {{ activeWorker.mealsLastMonth.lunch }}
                 </p>
-                <p>Abendessen: {{ worker.mealsLastMonth.dinner }}</p>
+                <p>Abendessen: {{ activeWorker.mealsLastMonth.dinner }}</p>
               </v-col>
               <v-col
                 cols="12"
@@ -92,8 +95,8 @@
                 lg="3"
               >
                 <h4>Ferien dieses Jahr</h4>
-                <p>Geplant: {{ worker.holidaysPlant }} Tage</p>
-                <p>Bezogen: {{ worker.holidaysDone }} Tage</p>
+                <p class="mb-0">Geplant: {{ activeWorker.holidaysPlant }} Tage</p>
+                <p>Bezogen: {{ activeWorker.holidaysDone }} Tage</p>
               </v-col>
               <v-col
                 cols="12"
@@ -141,14 +144,15 @@ export default {
     return {
       workersFiltered: [],
       showDeleted: false,
-      showActive: true
+      showActive: true,
+      activeWorker: null
     }
   },
   computed: {
     ...mapGetters(['allWorkers'])
   },
   mounted() {
-    this.$store.dispatch('fetchWorkers')
+    this.$store.dispatch('fetchWorkers', { withDetails: true })
   },
   methods: {
     filterActive(worker) {
@@ -159,6 +163,17 @@ export default {
         this.$swal('Fehler', 'Aktion konnte nicht durchgeführt werden.', 'error')
       }).then(() => {
         this.$store.dispatch('alert', { text: `Hofmitarbeiter erfolgreich auf ${worker.isActive ? 'aktiv' : 'inaktiv'} gesetzt.` })
+      })
+    },
+    loadWorker(workerId) {
+      if (this.activeWorker && this.activeWorker.id === workerId) {
+        return
+      }
+
+      this.axios.get(`/workers/${workerId}`).then(response => {
+        this.activeWorker = response.data
+      }).catch(() => {
+        this.$store.dispatch('error', 'Fehler beim Laden der Details')
       })
     }
   }

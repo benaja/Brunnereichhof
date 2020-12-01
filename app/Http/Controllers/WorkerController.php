@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Utils;
+use App\Http\Controllers\Controller;
+use App\Mail\WorkerCreated;
 use App\User;
 use App\UserType;
-use App\Mail\WorkerCreated;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Controller;
 
 class WorkerController extends Controller
 {
@@ -22,20 +23,16 @@ class WorkerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['worker_read', 'timerecord_stats']);
 
-        if (isset($request->deleted)) $workers = User::workers()->onlyTrashed()->orderBy('lastname')->get();
-        else if (isset($request->all)) $workers = User::workers()->withTrashed()->orderBy('lastname')->get();
-        else $workers = User::workers()->orderBy('lastname')->get();
+        $query = User::workers();
 
-        foreach ($workers as $worker) {
-            $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
-            $worker->mealsThisMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of this month'));
-
-            $worker->workHoursLastMonth = $worker->totalHoursByMonth(new \DateTime('first day of last month'));
-            $worker->mealsLastMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of last month'));
-
-            $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
-            $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
+        if (isset($request->deleted)) {
+            $workers = $query->onlyTrashed()->orderBy('lastname')->get();
+        } elseif (isset($request->all)) {
+            $workers = $query->withTrashed()->orderBy('lastname')->get();
+        } else {
+            $workers = $query->orderBy('lastname')->get();
         }
+
         return $workers;
     }
 
@@ -48,10 +45,10 @@ class WorkerController extends Controller
             'firstname' => 'required|string|max:100',
             'lastname' => 'required|string|max:100',
             'email' => 'required|email|unique:user',
-            'role_id' => 'required|integer'
+            'role_id' => 'required|integer',
         ]);
 
-        $username = Utils::getUniqueUsername($request->firstname . "." . $request->lastname);
+        $username = Utils::getUniqueUsername($request->firstname.'.'.$request->lastname);
 
         $password = str_random(8);
         $usertype = UserType::where('name', 'worker')->first();
@@ -63,7 +60,7 @@ class WorkerController extends Controller
             'password' => Hash::make($password),
             'isPasswordChanged' => 0,
             'role_id' => $request->role_id,
-            'isActive' => $request->isActive
+            'isActive' => $request->isActive,
         ]);
 
         $usertype->users()->save($user);
@@ -72,6 +69,7 @@ class WorkerController extends Controller
         $data['password'] = $password;
 
         \Mail::to($user->email)->send(new WorkerCreated($data));
+
         return 'success';
     }
 
@@ -81,6 +79,15 @@ class WorkerController extends Controller
         auth()->user()->authorize(['superadmin'], ['worker_read']);
 
         $worker = User::find($id);
+
+        $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
+        $worker->mealsThisMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of this month'));
+
+        $worker->workHoursLastMonth = $worker->totalHoursByMonth(new \DateTime('first day of last month'));
+        $worker->mealsLastMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of last month'));
+
+        $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
+        $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
 
         return $worker;
     }
@@ -93,15 +100,17 @@ class WorkerController extends Controller
         if (isset($request->deleted_at)) {
             $user = User::withTrashed()->find($id);
             $user->restore();
+
             return $user;
         }
 
         $user = User::find($id);
-        foreach($request->except('_token') as $key => $value) {
+        foreach ($request->except('_token') as $key => $value) {
             $user->$key = $value;
         }
 
         $user->save();
+
         return $user;
     }
 

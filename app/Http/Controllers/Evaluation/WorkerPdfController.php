@@ -5,12 +5,10 @@ namespace App\Http\Controllers\Evaluation;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
-use App\Hour;
 use App\Http\Controllers\Controller;
 use App\Timerecord;
 use App\User;
 use App\Worktype;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class WorkerPdfController extends Controller
@@ -76,36 +74,12 @@ class WorkerPdfController extends Controller
     // Helpers
     private function timerecordsMonthRapport($workerId, $date)
     {
-        $firstDayOfMonth = Carbon::parse($date)->firstOfMonth();
-        $lastDayOfMonth = Carbon::parse($date)->lastOfMonth();
-        // $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
-        // $lastDayOfMonth = Utils::lastDate('month', new \DateTime($date));
-
-        $hoursByWorker = Hour::with('worktype')
-            ->selectRaw('user.firstname, user.lastname, user.id, sum(duration) as duration, hours.date')
-            ->join('timerecord', 'timerecord.id', '=', 'hours.timerecord_id')
-            ->join('user', 'user.id', '=', 'timerecord.user_id')
-            ->where('hours.date', '>=', $firstDayOfMonth)
-            ->where('hours.date', '<=', $lastDayOfMonth)
-            ->groupBy('user.id')
-            ->orderBy('user.lastname')
-            ->get();
-
-        $mealsByWorker = Timerecord::where('date', '>=', $firstDayOfMonth)
-            ->where('date', '<=', $lastDayOfMonth)
-            ->selectRaw('sum(lunch) as lunches, sum(breakfast) as breakfasts, sum(dinner) as dinners, (IFNULL(sum(lunch), 0) + IFNULL(sum(breakfast), 0) + IFNULL(sum(dinner), 0)) as total_meals, user_id')
-            ->groupBy('user_id')
-            ->get()
-            ->reduce(function ($prev, $cur) {
-                $prev[$cur->user_id] = $cur;
-
-                return $prev;
-            }, []);
+        $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
+        $lastDayOfMonth = Utils::lastDate('month', new \DateTime($date));
 
         $workers = User::workers()->with(['timerecords' => function ($query) use ($firstDayOfMonth, $lastDayOfMonth) {
             $query->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
                 ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
-                ->rightJoin('hours', 'hours.id', '=', 'timerecord.hour_id')
                 ->with('hours.worktype');
         }])->when($workerId !== 'all', function ($query) use ($workerId) {
             $query->where('id', $workerId);
@@ -113,11 +87,11 @@ class WorkerPdfController extends Controller
             ->orderby('lastname')
             ->get();
 
-        // if ($workerId === 'all') {
-        //     $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) {
-        //         return $worker->totalHoursByMonth($firstDayOfMonth) > 0;
-        //     });
-        // }
+        if ($workerId === 'all') {
+            $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) {
+                return $worker->totalHoursByMonth($firstDayOfMonth) > 0;
+            });
+        }
 
         $this->pdf = new Pdf();
         $monthName = Settings::getMonthName($firstDayOfMonth);
@@ -127,31 +101,29 @@ class WorkerPdfController extends Controller
             // FrontPage
             $titles = ['Mitarbeiter', 'Arbeitszeit Total', 'Verpflegungen (Total)'];
             $lines = [];
-            foreach ($hoursByWorker as $worker) {
+            foreach ($workers as $worker) {
                 $line = [
                     $worker->lastname.' '.$worker->firstname,
-                    $worker->duration,
-                    $mealsByWorker[$worker->id]->total_meals,
-                    // $worker->totalHoursByMonth($firstDayOfMonth),
-                    // array_sum($worker->getNumberOfMealsByMonth($firstDayOfMonth)),
+                    $worker->totalHoursByMonth($firstDayOfMonth),
+                    array_sum($worker->getNumberOfMealsByMonth($firstDayOfMonth)),
                 ];
                 array_push($lines, $line);
             }
             $this->pdf->table($titles, $lines);
         }
 
-        // foreach ($workers as $worker) {
-        //     if ($workerId == 'all') {
-        //         $this->pdf->addNewPage('L');
-        //     }
-        //     $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName);
-        // }
+        foreach ($workers as $worker) {
+            if ($workerId == 'all') {
+                $this->pdf->addNewPage('L');
+            }
+            $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName);
+        }
 
-        // if ($workerId != 'all') {
-        //     $filename = "Monatrapport {$workers[0]->lastname} {$workers[0]->firstname} $monthName.pdf";
-        // } else {
-        $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
-        // }
+        if ($workerId != 'all') {
+            $filename = "Monatrapport {$workers[0]->lastname} {$workers[0]->firstname} $monthName.pdf";
+        } else {
+            $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
+        }
 
         return $this->pdf->export($filename);
     }
