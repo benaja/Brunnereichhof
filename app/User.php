@@ -2,11 +2,11 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Enums\WorkTypeEnum;
 use App\Enums\UserTypeEnum;
+use App\Enums\WorkTypeEnum;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -14,10 +14,10 @@ class User extends Authenticatable implements JWTSubject
     use SoftDeletes;
     use Notifiable;
 
-    public $table = "user";
+    public $table = 'user';
 
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive', 'passwordResetToken'
+        'firstname', 'lastname', 'email', 'password', 'authorization', 'username', 'isPasswordChanged', 'type_id', 'role_id', 'isActive', 'passwordResetToken',
     ];
 
     protected $hidden = [
@@ -54,13 +54,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Timerecord::class);
     }
 
+    public function hours()
+    {
+        return $this->hasManyThrough(Hour::class, Timerecord::class);
+    }
+
     public function authorize($userTypes, $rules = [])
     {
         if ($this->deleted_at !== null) {
             return abort(401, 'This action is unauthorized.');
         }
 
-        if (count($rules) > 0 && $this->hasRule($rules)) return true;
+        if (count($rules) > 0 && $this->hasRule($rules)) {
+            return true;
+        }
 
         if (is_array($userTypes)) {
             //$role = $roles[0];
@@ -68,6 +75,7 @@ class User extends Authenticatable implements JWTSubject
             return $this->isAnyType($userTypes) ||
                 abort(403, 'This action is forbidden.');
         }
+
         return $this->isType($userTypes) ||
             abort(403, 'This action is forbidden.');
     }
@@ -137,61 +145,40 @@ class User extends Authenticatable implements JWTSubject
     {
         $lastDayOfYear = clone $today;
         $lastDayOfYear->modify('last day of december this year');
-        $totalHolidays = 0;
 
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $today->format('Y-m-d'))
-            ->where('date', '<=', $lastDayOfYear->format('Y-m-d'));
-
-        foreach ($timerecords as $timerecord) {
-            $hours = $timerecord->hours->where('worktype_id', WorkTypeEnum::Holydays);
-            $totalHolidays += count($hours);
-        }
-
-        return $totalHolidays;
+        return $this->hours()
+            ->where('hours.date', '>=', $today->format('Y-m-d'))
+            ->where('hours.date', '<=', $lastDayOfYear->format('Y-m-d'))
+            ->where('worktype_id', WorkTypeEnum::Holydays)
+            ->count();
     }
 
     public function holydaysDone(\DateTime $today)
     {
         $firstDayOfYear = clone $today;
         $firstDayOfYear->modify('first day of january this year');
-        $totalHolidays = 0;
 
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $firstDayOfYear->format('Y-m-d'))
-            ->where('date', '<', $today->format('Y-m-d'));
-
-        foreach ($timerecords as $timerecord) {
-            $hours = $timerecord->hours->where('worktype_id', WorkTypeEnum::Holydays);
-            $totalHolidays += count($hours);
-        }
-
-        return $totalHolidays;
+        return $this->hours()
+        ->where('hours.date', '>=', $firstDayOfYear->format('Y-m-d'))
+        ->where('hours.date', '<', $today->format('Y-m-d'))
+        ->where('worktype_id', WorkTypeEnum::Holydays)
+        ->count();
     }
 
     public static function workers()
     {
-        return User::where('type_id', UserTypeEnum::Worker);
+        return self::where('type_id', UserTypeEnum::Worker);
     }
 
     private function getTotalHours($startDate, $endDate, $worktype = null)
     {
-        $totalHours = 0;
-        $timerecords = $this->timerecords
-            ->where('date', '>=', $startDate->format('Y-m-d'))
-            ->where('date', '<=', $endDate->format('Y-m-d'));
-
-        foreach ($timerecords as $timerecord) {
-            foreach ($timerecord->hours as $hour) {
-                if (isset($worktype) && $hour->worktype_id == $worktype) {
-                    $totalHours += $hour->duration();
-                } else if (!isset($worktype)) {
-                    $totalHours += $hour->duration();
-                }
-            }
-        }
-
-        return $totalHours;
+        return $this->hours()
+            ->where('hours.date', '>=', $startDate)
+            ->where('hours.date', '<=', $endDate)
+            ->when($worktype, function ($query, $worktype) {
+                $query->where('worktype_id', $worktype);
+            })
+            ->sum('duration');
     }
 
     public function getNumberOfMeals($startDate, $endDate)
@@ -201,15 +188,16 @@ class User extends Authenticatable implements JWTSubject
             ->where('date', '<=', $endDate->format('Y-m-d'));
 
         return [
-            'breakfast' => count($timerecords->where('breakfast', 1)),
-            'lunch' => count($timerecords->where('lunch', 1)),
-            'dinner' => count($timerecords->where('dinner', 1))
+            'breakfast' => (clone $timerecords)->where('breakfast', 1)->count(),
+            'lunch' => (clone $timerecords)->where('lunch', 1)->count(),
+            'dinner' => (clone $timerecords)->where('dinner', 1)->count(),
         ];
     }
 
     public function getTotalNumberOfMealsBetweenDates($startDate, $endDate)
     {
         $numberOfMealsByTpye = $this->getNumberOfMeals($startDate, $endDate);
+
         return $numberOfMealsByTpye['breakfast'] + $numberOfMealsByTpye['lunch'] + $numberOfMealsByTpye['dinner'];
     }
 

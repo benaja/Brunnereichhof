@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Evaluation;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Helpers\Pdf;
-use App\User;
-use App\Worktype;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
+use App\Http\Controllers\Controller;
 use App\Timerecord;
+use App\User;
+use App\Worktype;
+use Illuminate\Http\Request;
 
 class WorkerPdfController extends Controller
 {
@@ -18,7 +18,7 @@ class WorkerPdfController extends Controller
     private $mealTypes = [
         'breakfast' => 'Frühstück',
         'lunch' => 'Mittagessen',
-        'dinner' => 'Abendessen'
+        'dinner' => 'Abendessen',
     ];
 
     public function __construct()
@@ -27,7 +27,8 @@ class WorkerPdfController extends Controller
     }
 
     // GET pdf/timerecords/wokers/{workerId}
-    public function timerecords(Request $request, $workerId) {
+    public function timerecords(Request $request, $workerId)
+    {
         auth()->user()->authorize(['superadmin'], ['timerecord_stats']);
 
         if (isset($request->month)) {
@@ -66,26 +67,28 @@ class WorkerPdfController extends Controller
                 $lastDate->modify('last day of next month');
             }
         }
+
         return $this->pdf->export("Verpflegungen Hofmitarbeiter {$documentTitle}.pdf");
     }
 
     // Helpers
-    private function timerecordsMonthRapport($workerId, $date) {
+    private function timerecordsMonthRapport($workerId, $date)
+    {
         $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
         $lastDayOfMonth = Utils::lastDate('month', new \DateTime($date));
 
-        $workers = User::workers()->with(['timerecords' => function($query) use ($firstDayOfMonth, $lastDayOfMonth) {
+        $workers = User::workers()->with(['timerecords' => function ($query) use ($firstDayOfMonth, $lastDayOfMonth) {
             $query->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
                 ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
                 ->with('hours.worktype');
-        }])->when($workerId !== 'all', function($query) use ($workerId) {
+        }])->when($workerId !== 'all', function ($query) use ($workerId) {
             $query->where('id', $workerId);
         })->withTrashed()
             ->orderby('lastname')
             ->get();
 
         if ($workerId === 'all') {
-            $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) { 
+            $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) {
                 return $worker->totalHoursByMonth($firstDayOfMonth) > 0;
             });
         }
@@ -100,9 +103,9 @@ class WorkerPdfController extends Controller
             $lines = [];
             foreach ($workers as $worker) {
                 $line = [
-                    $worker->lastname . " " . $worker->firstname,
+                    $worker->lastname.' '.$worker->firstname,
                     $worker->totalHoursByMonth($firstDayOfMonth),
-                    array_sum($worker->getNumberOfMealsByMonth($firstDayOfMonth))
+                    array_sum($worker->getNumberOfMealsByMonth($firstDayOfMonth)),
                 ];
                 array_push($lines, $line);
             }
@@ -121,6 +124,7 @@ class WorkerPdfController extends Controller
         } else {
             $filename = "Monatsrapport Hofmitarbeiter $monthName.pdf";
         }
+
         return $this->pdf->export($filename);
     }
 
@@ -129,7 +133,7 @@ class WorkerPdfController extends Controller
         $firstDayOfYear = Utils::firstDate('year', new \DateTime($date));
         $lastDayOfYear = Utils::lastDate('year', new \DateTime($date));
 
-        $worker = User::with(['timerecords' => function($query) use ($firstDayOfYear, $lastDayOfYear) {
+        $worker = User::with(['timerecords' => function ($query) use ($firstDayOfYear, $lastDayOfYear) {
             $query->where('date', '>=', $firstDayOfYear->format('Y-m-d'))
                 ->where('date', '<=', $lastDayOfYear->format('Y-m-d'))
                 ->with('hours.worktype');
@@ -141,7 +145,7 @@ class WorkerPdfController extends Controller
 
         $worktpyes = Worktype::all();
         foreach ($worktpyes as $worktype) {
-            $this->pdf->documentTitle("{$worktype->name_de}: {$worker->totalHoursByYear($firstDayOfYear,$worktype->id)}h", $this->pdf->textSize);
+            $this->pdf->documentTitle("{$worktype->name_de}: {$worker->totalHoursByYear($firstDayOfYear, $worktype->id)}h", $this->pdf->textSize);
         }
 
         $meals = $worker->getNumberOfMealsByYear($firstDayOfYear);
@@ -172,15 +176,18 @@ class WorkerPdfController extends Controller
             }
             $firstDayOfMonth->modify('first day of next month');
         }
+
         return $this->pdf->export("Jahresrapport {$worker->fullName()} {$firstDayOfYear->format('Y')}.pdf");
     }
 
     private function generateMealsPage($firstDate, $lastDate, $titleForTime, $addNewPage = true)
     {
         $totalMeals = Timerecord::getMealsBetweenDate($firstDate, $lastDate);
-        if ($totalMeals > 0 || !$addNewPage) {
-            if ($addNewPage) $this->pdf->addNewPage();
-            $this->pdf->documentTitle("Verpflegungen Hofmitarbeiter");
+        if ($totalMeals > 0 || ! $addNewPage) {
+            if ($addNewPage) {
+                $this->pdf->addNewPage();
+            }
+            $this->pdf->documentTitle('Verpflegungen Hofmitarbeiter');
             $this->pdf->documentTitle($titleForTime);
             $this->pdf->documentTitle("Totale Verpflegungen: $totalMeals");
             foreach ($this->mealTypes as $key => $mealType) {
@@ -220,7 +227,7 @@ class WorkerPdfController extends Controller
 
         $worktpyes = Worktype::all();
         foreach ($worktpyes as $worktype) {
-            $this->pdf->documentTitle("{$worktype->name_de}: {$worker->totalHoursByMonth($firstDayOfMonth,$worktype->id)}h", $this->pdf->textSize);
+            $this->pdf->documentTitle("{$worktype->name_de}: {$worker->totalHoursByMonth($firstDayOfMonth, $worktype->id)}h", $this->pdf->textSize);
         }
         $meals = $worker->getNumberOfMealsByMonth($firstDayOfMonth);
         $this->pdf->documentTitle("Frühstück: {$meals['breakfast']}, Zmittagessen: {$meals['lunch']}, Abendessen: {$meals['dinner']}", $this->pdf->textSize);
@@ -240,16 +247,16 @@ class WorkerPdfController extends Controller
                     array_push($line, null);
                 } else {
                     $timerecord = $worker->timerecords->where('date', $currentDay->format('Y-m-d'))->first();
-                    if (!$timerecord || count($timerecord->hours) === 0) {
+                    if (! $timerecord || count($timerecord->hours) === 0) {
                         array_push($line, 0);
                     } else {
-                        $cell = "";
+                        $cell = '';
                         $hoursPerWorktype = [];
                         foreach ($timerecord->hours as $hour) {
                             if ($hour->comment) {
                                 array_push($comments, [
                                     'text' => $hour->comment,
-                                    'date' => $timerecord->date
+                                    'date' => $timerecord->date,
                                 ]);
                             }
                             if (isset($hoursPerWorktype[$hour->worktype->short_name])) {
@@ -261,7 +268,7 @@ class WorkerPdfController extends Controller
 
                         foreach ($hoursPerWorktype as $worktype => $hours) {
                             if ($cell) {
-                                $cell .= ", ";
+                                $cell .= ', ';
                             }
                             $cell .= $hours;
                             if ($worktype !== 'P') {
@@ -277,15 +284,15 @@ class WorkerPdfController extends Controller
             }
             if ($totalHoursOfWeek > 0) {
                 $lastDayOfWeek = clone $currentDay;
-                $lastDayOfWeek->modify("-1 day");
+                $lastDayOfWeek->modify('-1 day');
                 $firstDayOfWeek = clone $lastDayOfWeek;
-                $firstDayOfWeek->modify("-6 days");
+                $firstDayOfWeek->modify('-6 days');
                 array_unshift($line, "KW {$firstDayOfWeek->format('W')} ({$firstDayOfWeek->format('d.m.Y')} - {$lastDayOfWeek->format('d.m.Y')})");
                 array_push($lines, $line);
             }
         }
         $titles = Settings::dayNames;
-        array_unshift($titles, "Zeitraum");
+        array_unshift($titles, 'Zeitraum');
         // $this->generateTable($titles, $lines, 3);
         $this->pdf->table($titles, $lines, [3]);
         if (count($comments) > 0) {
