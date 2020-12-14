@@ -133,8 +133,6 @@ class TimeController extends Controller
                 'commnet' => 'nullable|string'
             ]);
 
-            $date = new \DateTime($hour->timerecord->date);
-
             $hour->from = $request->from;
             $hour->to = $request->to;
             $hour->comment = $request->comment;
@@ -205,7 +203,8 @@ class TimeController extends Controller
         $hour = Hour::create([
             'from' => $from,
             'to' => $to,
-            'comment' => $comment
+            'comment' => $comment,
+            'date' => $timerecord->date
         ]);
         $worktype = Worktype::find($workTypeId);
 

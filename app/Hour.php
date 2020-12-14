@@ -11,7 +11,7 @@ class Hour extends Model
     
     public $table = "hours";
 
-    protected $fillable = ['from', 'to', 'comment'];
+    protected $fillable = ['from', 'to', 'comment', 'date'];
 
     public function from()
     {
