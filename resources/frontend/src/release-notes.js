@@ -1,5 +1,16 @@
 export default [
   {
+    version: '2.6',
+    changes: [
+      'Ladegeschwindigkeit der Hofmitarbeiter verbessert.',
+      'Nicht verrechnete Vorschüsse werden auf dem Monatsrapport angezeigt.'
+    ],
+    bugfixes: [
+      'Akutalisiert Stunden auf dem Dashboard korrekt'
+    ],
+    date: '14.12.2020'
+  },
+  {
     version: '2.5',
     changes: [
       'Auf dem Dashboard können nun auch die Vorjahre angezeigt werden.',

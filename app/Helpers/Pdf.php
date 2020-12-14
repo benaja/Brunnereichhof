@@ -49,7 +49,9 @@ class Pdf extends Fpdi
 
   public function paragraph($text, $textSize = 0, $fontStile = '', $options = [])
   {
-    if (isset($options['rows']) && $this->topRowPosition === 0) $this->topRowPosition = $this->GetY();
+    if (isset($options['rows']) && $this->topRowPosition === 0) {
+      $this->topRowPosition = $this->GetY();
+    } 
     $this->SetAutopageBreak(false);
     if ($textSize == 0) {
       $textSize = $this->textSize;
@@ -97,7 +99,7 @@ class Pdf extends Fpdi
         $this->topOfTable = $this->GetY();
         $this->Line($this->GetX(), $this->topOfTable, $this->GetX() + $this->documentWidth,  $this->topOfTable);
       }
-      if ($index == count($lines) - 1 && isset($options['lastLineBold'])) {
+      if ($index == count($lines) - 1 && isset($options['lastLineBold']) && $options['lastLineBold']) {
         $this->SetFont($this->fontName, 'B', $this->textSize);
       }
       if (isset($options['lineBreakEnabledOnLines']) && in_array($index + 1, $options['lineBreakEnabledOnLines'])) {

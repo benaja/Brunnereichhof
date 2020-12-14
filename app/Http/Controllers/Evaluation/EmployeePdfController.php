@@ -11,6 +11,8 @@ use App\Enums\FoodTypeEnum;
 use App\Helpers\Settings as HelpersSettings;
 use App\Helpers\Utils;
 use App\Settings;
+use App\Transaction;
+use Carbon\Carbon;
 
 class EmployeePdfController extends Controller
 {
@@ -66,6 +68,9 @@ class EmployeePdfController extends Controller
         $lastDate = Utils::lastDate('month', $request->date);
 
         $rapportdetails = Rapportdetail::with('employee.user')
+            ->with(['employee.transactions' => function ($query) {
+                $query->where('entered', 0)->join('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id');
+            }])
             ->where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
@@ -233,7 +238,7 @@ class EmployeePdfController extends Controller
             $this->pdf->addNewPage('L');
             $totalHours = $details->sum('hours');
             $firstOfMonth = Utils::firstDate('month', new \DateTime($rapportdetails[0]->date));
-            $this->addDetailsForMonth($details[0]->employee, $firstOfMonth, $monthName, $totalHours);
+            $this->addDetailsForMonth($details[0]->employee, $firstOfMonth, $monthName, $totalHours, true);
         }
     }
 
@@ -278,13 +283,14 @@ class EmployeePdfController extends Controller
         }
     }
 
-    private function addDetailsForMonth($employee, $firstOfMonth, $montName, $totalHours)
+    private function addDetailsForMonth($employee, $firstOfMonth, $monthName, $totalHours, $withTransactions = false)
     {
         $lastOfMonth = Utils::lastDate('month', $firstOfMonth);
         $titles = ['Zeitraum', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        $this->pdf->textToInsertOnPageBreak = "Mitarbeiter:{$employee->name()} \nMonat: $monthName";
 
         $this->pdf->documentTitle("Mitarbeiter: {$employee->name()}");
-        $this->pdf->documentTitle("Monat: " . $montName);
+        $this->pdf->documentTitle("Monat: " . $monthName);
         $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
         if ($this->rapportFoodTypeEnabled) {
             $totalFoodEichhof = $this->getFoodOfEmployeeByMonth($firstOfMonth, $employee, [FoodTypeEnum::Eichhof]);
@@ -293,10 +299,10 @@ class EmployeePdfController extends Controller
             $this->pdf->documentTitle("Verpflegungen bei Kunde: $totalFoodCustomer");
         }
         $this->pdf->newLine();
-        $this->addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee);
+        $this->addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee, $withTransactions);
     }
 
-    private function addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee)
+    private function addAllWeeks($titles, $firstOfMonth, $lastOfMonth, $employee, $withTransactions)
     {
         $firstDayOfWeek = clone $firstOfMonth;
         $firstDayOfWeek->modify("Monday this week");
@@ -319,6 +325,21 @@ class EmployeePdfController extends Controller
             $lastDayOfWeek->modify("+7 days");
         }
         $this->pdf->table($titles, $lines, [3]);
+
+        if ($withTransactions && count($employee->transactions) > 0) {
+            $lines = [];
+            foreach($employee->transactions as $transaction) {
+                array_push($lines, [$transaction->amount, $transaction->date->format('d.m.Y'), $transaction->name, $transaction->comment]);
+            }
+            if (count($lines) > 1) {
+                $openAmount = $employee->transactions->sum('amount');
+                array_push($lines, ['Total: '. $openAmount]);
+            }
+            $this->pdf->SetX(10);
+            $this->pdf->documentTitle('Vorauszahlungen');
+            $this->pdf->table(['Menge', 'Datum', 'Vorschuss Typ', 'Bemerkung'], $lines, [1, 1, 1, 2], ['lastLineBold' => count($lines) > 1]);
+        }
+
         $this->pdf->signaturePlaceHolder();
     }
 
