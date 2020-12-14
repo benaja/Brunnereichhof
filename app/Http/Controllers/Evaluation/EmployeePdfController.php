@@ -69,7 +69,9 @@ class EmployeePdfController extends Controller
 
         $rapportdetails = Rapportdetail::with('employee.user')
             ->with(['employee.transactions' => function ($query) {
-                $query->where('entered', 0)->join('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id');
+                $query->where('entered', 0)
+                    ->join('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
+                    ->orderBy('transactions.date');
             }])
             ->where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))
