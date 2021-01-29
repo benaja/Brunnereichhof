@@ -254,6 +254,12 @@ export default {
           show: this.hasPermission(['superadmin'], ['rapport_read'])
         },
         {
+          to: '/rapport',
+          text: this.$t('Einsatzplaner.Einsatzplaner'),
+          icon: 'event_note',
+          show: this.hasPermission(['superadmin'], ['rapport_read'])
+        },
+        {
           to: '/evaluation',
           text: 'Auswertung',
           icon: 'show_chart',
