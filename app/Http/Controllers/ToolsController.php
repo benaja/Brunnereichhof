@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 
 class ToolsController extends Controller
 {
-    public function index() {
-        return ToolResource::collection(Tool::all()); 
+    public function index(Request $request) {
+        $tools = Tool::orderBy('name')
+          ->when($request->get('search'), function ($query, $search){
+            $query->where('name', 'LIKE', "%$search%");
+          })
+          ->get();
+
+        return ToolResource::collection($tools); 
     }
 
     public function store(ToolRequest $request) {
@@ -21,5 +27,9 @@ class ToolsController extends Controller
         $tool = $request->update($tool);
 
         return ToolResource::make($tool);
+    }
+
+    public function destroy(Tool $tool) {
+        $tool->delete();
     }
 }

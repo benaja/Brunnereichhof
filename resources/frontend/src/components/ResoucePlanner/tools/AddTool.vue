@@ -46,18 +46,15 @@ export default {
     save() {
       if (this.$refs.form.validate()) {
         this.isSaving = true
-        this.axios
-          .post('/tools', this.tool)
-          .then(({ data }) => {
-            this.$refs.form.reset()
-            this.$emit('input', false)
-            this.$emit('add', data.data)
-          })
-          .catch(() => {
-            this.$swal('Fehler', this.$t('Einsatzplaner.Werkzeug konnte nicht erstellt werden'), 'error')
-          }).finally(() => {
-            this.isSaving = false
-          })
+        this.$store.dispatch('createTool', this.tool).then(() => {
+          this.$refs.form.reset()
+          this.$emit('input', false)
+          this.$emit('add')
+        }).catch(() => {
+          this.$swal('Fehler', this.$t('Einsatzplaner.Werkzeug konnte nicht erstellt werden'), 'error')
+        }).finally(() => {
+          this.isSaving = false
+        })
       }
     }
   }

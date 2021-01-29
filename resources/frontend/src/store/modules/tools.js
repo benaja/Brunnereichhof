@@ -1,4 +1,6 @@
 import axios from 'axios'
+import i18n from '@/plugins/i18n'
+import { reject } from 'lodash'
 
 export default {
   state: {
@@ -17,7 +19,8 @@ export default {
     updateTool(state, value) {
       const tool = state.tools.find(r => r.id === value.id)
       const index = state.tools.indexOf(tool)
-      state.tools[index] = tool
+      state.tools[index] = value
+      state.tools = [...state.tools]
     },
     removeTool(state, toolId) {
       const tool = state.tools.find(t => t.id === toolId)
@@ -26,45 +29,35 @@ export default {
     }
   },
   actions: {
-    fetchTools({ commit, getters, dispatch }) {
-      return new Promise((resolve, reject) => {
-        commit('loading', { tools: true })
-        axios
-          .get('/tools')
-          .then(({ data }) => {
-            commit('setTools', data.data)
-            resolve(getters.tools)
-          })
-          .catch(error => {
-            dispatch('alert', { text: 'Fehler beim Laden der Werkzeuge.', type: 'error' })
-            reject(error)
-          })
-          .finally(() => {
-            commit('loading', { tools: false })
-          })
+    async fetchTools({ commit, getters, dispatch }, params) {
+      commit('loading', { tools: true })
+
+      const { data } = await axios.get('/tools', {
+        params
+      }).catch(error => {
+        dispatch('alert', { text: i18n.t('Einsatzplaner.fehler-beim-laden-der-werkzeuge'), type: 'error' })
+        throw error
+      }).finally(() => {
+        commit('loading', { tools: false })
       })
+
+      commit('setTools', data.data)
+      return getters.tools
     },
-    updateTool({ commit }, tool) {
-      return new Promise((resolve, reject) => {
-        axios
-          .put(`tools/${tool.id}`, tool)
-          .then(() => {
-            commit('updateTool', tool)
-            resolve(tool)
-          })
-          .catch(error => reject(error))
-      })
+    async updateTool({ commit }, tool) {
+      const { data } = await axios.put(`tools/${tool.id}`, tool)
+      commit('updateTool', data.data)
+      return data.data
     },
-    deleteTool({ commit }, toolId) {
-      return new Promise((resolve, reject) => {
-        axios
-          .delete(`tools/${toolId}`)
-          .then(() => {
-            commit('removeTool', toolId)
-            resolve()
-          })
-          .catch(error => reject(error))
-      })
+    async createTool({ dispatch }, tool) {
+      const { data } = await axios.post('tools', tool)
+
+      dispatch('fetchTools')
+      return data.data
+    },
+    async deleteTool({ commit }, toolId) {
+      await axios.delete(`tools/${toolId}`)
+      commit('removeTool', toolId)
     }
   }
 }
