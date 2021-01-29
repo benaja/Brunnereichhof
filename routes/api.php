@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\TransactionTypesController;
 
@@ -123,4 +124,8 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
     Route::get('employees/{employee}/transactions/sum', 'TransactionsController@saldo');
     Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
+
+
+    // resource planner
+    Route::resource('tools', 'ToolsController');
 });

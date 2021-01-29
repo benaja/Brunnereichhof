@@ -147,6 +147,22 @@ export default new Router({
       }
     },
     {
+      path: '/resource-planner/plan',
+      name: 'ResoucePlanner',
+      component: () => import('./views/ResourcePlanner/ResourcePlanner'),
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/resource-planner/tools',
+      name: 'Tools',
+      component: () => import('./views/ResourcePlanner/Tools'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/evaluation',
       name: 'Evaluation',
       component: () => import('./views/Evaluation/Evaluation'),

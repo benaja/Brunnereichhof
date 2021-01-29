@@ -254,10 +254,21 @@ export default {
           show: this.hasPermission(['superadmin'], ['rapport_read'])
         },
         {
-          to: '/rapport',
           text: this.$t('Einsatzplaner.Einsatzplaner'),
           icon: 'event_note',
-          show: this.hasPermission(['superadmin'], ['rapport_read'])
+          show: this.hasPermission(['superadmin'], ['rapport_read']),
+          items: [
+            {
+              to: '/resource-planner/plan',
+              text: this.$t('Einsatzplaner.Planen'),
+              show: this.hasPermission(['superadmin'], ['rapport_read'])
+            },
+            {
+              to: '/resource-planner/tools',
+              text: this.$t('Einsatzplaner.Werkzeuge'),
+              show: this.hasPermission(['superadmin'], ['rapport_read'])
+            }
+          ]
         },
         {
           to: '/evaluation',

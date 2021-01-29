@@ -13,6 +13,7 @@ import timerecords from './modules/timerecords'
 import settings from './modules/settings'
 import transactionTypes from './modules/transactionTypes'
 import transactions from './modules/transactions'
+import tools from './modules/tools'
 
 Vue.use(Vuex)
 
@@ -30,7 +31,8 @@ export default new Vuex.Store({
     timerecords,
     settings,
     transactionTypes,
-    transactions
+    transactions,
+    tools
   },
   state: {
     isMobile: false,

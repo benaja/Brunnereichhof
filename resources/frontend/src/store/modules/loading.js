@@ -14,7 +14,8 @@ export default {
       worktypes: false,
       settings: false,
       transactionTypes: false,
-      transactions: false
+      transactions: false,
+      tools: false
     }
   },
   getters: {
