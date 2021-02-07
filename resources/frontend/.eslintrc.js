@@ -1,16 +1,20 @@
 module.exports = {
   root: true,
+
   env: {
     node: true
   },
+
   plugins: [
     'vuetify',
     'vue'
   ],
+
   extends: [
     'plugin:vue/recommended',
     'airbnb-base'
   ],
+
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -40,7 +44,20 @@ module.exports = {
     "import/extensions": ['error', "never" ],
     'prefer-default-export': 0
   },
+
   parserOptions: {
     parser: 'babel-eslint'
-  }
+  },
+
+  overrides: [
+    {
+      files: [
+        '**/__tests__/*.{j,t}s?(x)',
+        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+      ],
+      env: {
+        jest: true
+      }
+    }
+  ]
 }
