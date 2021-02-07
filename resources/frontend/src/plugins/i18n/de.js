@@ -14,6 +14,11 @@ export default {
     'Werkzeug hinzufugen': 'Werkzeug hinzufügen',
     'Werkzeug konnte nicht erstellt werden': 'Werkzeug konnte nicht erstellt werden.',
     'werkzeug-wirklich-löschen': 'Willst du das Werkzeug "{name}" wriklich löschen?',
-    'fehler-beim-laden-der-werkzeuge': 'Fehler beim Laden der Werkzeuge'
+    'fehler-beim-laden-der-werkzeuge': 'Fehler beim Laden der Werkzeuge',
+    Sitzplätze: 'Sitzplätze',
+    'BE-Nummer': 'BE-Nummer',
+    Benzin: 'Benzin',
+    'auto-wirklich-löschen': 'Willst du das Auto "{name}" wriklich löschen?',
+    Autos: 'Autos'
   }
 }

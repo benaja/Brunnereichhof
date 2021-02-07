@@ -267,6 +267,11 @@ export default {
               to: '/resource-planner/tools',
               text: this.$t('Einsatzplaner.Werkzeuge'),
               show: this.hasPermission(['superadmin'], ['rapport_read'])
+            },
+            {
+              to: '/resource-planner/cars',
+              text: this.$t('Einsatzplaner.Autos'),
+              show: this.hasPermission(['superadmin'], ['rapport_read'])
             }
           ]
         },

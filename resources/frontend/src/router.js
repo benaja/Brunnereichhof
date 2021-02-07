@@ -163,6 +163,14 @@ export default new Router({
       }
     },
     {
+      path: '/resource-planner/cars',
+      name: 'Cars',
+      component: () => import('./views/ResourcePlanner/Cars'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/evaluation',
       name: 'Evaluation',
       component: () => import('./views/Evaluation/Evaluation'),

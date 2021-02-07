@@ -1,6 +1,5 @@
 import axios from 'axios'
 import i18n from '@/plugins/i18n'
-import { reject } from 'lodash'
 
 export default {
   state: {

@@ -128,4 +128,5 @@ Route::group(['middleware' => 'jwt'], function () {
 
     // resource planner
     Route::resource('tools', 'ToolsController');
+    Route::resource('cars', 'CarsController');
 });
