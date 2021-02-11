@@ -2,12 +2,6 @@ import { shallowMount, mount } from '@vue/test-utils'
 import _BaseInput from '@/components/FormComponents/_BaseInput'
 import { awaitNextTick } from '../utils'
 
-// const awaitNextTick = () => new Promise(resolve => {
-//   setTimeout(() => {
-//     resolve()
-//   }, 10)
-// })
-
 describe('BaseInput', () => {
   it('it renders the label', () => {
     const label = 'new message'
