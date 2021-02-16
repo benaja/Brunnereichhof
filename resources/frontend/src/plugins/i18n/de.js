@@ -28,5 +28,6 @@ export default {
   'Wichtige Bemerkung': 'Wichtige Bemerkung',
   'Werkzeug bearbeiten': 'Werkzeug bearbeiten',
   'Auto bearbeiten': 'Auto bearbeiten',
-  Bild: 'Bild'
+  Bild: 'Bild',
+  Mitarbeiter: 'Mitarbeiter'
 }

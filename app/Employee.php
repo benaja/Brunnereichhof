@@ -35,7 +35,7 @@ class Employee extends Model
         'drivingLicence'
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email'];
+    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image'];
 
     protected $dates = ['entryDate'];
 
@@ -101,15 +101,22 @@ class Employee extends Model
 
     public function getProfileimageUrl()
     {
+        return $this->profileImageUrl($this->profileimage);
+    }
+
+    public function getSmallProfileImageAttribute()
+    {
+        return $this->profileImageUrl('small/'.$this->profileimage);
+    }
+
+    private function profileImageUrl($path) {
         if ($this->profileimage) {
             return Storage::disk('s3')->temporaryUrl(
-                $this->profileimage,
+                $path,
                 now()->addHours(5)
             );
-        } else {
-            return null;
         }
-    }
+    } 
 
 
     // user mutators

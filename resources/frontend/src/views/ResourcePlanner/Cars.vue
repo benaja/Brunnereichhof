@@ -94,8 +94,8 @@
 </template>
 
 <script>
-import AddCar from '@/components/ResoucePlanner/cars/AddCar'
-import EditCar from '@/components/ResoucePlanner/cars/EditCar'
+import AddCar from '@/components/ResourcePlanner/cars/AddCar'
+import EditCar from '@/components/ResourcePlanner/cars/EditCar'
 import { mapGetters } from 'vuex'
 import { confirmAction } from '@/utils'
 

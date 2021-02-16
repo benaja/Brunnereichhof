@@ -148,7 +148,7 @@ export default new Router({
     },
     {
       path: '/resource-planner/plan',
-      name: 'ResoucePlanner',
+      name: 'ResourcePlanner',
       component: () => import('./views/ResourcePlanner/ResourcePlanner'),
       meta: {
         auth: true

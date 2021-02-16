@@ -83,8 +83,8 @@
 </template>
 
 <script>
-import AddTool from '@/components/ResoucePlanner/tools/AddTool'
-import EditTool from '@/components/ResoucePlanner/tools/EditTool'
+import AddTool from '@/components/ResourcePlanner/tools/AddTool'
+import EditTool from '@/components/ResourcePlanner/tools/EditTool'
 import { mapGetters } from 'vuex'
 import { confirmAction } from '@/utils'
 
