@@ -13,13 +13,23 @@ class Car extends Model
 
     protected $fillable = ['name', 'seats', 'number', 'comment', 'important_comment', 'fuel', 'image'];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'small_image_url'];
 
     public function getImageUrlAttribute()
     {
         if ($this->image) {
             return Storage::disk('s3')->temporaryUrl(
                 $this->image,
+                Carbon::now()->addMinutes(5)
+            );
+        }
+    }
+
+    public function getSmallImageUrlAttribute()
+    {
+        if ($this->image) {
+            return Storage::disk('s3')->temporaryUrl(
+                'small/'.$this->image,
                 Carbon::now()->addMinutes(5)
             );
         }

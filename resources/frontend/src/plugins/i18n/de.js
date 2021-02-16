@@ -27,5 +27,6 @@ export default {
   'Bild hinzufügen': 'Bild hinzufügen',
   'Wichtige Bemerkung': 'Wichtige Bemerkung',
   'Werkzeug bearbeiten': 'Werkzeug bearbeiten',
-  'Auto bearbeiten': 'Auto bearbeiten'
+  'Auto bearbeiten': 'Auto bearbeiten',
+  Bild: 'Bild'
 }

@@ -19,6 +19,15 @@
       >
         <template v-slot:item="{item}">
           <tr>
+            <td>
+              <div
+                v-if="item.image"
+                :src="item.small_image_url"
+                class="car-thumbnail"
+                :style="{backgroundImage: `url(${item.small_image_url})`}"
+              >
+              </div>
+            </td>
             <td>{{ item.name }}</td>
             <td>{{ item.seats }}</td>
             <td>{{ item.number }}</td>
@@ -102,6 +111,10 @@ export default {
       searchString: null,
       headers: [
         {
+          text: this.$i18n.t('Bild'),
+          width: 70
+        },
+        {
           text: this.$i18n.t('Name'),
           value: 'name'
         },
@@ -151,6 +164,12 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.car-thumbnail {
+  height: 40px;
+  width: 40px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+}
 </style>
