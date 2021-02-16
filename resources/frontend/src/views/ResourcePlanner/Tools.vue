@@ -1,7 +1,7 @@
 <template>
   <fragment>
     <navigation-bar
-      :title="$t('Einsatzplaner.Werkzeuge')"
+      :title="$t('Werkzeuge')"
     ></navigation-bar>
     <v-container>
       <v-text-field
@@ -100,11 +100,11 @@ export default {
       searchString: null,
       headers: [
         {
-          text: this.$i18n.t('Einsatzplaner.Name'),
+          text: this.$i18n.t('Name'),
           value: 'name'
         },
         {
-          text: this.$t('Einsatzplaner.Menge'),
+          text: this.$t('Menge'),
           value: 'amount'
         },
         {
@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     deleteTool(tool) {
-      confirmAction(this.$t('Einsatzplaner.werkzeug-wirklich-löschen', { name: tool.name })).then(value => {
+      confirmAction(this.$t('werkzeug-wirklich-löschen', { name: tool.name })).then(value => {
         if (value) {
           this.$store.dispatch('deleteTool', tool.id).catch(() => {
             this.$swal(this.$t('unbekannter-fehler'), this.$t('fehler-beim-löschen'), 'error')

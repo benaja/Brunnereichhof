@@ -16,12 +16,12 @@ class RoomActive extends Migration
     public function up()
     {
         Schema::table('room', function (Blueprint $table) {
-            $table->boolean('isActive')->default(true);
+            $table->boolean('isActive')->default(true)->after('location');
         });
 
         Schema::create('room_active_history', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('room_id');
+            $table->unsignedBigInteger('room_id');
             $table->date('active_from');
             $table->date('active_to')->nullable();
             $table->timestamps();

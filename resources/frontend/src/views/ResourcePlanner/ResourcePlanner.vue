@@ -1,7 +1,7 @@
 <template>
   <fragment>
     <navigation-bar
-      :title="$t('Einsatzplaner.Einsatzplaner')"
+      :title="$t('Einsatzplaner')"
       full-width
     ></navigation-bar>
   </fragment>

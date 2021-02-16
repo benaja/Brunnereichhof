@@ -34,7 +34,7 @@ export default {
       const { data } = await axios.get('/tools', {
         params
       }).catch(error => {
-        dispatch('alert', { text: i18n.t('Einsatzplaner.fehler-beim-laden-der-werkzeuge'), type: 'error' })
+        dispatch('alert', { text: i18n.t('fehler-beim-laden-der-werkzeuge'), type: 'error' })
         throw error
       }).finally(() => {
         commit('loading', { tools: false })

@@ -31,10 +31,10 @@ export default {
     async fetchCars({ commit, getters, dispatch }, params) {
       commit('loading', { cars: true })
 
-      const { data } = await axios.get('/cars', {
+      const { data } = await axios.get('cars', {
         params
       }).catch(error => {
-        dispatch('alert', { text: i18n.t('Einsatzplaner.fehler-beim-laden-der-autos'), type: 'error' })
+        dispatch('alert', { text: i18n.t('Fehler beim Laden der Autos'), type: 'error' })
         throw error
       }).finally(() => {
         commit('loading', { cars: false })
@@ -44,12 +44,22 @@ export default {
       return getters.cars
     },
     async updateCar({ commit }, car) {
-      const { data } = await axios.put(`cars/${car.id}`, car)
+      const formData = new FormData()
+      for (const key of Object.keys(car)) {
+        formData.append(key, car[key] || '')
+      }
+
+      const { data } = await axios.post(`cars/${car.id}`, formData)
       commit('updateCar', data.data)
       return data.data
     },
     async createCar({ dispatch }, car) {
-      const { data } = await axios.post('cars', car)
+      const formData = new FormData()
+      for (const key of Object.keys(car)) {
+        formData.append(key, car[key] || '')
+      }
+
+      const { data } = await axios.post('cars', formData)
 
       dispatch('fetchCars')
       return data.data

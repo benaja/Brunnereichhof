@@ -10,7 +10,7 @@
       >
         <text-field
           v-model="value.name"
-          :label="`${$t('Einsatzplaner.Name')}*`"
+          :label="`${$t('Name')}*`"
           :original="original.name"
           :rules="[rules.required]"
           :readonly="readonly"
@@ -23,7 +23,7 @@
       >
         <text-field
           v-model="value.amount"
-          :label="`${$t('Einsatzplaner.Menge')}*`"
+          :label="`${$t('Menge')}*`"
           type="number"
           :rules="[rules.required]"
           :original="original.amount"

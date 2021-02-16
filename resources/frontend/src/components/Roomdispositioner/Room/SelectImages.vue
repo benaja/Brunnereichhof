@@ -124,13 +124,17 @@ export default {
     delete: {
       type: Function,
       default: () => {}
+    },
+    imageUrl: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
       selectedImage: null,
       galleryDialog: false,
-      imageUrls: []
+      imageUrls: this.imageUrl ? [this.imageUrl] : []
     }
   },
   computed: {
@@ -153,6 +157,13 @@ export default {
       return this.value
     }
   },
+  watch: {
+    value() {
+      if (!this.value || !this.value.length) {
+        this.imageUrls = []
+      }
+    }
+  },
   methods: {
     selectImage(index) {
       this.selectedImage = index
@@ -160,6 +171,7 @@ export default {
     },
     addImages(newImages) {
       if (this.singleFile) {
+        console.log(this.newImages)
         this.$emit('input', newImages)
       } else {
         const images = [...this.value]
@@ -181,21 +193,16 @@ export default {
             }).finally(() => {
               this.$store.commit('isSaving', false)
             })
-            // this.$emit('delete', image)
-            // this.axios
-            //   .delete(`/images/${image.id}`)
-            //   .then(() => {
-            //     this.spliceImage(image)
-            //   })
-            //   .catch(() => {
-            //     this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten.', 'error')
-            //   })
           }
         })
       } else {
         const index = this.imageUrls.indexOf(image.url)
         this.imageUrls.splice(index, 1)
-        this.value.splice(index, 1)
+        if (Array.isArray(this.value)) {
+          this.value.splice(index, 1)
+        } else {
+          this.$emit('input', null)
+        }
       }
     },
     spliceImage(image) {

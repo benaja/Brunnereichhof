@@ -1,9 +1,9 @@
 <template>
   <fragment>
     <navigation-bar
-      :title="$t('Einsatzplaner.Werkzeuge')"
+      :title="$t('Autos')"
     ></navigation-bar>
-    <v-container>
+    <v-container class="mb-11">
       <v-text-field
         v-model="searchString"
         label="Suchen"
@@ -22,7 +22,7 @@
             <td>{{ item.name }}</td>
             <td>{{ item.seats }}</td>
             <td>{{ item.number }}</td>
-            <td>{{ item.fuel }}</td>
+            <td>{{ item.fuel === 'gas' ? $t('Benzin') : $t('Diesel') }}</td>
             <td>
               <div class="d-flex jsutify-end">
                 <v-btn
@@ -63,7 +63,7 @@
             </v-icon>
           </v-btn>
         </template>
-        <add-tool
+        <add-car
           v-model="addCar"
           @add="searchString = null"
         />
@@ -75,25 +75,25 @@
         width="900"
         @input="editCar = null"
       >
-        <edit-tool
+        <edit-car
           :value="editCar"
           @close="editCar = null"
-        ></edit-tool>
+        ></edit-car>
       </v-dialog>
     </v-container>
   </fragment>
 </template>
 
 <script>
-import AddTool from '@/components/ResoucePlanner/tools/AddTool'
-import EditTool from '@/components/ResoucePlanner/tools/EditTool'
+import AddCar from '@/components/ResoucePlanner/cars/AddCar'
+import EditCar from '@/components/ResoucePlanner/cars/EditCar'
 import { mapGetters } from 'vuex'
 import { confirmAction } from '@/utils'
 
 export default {
   components: {
-    AddTool,
-    EditTool
+    AddCar,
+    EditCar
   },
   data () {
     return {
@@ -102,19 +102,19 @@ export default {
       searchString: null,
       headers: [
         {
-          text: this.$i18n.t('Einsatzplaner.Name'),
+          text: this.$i18n.t('Name'),
           value: 'name'
         },
         {
-          text: this.$t('Einsatzplaner.Sitzplätze'),
+          text: this.$t('Sitzplätze'),
           value: 'seats'
         },
         {
-          text: this.$t('Einsatzplaner.BE-Nummer'),
+          text: this.$t('BE-Nummer'),
           value: 'number'
         },
         {
-          text: this.$t('Einsatzplaner.Benzin'),
+          text: this.$t('Benzin'),
           value: 'fuel'
         },
         {
@@ -138,10 +138,10 @@ export default {
     this.$store.dispatch('fetchCars')
   },
   methods: {
-    deleteTool(tool) {
-      confirmAction(this.$t('Einsatzplaner.auto-wirklich-löschen', { name: tool.name })).then(value => {
+    deleteCar(car) {
+      confirmAction(this.$t('auto-wirklich-löschen', { name: car.name })).then(value => {
         if (value) {
-          this.$store.dispatch('deleteCar', tool.id).catch(() => {
+          this.$store.dispatch('deleteCar', car.id).catch(() => {
             this.$swal(this.$t('unbekannter-fehler'), this.$t('fehler-beim-löschen'), 'error')
           })
         }

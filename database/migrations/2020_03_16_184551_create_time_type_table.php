@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\QueryException;
 
 class CreateTimeTypeTable extends Migration
 {
@@ -13,19 +14,15 @@ class CreateTimeTypeTable extends Migration
      */
     public function up()
     {
-        Schema::table('hours', function (Blueprint $table) {
-            $table->dropForeign('hours_ibfk_2');
-        });
-
         Schema::table('worktype', function (Blueprint $table) {
             $table->boolean('manually')->default(true);
             $table->bigIncrements('id')->change();
         });
 
-        Schema::table('hours', function (Blueprint $table) {
-            $table->unsignedBigInteger('worktype_id')->nullable()->change();
-            $table->foreign('timerecord_id')->references('id')->on('timerecord');
-        });
+        // Schema::table('hours', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('worktype_id')->nullable()->change();
+        //     $table->foreign('timerecord_id')->references('id')->on('timerecord');
+        // });
 
         Schema::create('work_input_type', function (Blueprint $table) {
             $table->bigIncrements('id');

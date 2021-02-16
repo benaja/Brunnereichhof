@@ -15,7 +15,8 @@ export default {
       settings: false,
       transactionTypes: false,
       transactions: false,
-      tools: false
+      tools: false,
+      cars: false
     }
   },
   getters: {

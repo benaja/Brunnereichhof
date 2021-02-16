@@ -1,28 +1,28 @@
 <template>
   <card-layout
-    v-if="tool"
+    v-if="car"
     :saving="isSaving"
-    :title="$t('Werkzeug bearbeiten')"
+    :title="$t('Auto bearbeiten')"
     @save="save"
     @cancel="$emit('close')"
   >
-    <tool-form
-      v-if="tool"
+    <car-form
+      v-if="car"
       ref="form"
-      v-model="tool"
+      v-model="car"
     >
-    </tool-form>
+    </car-form>
   </card-layout>
 </template>
 
 <script>
 import CardLayout from '@/components/general/CardLayout'
-import ToolForm from '@/components/forms/ToolForm'
+import CarForm from '@/components/forms/CarForm'
 
 export default {
   components: {
     CardLayout,
-    ToolForm
+    CarForm
   },
   props: {
     value: {
@@ -33,18 +33,18 @@ export default {
   data() {
     return {
       isSaving: false,
-      tool: this._.cloneDeep(this.value)
+      car: this._.cloneDeep(this.value)
     }
   },
   watch: {
     value() {
-      this.tool = this._.cloneDeep(this.value)
+      this.car = this._.cloneDeep(this.value)
     }
   },
   methods: {
     save() {
       this.isSaving = true
-      this.$store.dispatch('updateTool', this.tool).then(() => {
+      this.$store.dispatch('updateCar', this.car).then(() => {
         this.$emit('close')
       }).catch(() => {
         this.$store.commit('error', this.$t('Fehler beim Speichern'))

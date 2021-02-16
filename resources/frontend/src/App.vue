@@ -254,23 +254,23 @@ export default {
           show: this.hasPermission(['superadmin'], ['rapport_read'])
         },
         {
-          text: this.$t('Einsatzplaner.Einsatzplaner'),
+          text: this.$t('Einsatzplaner'),
           icon: 'event_note',
           show: this.hasPermission(['superadmin'], ['rapport_read']),
           items: [
             {
               to: '/resource-planner/plan',
-              text: this.$t('Einsatzplaner.Planen'),
+              text: this.$t('Planen'),
               show: this.hasPermission(['superadmin'], ['rapport_read'])
             },
             {
               to: '/resource-planner/tools',
-              text: this.$t('Einsatzplaner.Werkzeuge'),
+              text: this.$t('Werkzeuge'),
               show: this.hasPermission(['superadmin'], ['rapport_read'])
             },
             {
               to: '/resource-planner/cars',
-              text: this.$t('Einsatzplaner.Autos'),
+              text: this.$t('Autos'),
               show: this.hasPermission(['superadmin'], ['rapport_read'])
             }
           ]

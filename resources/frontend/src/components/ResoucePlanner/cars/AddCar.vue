@@ -1,37 +1,48 @@
 <template>
   <card-layout
     :saving="isSaving"
-    :title="$t('Werkzeug hinzufugen')"
+    :title="$t('Auto hinzufügen')"
     @save="save"
     @cancel="$emit('input', false)"
   >
     <template>
-      <tool-form
+      <car-form
         ref="form"
-        v-model="tool"
+        v-model="car"
         @submit="save"
       >
-      </tool-form>
+      </car-form>
+      <!-- <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <select-images
+            v-model="car.image"
+            single-file
+          ></select-images>
+        </v-col>
+      </v-row> -->
     </template>
   </card-layout>
 </template>
 
 <script>
 import CardLayout from '@/components/general/CardLayout'
-import ToolForm from '@/components/forms/ToolForm'
+import CarForm from '@/components/forms/CarForm'
 
 export default {
   naem: 'AddInventar',
   components: {
     CardLayout,
-    ToolForm
+    CarForm
   },
   props: {
     value: Boolean
   },
   data() {
     return {
-      tool: {},
+      car: {},
       isSaving: false
     }
   },
@@ -46,12 +57,12 @@ export default {
     save() {
       if (this.$refs.form.validate()) {
         this.isSaving = true
-        this.$store.dispatch('createTool', this.tool).then(() => {
+        this.$store.dispatch('createCar', this.car).then(() => {
           this.$refs.form.reset()
           this.$emit('input', false)
           this.$emit('add')
         }).catch(() => {
-          this.$swal('Fehler', this.$t('Werkzeug konnte nicht erstellt werden'), 'error')
+          this.$swal('Fehler', this.$t('Auto konnte nicht erstellt werden'), 'error')
         }).finally(() => {
           this.isSaving = false
         })

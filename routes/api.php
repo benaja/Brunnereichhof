@@ -127,6 +127,7 @@ Route::group(['middleware' => 'jwt'], function () {
 
 
     // resource planner
+    Route::post('cars/{car}', 'CarsController@update');
     Route::resource('tools', 'ToolsController');
     Route::resource('cars', 'CarsController');
 });
