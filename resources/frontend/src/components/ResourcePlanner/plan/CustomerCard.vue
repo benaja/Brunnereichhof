@@ -16,66 +16,52 @@
         cols="12"
         md="6"
       >
-        <draggable
-          :list="employees"
+        <p class="ma-0">
+          {{ $t('Mitarbeiter') }}
+        </p>
+        <draggable-employee-list
+          v-model="employees"
           class="employees"
-          group="employees"
-        >
-          <employee-card
-            v-for="employee of employees"
-            :key="employee.id"
-            :employee="employee"
-          ></employee-card>
-        </draggable>
+        ></draggable-employee-list>
       </v-col>
       <v-col
         cols="12"
         md="6"
       >
-        <draggable
-          :list="cars"
+        <p class="ma-0">
+          {{ $t('Autos') }}
+        </p>
+        <draggable-car-list
+          v-model="cars"
           class="cars"
-          group="cars"
-        >
-          <car-card
-            v-for="car of cars"
-            :key="car.id"
-            :car="car"
-          ></car-card>
-        </draggable>
-        <draggable
-          :list="tools"
+        ></draggable-car-list>
+        <p class="ma-0">
+          {{ $t('Werkzeuge') }}
+        </p>
+        <draggable-tool-list
+          v-model="tools"
           class="tools"
-          group="tools"
-        >
-          <tool-card
-            v-for="tool of tools"
-            :key="tool.id"
-            :tool="tool"
-          ></tool-card>
-        </draggable>
+        ></draggable-tool-list>
       </v-col>
     </v-row>
   </v-card>
 </template>
 
 <script>
-import Draggable from 'vuedraggable'
-import EmployeeCard from '@/components/ResourcePlanner/plan/EmployeeCard'
-import CarCard from '@/components/ResourcePlanner/plan/CarCard'
-import ToolCard from '@/components/ResourcePlanner/plan/ToolCard'
+import DraggableEmployeeList from './DraggableEmployeeList'
+import DraggableCarList from './DraggableCarList'
+import DraggableToolList from './DraggableToolList'
 
 export default {
   components: {
-    Draggable,
-    EmployeeCard,
-    CarCard,
-    ToolCard
+    DraggableCarList,
+    DraggableToolList,
+    DraggableEmployeeList
   },
   props: {
     customer: {
       type: Object,
-      required: true
+      default: null
     }
   },
   data() {

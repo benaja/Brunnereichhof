@@ -19,40 +19,13 @@
           </v-tabs>
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
-              <draggable
-                :list="availableEmployees"
-                group="employees"
-              >
-                <employee-card
-                  v-for="employee of availableEmployees"
-                  :key="employee.id"
-                  :employee="employee"
-                ></employee-card>
-              </draggable>
+              <draggable-employee-list v-model="availableEmployees"></draggable-employee-list>
             </v-tab-item>
             <v-tab-item>
-              <draggable
-                :list="availableCars"
-                group="cars"
-              >
-                <car-card
-                  v-for="car of availableCars"
-                  :key="car.id"
-                  :car="car"
-                ></car-card>
-              </draggable>
+              <draggable-car-list v-model="availableCars"></draggable-car-list>
             </v-tab-item>
             <v-tab-item>
-              <draggable
-                :list="availableTools"
-                group="tools"
-              >
-                <tool-card
-                  v-for="tool of availableTools"
-                  :key="tool.id"
-                  :tool="tool"
-                ></tool-card>
-              </draggable>
+              <draggable-tool-list v-model="availableCars"></draggable-tool-list>
             </v-tab-item>
           </v-tabs-items>
         </v-col>
@@ -67,32 +40,6 @@
             :key="customer.id"
             :customer="customer"
           ></customer-card>
-
-
-          <draggable
-            :list="selectedCustomers"
-            class="customer-list"
-            group="employee"
-          >
-            <employee-card
-              v-for="employee of newEmployees"
-              :key="employee.id"
-              :employee="employee"
-            ></employee-card>
-          </draggable>
-
-          <draggable
-            :list="newEmployees2"
-            class="new-employees"
-            group="employee"
-          >
-            <p
-              v-for="employee of newEmployees2"
-              :key="employee.id"
-            >
-              {{ employee.name }}
-            </p>
-          </draggable>
         </v-col>
       </v-row>
     </v-container>
@@ -101,24 +48,22 @@
 
 <script>
 import SelectDay from '@/components/ResourcePlanner/SelectDay'
-import EmployeeCard from '@/components/ResourcePlanner/plan/EmployeeCard'
-import CarCard from '@/components/ResourcePlanner/plan/CarCard'
-import ToolCard from '@/components/ResourcePlanner/plan/ToolCard'
 import SelectCustomer from '@/components/ResourcePlanner/plan/SelectCustomer'
 import CustomerCard from '@/components/ResourcePlanner/plan/CustomerCard'
 import { mapGetters } from 'vuex'
-import Draggable from 'vuedraggable'
+import DraggableCarList from '@/components/ResourcePlanner/plan/DraggableCarList'
+import DraggableEmployeeList from '@/components/ResourcePlanner/plan/DraggableEmployeeList'
+import DraggableToolList from '@/components/ResourcePlanner/plan/DraggableToolList'
 
 
 export default {
   components: {
     SelectDay,
-    Draggable,
-    EmployeeCard,
-    CarCard,
-    ToolCard,
     SelectCustomer,
-    CustomerCard
+    CustomerCard,
+    DraggableCarList,
+    DraggableEmployeeList,
+    DraggableToolList
   },
   data() {
     return {
@@ -156,6 +101,8 @@ export default {
   },
   methods: {
     addCustomer(customerId) {
+      if (this.selectedCustomers.find(c => c.id === customerId)) return
+
       const customer = this.customers.find(c => c.id === customerId)
       this.selectedCustomers.push(this._.cloneDeep(customer))
     }
