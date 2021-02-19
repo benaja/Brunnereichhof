@@ -55,7 +55,6 @@ import DraggableCarList from '@/components/ResourcePlanner/plan/DraggableCarList
 import DraggableEmployeeList from '@/components/ResourcePlanner/plan/DraggableEmployeeList'
 import DraggableToolList from '@/components/ResourcePlanner/plan/DraggableToolList'
 
-
 export default {
   components: {
     SelectDay,
@@ -94,6 +93,7 @@ export default {
     }
   },
   async mounted() {
+    await this.getDay()
     await this.$store.dispatch('fetchEmployees')
     await this.$store.dispatch('fetchTools')
     await this.$store.dispatch('fetchCars')
@@ -105,6 +105,9 @@ export default {
 
       const customer = this.customers.find(c => c.id === customerId)
       this.selectedCustomers.push(this._.cloneDeep(customer))
+    },
+    getDay() {
+      return this.axios.get(`resource-planner/${this.date}`)
     }
   }
 }
@@ -124,5 +127,4 @@ export default {
   height: 100px;
   margin-top: 200px;
 }
-
 </style>

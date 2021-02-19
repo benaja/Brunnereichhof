@@ -13,7 +13,7 @@ class Rapportdetail extends Model
 
     public $table = "rapportdetail";
 
-    protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date', 'project_id', 'work_contract'];
+    protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date', 'project_id', 'work_contract', 'customer_id'];
 
     protected $appends = ['foodtype_ok'];
 
