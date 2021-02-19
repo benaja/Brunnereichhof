@@ -36,10 +36,10 @@ export default {
   justify-content: space-between;
   padding: 4px 8px;
   width: 100%;
-  background-color: rgb(248, 248, 248);
-  border-radius: 5px;
+  background-color: white;
+  border-radius: 2px;
   margin: 10px 0;
-  box-shadow: 0 2px 2px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 2px 2px rgba(0, 0, 0, 0.06);
 }
 
 .profile-image {

@@ -29,5 +29,6 @@ export default {
   'Werkzeug bearbeiten': 'Werkzeug bearbeiten',
   'Auto bearbeiten': 'Auto bearbeiten',
   Bild: 'Bild',
-  Mitarbeiter: 'Mitarbeiter'
+  Mitarbeiter: 'Mitarbeiter',
+  'Kunde Hinzufügen': 'Kunde Hinzufügen'
 }
