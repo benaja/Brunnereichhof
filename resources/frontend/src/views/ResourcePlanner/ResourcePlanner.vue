@@ -53,6 +53,7 @@
             :key="customer.id"
             :customer="customer"
             :date="date"
+            :selected-employee-ids="allSelectedEmployeeIds"
           ></customer-card>
         </v-col>
       </v-row>
@@ -135,9 +136,8 @@ export default {
       this.selectedCustomers.push(this._.cloneDeep(customer))
     },
     async getDay() {
-      const { data } = await this.axios.get(`resource-planner/${this.date}`)
-      this.selectedCustomers = data.data
-      console.log(this.selectedCustomers)
+      const { data } = await this.axios.$get(`resource-planner/${this.date}`)
+      this.selectedCustomers = data
     }
   }
 }

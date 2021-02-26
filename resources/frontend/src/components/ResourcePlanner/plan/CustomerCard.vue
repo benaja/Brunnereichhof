@@ -23,6 +23,7 @@
           v-model="customer.rapportdetails"
           class="employees"
           :customer-id="customer.id"
+          :selected-employee-ids="selectedEmployeeIds"
           @add="addEmployee"
           @remove="removeEmployee"
         ></draggable-rapportdetail-list>
@@ -69,6 +70,10 @@ export default {
     date: {
       type: String,
       default: null
+    },
+    selectedEmployeeIds: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

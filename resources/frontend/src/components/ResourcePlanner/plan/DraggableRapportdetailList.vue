@@ -19,6 +19,7 @@
 import RapportdetailCard from '@/components/ResourcePlanner/plan/RapportdetailCard'
 import Draggable from 'vuedraggable'
 import { confirmAction } from '@/utils'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -33,6 +34,10 @@ export default {
     customerId: {
       type: Number,
       default: null
+    },
+    selectedEmployeeIds: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -41,6 +46,9 @@ export default {
       fromCustomerId: null,
       toCustomerId: null
     }
+  },
+  computed: {
+    ...mapGetters(['activeEmployees'])
   },
   watch: {
     internalValue() {
@@ -52,7 +60,7 @@ export default {
   },
   methods: {
     add(value) {
-      const fromCustomerId = value.from.dataset.customerId
+      // const fromCustomerId = value.from.dataset.customerId
       const { employeeId } = value.item.dataset
 
       const alreadyExists = this.value.find(v => v.employee.id === Number(employeeId))
@@ -61,7 +69,9 @@ export default {
         return
       }
 
-      if (fromCustomerId) {
+      const employee = this.activeEmployees.find(v => v.id === Number(employeeId))
+      const alreayUsed = this.selectedEmployeeIds.includes(Number(employeeId))
+      if (alreayUsed && employee && !employee.resource_planner_white_listed) {
         confirmAction({
           title: this.$t('Mitarbeiter ist bereits zugeteilt'),
           text: this.$t('Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?'),
