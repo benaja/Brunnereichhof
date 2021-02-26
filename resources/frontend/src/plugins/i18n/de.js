@@ -31,5 +31,6 @@ export default {
   Bild: 'Bild',
   Mitarbeiter: 'Mitarbeiter',
   'Kunde Hinzufügen': 'Kunde Hinzufügen',
-  'Mitarbeiter bereits vorhanden': 'Mitarbeiter bereits vorhanden'
+  'Mitarbeiter bereits vorhanden': 'Mitarbeiter bereits vorhanden',
+  Suchen: 'Suchen'
 }

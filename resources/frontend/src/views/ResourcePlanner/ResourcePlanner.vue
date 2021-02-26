@@ -19,8 +19,13 @@
           </v-tabs>
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
+              <v-text-field
+                v-model="employeeSearchString"
+                :label="$t('Suchen')"
+                prepend-icon="search"
+              ></v-text-field>
               <draggable-employee-list
-                v-model="availableEmployees"
+                :value="availableEmployees"
               ></draggable-employee-list>
             </v-tab-item>
             <v-tab-item>
@@ -74,20 +79,36 @@ export default {
         .format('YYYY-MM-DD'),
       newEmployees: [],
       newEmployees2: [],
-      availableEmployees: [],
       availableCars: [],
       availableTools: [],
       selectedTab: 0,
-      selectedCustomers: []
+      selectedCustomers: [],
+      employeeSearchString: null
     }
   },
   computed: {
-    ...mapGetters(['employees', 'tools', 'cars', 'customers', 'isLoading'])
+    ...mapGetters(['activeEmployees', 'tools', 'cars', 'customers', 'isLoading']),
+    availableEmployees() {
+      return this.activeEmployees.filter(e => {
+        if (this.employeeSearchString
+          && !e.name.toLowerCase().includes(this.employeeSearchString.toLowerCase())) {
+          return false
+        }
+        if (this.allSelectedEmployeeIds.includes(e.id)) {
+          return false
+        }
+        return true
+      })
+    },
+    allSelectedEmployeeIds() {
+      const employeeIds = this.selectedCustomers.flatMap(c => c.rapportdetails)
+        .map(r => r.employee.id)
+
+      console.log(employeeIds)
+      return employeeIds
+    }
   },
   watch: {
-    employees() {
-      this.availableEmployees = this.employees
-    },
     cars() {
       this.availableCars = this.cars
     },
