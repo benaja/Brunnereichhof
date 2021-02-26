@@ -22,6 +22,7 @@
         <draggable-employee-list
           v-model="customer.rapportdetails"
           class="employees"
+          :customer-id="customer.id"
           @add="addEmployee"
         ></draggable-employee-list>
       </v-col>
@@ -86,14 +87,22 @@ export default {
     }
   },
   methods: {
-    async addEmployee(employee) {
-      const { data } = await this.axios.$post(`customers/${this.customer.id}/rapportdetails`, {
+    addEmployee(employee) {
+      this.axios.$post(`customers/${this.customer.id}/rapportdetails`, {
         employee_id: employee.id,
         date: this.date
+      }).then(({ data }) => {
+        if (this.customer.rapportdetails) {
+          this.customer.rapportdetails.push(data)
+        } else {
+          this.$set(this.customer, 'rapportdetails', [data])
+        }
       }).catch(error => {
         console.log(error)
+        if (error.includes('Employee already exists fot that day and customer')) {
+          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits vorhanden') })
+        }
       })
-      this.customer.rapportdetails.push(data)
     }
   }
 }

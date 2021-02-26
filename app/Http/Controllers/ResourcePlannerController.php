@@ -35,9 +35,7 @@ class ResourcePlannerController extends Controller
         ]);
 
         $date = Carbon::parse($data['date']);
-        $firstDayOfWeek = $date->clone()->weekday(1);
-
-        dump($data['date']);
+        $firstDayOfWeek = $date->clone()->weekday(0);
 
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
 
@@ -51,6 +49,13 @@ class ResourcePlannerController extends Controller
                 'startdate' => $firstDayOfWeek
             ]);
         }
+
+        $rapportdetailExists = Rapportdetail::where('employee_id', $data['employee_id'])
+            ->where('date', $date)
+            ->where('rapport_id', $rapport->id)
+            ->first();
+
+        abort_if($rapportdetailExists, 400, 'Employee already exists fot that day and customer');
 
         $rapportdetail = Rapportdetail::create([
             'date' => $date,

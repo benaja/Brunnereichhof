@@ -31,15 +31,24 @@ const rules = {
 }
 
 function confirmAction(text = 'Willst du diesen Eintrag wirklich löschen?', confirmButtonText = 'Ja, löschen') {
-  return new Promise(resolve => {
-    Vue.swal({
+  let options
+  if (typeof text === 'object') {
+    options = text
+  } else {
+    options = {
       title: 'Bis du dir sicher?',
       text,
-      icon: 'warning',
-      showCancelButton: true,
       confirmButtonText,
       cancelButtonText: 'Nein, abbrechen',
-      confirmButtonColor: COLORS.PRIMARY
+      showCancelButton: true,
+      icon: 'warning'
+    }
+  }
+
+  return new Promise(resolve => {
+    Vue.swal({
+      confirmButtonColor: COLORS.PRIMARY,
+      ...options
     }).then(result => {
       resolve(result.value)
     })

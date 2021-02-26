@@ -11,7 +11,19 @@ class Rapport extends Model
 
     public $table = "rapport";
 
-    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment_mo', 'default_project_id', 'comment_tu', 'comment_we', 'comment_th', 'comment_fr', 'comment_sa'];
+    protected $fillable = [
+        'isFinished',
+        'startdate',
+        'rapporttype',
+        'comment_mo',
+        'default_project_id',
+        'comment_tu',
+        'comment_we',
+        'comment_th',
+        'comment_fr',
+        'comment_sa',
+        'customer_id'
+    ];
 
     protected $appends = ['hours'];
 

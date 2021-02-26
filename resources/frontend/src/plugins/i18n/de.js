@@ -30,5 +30,6 @@ export default {
   'Auto bearbeiten': 'Auto bearbeiten',
   Bild: 'Bild',
   Mitarbeiter: 'Mitarbeiter',
-  'Kunde Hinzufügen': 'Kunde Hinzufügen'
+  'Kunde Hinzufügen': 'Kunde Hinzufügen',
+  'Mitarbeiter bereits vorhanden': 'Mitarbeiter bereits vorhanden'
 }
