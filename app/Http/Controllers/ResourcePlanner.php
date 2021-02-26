@@ -12,9 +12,13 @@ class ResourcePlanner extends Controller
     public function getDay($date) {
         $date = Carbon::parse($date);
 
-        $customers = Customer::with(['rapportdetails' => function($query) use ($date) {
-            $query->where('date', $date);
-        }])->get();
+        $customers = Customer::whereHas('rapportdetails', function ($query) use ($date) {
+                $query->where('date', $date);
+            })
+            ->with(['rapportdetails' => function ($query) use ($date) {
+                $query->where('date', $date);
+            }])
+            ->get();
 
         return CustomerResource::collection($customers);
     }

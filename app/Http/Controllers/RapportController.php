@@ -152,7 +152,8 @@ class RapportController extends Controller
                 $rapportdetail = Rapportdetail::create([
                     'date' => $date->format('Y-m-d'),
                     'day' => $i,
-                    'contract_type' => 'work_contract'
+                    'contract_type' => 'work_contract',
+                    'customer_id' => $rapport->customer_id
                 ]);
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
