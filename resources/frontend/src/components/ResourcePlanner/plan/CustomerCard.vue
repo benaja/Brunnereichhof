@@ -24,6 +24,7 @@
           class="employees"
           :customer-id="customer.id"
           @add="addEmployee"
+          @remove="removeEmployee"
         ></draggable-employee-list>
       </v-col>
       <v-col
@@ -87,9 +88,9 @@ export default {
     }
   },
   methods: {
-    addEmployee(employee) {
+    addEmployee(rapportdetail) {
       this.axios.$post(`customers/${this.customer.id}/rapportdetails`, {
-        employee_id: employee.id,
+        employee_id: rapportdetail.employee ? rapportdetail.employee.id : rapportdetail.id,
         date: this.date
       }).then(({ data }) => {
         if (this.customer.rapportdetails) {
@@ -101,7 +102,18 @@ export default {
         console.log(error)
         if (error.includes('Employee already exists fot that day and customer')) {
           this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits vorhanden') })
+        } else {
+          this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht zu Kunde hinzugefügt werden'))
         }
+      })
+    },
+    removeEmployee(rapportdetail) {
+      this.axios.$delete(`customers/${this.customer.id}/rapportdetails/${rapportdetail.id}`).then(() => {
+        const index = this.customer.rapportdetails.indexOf(rapportdetail)
+        this.customer.rapportdetails.splice(index, 1)
+        // this.$set(this.customer, 'rapportdetails', this.customer.rapportdetails)
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht von Kunde entfernt werden'))
       })
     }
   }

@@ -70,9 +70,9 @@ class ResourcePlannerController extends Controller
         $rapportdetail->load('employee');
 
         return RapportdetailResource::make($rapportdetail);
+    }
 
-        
-
-
+    public function deleteRapportdetail(Customer $customer, Rapportdetail $rapportdetail) {
+        $rapportdetail->delete();
     }
 }

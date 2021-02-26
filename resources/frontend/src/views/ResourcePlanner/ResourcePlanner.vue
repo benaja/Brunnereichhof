@@ -101,11 +101,8 @@ export default {
       })
     },
     allSelectedEmployeeIds() {
-      const employeeIds = this.selectedCustomers.flatMap(c => c.rapportdetails)
+      return this.selectedCustomers.flatMap(c => c.rapportdetails)
         .map(r => r.employee.id)
-
-      console.log(employeeIds)
-      return employeeIds
     }
   },
   watch: {

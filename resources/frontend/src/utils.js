@@ -50,7 +50,11 @@ function confirmAction(text = 'Willst du diesen Eintrag wirklich löschen?', con
       confirmButtonColor: COLORS.PRIMARY,
       ...options
     }).then(result => {
-      resolve(result.value)
+      if (typeof text === 'object') {
+        resolve(result)
+      } else {
+        resolve(result.value)
+      }
     })
   })
 }

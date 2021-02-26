@@ -5,7 +5,6 @@
     class="elevation-1"
     :data-customer-id="customerId"
     @change="change"
-    @end="dragEnd"
   >
     <employee-card
       v-for="employee of internalValue"
@@ -37,7 +36,9 @@ export default {
   },
   data() {
     return {
-      internalValue: this.value
+      internalValue: this.value,
+      fromCustomerId: null,
+      toCustomerId: null
     }
   },
   watch: {
@@ -49,6 +50,9 @@ export default {
     }
   },
   methods: {
+    dragAdd(value) {
+      console.log(value)
+    },
     change(event) {
       if (event.added) {
         this.$emit('add', event.added.element)
@@ -58,16 +62,29 @@ export default {
       }
     },
     dragEnd(value) {
-      if (value.from.dataset.customerId && value.to.dataset.customerId) {
-        confirmAction({
-          title: this.$t('Verschieben oder Duplizieren'),
-          text: this.$t('Willst du den Mitarbeiter verschieben oder duplizieren?'),
-          confirmButtonText: this.$t('Verschieben'),
-          cancelButtonText: this.$t('Duplizieren'),
-          showCancelButton: true,
-          icon: 'warning'
-        })
-      }
+      const fromCustomerId = value.from.dataset.customerId
+      const toCustomerId = value.to.dataset.customerId
+      const { employeeId } = value.item.dataset
+
+
+      // if (fromCustomerId && toCustomerId) {
+      //   confirmAction({
+      //     title: this.$t('Verschieben oder Duplizieren'),
+      //     text: this.$t('Willst du den Mitarbeiter verschieben oder duplizieren?'),
+      //     confirmButtonText: this.$t('Verschieben'),
+      //     cancelButtonText: this.$t('Duplizieren'),
+      //     showCancelButton: true,
+      //     icon: 'warning'
+      //   }).then(result => {
+      //     if (result.dismiss === 'cancel') {
+
+      //     }
+      //   })
+      // }
+      // if (!fromCustomerId && toCustomerId) {
+      //   // console.log(value)
+      //   // this.$emit('')
+      // }
     }
   }
 }

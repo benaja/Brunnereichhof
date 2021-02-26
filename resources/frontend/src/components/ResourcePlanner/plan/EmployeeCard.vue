@@ -1,6 +1,8 @@
 <template>
   <draggable-card
-    :name="`${employee.firstname} ${employee.lastname}`"
+    :data-employee-id="employee.id"
+    :data-rapportdetail-id="value.id"
+    :name="`${employee.lastname} ${employee.firstname}`"
     :image="employee.small_profile_image"
   ></draggable-card>
 </template>

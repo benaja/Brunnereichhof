@@ -32,5 +32,11 @@ export default {
   Mitarbeiter: 'Mitarbeiter',
   'Kunde Hinzufügen': 'Kunde Hinzufügen',
   'Mitarbeiter bereits vorhanden': 'Mitarbeiter bereits vorhanden',
-  Suchen: 'Suchen'
+  Suchen: 'Suchen',
+  'Verschieben oder Duplizieren': 'Verschieben oder Duplizieren',
+  'Willst du den Mitarbeiter verschieben oder duplizieren?': 'Willst du den Mitarbeiter verschieben oder duplizieren?',
+  Verschieben: 'Verschieben',
+  Duplizieren: 'Duplizieren',
+  'Mitarbeiter konnte nicht von Kunde entfernt werden': 'Mitarbeiter konnte nicht von Kunde entfernt werden',
+  'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden': 'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden'
 }
