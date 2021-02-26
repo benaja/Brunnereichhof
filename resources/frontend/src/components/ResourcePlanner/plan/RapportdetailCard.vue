@@ -1,5 +1,6 @@
 <template>
   <draggable-card
+    :data-rapportdetail-id="value.id"
     :data-employee-id="employee.id"
     :name="`${employee.lastname} ${employee.firstname}`"
     :image="employee.small_profile_image"
@@ -14,9 +15,14 @@ export default {
     DraggableCard
   },
   props: {
-    employee: {
+    value: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    employee() {
+      return this.value.employee
     }
   }
 }

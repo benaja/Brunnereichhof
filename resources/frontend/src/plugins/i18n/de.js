@@ -33,10 +33,10 @@ export default {
   'Kunde Hinzufügen': 'Kunde Hinzufügen',
   'Mitarbeiter bereits vorhanden': 'Mitarbeiter bereits vorhanden',
   Suchen: 'Suchen',
-  'Verschieben oder Duplizieren': 'Verschieben oder Duplizieren',
-  'Willst du den Mitarbeiter verschieben oder duplizieren?': 'Willst du den Mitarbeiter verschieben oder duplizieren?',
-  Verschieben: 'Verschieben',
-  Duplizieren: 'Duplizieren',
   'Mitarbeiter konnte nicht von Kunde entfernt werden': 'Mitarbeiter konnte nicht von Kunde entfernt werden',
-  'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden': 'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden'
+  'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden': 'Mitarbeiter konnte nicht zu Kunde hinzugefügt werden',
+  'Mitarbeiter ist bereits zugeteilt': 'Mitarbeiter ist bereits zugeteilt',
+  'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?': 'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?',
+  'Ja, hinzufügen': 'Ja, hinzufügen',
+  Nein: 'Nein'
 }

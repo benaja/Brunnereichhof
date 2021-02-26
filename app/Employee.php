@@ -32,7 +32,8 @@ class Employee extends Model
         'allergy',
         'isLoginActive',
         'entryDate',
-        'drivingLicence'
+        'drivingLicence',
+        'resource_planner_white_listed'
     ];
 
     protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image'];
