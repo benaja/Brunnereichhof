@@ -108,7 +108,7 @@ export default {
     },
     removeEmployee(rapportdetailId) {
       this.axios.$delete(`customers/${this.customer.id}/rapportdetails/${rapportdetailId}`).then(() => {
-        const rapportdetail = this.customer.rapportdetails.find(r => r.id === rapportdetailId)
+        const rapportdetail = this.customer.rapportdetails.find(r => r.id === Number(rapportdetailId))
         const index = this.customer.rapportdetails.indexOf(rapportdetail)
         this.customer.rapportdetails.splice(index, 1)
       }).catch(() => {
