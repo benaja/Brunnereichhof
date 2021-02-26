@@ -20,7 +20,7 @@
           {{ $t('Mitarbeiter') }}
         </p>
         <draggable-rapportdetail-list
-          v-model="customer.rapportdetails"
+          v-model="resource.rapportdetails"
           class="employees"
           :customer-id="customer.id"
           :selected-employee-ids="selectedEmployeeIds"
@@ -63,7 +63,7 @@ export default {
     DraggableRapportdetailList
   },
   props: {
-    customer: {
+    resource: {
       type: Object,
       default: null
     },
@@ -83,9 +83,12 @@ export default {
     }
   },
   computed: {
+    customer() {
+      return this.resource.customer
+    },
     employees: {
       get() {
-        return this.customer.rapportdetails || []
+        return this.resource.rapportdetails || []
       },
       set() {
 
@@ -94,15 +97,11 @@ export default {
   },
   methods: {
     addEmployee(employeeId) {
-      this.axios.$post(`customers/${this.customer.id}/rapportdetails`, {
+      this.axios.$post(`resources/${this.resource.id}/rapportdetails`, {
         employee_id: employeeId,
         date: this.date
       }).then(({ data }) => {
-        if (this.customer.rapportdetails) {
-          this.customer.rapportdetails.push(data)
-        } else {
-          this.$set(this.customer, 'rapportdetails', [data])
-        }
+        this.resource.rapportdetails.push(data)
       }).catch(error => {
         if (error.includes('Employee already exists fot that day and customer')) {
           this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits vorhanden') })
@@ -112,11 +111,11 @@ export default {
       })
     },
     removeEmployee(rapportdetailId) {
-      this.axios.$delete(`customers/${this.customer.id}/rapportdetails/${rapportdetailId}`).then(() => {
-        const rapportdetail = this.customer.rapportdetails
+      this.axios.$delete(`rapportdetails/${rapportdetailId}`).then(() => {
+        const rapportdetail = this.resource.rapportdetails
           .find(r => r.id === Number(rapportdetailId))
-        const index = this.customer.rapportdetails.indexOf(rapportdetail)
-        this.customer.rapportdetails.splice(index, 1)
+        const index = this.resource.rapportdetails.indexOf(rapportdetail)
+        this.resource.rapportdetails.splice(index, 1)
       }).catch(() => {
         this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht von Kunde entfernt werden'))
       })

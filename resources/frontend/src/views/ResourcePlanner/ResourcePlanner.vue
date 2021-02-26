@@ -49,9 +49,9 @@
           <select-customer @input="addCustomer"></select-customer>
 
           <customer-card
-            v-for="customer of selectedCustomers"
-            :key="customer.id"
-            :customer="customer"
+            v-for="resource of resources"
+            :key="resource.id"
+            :resource="resource"
             :date="date"
             :selected-employee-ids="allSelectedEmployeeIds"
           ></customer-card>
@@ -89,7 +89,7 @@ export default {
       availableCars: [],
       availableTools: [],
       selectedTab: 0,
-      selectedCustomers: [],
+      resources: [],
       employeeSearchString: null,
       showUsed: false
     }
@@ -109,7 +109,7 @@ export default {
       })
     },
     allSelectedEmployeeIds() {
-      return this.selectedCustomers.flatMap(c => c.rapportdetails)
+      return this.resources.flatMap(r => r.rapportdetails)
         .map(r => r.employee.id)
     }
   },
@@ -122,7 +122,7 @@ export default {
     }
   },
   async mounted() {
-    await this.getDay()
+    await this.fetchResources()
     await this.$store.dispatch('fetchEmployees')
     await this.$store.dispatch('fetchTools')
     await this.$store.dispatch('fetchCars')
@@ -130,14 +130,20 @@ export default {
   },
   methods: {
     addCustomer(customerId) {
-      if (this.selectedCustomers.find(c => c.id === customerId)) return
+      if (this.resources.find(r => r.customer.id === customerId)) return
 
-      const customer = this.customers.find(c => c.id === customerId)
-      this.selectedCustomers.push(this._.cloneDeep(customer))
+      this.axios.$post(`customer/${customerId}/resources`, {
+        date: this.date
+      }).then(({ data }) => {
+        this.resources.push(data)
+      }).catch(() => {
+        this.$dispatch('error', this.$t('Kunde konnte nicht hinzugefügt werden'))
+      })
     },
-    async getDay() {
-      const { data } = await this.axios.$get(`resource-planner/${this.date}`)
-      this.selectedCustomers = data
+    async fetchResources() {
+      const { data } = await this.axios.$get('resources', { params: { date: this.date } })
+      this.resources = data
+      console.log(this.resources)
     }
   }
 }

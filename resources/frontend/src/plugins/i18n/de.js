@@ -42,5 +42,6 @@ export default {
   'Verwendete anzeigen': 'Verwendete anzeigen',
   Standartmitarbeiter: 'Standartmitarbeiter',
   Fahrer: 'Fahrer',
-  Gruppenführer: 'Gruppenführer'
+  Gruppenführer: 'Gruppenführer',
+  'Kunde konnte nicht hinzugefügt werden': 'Kunde konnte nicht hinzugefügt werden'
 }

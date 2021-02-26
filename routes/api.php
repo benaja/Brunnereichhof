@@ -127,10 +127,14 @@ Route::group(['middleware' => 'jwt'], function () {
 
 
     // resource planner
+    // take post method for update because image upload doesnt work on put
     Route::post('cars/{car}', 'CarsController@update');
     Route::resource('tools', 'ToolsController');
     Route::resource('cars', 'CarsController');
-    Route::get('resource-planner/{data}', 'ResourcePlannerController@getDay');
-    Route::post('customers/{customer}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
-    Route::delete('customers/{customer}/rapportdetails/{rapportdetail}', 'ResourcePlannerController@deleteRapportdetail');
+    Route::resource('resources', 'ResourcePlannerController');
+    Route::post('resources/{resource}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
+    Route::delete('rapportdetails/{rapportdetail}', 'ResourcePlannerController@deleteRapportdetail');
+
+
+
 });
