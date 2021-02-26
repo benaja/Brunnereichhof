@@ -38,7 +38,10 @@
         <draggable-car-list
           v-model="cars"
           :customer-id="customer.id"
+          :used-car-ids="usedCarIds"
           class="cars"
+          @add="addCar"
+          @remove="removeCar"
         ></draggable-car-list>
         <p class="ma-0">
           {{ $t('Werkzeuge') }}
@@ -74,6 +77,10 @@ export default {
       default: null
     },
     selectedEmployeeIds: {
+      type: Array,
+      default: () => []
+    },
+    usedCarIds: {
       type: Array,
       default: () => []
     }
@@ -120,6 +127,27 @@ export default {
         this.resource.rapportdetails.splice(index, 1)
       }).catch(() => {
         this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht von Kunde entfernt werden'))
+      })
+    },
+    addCar(carId) {
+      this.axios.$post(`resources/${this.resource.id}/cars/${carId}`).then(({ data }) => {
+        this.resource.cars.push(data)
+      }).catch(error => {
+        if (error.includes('Car already exists fot that day and customer')) {
+          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Auto bereits vorhanden') })
+        } else {
+          this.$store.dispatch('error', this.$t('Auto konnte nicht zu Kunde hinzugefügt werden'))
+        }
+      })
+    },
+    removeCar(carId) {
+      this.axios.$delete(`resources/${this.resource.id}/cars/${carId}`).then(() => {
+        const car = this.resource.cars
+          .find(c => c.id === Number(carId))
+        const index = this.resource.cars.indexOf(car)
+        this.resource.cars.splice(index, 1)
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Auto konnte nicht von Kunde entfernt werden'))
       })
     }
   }

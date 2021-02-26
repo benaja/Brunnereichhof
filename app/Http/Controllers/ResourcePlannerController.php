@@ -113,4 +113,13 @@ class ResourcePlannerController extends Controller
     {
         $rapportdetail->delete();
     }
+
+    public function addCar(Resource $resource, Car $car) {
+        $resource->cars()->attach($car);
+        return $car;
+    }
+
+    public function removeCar(Resource $resource, Car $car) {
+        $resource->cars()->detach($car);
+    }
 }

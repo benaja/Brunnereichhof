@@ -54,6 +54,7 @@
             :resource="resource"
             :date="date"
             :selected-employee-ids="allSelectedEmployeeIds"
+            :used-car-ids="usedCarIds"
           ></customer-card>
         </v-col>
       </v-row>

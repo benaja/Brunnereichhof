@@ -18,7 +18,7 @@
 <script>
 import CarCard from '@/components/ResourcePlanner/plan/CarCard'
 import Draggable from 'vuedraggable'
-
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -33,6 +33,10 @@ export default {
     customerId: {
       type: Number,
       default: null
+    },
+    usedCarIds: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -58,30 +62,30 @@ export default {
         return
       }
 
-      const alreayUsed = this.selectedEmployeeIds.includes(Number(employeeId))
-      if (alreayUsed && employee && !employee.resource_planner_white_listed) {
+      const alreayUsed = this.usedCarIds.includes(Number(carId))
+      if (alreayUsed) {
         confirmAction({
-          title: this.$t('Mitarbeiter ist bereits zugeteilt'),
-          text: this.$t('Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?'),
+          title: this.$t('Auto ist bereits zugeteilt'),
+          text: this.$t('Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?'),
           confirmButtonText: this.$t('Ja, hinzufügen'),
           cancelButtonText: this.$t('Nein'),
           showCancelButton: true,
           icon: 'warning'
         }).then(result => {
           if (result.value) {
-            this.$emit('add', employeeId)
+            this.$emit('add', carId)
           }
         })
       } else {
-        this.$emit('add', employeeId)
+        this.$emit('add', carId)
       }
     },
     remove(value) {
       const toCustomerId = value.to.dataset.customerId
-      const { rapportdetailId } = value.item.dataset
+      const { carId } = value.item.dataset
 
       if (!toCustomerId) {
-        this.$emit('remove', rapportdetailId)
+        this.$emit('remove', carId)
       }
     }
   }
