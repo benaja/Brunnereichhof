@@ -12,6 +12,8 @@ use App\Rapportdetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RapportResource;
+use App\Resource;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class RapportController extends Controller
@@ -92,17 +94,16 @@ class RapportController extends Controller
         $week = new \DateTime($request->week);
         $week->modify('monday this week');
 
-        $rapport = Rapport::firstOrCreate(
-            ['startdate' => $week->format('Y-m-d'), 'customer_id' => $request->customer_id]
-        );
+        $rapport = Rapport::firstOrCreate([
+            'startdate' => $week->format('Y-m-d'),
+            'customer_id' => $request->customer_id
+        ]);
 
         if ($rapport->customer_id == null) {
             $rapport->customer_id = $request->customer_id;
             $rapport->startdate = $week->format('Y-m-d');
             $rapport->isFinished = false;
 
-            // $defaultProject = Project::where('name', 'Allgemein')->first();
-            // $rapport->defaultProject()->associate($defaultProject);
             $rapport->save();
         }
 
@@ -137,7 +138,7 @@ class RapportController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
-        $date = new \DateTime($rapport->startdate);
+        $date = Carbon::parse($rapport->startdate);
         $employee = Employee::find($request->employee_id);
         $defaultProject = Project::find($request->default_project_id);
         if (!$defaultProject) {
@@ -149,11 +150,18 @@ class RapportController extends Controller
 
         if (count($rapportdetails) == 0) {
             for ($i = 0; $i < 6; $i++) {
+                $resource = Resource::firstOrCreate([
+                    'date' => $date,
+                    'rapport_id' => $rapport->id,
+                    'customer_id' => $rapport->custoemr_id
+                ]);
+
                 $rapportdetail = Rapportdetail::create([
-                    'date' => $date->format('Y-m-d'),
+                    'date' => $date,
                     'day' => $i,
                     'contract_type' => 'work_contract',
-                    'customer_id' => $rapport->customer_id
+                    'customer_id' => $rapport->customer_id,
+                    'resource_id' => $resource->id
                 ]);
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
@@ -161,7 +169,7 @@ class RapportController extends Controller
                 $rapportdetail->foodtype()->associate($defaultFoodType);
 
                 $rapportdetail->save();
-                $date->modify('+1 day');
+                $date->addDay();
             }
         } else {
             return response('employee already exists', 400);
