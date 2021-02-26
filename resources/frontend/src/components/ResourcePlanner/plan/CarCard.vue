@@ -1,5 +1,6 @@
 <template>
   <draggable-card
+    :data-car-id="car.id"
     :name="car.name"
     :image="car.small_image"
   ></draggable-card>

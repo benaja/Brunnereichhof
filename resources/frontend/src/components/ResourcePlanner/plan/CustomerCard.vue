@@ -37,6 +37,7 @@
         </p>
         <draggable-car-list
           v-model="cars"
+          :customer-id="customer.id"
           class="cars"
         ></draggable-car-list>
         <p class="ma-0">
@@ -44,6 +45,7 @@
         </p>
         <draggable-tool-list
           v-model="tools"
+          :customer-id="customer.id"
           class="tools"
         ></draggable-tool-list>
       </v-col>

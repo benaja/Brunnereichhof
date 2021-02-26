@@ -1,6 +1,7 @@
 <template>
   <draggable
     :list="internalValue"
+    :data-customer-id="customerId"
     group="cars"
     class="elevation-1"
   >
@@ -26,6 +27,10 @@ export default {
     value: {
       type: Array,
       default: () => []
+    },
+    customerId: {
+      type: Number,
+      default: null
     }
   },
   data() {

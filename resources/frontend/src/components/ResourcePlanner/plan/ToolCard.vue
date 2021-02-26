@@ -1,5 +1,6 @@
 <template>
   <draggable-card
+    :data-tool-id="tool.id"
     :name="tool.name"
   ></draggable-card>
 </template>

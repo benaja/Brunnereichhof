@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     add(value) {
-      // const fromCustomerId = value.from.dataset.customerId
       const { employeeId } = value.item.dataset
 
       const alreadyExists = this.value.find(v => v.employee.id === Number(employeeId))
