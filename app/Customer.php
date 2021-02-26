@@ -61,4 +61,8 @@ class Customer extends Model
     {
         return $this->belongsTo(Address::class);
     }
+
+    public function rapportDetails() {
+        return $this->hasMany(Rapportdetail::class);
+    }
 }
