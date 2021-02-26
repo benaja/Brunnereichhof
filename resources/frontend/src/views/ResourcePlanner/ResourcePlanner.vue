@@ -38,7 +38,7 @@
               <draggable-car-list v-model="availableCars"></draggable-car-list>
             </v-tab-item>
             <v-tab-item>
-              <draggable-tool-list v-model="availableCars"></draggable-tool-list>
+              <draggable-tool-list v-model="availableTools"></draggable-tool-list>
             </v-tab-item>
           </v-tabs-items>
         </v-col>
@@ -86,8 +86,6 @@ export default {
         .format('YYYY-MM-DD'),
       newEmployees: [],
       newEmployees2: [],
-      availableCars: [],
-      availableTools: [],
       selectedTab: 0,
       resources: [],
       employeeSearchString: null,
@@ -108,17 +106,26 @@ export default {
         return true
       })
     },
+    availableTools() {
+      return this.tools.filter(t => (this.amountOfUsePerTool[t.id] || 0) < t.amount)
+    },
+    availableCars() {
+      return this.cars.filter(c => !this.usedCarIds.includes(c.id))
+    },
     allSelectedEmployeeIds() {
       return this.resources.flatMap(r => r.rapportdetails)
         .map(r => r.employee.id)
-    }
-  },
-  watch: {
-    cars() {
-      this.availableCars = this.cars
     },
-    tools() {
-      this.availableTools = this.tools
+    amountOfUsePerTool() {
+      return this.resources.flatMap(r => r.tools)
+        .reduce((prev, curr) => {
+          prev[curr.id] = prev[curr.id] ? prev[curr.id] + 1 : 1
+          return prev
+        }, {})
+    },
+    usedCarIds() {
+      return this.resources.flatMap(r => r.cars)
+        .map(c => c.id)
     }
   },
   async mounted() {

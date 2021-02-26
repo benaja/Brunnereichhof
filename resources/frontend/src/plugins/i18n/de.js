@@ -43,5 +43,6 @@ export default {
   Standartmitarbeiter: 'Standartmitarbeiter',
   Fahrer: 'Fahrer',
   Gruppenführer: 'Gruppenführer',
-  'Kunde konnte nicht hinzugefügt werden': 'Kunde konnte nicht hinzugefügt werden'
+  'Kunde konnte nicht hinzugefügt werden': 'Kunde konnte nicht hinzugefügt werden',
+  'Auto bereits vorhanden': 'Auto bereits vorhanden'
 }
