@@ -130,5 +130,6 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('cars/{car}', 'CarsController@update');
     Route::resource('tools', 'ToolsController');
     Route::resource('cars', 'CarsController');
-    Route::get('resource-planner/{data}', 'ResourcePlanner@getDay');
+    Route::get('resource-planner/{data}', 'ResourcePlannerController@getDay');
+    Route::post('customers/{customer}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
 });

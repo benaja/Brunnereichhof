@@ -3,6 +3,7 @@
     :list="internalValue"
     group="employees"
     class="elevation-1"
+    @change="change"
   >
     <employee-card
       v-for="employee of internalValue"
@@ -38,6 +39,16 @@ export default {
     },
     value() {
       this.internalValue = this.value
+    }
+  },
+  methods: {
+    change(event) {
+      if (event.added) {
+        this.$emit('add', event.added.element)
+      }
+      if (event.removed) {
+        this.$emit('remove', event.removed.element)
+      }
     }
   }
 }

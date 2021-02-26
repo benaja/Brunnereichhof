@@ -19,7 +19,9 @@
           </v-tabs>
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
-              <draggable-employee-list v-model="availableEmployees"></draggable-employee-list>
+              <draggable-employee-list
+                v-model="availableEmployees"
+              ></draggable-employee-list>
             </v-tab-item>
             <v-tab-item>
               <draggable-car-list v-model="availableCars"></draggable-car-list>
@@ -39,6 +41,7 @@
             v-for="customer of selectedCustomers"
             :key="customer.id"
             :customer="customer"
+            :date="date"
           ></customer-card>
         </v-col>
       </v-row>
@@ -106,8 +109,10 @@ export default {
       const customer = this.customers.find(c => c.id === customerId)
       this.selectedCustomers.push(this._.cloneDeep(customer))
     },
-    getDay() {
-      return this.axios.get(`resource-planner/${this.date}`)
+    async getDay() {
+      const { data } = await this.axios.get(`resource-planner/${this.date}`)
+      this.selectedCustomers = data.data
+      console.log(this.selectedCustomers)
     }
   }
 }

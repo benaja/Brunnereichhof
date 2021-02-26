@@ -6,7 +6,7 @@
     <div
       class="d-flex justify-space-between"
     >
-      <h3>{{ customer.name }}</h3>
+      <h3>{{ customer.lastname }} {{ customer.firstname }}</h3>
       <v-btn icon>
         <v-icon>delete</v-icon>
       </v-btn>
@@ -20,8 +20,9 @@
           {{ $t('Mitarbeiter') }}
         </p>
         <draggable-employee-list
-          v-model="employees"
+          v-model="customer.rapportdetails"
           class="employees"
+          @add="addEmployee"
         ></draggable-employee-list>
       </v-col>
       <v-col
@@ -62,13 +63,37 @@ export default {
     customer: {
       type: Object,
       default: null
+    },
+    date: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
-      employees: [],
       cars: [],
       tools: []
+    }
+  },
+  computed: {
+    employees: {
+      get() {
+        return this.customer.rapportdetails || []
+      },
+      set() {
+
+      }
+    }
+  },
+  methods: {
+    async addEmployee(employee) {
+      const { data } = await this.axios.$post(`customers/${this.customer.id}/rapportdetails`, {
+        employee_id: employee.id,
+        date: this.date
+      }).catch(error => {
+        console.log(error)
+      })
+      this.customer.rapportdetails.push(data)
     }
   }
 }
