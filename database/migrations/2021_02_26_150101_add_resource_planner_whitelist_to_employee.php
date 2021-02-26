@@ -14,7 +14,8 @@ class AddResourcePlannerWhitelistToEmployee extends Migration
     public function up()
     {
         Schema::table('employee', function (Blueprint $table) {
-            $table->boolean('resource_planner_white_listed')->nullable()->default(false);
+            $table->string('function')->nullable()->after('allergy');
+            $table->boolean('resource_planner_white_listed')->nullable()->default(false)->after('function');
         });
     }
 
@@ -26,6 +27,7 @@ class AddResourcePlannerWhitelistToEmployee extends Migration
     public function down()
     {
         Schema::table('employee', function (Blueprint $table) {
+            $table->dropColumn('function');
             $table->dropColumn('resource_planner_white_listed');
         });
     }

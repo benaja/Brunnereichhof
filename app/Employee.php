@@ -33,7 +33,8 @@ class Employee extends Model
         'isLoginActive',
         'entryDate',
         'drivingLicence',
-        'resource_planner_white_listed'
+        'resource_planner_white_listed',
+        'function'
     ];
 
     protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image'];

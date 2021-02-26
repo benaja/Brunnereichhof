@@ -39,5 +39,8 @@ export default {
   'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?': 'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?',
   'Ja, hinzufügen': 'Ja, hinzufügen',
   Nein: 'Nein',
-  'Verwendete anzeigen': 'Verwendete anzeigen'
+  'Verwendete anzeigen': 'Verwendete anzeigen',
+  Standartmitarbeiter: 'Standartmitarbeiter',
+  Fahrer: 'Fahrer',
+  Gruppenführer: 'Gruppenführer'
 }

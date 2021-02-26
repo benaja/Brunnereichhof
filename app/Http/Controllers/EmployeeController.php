@@ -190,7 +190,7 @@ class EmployeeController extends Controller
             return response('success');
         }
 
-        $this->validate($request, $this->validateArray);
+        $data = $this->validate($request, $this->validateArray);
 
         $employee = Employee::find($id);
 
@@ -201,25 +201,9 @@ class EmployeeController extends Controller
             return response('Email already exist', 400);
         }
 
-        DB::transaction(function () use ($request, $employee) {
+        DB::transaction(function () use ($request, $employee, $data) {
 
-            $employee->update([
-                'callname' => $request->callname,
-                'nationality' => $request->nationality,
-                'isIntern' => $request->isIntern,
-                'isDriver' => $request->isDriver,
-                'german_knowledge' => $request->german_knowledge,
-                'english_knowledge' => $request->english_knowledge,
-                'sex' => $request->sex,
-                'comment' => $request->comment,
-                'experience' => $request->experience,
-                'isActive' => $request->isActive,
-                'isGuest' => $request->isGuest,
-                'allergy' => $request->allergy,
-                'isLoginActive' => $request->isLoginActive,
-                'drivingLicence' => $request->drivingLicence,
-                'entryDate' => $request->entryDate
-            ]);
+            $employee->update($data);
             $employee->save();
 
             if ($request->isLoginActive && $employee->user->deleted_at) {
@@ -510,6 +494,8 @@ class EmployeeController extends Controller
         'isDriver' => 'nullable|boolean',
         'isActive' => 'boolean',
         'german_knowledge' => 'nullable|boolean',
-        'english_knowledge' => 'nullable|boolean'
+        'english_knowledge' => 'nullable|boolean',
+        'function' => 'nullable|string',
+        'resource_planner_white_listed' => 'nullable|boolean'
     ];
 }
