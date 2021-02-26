@@ -19,11 +19,17 @@
           </v-tabs>
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
-              <v-text-field
-                v-model="employeeSearchString"
-                :label="$t('Suchen')"
-                prepend-icon="search"
-              ></v-text-field>
+              <div class="d-flex">
+                <v-text-field
+                  v-model="employeeSearchString"
+                  :label="$t('Suchen')"
+                  prepend-icon="search"
+                ></v-text-field>
+                <v-checkbox
+                  v-model="showUsed"
+                  :label="$t('Verwendete anzeigen')"
+                ></v-checkbox>
+              </div>
               <draggable-employee-list
                 :value="availableEmployees"
               ></draggable-employee-list>
@@ -83,7 +89,8 @@ export default {
       availableTools: [],
       selectedTab: 0,
       selectedCustomers: [],
-      employeeSearchString: null
+      employeeSearchString: null,
+      showUsed: false
     }
   },
   computed: {
@@ -94,7 +101,7 @@ export default {
           && !e.name.toLowerCase().includes(this.employeeSearchString.toLowerCase())) {
           return false
         }
-        if (this.allSelectedEmployeeIds.includes(e.id)) {
+        if (this.allSelectedEmployeeIds.includes(e.id) === !this.showUsed) {
           return false
         }
         return true

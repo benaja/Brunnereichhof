@@ -38,5 +38,6 @@ export default {
   'Mitarbeiter ist bereits zugeteilt': 'Mitarbeiter ist bereits zugeteilt',
   'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?': 'Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?',
   'Ja, hinzufügen': 'Ja, hinzufügen',
-  Nein: 'Nein'
+  Nein: 'Nein',
+  'Verwendete anzeigen': 'Verwendete anzeigen'
 }
