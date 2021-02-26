@@ -65,10 +65,6 @@ class ResourcePlannerController extends Controller
         $rapportdetail->load('employee');
 
         return RapportdetailResource::make($rapportdetail);
-        // $rapportdetail->employee()->associate($employee);
-        // $rapportdetail->rapport()->associate($rapport);
-        // $rapportdetail->project()->associate($defaultProject);
-        // $rapportdetail->foodtype()->associate($defaultFoodType);
 
         
 

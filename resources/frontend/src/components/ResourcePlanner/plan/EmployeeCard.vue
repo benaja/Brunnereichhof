@@ -1,6 +1,6 @@
 <template>
   <draggable-card
-    :name="employee.name"
+    :name="`${employee.firstname} ${employee.lastname}`"
     :image="employee.small_profile_image"
   ></draggable-card>
 </template>
@@ -13,9 +13,14 @@ export default {
     DraggableCard
   },
   props: {
-    employee: {
+    value: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    employee() {
+      return this.value.employee || this.value
     }
   }
 }

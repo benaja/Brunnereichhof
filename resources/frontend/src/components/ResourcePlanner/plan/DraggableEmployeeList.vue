@@ -1,6 +1,6 @@
 <template>
   <draggable
-    :list="internalValue"
+    :value="internalValue"
     group="employees"
     class="elevation-1"
     @change="change"
@@ -8,7 +8,7 @@
     <employee-card
       v-for="employee of internalValue"
       :key="employee.id"
-      :employee="employee"
+      :value="employee"
     ></employee-card>
   </draggable>
 </template>
