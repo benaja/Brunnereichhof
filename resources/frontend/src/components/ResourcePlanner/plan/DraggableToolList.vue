@@ -66,8 +66,8 @@ export default {
       const toCustomerId = value.to.dataset.customerId
       if (!free && toCustomerId) {
         confirmAction({
-          title: this.$t('Werkzeug ist bereits zugeteilt'),
-          text: this.$t('Dieses Werkzeug ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?'),
+          title: this.$t('Werkzeug aufgebraucht'),
+          text: this.$t('Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?'),
           confirmButtonText: this.$t('Ja, hinzufügen'),
           cancelButtonText: this.$t('Nein'),
           showCancelButton: true,

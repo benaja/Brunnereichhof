@@ -1,7 +1,7 @@
 <template>
-  <v-row>
-    <v-col cols="2">
-      <p class="mx-0 mt-4 text-center">
+  <div class="d-flex justify-between">
+    <div class="mr-12">
+      <p class="mx-0 mt-3 text-center">
         <v-btn
           text
           icon
@@ -10,8 +10,8 @@
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
       </p>
-    </v-col>
-    <v-col cols="8">
+    </div>
+    <div>
       <v-dialog
         v-model="dateDialog"
         width="290px"
@@ -25,7 +25,7 @@
             <p class="text-center overline mb-0">
               {{ $moment(date).format('dddd') }}
             </p>
-            <p class="text-center display-1 mb-0">
+            <p class="text-center headline mb-0">
               {{ $moment(date).format('DD') }}
             </p>
             <p class="text-center overline mb-0">
@@ -42,9 +42,9 @@
           @change="dateDialog = false"
         ></v-date-picker>
       </v-dialog>
-    </v-col>
-    <v-col cols="2">
-      <p class="mx-0 mt-4 text-center">
+    </div>
+    <div class="ml-12">
+      <p class="mx-0 mt-3 text-center">
         <v-btn
           text
           icon
@@ -53,8 +53,8 @@
           <v-icon>keyboard_arrow_right</v-icon>
         </v-btn>
       </p>
-    </v-col>
-  </v-row>
+    </div>
+  </div>
 </template>
 
 <script>

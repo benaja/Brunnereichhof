@@ -4,9 +4,13 @@
       :title="$t('Einsatzplaner')"
       full-width
       :loading="isLoading.employees"
-    ></navigation-bar>
+    >
+      <select-day
+        v-model="date"
+        class="ml-auto mr-10"
+      ></select-day>
+    </navigation-bar>
     <v-container>
-      <select-day v-model="date"></select-day>
       <v-row>
         <v-col
           cols="12"
