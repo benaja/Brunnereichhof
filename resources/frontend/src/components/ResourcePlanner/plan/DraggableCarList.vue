@@ -2,7 +2,7 @@
   <draggable
     :value="internalValue"
     :data-customer-id="customerId"
-    group="cars"
+    :group="{name: 'cars', pull: 'clone'}"
     class="elevation-1"
     @add="add"
     @remove="remove"

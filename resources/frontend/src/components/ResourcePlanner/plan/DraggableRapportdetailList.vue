@@ -1,7 +1,7 @@
 <template>
   <draggable
     :value="internalValue"
-    group="employees"
+    :group="{name: 'employees', pull: 'clone'}"
     class="elevation-1"
     :data-customer-id="customerId"
     @add="add"
