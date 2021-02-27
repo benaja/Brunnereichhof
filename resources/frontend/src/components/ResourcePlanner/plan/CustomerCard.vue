@@ -52,7 +52,10 @@
         <draggable-tool-list
           v-model="resource.tools"
           :customer-id="customer.id"
+          :available-tools="availableTools"
           class="tools"
+          @add="addTool"
+          @remove="removeTool"
         ></draggable-tool-list>
       </v-col>
     </v-row>
@@ -84,6 +87,10 @@ export default {
       default: () => []
     },
     usedCarIds: {
+      type: Array,
+      default: () => []
+    },
+    availableTools: {
       type: Array,
       default: () => []
     }
@@ -128,7 +135,6 @@ export default {
     },
     addCar(carId) {
       this.axios.$post(`resources/${this.resource.id}/cars/${carId}`).then(({ data }) => {
-        console.log(data)
         this.resource.cars.push(data)
       }).catch(error => {
         if (error.includes('Car already exists fot that day and customer')) {
@@ -153,6 +159,27 @@ export default {
         this.$emit('remove')
       }).catch(() => {
         this.$store.dispatch('error', this.$t('Kunde konnte nicht entfernt werden'))
+      })
+    },
+    addTool(toolId) {
+      this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`).then(({ data }) => {
+        this.resource.tools.push(data)
+      }).catch(error => {
+        if (error.includes('Car already exists fot that day and customer')) {
+          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Werkzeug bereits vorhanden') })
+        } else {
+          this.$store.dispatch('error', this.$t('Werkzeug konnte nicht zu Kunde hinzugefügt werden'))
+        }
+      })
+    },
+    removeTool(toolId) {
+      this.axios.$delete(`resources/${this.resource.id}/tools/${toolId}`).then(() => {
+        const car = this.resource.tools
+          .find(c => c.id === Number(toolId))
+        const index = this.resource.tools.indexOf(car)
+        this.resource.tools.splice(index, 1)
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Werkzeug konnte nicht von Kunde entfernt werden'))
       })
     }
   }

@@ -1,9 +1,11 @@
 <template>
   <draggable
-    :list="internalValue"
+    :value="internalValue"
     :data-customer-id="customerId"
     group="tools"
     class="elevation-1"
+    @add="add"
+    @remove="remove"
   >
     <tool-card
       v-for="tool of internalValue"
@@ -16,6 +18,7 @@
 <script>
 import ToolCard from '@/components/ResourcePlanner/plan/ToolCard'
 import Draggable from 'vuedraggable'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -30,6 +33,10 @@ export default {
     customerId: {
       type: Number,
       default: null
+    },
+    availableTools: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -43,6 +50,44 @@ export default {
     },
     value() {
       this.internalValue = this.value
+    }
+  },
+  methods: {
+    add(value) {
+      const { toolId } = value.item.dataset
+
+      const alreadyExists = this.value.find(t => t.id === Number(toolId))
+      if (alreadyExists) {
+        this.$store.dispatch('alert', { type: 'warning', text: this.$t('Werkzeug bereits vorhanden') })
+        return
+      }
+
+      const free = this.availableTools.find(t => t.id === Number(toolId))
+      const toCustomerId = value.to.dataset.customerId
+      if (!free && toCustomerId) {
+        confirmAction({
+          title: this.$t('Werkzeug ist bereits zugeteilt'),
+          text: this.$t('Dieses Werkzeug ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?'),
+          confirmButtonText: this.$t('Ja, hinzufügen'),
+          cancelButtonText: this.$t('Nein'),
+          showCancelButton: true,
+          icon: 'warning'
+        }).then(result => {
+          if (result.value) {
+            this.$emit('add', toolId)
+          }
+        })
+      } else {
+        this.$emit('add', toolId)
+      }
+    },
+    remove(value) {
+      const toCustomerId = value.to.dataset.customerId
+      const { toolId } = value.item.dataset
+
+      if (!toCustomerId) {
+        this.$emit('remove', toolId)
+      }
     }
   }
 }

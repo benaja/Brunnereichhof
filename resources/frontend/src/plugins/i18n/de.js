@@ -49,5 +49,10 @@ export default {
   'Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?': 'Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?',
   'Auto konnte nicht zu Kunde hinzugefügt werden': 'Auto konnte nicht zu Kunde hinzugefügt werden',
   'Auto konnte nicht von Kunde entfernt werden': 'Auto konnte nicht von Kunde entfernt werden',
-  'Kunde konnte nicht entfernt werden': 'Kunde konnte nicht entfernt werden'
+  'Kunde konnte nicht entfernt werden': 'Kunde konnte nicht entfernt werden',
+  'Werkzeug ist bereits zugeteilt': 'Werkzeug ist bereits zugeteilt',
+  'Dieses Werkzeug ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?': 'Dieses Werkzeug ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?',
+  'Werkzeug bereits vorhanden': 'Werkzeug bereits vorhanden',
+  'Werkzeug konnte nicht zu Kunde hinzugefügt werden': 'Werkzeug konnte nicht zu Kunde hinzugefügt werden',
+  'Werkzeug konnte nicht von Kunde entfernt werden': 'Werkzeug konnte nicht von Kunde entfernt werden'
 }

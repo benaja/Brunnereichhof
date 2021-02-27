@@ -9,9 +9,11 @@ use App\Http\Resources\CarResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\RapportdetailResource;
 use App\Http\Resources\ResourceResource;
+use App\Http\Resources\ToolResource;
 use App\Rapport;
 use App\Rapportdetail;
 use App\Resource;
+use App\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -115,5 +117,14 @@ class ResourcePlannerController extends Controller
 
     public function removeCar(Resource $resource, Car $car) {
         $resource->cars()->detach($car);
+    }
+
+    public function addTool(Resource $resource, Tool $tool) {
+        $resource->tools()->attach($tool);
+        return  ToolResource::make($tool);
+    }
+
+    public function removeTool(Resource $resource, Tool $tool) {
+        $resource->tools()->detach($tool);
     }
 }

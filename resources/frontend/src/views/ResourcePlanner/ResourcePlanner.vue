@@ -38,7 +38,7 @@
               <draggable-car-list :value="availableCars"></draggable-car-list>
             </v-tab-item>
             <v-tab-item>
-              <draggable-tool-list v-model="availableTools"></draggable-tool-list>
+              <draggable-tool-list :value="availableTools"></draggable-tool-list>
             </v-tab-item>
           </v-tabs-items>
         </v-col>
@@ -55,6 +55,7 @@
             :date="date"
             :selected-employee-ids="allSelectedEmployeeIds"
             :used-car-ids="usedCarIds"
+            :available-tools="availableTools"
             @remove="removeResource(resource)"
           ></customer-card>
         </v-col>
