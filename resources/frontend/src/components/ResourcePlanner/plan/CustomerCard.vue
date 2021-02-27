@@ -39,7 +39,7 @@
           {{ $t('Autos') }}
         </p>
         <draggable-car-list
-          v-model="cars"
+          v-model="resource.cars"
           :customer-id="customer.id"
           :used-car-ids="usedCarIds"
           class="cars"
@@ -50,7 +50,7 @@
           {{ $t('Werkzeuge') }}
         </p>
         <draggable-tool-list
-          v-model="tools"
+          v-model="resource.tools"
           :customer-id="customer.id"
           class="tools"
         ></draggable-tool-list>
@@ -86,12 +86,6 @@ export default {
     usedCarIds: {
       type: Array,
       default: () => []
-    }
-  },
-  data() {
-    return {
-      cars: [],
-      tools: []
     }
   },
   computed: {
@@ -134,6 +128,7 @@ export default {
     },
     addCar(carId) {
       this.axios.$post(`resources/${this.resource.id}/cars/${carId}`).then(({ data }) => {
+        console.log(data)
         this.resource.cars.push(data)
       }).catch(error => {
         if (error.includes('Car already exists fot that day and customer')) {

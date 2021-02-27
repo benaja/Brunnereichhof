@@ -35,7 +35,7 @@
               ></draggable-employee-list>
             </v-tab-item>
             <v-tab-item>
-              <draggable-car-list v-model="availableCars"></draggable-car-list>
+              <draggable-car-list :value="availableCars"></draggable-car-list>
             </v-tab-item>
             <v-tab-item>
               <draggable-tool-list v-model="availableTools"></draggable-tool-list>

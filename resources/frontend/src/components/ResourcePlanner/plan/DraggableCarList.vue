@@ -52,6 +52,9 @@ export default {
       this.internalValue = this.value
     }
   },
+  mounted() {
+    console.log(this.internalValue)
+  },
   methods: {
     add(value) {
       const { carId } = value.item.dataset

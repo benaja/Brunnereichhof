@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Car;
 use App\Customer;
 use App\Foodtype;
+use App\Http\Resources\CarResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\RapportdetailResource;
 use App\Http\Resources\ResourceResource;
@@ -109,7 +110,7 @@ class ResourcePlannerController extends Controller
 
     public function addCar(Resource $resource, Car $car) {
         $resource->cars()->attach($car);
-        return $car;
+        return  CarResource::make($car);
     }
 
     public function removeCar(Resource $resource, Car $car) {
