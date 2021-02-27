@@ -48,5 +48,6 @@ export default {
   'Auto ist bereits zugeteilt': 'Auto ist bereits zugeteilt',
   'Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?': 'Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?',
   'Auto konnte nicht zu Kunde hinzugefügt werden': 'Auto konnte nicht zu Kunde hinzugefügt werden',
-  'Auto konnte nicht von Kunde entfernt werden': 'Auto konnte nicht von Kunde entfernt werden'
+  'Auto konnte nicht von Kunde entfernt werden': 'Auto konnte nicht von Kunde entfernt werden',
+  'Kunde konnte nicht entfernt werden': 'Kunde konnte nicht entfernt werden'
 }

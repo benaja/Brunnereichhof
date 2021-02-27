@@ -7,7 +7,10 @@
       class="d-flex justify-space-between"
     >
       <h3>{{ customer.lastname }} {{ customer.firstname }}</h3>
-      <v-btn icon>
+      <v-btn
+        icon
+        @click="removeResource"
+      >
         <v-icon>delete</v-icon>
       </v-btn>
     </div>
@@ -148,6 +151,13 @@ export default {
         this.resource.cars.splice(index, 1)
       }).catch(() => {
         this.$store.dispatch('error', this.$t('Auto konnte nicht von Kunde entfernt werden'))
+      })
+    },
+    removeResource() {
+      this.axios.$delete(`resources/${this.resource.id}`).then(() => {
+        this.$emit('remove')
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Kunde konnte nicht entfernt werden'))
       })
     }
   }

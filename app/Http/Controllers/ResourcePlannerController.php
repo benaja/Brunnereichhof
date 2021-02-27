@@ -32,29 +32,16 @@ class ResourcePlannerController extends Controller
         return ResourceResource::collection($resources);
     }
 
-    public function getDay($date)
-    {
-        $date = Carbon::parse($date);
-
-        $customers = Customer::whereHas('resources', function ($query) use ($date) {
-            $query->where('date', $date);
-        })
-            ->with(['resources' => function ($query) use ($date) {
-                $query->with(['rapportdetails.employee', 'cars', 'tools']);
-                $query->where('date', $date);
-            }])
-            ->get();
-
-        return CustomerResource::collection($customers);
-    }
-
-    public function store(Customer $customer, Request $request)
+    public function store(Request $request)
     {
         $data = $this->validate($request, [
-            'date' => ['required', 'date']
+            'date' => ['required', 'date'],
+            'customer_id' => ['required', 'integer', 'exists:customer,id']
         ]);
         $date = Carbon::parse($data['date']);
         $firstDayOfWeek = $date->clone()->weekday(0);
+
+        $customer = Customer::find($data['customer_id']);
 
         $rapport = $customer->rapports()
             ->where('startdate', $firstDayOfWeek)
@@ -73,7 +60,13 @@ class ResourcePlannerController extends Controller
             'rapport_id' => $rapport->id
         ]);
 
+        $resource->load(['rapportdetails.employee', 'cars', 'tools', 'customer']);
+
         return ResourceResource::make($resource);
+    }
+
+    public function destroy(Resource $resource) {
+        $resource->delete();
     }
 
     public function addRapportdetail(Resource $resource, Request $request)

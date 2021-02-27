@@ -55,6 +55,7 @@
             :date="date"
             :selected-employee-ids="allSelectedEmployeeIds"
             :used-car-ids="usedCarIds"
+            @remove="removeResource(resource)"
           ></customer-card>
         </v-col>
       </v-row>
@@ -129,6 +130,11 @@ export default {
         .map(c => c.id)
     }
   },
+  watch: {
+    date() {
+      this.fetchResources()
+    }
+  },
   async mounted() {
     await this.fetchResources()
     await this.$store.dispatch('fetchEmployees')
@@ -140,7 +146,8 @@ export default {
     addCustomer(customerId) {
       if (this.resources.find(r => r.customer.id === customerId)) return
 
-      this.axios.$post(`customer/${customerId}/resources`, {
+      this.axios.$post('resources', {
+        customer_id: customerId,
         date: this.date
       }).then(({ data }) => {
         this.resources.push(data)
@@ -152,6 +159,11 @@ export default {
       const { data } = await this.axios.$get('resources', { params: { date: this.date } })
       this.resources = data
       console.log(this.resources)
+    },
+    removeResource(resource) {
+      const index = this.resources.indexOf(resource)
+      this.resources.splice(index, 1)
+      this.resources = [...this.resources]
     }
   }
 }
