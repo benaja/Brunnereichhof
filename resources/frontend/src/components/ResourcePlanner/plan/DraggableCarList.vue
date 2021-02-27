@@ -57,7 +57,7 @@ export default {
       const { carId } = value.item.dataset
 
       const alreadyExists = this.value.find(v => v.id === Number(carId))
-      if (alreadyExists) {
+      if (alreadyExists && this.customerId) {
         this.$store.dispatch('alert', { type: 'warning', text: this.$t('Auto bereits vorhanden') })
         return
       }

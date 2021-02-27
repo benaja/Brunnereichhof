@@ -23,31 +23,36 @@
           </v-tabs>
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
-              <div class="d-flex">
-                <v-text-field
-                  v-model="employeeSearchString"
-                  :label="$t('Suchen')"
-                  prepend-icon="search"
-                ></v-text-field>
-                <v-checkbox
-                  v-model="showUsed"
-                  :label="$t('Verwendete anzeigen')"
-                ></v-checkbox>
-              </div>
+              <resource-planner-filter
+                v-model="filteredEmployees"
+                :items="activeEmployees"
+                :item-search-text="getEmployeeName"
+                :is-item-used="isEmployeeUsed"
+              ></resource-planner-filter>
               <div class="item-list-scroll-container">
                 <draggable-employee-list
-                  :value="availableEmployees"
+                  :value="filteredEmployees"
                 ></draggable-employee-list>
               </div>
             </v-tab-item>
             <v-tab-item>
+              <resource-planner-filter
+                v-model="filteredCars"
+                :items="cars"
+                :is-item-used="isCarUsed"
+              ></resource-planner-filter>
               <div class="item-list-scroll-container">
-                <draggable-car-list :value="availableCars"></draggable-car-list>
+                <draggable-car-list :value="filteredCars"></draggable-car-list>
               </div>
             </v-tab-item>
             <v-tab-item>
+              <resource-planner-filter
+                v-model="filteredTools"
+                :items="tools"
+                :is-item-used="isToolUsed"
+              ></resource-planner-filter>
               <div class="item-list-scroll-container">
-                <draggable-tool-list :value="availableTools"></draggable-tool-list>
+                <draggable-tool-list :value="filteredTools"></draggable-tool-list>
               </div>
             </v-tab-item>
           </v-tabs-items>
@@ -83,6 +88,7 @@ import { mapGetters } from 'vuex'
 import DraggableCarList from '@/components/ResourcePlanner/plan/DraggableCarList'
 import DraggableEmployeeList from '@/components/ResourcePlanner/plan/DraggableEmployeeList'
 import DraggableToolList from '@/components/ResourcePlanner/plan/DraggableToolList'
+import ResourcePlannerFilter from '@/components/ResourcePlanner/plan/ResourcePlannerFilter'
 
 export default {
   components: {
@@ -91,7 +97,8 @@ export default {
     CustomerCard,
     DraggableCarList,
     DraggableEmployeeList,
-    DraggableToolList
+    DraggableToolList,
+    ResourcePlannerFilter
   },
   data() {
     return {
@@ -103,7 +110,14 @@ export default {
       selectedTab: 0,
       resources: [],
       employeeSearchString: null,
-      showUsed: false
+      carSearchString: null,
+      toolSearchString: null,
+      showUsedEmployees: false,
+      showUsedCars: false,
+      showUsedTools: false,
+      filteredEmployees: [],
+      filteredCars: [],
+      filteredTools: []
     }
   },
   computed: {
@@ -114,7 +128,7 @@ export default {
           && !e.name.toLowerCase().includes(this.employeeSearchString.toLowerCase())) {
           return false
         }
-        if (this.allSelectedEmployeeIds.includes(e.id) === !this.showUsed) {
+        if (this.allSelectedEmployeeIds.includes(e.id) === !this.showUsedEmployees) {
           return false
         }
         return true
@@ -176,6 +190,18 @@ export default {
       const index = this.resources.indexOf(resource)
       this.resources.splice(index, 1)
       this.resources = [...this.resources]
+    },
+    getEmployeeName(customer) {
+      return `${customer.lastname} ${customer.firstname}`
+    },
+    isEmployeeUsed(employee) {
+      return this.allSelectedEmployeeIds.includes(employee.id)
+    },
+    isCarUsed(car) {
+      return this.usedCarIds.includes(car.id)
+    },
+    isToolUsed(tool) {
+      return (this.amountOfUsePerTool[tool.id] || 0) >= tool.amount
     }
   }
 }

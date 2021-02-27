@@ -57,7 +57,7 @@ export default {
       const { toolId } = value.item.dataset
 
       const alreadyExists = this.value.find(t => t.id === Number(toolId))
-      if (alreadyExists) {
+      if (alreadyExists && this.customerId) {
         this.$store.dispatch('alert', { type: 'warning', text: this.$t('Werkzeug bereits vorhanden') })
         return
       }
