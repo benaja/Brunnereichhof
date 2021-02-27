@@ -34,15 +34,21 @@
                   :label="$t('Verwendete anzeigen')"
                 ></v-checkbox>
               </div>
-              <draggable-employee-list
-                :value="availableEmployees"
-              ></draggable-employee-list>
+              <div class="item-list-scroll-container">
+                <draggable-employee-list
+                  :value="availableEmployees"
+                ></draggable-employee-list>
+              </div>
             </v-tab-item>
             <v-tab-item>
-              <draggable-car-list :value="availableCars"></draggable-car-list>
+              <div class="item-list-scroll-container">
+                <draggable-car-list :value="availableCars"></draggable-car-list>
+              </div>
             </v-tab-item>
             <v-tab-item>
-              <draggable-tool-list :value="availableTools"></draggable-tool-list>
+              <div class="item-list-scroll-container">
+                <draggable-tool-list :value="availableTools"></draggable-tool-list>
+              </div>
             </v-tab-item>
           </v-tabs-items>
         </v-col>
@@ -51,17 +57,18 @@
           md="6"
         >
           <select-customer @input="addCustomer"></select-customer>
-
-          <customer-card
-            v-for="resource of resources"
-            :key="resource.id"
-            :resource="resource"
-            :date="date"
-            :selected-employee-ids="allSelectedEmployeeIds"
-            :used-car-ids="usedCarIds"
-            :available-tools="availableTools"
-            @remove="removeResource(resource)"
-          ></customer-card>
+          <div class="item-list-scroll-container">
+            <customer-card
+              v-for="resource of resources"
+              :key="resource.id"
+              :resource="resource"
+              :date="date"
+              :selected-employee-ids="allSelectedEmployeeIds"
+              :used-car-ids="usedCarIds"
+              :available-tools="availableTools"
+              @remove="removeResource(resource)"
+            ></customer-card>
+          </div>
         </v-col>
       </v-row>
     </v-container>
@@ -187,5 +194,10 @@ export default {
   background-color: red;
   height: 100px;
   margin-top: 200px;
+}
+
+.item-list-scroll-container {
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
 }
 </style>
