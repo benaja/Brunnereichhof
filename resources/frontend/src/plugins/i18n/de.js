@@ -54,5 +54,7 @@ export default {
   'Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?': 'Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?',
   'Werkzeug bereits vorhanden': 'Werkzeug bereits vorhanden',
   'Werkzeug konnte nicht zu Kunde hinzugefügt werden': 'Werkzeug konnte nicht zu Kunde hinzugefügt werden',
-  'Werkzeug konnte nicht von Kunde entfernt werden': 'Werkzeug konnte nicht von Kunde entfernt werden'
+  'Werkzeug konnte nicht von Kunde entfernt werden': 'Werkzeug konnte nicht von Kunde entfernt werden',
+  Fertig: 'Fertig',
+  'Kunde suchen': 'Kunde suchen'
 }

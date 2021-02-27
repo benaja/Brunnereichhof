@@ -171,7 +171,6 @@ export default {
     },
     addImages(newImages) {
       if (this.singleFile) {
-        console.log(this.newImages)
         this.$emit('input', newImages)
       } else {
         const images = [...this.value]

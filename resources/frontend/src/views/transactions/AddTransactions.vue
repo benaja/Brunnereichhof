@@ -125,11 +125,6 @@ export default {
       }))
     }
   },
-  watch: {
-    employeesWithValidTransactions() {
-      console.log(this.employeesWithValidTransactions)
-    }
-  },
   async mounted() {
     await this.$store.dispatch('fetchEmployees')
     await this.$store.dispatch('fetchTransactionTypes')

@@ -10,11 +10,12 @@
         class="ml-auto mr-10"
       ></select-day>
     </navigation-bar>
-    <v-container>
-      <v-row>
+    <v-container class="pb-0">
+      <v-row no-gutters>
         <v-col
           cols="12"
           md="6"
+          class="pr-5"
         >
           <v-tabs v-model="selectedTab">
             <v-tab>{{ $t('Mitarbeiter') }}</v-tab>
@@ -61,10 +62,19 @@
           cols="12"
           md="6"
         >
-          <select-customer @input="addCustomer"></select-customer>
+          <select-customer
+            :selected-customers="selectedCustomers"
+            @input="addCustomer"
+          ></select-customer>
+          <v-text-field
+            v-model="customerSearchString"
+            class="mt-2"
+            :label="$t('Kunde suchen')"
+            prepend-icon="search"
+          ></v-text-field>
           <div class="item-list-scroll-container">
             <customer-card
-              v-for="resource of resources"
+              v-for="resource of filteredResources"
               :key="resource.id"
               :resource="resource"
               :date="date"
@@ -109,12 +119,7 @@ export default {
       newEmployees2: [],
       selectedTab: 0,
       resources: [],
-      employeeSearchString: null,
-      carSearchString: null,
-      toolSearchString: null,
-      showUsedEmployees: false,
-      showUsedCars: false,
-      showUsedTools: false,
+      customerSearchString: null,
       filteredEmployees: [],
       filteredCars: [],
       filteredTools: []
@@ -122,23 +127,8 @@ export default {
   },
   computed: {
     ...mapGetters(['activeEmployees', 'tools', 'cars', 'customers', 'isLoading']),
-    availableEmployees() {
-      return this.activeEmployees.filter(e => {
-        if (this.employeeSearchString
-          && !e.name.toLowerCase().includes(this.employeeSearchString.toLowerCase())) {
-          return false
-        }
-        if (this.allSelectedEmployeeIds.includes(e.id) === !this.showUsedEmployees) {
-          return false
-        }
-        return true
-      })
-    },
     availableTools() {
       return this.tools.filter(t => (this.amountOfUsePerTool[t.id] || 0) < t.amount)
-    },
-    availableCars() {
-      return this.cars.filter(c => !this.usedCarIds.includes(c.id))
     },
     allSelectedEmployeeIds() {
       return this.resources.flatMap(r => r.rapportdetails)
@@ -154,6 +144,16 @@ export default {
     usedCarIds() {
       return this.resources.flatMap(r => r.cars)
         .map(c => c.id)
+    },
+    selectedCustomers() {
+      return this.resources.map(r => r.customer)
+    },
+    filteredResources() {
+      return this.resources.filter(r => {
+        const customerName = `${r.customer.lastname} ${r.customer.firstname}`.toLowerCase()
+        return !this.customerSearchString
+          || customerName.toLowerCase().includes(this.customerSearchString.toLowerCase())
+      })
     }
   },
   watch: {
@@ -184,7 +184,6 @@ export default {
     async fetchResources() {
       const { data } = await this.axios.$get('resources', { params: { date: this.date } })
       this.resources = data
-      console.log(this.resources)
     },
     removeResource(resource) {
       const index = this.resources.indexOf(resource)
@@ -224,6 +223,6 @@ export default {
 
 .item-list-scroll-container {
   overflow-y: auto;
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 220px);
 }
 </style>

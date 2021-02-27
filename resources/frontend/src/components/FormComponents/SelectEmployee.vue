@@ -92,9 +92,6 @@ export default {
           }
         })
       })
-    },
-    employees() {
-      console.log(this.employees)
     }
   },
   mounted() {
