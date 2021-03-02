@@ -10,6 +10,7 @@ use App\Enums\UserTypeEnum;
 use App\Helpers\Pdf;
 use App\Settings;
 use App\Project;
+use Carbon\Carbon;
 
 class HourrecordController extends Controller
 {
@@ -54,27 +55,21 @@ class HourrecordController extends Controller
         auth()->user()->authorize(['superadmin', 'customer'], ['hourrecord_write']);
         $this->validateEditeDate();
 
-        $hourrecords = auth()->user()->customer->hourrecords->where('year', (new \DateTime)->format('Y'));
+        $hourrecords = auth()->user()->customer->hourrecords()->where('year', Carbon::now()->format('Y'))->get();
 
-        foreach ($hourrecords as $index => $hourrecord) {
-            $weeks = array_filter(
-                $request->weeks,
-                function ($week) use ($hourrecord) {
-                    return $week['week'] == $hourrecord->week;
-                }
-            );
-            if (count($weeks) == 0) {
+        foreach ($hourrecords as $hourrecord) {
+            if (!in_array($hourrecord->week, $request->get('weeks', []))) {
                 $hourrecord->delete();
             }
         }
 
         foreach ($request->weeks as $week) {
-            if (count($hourrecords->where('week', $week['week'])) == 0) {
+            if (count($hourrecords->where('week', $week)) === 0) {
                 $hourrecord = Hourrecord::create([
                     'hours' => null,
                     'comment' => null,
-                    'week' => $week['week'],
-                    'year' => (new \DateTime)->format('Y'),
+                    'week' => $week,
+                    'year' => Carbon::now()->format('Y'),
                     'createdByAdmin' => false,
                     'customer_id' => auth()->user()->customer->id
                 ]);

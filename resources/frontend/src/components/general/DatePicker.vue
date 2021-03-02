@@ -38,7 +38,6 @@
           : max
       "
       show-week
-      :locale-first-day-of-year="7"
       :min="min"
       @input="model = false"
     ></v-date-picker>

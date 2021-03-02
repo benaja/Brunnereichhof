@@ -18,7 +18,8 @@
           lg="3"
         >
           <v-checkbox
-            v-model="week.isSelected"
+            v-model="selectedWeeks"
+            :value="week.week"
             :disabled="!week.active"
             class="mt-0"
           >
@@ -55,16 +56,14 @@ export default {
       weeks: this.$store.getters.recordWeeks,
       hourRecords: this.$store.getters.hourRecords,
       isLoading: false,
-      isSaving: false
+      isSaving: false,
+      selectedWeeks: []
     }
   },
   computed: {
     ...mapGetters(['settings']),
     activeWeeks() {
       return this.weeks.filter(w => w.active)
-    },
-    selectedWeeks() {
-      return this.weeks.filter(w => w.isSelected)
     }
   },
   watch: {
@@ -73,6 +72,9 @@ export default {
         this.$store.commit('recordWeeks', this.weeks)
       },
       deep: true
+    },
+    selectedWeeks() {
+      console.log(this.selectedWeeks)
     }
   },
   mounted() {
@@ -89,7 +91,6 @@ export default {
           monday,
           sunday,
           week: monday.week(),
-          isSelected: false,
           active: monday.isAfter(this.$moment())
         }
         this.weeks.push(week)
@@ -101,30 +102,24 @@ export default {
       this.isLoading = true
       this.axios
         .get('hourrecords')
-        .then(response => {
-          this.hourRecords = response.data
-          for (const key in this.hourRecords) {
-            this.weeks[key - 1].isSelected = true
-          }
+        .then(({ data }) => {
+          this.hourRecords = data
+          this.selectedWeeks = Object.keys(this.hourRecords)
+            .map(week => Number(week))
         })
-        .catch(() => {
+        .catch(error => {
+          console.log(error)
           this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
         })
         .finally(() => {
           this.isLoading = false
         })
     } else {
-      for (const key in this.hourRecords) {
-        this.weeks[key - 1].isSelected = true
-      }
+      this.selectedWeeks = Object.keys(this.hourRecords)
+        .map(week => Number(week))
     }
   },
   methods: {
-    getMonday(date) {
-      const day = date.getDay()
-      const diff = date.getDate() - day + (day === 0 ? -6 : 1)
-      return new Date(date.setDate(diff))
-    },
     save() {
       this.isSaving = true
       this.axios
