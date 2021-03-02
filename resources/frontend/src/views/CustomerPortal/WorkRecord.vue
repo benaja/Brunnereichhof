@@ -1,13 +1,11 @@
 <template>
   <fragment>
     <navigation-bar
-      :title="`Arbeiten im ${(new Date()).getFullYear()}`"
+      :title="`Arbeiten im ${new Date().getFullYear()}`"
       :loading="$store.getters.isLoading.settings || isLoading"
     ></navigation-bar>
     <v-container>
-      <h2
-        class="mb-4 headline"
-      >
+      <h2 class="mb-4 headline">
         Wählen sie alle Kallenderwochen aus, in denen Sie Arbeiten vorgesehen haben.
       </h2>
       <v-row>
@@ -27,7 +25,7 @@
             <div slot="label">
               <p class="my-0">
                 <span class="font-weight-bold">KW {{ week.week }}</span>
-                ({{ week.monday.toLocaleDateString() }} - {{ week.sunday.toLocaleDateString() }})
+                ({{ week.monday.format('DD.MM.YYYY') }} - {{ week.sunday.format('DD.MM.YYYY') }})
               </p>
             </div>
           </v-checkbox>
@@ -53,7 +51,7 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      date: new Date(new Date().getFullYear(), 0, 1),
+      date: this.$moment().startOf('year'),
       weeks: this.$store.getters.recordWeeks,
       hourRecords: this.$store.getters.hourRecords,
       isLoading: false,
@@ -84,34 +82,37 @@ export default {
       }
     })
     if (this.weeks.length === 0) {
-      let monday = this.getMonday(this.date)
+      let monday = this.date.clone().startOf('week')
       for (let i = 1; i <= 52; i++) {
-        const sunday = new Date(monday)
-        sunday.setDate(sunday.getDate() + 6)
+        const sunday = monday.clone().endOf('week')
         const week = {
           monday,
           sunday,
-          week: i,
+          week: monday.week(),
           isSelected: false,
-          active: monday > new Date()
+          active: monday.isAfter(this.$moment())
         }
         this.weeks.push(week)
-        monday = new Date(monday)
-        monday.setDate(monday.getDate() + 7)
+        monday = monday.clone()
+        monday.add(7, 'days')
       }
     }
     if (this.hourRecords.length === 0) {
       this.isLoading = true
-      this.axios.get('hourrecords').then(response => {
-        this.hourRecords = response.data
-        for (const key in this.hourRecords) {
-          this.weeks[key - 1].isSelected = true
-        }
-      }).catch(() => {
-        this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
-      }).finally(() => {
-        this.isLoading = false
-      })
+      this.axios
+        .get('hourrecords')
+        .then(response => {
+          this.hourRecords = response.data
+          for (const key in this.hourRecords) {
+            this.weeks[key - 1].isSelected = true
+          }
+        })
+        .catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
     } else {
       for (const key in this.hourRecords) {
         this.weeks[key - 1].isSelected = true
@@ -140,7 +141,8 @@ export default {
           } else {
             this.$swal('Fehler', 'Es ist ein unbekannter Fehler aufgetreten. Versuchen Sie es bitte später erneut.', 'error')
           }
-        }).finally(() => {
+        })
+        .finally(() => {
           this.isSaving = false
         })
     }
