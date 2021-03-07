@@ -2,7 +2,7 @@
   <v-expansion-panel>
     <draggable
       :value="[]"
-      :group="{ name: 'employees', put: canPut, pull: false }"
+      :group="{ name: 'resource-planner', put: canPut, pull: false }"
       @add="add"
     >
       <v-expansion-panel-header v-slot="{ open }">
@@ -70,6 +70,7 @@
               class="tools"
               @add="addTool"
               @remove="removeTool"
+              @increase="increaseTool"
             ></draggable-tool-list>
           </v-col>
         </v-row>
@@ -265,10 +266,22 @@ export default {
       })
     },
     add(event) {
-      console.log('add container', event)
+      const data = event.item.dataset
+      if (data.carId) {
+        this.addCar(data.carId)
+      } else if (data.toolId) {
+        this.addTool(data.toolId)
+      } else if (data.employeeId) {
+        this.addEmployee(data.employeeId)
+      }
     },
-    canPut(value, item) {
-      return Number(item.el.dataset.customerId) !== this.customer.id
+    canPut(to, from) {
+      return Number(from.el.dataset.customerId) !== this.customer.id
+    },
+    increaseTool(tool) {
+      this.axios.$patch(`resources/${this.resource.id}/tools/${tool.id}`, {
+        amount: tool.amount + 1
+      })
     }
   }
 }

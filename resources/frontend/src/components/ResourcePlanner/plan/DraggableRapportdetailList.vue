@@ -1,7 +1,7 @@
 <template>
   <draggable
     :value="internalValue"
-    :group="{name: 'employees', pull: 'clone'}"
+    :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
     class="elevation-1"
     :data-customer-id="customerId"
     @add="add"
@@ -94,6 +94,10 @@ export default {
       if (!toCustomerId) {
         this.$emit('remove', rapportdetailId)
       }
+    },
+
+    canPut(to, from, item) {
+      return !!item.dataset.employeeId
     }
   }
 }

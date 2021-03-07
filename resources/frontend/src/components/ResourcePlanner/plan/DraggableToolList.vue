@@ -2,7 +2,7 @@
   <draggable
     :value="internalValue"
     :data-customer-id="customerId"
-    :group="{name: 'tools', pull: 'clone'}"
+    :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
     class="elevation-1"
     @add="add"
     @remove="remove"
@@ -11,6 +11,8 @@
       v-for="tool of internalValue"
       :key="tool.id"
       :tool="tool"
+      @add="addOne"
+      @remove="removeOne"
     ></tool-card>
   </draggable>
 </template>
@@ -88,6 +90,18 @@ export default {
       if (!toCustomerId) {
         this.$emit('remove', toolId)
       }
+    },
+
+    canPut(to, from, item) {
+      return !!item.dataset.toolId
+    },
+
+    addOne(tool) {
+      this.$emit('increase', tool)
+    },
+
+    removeOne(tool) {
+      this.$emti('decrease', tool)
     }
   }
 }

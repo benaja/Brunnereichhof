@@ -25,6 +25,6 @@ class Resource extends Model
     }
 
     public function tools() {
-        return $this->belongsToMany(Tool::class);
+        return $this->belongsToMany(Tool::class)->withPivot('amount');
     }
 }
