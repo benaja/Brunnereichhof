@@ -149,4 +149,10 @@ class ResourcePlannerController extends Controller
         Resource::where('date', $data)
             ->update(['completed' => true]);
     }
+
+    public function updateToolsPivot(Resource $resource, Tool $tool, Request $request) {
+        $data = $this->validate($request, [
+            'amount' => ['required', 'integer']
+        ]);
+    }
 }
