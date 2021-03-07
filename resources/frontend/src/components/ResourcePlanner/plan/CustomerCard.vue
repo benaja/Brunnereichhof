@@ -17,17 +17,17 @@
 
                 <span
                   v-for="(rapportdetail, index) of resource.rapportdetails"
-                  :key="rapportdetail.id"
+                  :key="'r'+rapportdetail.id"
                   class="mb-1"
                 >{{ index !== 0 ? ',' : '' }}
                   {{ rapportdetail.employee.lastname }}
                   {{ rapportdetail.employee.firstname }}</span><span
                   v-for="(car) of resource.cars"
-                  :key="car.id"
+                  :key="'c' +car.id"
                   class="mb-1"
                 >, {{ car.name }}</span><span
                   v-for="(tool) of resource.tools"
-                  :key="tool.id"
+                  :key="'t'+tool.id"
                   class="mb-1"
                 >, {{ tool.name }}
                 </span>

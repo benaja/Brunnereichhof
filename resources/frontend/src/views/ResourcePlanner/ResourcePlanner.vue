@@ -58,6 +58,7 @@
               <div class="item-list-scroll-container">
                 <draggable-employee-list
                   :value="filteredEmployees"
+                  class="list-min-height"
                 ></draggable-employee-list>
               </div>
             </v-tab-item>
@@ -68,7 +69,10 @@
                 :is-item-used="isCarUsed"
               ></resource-planner-filter>
               <div class="item-list-scroll-container">
-                <draggable-car-list :value="filteredCars"></draggable-car-list>
+                <draggable-car-list
+                  class="list-min-height"
+                  :value="filteredCars"
+                ></draggable-car-list>
               </div>
             </v-tab-item>
             <v-tab-item>
@@ -78,7 +82,10 @@
                 :is-item-used="isToolUsed"
               ></resource-planner-filter>
               <div class="item-list-scroll-container">
-                <draggable-tool-list :value="filteredTools"></draggable-tool-list>
+                <draggable-tool-list
+                  :value="filteredTools"
+                  class="list-min-height"
+                ></draggable-tool-list>
               </div>
             </v-tab-item>
           </v-tabs-items>
@@ -277,5 +284,9 @@ export default {
 .item-list-scroll-container {
   overflow-y: auto;
   max-height: calc(100vh - 220px);
+}
+
+.list-min-height {
+  min-height: 400px;
 }
 </style>

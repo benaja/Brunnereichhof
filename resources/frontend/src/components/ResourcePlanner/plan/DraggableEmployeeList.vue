@@ -1,7 +1,7 @@
 <template>
   <draggable
     :value="value"
-    group="employees"
+    group="resource-planner"
     class="elevation-1"
   >
     <employee-card
