@@ -11,6 +11,7 @@
       v-for="tool of internalValue"
       :key="tool.id"
       :tool="tool"
+      :with-pivot="withPivot"
       @add="addOne"
       @remove="removeOne"
     ></tool-card>
@@ -39,6 +40,10 @@ export default {
     availableTools: {
       type: Array,
       default: () => []
+    },
+    withPivot: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -101,7 +106,7 @@ export default {
     },
 
     removeOne(tool) {
-      this.$emti('decrease', tool)
+      this.$emit('decrease', tool)
     }
   }
 }

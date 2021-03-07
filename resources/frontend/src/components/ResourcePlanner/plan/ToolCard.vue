@@ -7,7 +7,10 @@
       <p class="mb-0">
         {{ tool.name }}
       </p>
-      <div class="d-flex align-center">
+      <div
+        v-if="withPivot"
+        class="d-flex align-center"
+      >
         <v-btn
           icon
           color="red"
@@ -39,6 +42,10 @@ export default {
     tool: {
       type: Object,
       required: true
+    },
+    withPivot: {
+      type: Boolean,
+      default: false
     }
   }
 }

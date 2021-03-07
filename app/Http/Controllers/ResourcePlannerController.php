@@ -16,6 +16,7 @@ use App\Resource;
 use App\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ResourcePlannerController extends Controller
 {
@@ -154,5 +155,10 @@ class ResourcePlannerController extends Controller
         $data = $this->validate($request, [
             'amount' => ['required', 'integer']
         ]);
+
+        DB::table('resource_tool')
+            ->where('resource_id', $resource->id)
+            ->where('tool_id', $tool->id)
+            ->update($data);
     }
 }

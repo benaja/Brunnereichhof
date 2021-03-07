@@ -67,9 +67,11 @@
               v-model="resource.tools"
               :customer-id="customer.id"
               :available-tools="availableTools"
+              with-pivot
               class="tools"
               @add="addTool"
               @remove="removeTool"
+              @decrease="decreaseTool"
               @increase="increaseTool"
             ></draggable-tool-list>
           </v-col>
@@ -246,6 +248,9 @@ export default {
     },
     addTool(toolId) {
       this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`).then(({ data }) => {
+        data.pivot = {
+          amount: 1
+        }
         this.resource.tools.push(data)
       }).catch(error => {
         if (error.includes('Car already exists fot that day and customer')) {
@@ -279,8 +284,22 @@ export default {
       return Number(from.el.dataset.customerId) !== this.customer.id
     },
     increaseTool(tool) {
+      this.updateTool(tool, tool.pivot.amount + 1)
+    },
+    decreaseTool(tool) {
+      if (tool.pivot.amount === 1) {
+        this.removeTool(tool.id)
+      } else {
+        this.updateTool(tool, tool.pivot.amount - 1)
+      }
+    },
+    updateTool(tool, amount) {
       this.axios.$patch(`resources/${this.resource.id}/tools/${tool.id}`, {
-        amount: tool.amount + 1
+        amount
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+      }).then(() => {
+        tool.pivot.amount = amount
       })
     }
   }
