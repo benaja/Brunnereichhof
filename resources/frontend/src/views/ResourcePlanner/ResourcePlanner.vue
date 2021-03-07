@@ -9,6 +9,16 @@
         v-model="date"
         class="ml-auto mr-10"
       ></select-day>
+      <v-btn
+        color="primary"
+        depressed
+        @click="finish"
+      >
+        <v-icon class="mr-2">
+          check
+        </v-icon>
+        {{ $t('Abschliessen') }}
+      </v-btn>
     </navigation-bar>
     <v-container class="pb-0">
       <v-row no-gutters>
@@ -73,16 +83,21 @@
             prepend-icon="search"
           ></v-text-field>
           <div class="item-list-scroll-container">
-            <customer-card
-              v-for="resource of filteredResources"
-              :key="resource.id"
-              :resource="resource"
-              :date="date"
-              :selected-employee-ids="allSelectedEmployeeIds"
-              :used-car-ids="usedCarIds"
-              :available-tools="availableTools"
-              @remove="removeResource(resource)"
-            ></customer-card>
+            <v-expansion-panels
+              multiple
+              flat
+            >
+              <customer-card
+                v-for="resource of filteredResources"
+                :key="resource.id"
+                :resource="resource"
+                :date="date"
+                :selected-employee-ids="allSelectedEmployeeIds"
+                :used-car-ids="usedCarIds"
+                :available-tools="availableTools"
+                @remove="removeResource(resource)"
+              ></customer-card>
+            </v-expansion-panels>
           </div>
         </v-col>
       </v-row>
@@ -99,6 +114,7 @@ import DraggableCarList from '@/components/ResourcePlanner/plan/DraggableCarList
 import DraggableEmployeeList from '@/components/ResourcePlanner/plan/DraggableEmployeeList'
 import DraggableToolList from '@/components/ResourcePlanner/plan/DraggableToolList'
 import ResourcePlannerFilter from '@/components/ResourcePlanner/plan/ResourcePlannerFilter'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -201,6 +217,17 @@ export default {
     },
     isToolUsed(tool) {
       return (this.amountOfUsePerTool[tool.id] || 0) >= tool.amount
+    },
+    finish() {
+      confirmAction(this.$t('Willst du die Planung für diesen Tag wirklich abschliessen?'), this.$t('Ja, Abschliessen')).then(value => {
+        if (value) {
+          this.axios.$post('resources/finish', {
+            date: this.date
+          }).catch(() => {
+            this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+          })
+        }
+      })
     }
   }
 }

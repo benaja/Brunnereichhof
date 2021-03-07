@@ -7,7 +7,7 @@
       <div class="text-right">
         <v-btn
           color="primary"
-          depressed
+          outlined
           class="mt-2 "
           v-on="on"
         >

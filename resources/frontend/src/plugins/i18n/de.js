@@ -56,5 +56,11 @@ export default {
   'Werkzeug konnte nicht zu Kunde hinzugefügt werden': 'Werkzeug konnte nicht zu Kunde hinzugefügt werden',
   'Werkzeug konnte nicht von Kunde entfernt werden': 'Werkzeug konnte nicht von Kunde entfernt werden',
   Fertig: 'Fertig',
-  'Kunde suchen': 'Kunde suchen'
+  'Kunde suchen': 'Kunde suchen',
+  Abschliessen: 'Abschliessen',
+  'Willst du die Planung für diesen Tag wirklich abschliessen?': 'Willst du die Planung für diesen Tag wirklich abschliessen?',
+  'Ja, Abschliessen': 'Ja, Abschliessen',
+  'Es ist ein unerwarteter Fehler aufgetreten': 'Es ist ein unerwarteter Fehler aufgetreten',
+  'Willst du {kunde} wirklich von der aktuellen Planung entfernen?': 'Willst du {kunde} wirklich von der aktuellen Planung entfernen?',
+  'Änderungen konnten nicht gespeichert werden': 'Änderungen konnten nicht gespeichert werden'
 }

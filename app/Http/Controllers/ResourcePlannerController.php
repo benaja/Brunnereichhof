@@ -68,6 +68,18 @@ class ResourcePlannerController extends Controller
         return ResourceResource::make($resource);
     }
 
+    public function update(Resource $resource, Request $request) {
+        $data = $this->validate($request, [
+            'comment' => ['string'],
+            'start_time' => ['date_format:H:i'],
+            'end_time' => ['date_format:H:i']
+        ]);
+
+        $resource->update($data);
+
+        return ResourceResource::make($resource);
+    }
+
     public function destroy(Resource $resource) {
         $resource->delete();
     }
@@ -126,5 +138,15 @@ class ResourcePlannerController extends Controller
 
     public function removeTool(Resource $resource, Tool $tool) {
         $resource->tools()->detach($tool);
+    }
+
+    public function finish(Request $request) {
+        $data = $this->validate($request, [
+            'date' => ['required', 'date']
+        ]);
+        $date = Carbon::parse($data['date']);
+
+        Resource::where('date', $data)
+            ->update(['completed' => true]);
     }
 }

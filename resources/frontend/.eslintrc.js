@@ -42,7 +42,7 @@ module.exports = {
     'prefer-destructuring': ['error', { object: true, array: false }],
     'arrow-parens': ['error', 'as-needed'],
     "import/extensions": ['error', "never" ],
-    'prefer-default-export': 0
+    'prefer-default-export': 0,
   },
 
   parserOptions: {
