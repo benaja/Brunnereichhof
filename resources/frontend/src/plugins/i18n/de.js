@@ -62,5 +62,8 @@ export default {
   'Ja, Abschliessen': 'Ja, Abschliessen',
   'Es ist ein unerwarteter Fehler aufgetreten': 'Es ist ein unerwarteter Fehler aufgetreten',
   'Willst du {kunde} wirklich von der aktuellen Planung entfernen?': 'Willst du {kunde} wirklich von der aktuellen Planung entfernen?',
-  'Änderungen konnten nicht gespeichert werden': 'Änderungen konnten nicht gespeichert werden'
+  'Änderungen konnten nicht gespeichert werden': 'Änderungen konnten nicht gespeichert werden',
+  Bearbeiten: 'Bearbeiten',
+  'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?': 'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?',
+  'Ja, Bearbeiten': 'Ja, Bearbeiten'
 }

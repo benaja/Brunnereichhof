@@ -9,20 +9,35 @@
         v-model="date"
         class="ml-auto mr-10"
       ></select-day>
-      <v-btn
-        color="primary"
-        depressed
-        @click="finish"
-      >
-        <v-icon class="mr-2">
-          check
-        </v-icon>
-        {{ $t('Abschliessen') }}
-      </v-btn>
+      <template v-if="resources.length">
+        <v-btn
+          v-if="!finished"
+          color="primary"
+          depressed
+          @click="finish(true)"
+        >
+          <v-icon class="mr-2">
+            check
+          </v-icon>
+          {{ $t('Abschliessen') }}
+        </v-btn>
+        <v-btn
+          v-else
+          color="primary"
+          outlined
+          @click="finish(false)"
+        >
+          <v-icon class="mr-2">
+            edit
+          </v-icon>
+          {{ $t('Bearbeiten') }}
+        </v-btn>
+      </template>
     </navigation-bar>
     <v-container class="pb-0">
       <v-row no-gutters>
         <v-col
+          v-if="!finished"
           cols="12"
           md="6"
           class="pr-5"
@@ -70,7 +85,7 @@
         </v-col>
         <v-col
           cols="12"
-          md="6"
+          :md="finished ? 12 : 6"
         >
           <select-customer
             :selected-customers="selectedCustomers"
@@ -170,6 +185,9 @@ export default {
         return !this.customerSearchString
           || customerName.toLowerCase().includes(this.customerSearchString.toLowerCase())
       })
+    },
+    finished() {
+      return this.resources.length && this.resources[0].completed
     }
   },
   watch: {
@@ -218,13 +236,21 @@ export default {
     isToolUsed(tool) {
       return (this.amountOfUsePerTool[tool.id] || 0) >= tool.amount
     },
-    finish() {
-      confirmAction(this.$t('Willst du die Planung für diesen Tag wirklich abschliessen?'), this.$t('Ja, Abschliessen')).then(value => {
+    finish(yes) {
+      confirmAction(
+        yes
+          ? this.$t('Willst du die Planung für diesen Tag wirklich abschliessen?')
+          : this.$t('Willst du die Planung für diesen Tag wirklich wieder bearbeiten?'),
+        yes ? this.$t('Ja, Abschliessen') : this.$t('Ja, Bearbeiten')
+      ).then(value => {
         if (value) {
           this.axios.$post('resources/finish', {
-            date: this.date
+            date: this.date,
+            completed: yes
           }).catch(() => {
             this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+          }).then(() => {
+            this.fetchResources()
           })
         }
       })

@@ -143,12 +143,13 @@ class ResourcePlannerController extends Controller
 
     public function finish(Request $request) {
         $data = $this->validate($request, [
-            'date' => ['required', 'date']
+            'date' => ['required', 'date'],
+            'completed'=> ['required', 'boolean']
         ]);
         $date = Carbon::parse($data['date']);
 
         Resource::where('date', $data)
-            ->update(['completed' => true]);
+            ->update(['completed' => $data['completed']]);
     }
 
     public function updateToolsPivot(Resource $resource, Tool $tool, Request $request) {

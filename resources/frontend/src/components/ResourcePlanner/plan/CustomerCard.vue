@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panel>
+  <v-expansion-panel class="customer-card">
     <draggable
       :value="[]"
       :group="{ name: 'resource-planner', put: canPut, pull: false }"
@@ -21,7 +21,16 @@
                   class="mb-1"
                 >{{ index !== 0 ? ',' : '' }}
                   {{ rapportdetail.employee.lastname }}
-                  {{ rapportdetail.employee.firstname }}</span>
+                  {{ rapportdetail.employee.firstname }}</span><span
+                  v-for="(car) of resource.cars"
+                  :key="car.id"
+                  class="mb-1"
+                >, {{ car.name }}</span><span
+                  v-for="(tool) of resource.tools"
+                  :key="tool.id"
+                  class="mb-1"
+                >, {{ tool.name }}
+                </span>
               </p>
             </div>
           </div>
@@ -307,6 +316,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.customer-card {
+  background-color: rgb(248, 248, 248) !important;
+  margin-bottom: 10px;
+}
+
 .employees {
   background-color: rgb(232, 232, 232);
   min-height: 110px;
