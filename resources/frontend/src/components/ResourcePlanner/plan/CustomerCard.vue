@@ -139,6 +139,7 @@
 import Draggable from 'vuedraggable'
 import TimeTextField from '@/components/general/TimeTextField'
 import { confirmAction } from '@/utils'
+import { mapGetters } from 'vuex'
 import DraggableRapportdetailList from './DraggableRapportdetailList'
 import DraggableCarList from './DraggableCarList'
 import DraggableToolList from './DraggableToolList'
@@ -173,10 +174,14 @@ export default {
       default: () => []
     }
   },
+
   computed: {
+    ...mapGetters(['activeEmployees']),
+
     customer() {
       return this.resource.customer
     },
+
     employees: {
       get() {
         return this.resource.rapportdetails || []
@@ -198,7 +203,18 @@ export default {
   },
 
   methods: {
-    addEmployee(employeeId) {
+    async addEmployee(employeeId) {
+      const employee = this.activeEmployees.find(v => v.id === Number(employeeId))
+      const alreayUsed = this.selectedEmployeeIds.includes(Number(employeeId))
+      if (alreayUsed && employee && !employee.resource_planner_white_listed) {
+        const add = await this.confirmOverfill({
+          title: this.$t('Mitarbeiter ist bereits zugeteilt'),
+          text: this.$t('Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?')
+        })
+
+        if (!add) return
+      }
+
       this.axios.$post(`resources/${this.resource.id}/rapportdetails`, {
         employee_id: employeeId,
         date: this.date
@@ -212,6 +228,7 @@ export default {
         }
       })
     },
+
     removeEmployee(rapportdetailId) {
       this.axios.$delete(`rapportdetails/${rapportdetailId}`).then(() => {
         const rapportdetail = this.resource.rapportdetails
@@ -222,7 +239,18 @@ export default {
         this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht von Kunde entfernt werden'))
       })
     },
-    addCar(carId) {
+
+    async addCar(carId) {
+      const alreayUsed = this.usedCarIds.includes(Number(carId))
+      if (alreayUsed) {
+        const add = await this.confirmOverfill({
+          title: this.$t('Auto ist bereits zugeteilt'),
+          text: this.$t('Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?')
+        })
+
+        if (!add) return
+      }
+
       this.axios.$post(`resources/${this.resource.id}/cars/${carId}`).then(({ data }) => {
         this.resource.cars.push(data)
       }).catch(error => {
@@ -233,6 +261,7 @@ export default {
         }
       })
     },
+
     removeCar(carId) {
       this.axios.$delete(`resources/${this.resource.id}/cars/${carId}`).then(() => {
         const car = this.resource.cars
@@ -243,6 +272,7 @@ export default {
         this.$store.dispatch('error', this.$t('Auto konnte nicht von Kunde entfernt werden'))
       })
     },
+
     removeResource() {
       confirmAction(this.$t('Willst du {kunde} wirklich von der aktuellen Planung entfernen?', {
         kunde: `${this.customer.lastname} ${this.customer.firstname}`
@@ -256,7 +286,18 @@ export default {
         }
       })
     },
-    addTool(toolId, amount = 1) {
+
+    async addTool(toolId, amount = 1) {
+      const free = this.availableTools.find(t => t.id === Number(toolId))
+      if (!free) {
+        const add = await this.confirmOverfill({
+          title: this.$t('Werkzeug aufgebraucht'),
+          text: this.$t('Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?')
+        })
+
+        if (!add) return
+      }
+
       this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`, {
         amount
       }).then(({ data }) => {
@@ -272,6 +313,7 @@ export default {
         }
       })
     },
+
     removeTool(toolId) {
       this.axios.$delete(`resources/${this.resource.id}/tools/${toolId}`).then(() => {
         const car = this.resource.tools
@@ -282,6 +324,7 @@ export default {
         this.$store.dispatch('error', this.$t('Werkzeug konnte nicht von Kunde entfernt werden'))
       })
     },
+
     add(event) {
       const data = event.item.dataset
       if (data.carId) {
@@ -297,12 +340,15 @@ export default {
         this.addEmployee(data.employeeId)
       }
     },
+
     canPut(to, from) {
       return Number(from.el.dataset.customerId) !== this.customer.id
     },
+
     increaseTool(tool) {
       this.updateTool(tool, tool.pivot.amount + 1)
     },
+
     decreaseTool(tool) {
       if (tool.pivot.amount === 1) {
         this.removeTool(tool.id)
@@ -310,6 +356,7 @@ export default {
         this.updateTool(tool, tool.pivot.amount - 1)
       }
     },
+
     updateTool(tool, amount) {
       this.axios.$patch(`resources/${this.resource.id}/tools/${tool.id}`, {
         amount
@@ -318,6 +365,18 @@ export default {
       }).then(() => {
         tool.pivot.amount = amount
       })
+    },
+
+    async confirmOverfill(options) {
+      const { value } = await confirmAction({
+        ...options,
+        confirmButtonText: this.$t('Ja, hinzufügen'),
+        cancelButtonText: this.$t('Nein'),
+        showCancelButton: true,
+        icon: 'warning'
+      })
+
+      return value
     }
   }
 }

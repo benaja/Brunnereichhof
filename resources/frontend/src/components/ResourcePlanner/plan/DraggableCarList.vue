@@ -62,23 +62,7 @@ export default {
         return
       }
 
-      const alreayUsed = this.usedCarIds.includes(Number(carId))
-      if (alreayUsed) {
-        confirmAction({
-          title: this.$t('Auto ist bereits zugeteilt'),
-          text: this.$t('Dieses Auto ist bereits einem anderen Kunden zugeteilt. Möchtest du es bei zwei Kunden haben?'),
-          confirmButtonText: this.$t('Ja, hinzufügen'),
-          cancelButtonText: this.$t('Nein'),
-          showCancelButton: true,
-          icon: 'warning'
-        }).then(result => {
-          if (result.value) {
-            this.$emit('add', carId)
-          }
-        })
-      } else {
-        this.$emit('add', carId)
-      }
+      this.$emit('add', carId)
     },
     remove(value) {
       const toCustomerId = value.to.dataset.customerId

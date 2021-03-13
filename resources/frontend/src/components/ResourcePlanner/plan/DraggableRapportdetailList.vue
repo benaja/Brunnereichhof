@@ -68,24 +68,7 @@ export default {
         return
       }
 
-      const employee = this.activeEmployees.find(v => v.id === Number(employeeId))
-      const alreayUsed = this.selectedEmployeeIds.includes(Number(employeeId))
-      if (alreayUsed && employee && !employee.resource_planner_white_listed) {
-        confirmAction({
-          title: this.$t('Mitarbeiter ist bereits zugeteilt'),
-          text: this.$t('Dieser Mitarbeiter ist bereits einem anderen Kunden zugeteilt. Möchtest du ihn bei zwei Kunden haben?'),
-          confirmButtonText: this.$t('Ja, hinzufügen'),
-          cancelButtonText: this.$t('Nein'),
-          showCancelButton: true,
-          icon: 'warning'
-        }).then(result => {
-          if (result.value) {
-            this.$emit('add', employeeId)
-          }
-        })
-      } else {
-        this.$emit('add', employeeId)
-      }
+      this.$emit('add', employeeId)
     },
     remove(value) {
       const toCustomerId = value.to.dataset.customerId
