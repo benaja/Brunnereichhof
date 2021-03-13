@@ -3,6 +3,7 @@
     <draggable
       :value="[]"
       :group="{ name: 'resource-planner', put: canPut, pull: false }"
+      :data-customer-id="customer.id"
       @add="add"
     >
       <v-expansion-panel-header v-slot="{ open }">
@@ -284,7 +285,12 @@ export default {
       if (data.carId) {
         this.addCar(data.carId)
       } else if (data.toolId) {
-        this.addTool(data.toolId)
+        const alreadyExists = this.resource.tools.find(t => t.id === Number(data.toolId))
+        if (alreadyExists) {
+          this.increaseTool(alreadyExists)
+        } else {
+          this.addTool(data.toolId)
+        }
       } else if (data.employeeId) {
         this.addEmployee(data.employeeId)
       }

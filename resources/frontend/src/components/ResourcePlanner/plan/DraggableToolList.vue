@@ -63,12 +63,6 @@ export default {
     add(value) {
       const { toolId } = value.item.dataset
 
-      const alreadyExists = this.value.find(t => t.id === Number(toolId))
-      if (alreadyExists && this.customerId) {
-        this.$store.dispatch('alert', { type: 'warning', text: this.$t('Werkzeug bereits vorhanden') })
-        return
-      }
-
       const free = this.availableTools.find(t => t.id === Number(toolId))
       const toCustomerId = value.to.dataset.customerId
       if (!free && toCustomerId) {
@@ -81,13 +75,14 @@ export default {
           icon: 'warning'
         }).then(result => {
           if (result.value) {
-            this.$emit('add', toolId)
+            this.addTool(toolId)
           }
         })
       } else {
-        this.$emit('add', toolId)
+        this.addTool(toolId)
       }
     },
+
     remove(value) {
       const toCustomerId = value.to.dataset.customerId
       const { toolId } = value.item.dataset
@@ -107,6 +102,15 @@ export default {
 
     removeOne(tool) {
       this.$emit('decrease', tool)
+    },
+
+    addTool(toolId) {
+      const alreadyExists = this.value.find(t => t.id === Number(toolId))
+      if (alreadyExists) {
+        this.$emit('increase', alreadyExists)
+      } else {
+        this.$emit('add', toolId)
+      }
     }
   }
 }
