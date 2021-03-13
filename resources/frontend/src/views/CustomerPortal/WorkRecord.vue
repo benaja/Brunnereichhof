@@ -72,9 +72,6 @@ export default {
         this.$store.commit('recordWeeks', this.weeks)
       },
       deep: true
-    },
-    selectedWeeks() {
-      console.log(this.selectedWeeks)
     }
   },
   mounted() {
@@ -107,8 +104,7 @@ export default {
           this.selectedWeeks = Object.keys(this.hourRecords)
             .map(week => Number(week))
         })
-        .catch(error => {
-          console.log(error)
+        .catch(() => {
           this.$store.dispatch('error', 'Fehler beim Abrufen der Daten')
         })
         .finally(() => {

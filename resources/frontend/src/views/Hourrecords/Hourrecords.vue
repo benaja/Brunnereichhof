@@ -191,13 +191,13 @@
         <v-card>
           <v-card-title>Kunde Auswählen</v-card-title>
           <v-card-text>
-            <v-select
+            <v-autocomplete
               label="Kunde"
               :items="customers"
               item-value="id"
               item-text="name"
               @input="selectCustomer"
-            ></v-select>
+            ></v-autocomplete>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -273,9 +273,20 @@ export default {
     },
     selectedYear() {
       this.getHourRecords(true)
+
+      this.$router.replace({
+        query: {
+          ...this.$route.query,
+          year: this.selectedYear
+        }
+      })
     }
   },
   mounted() {
+    if (this.$route.query.year) {
+      this.selectedYear = this.$route.query.year.toString()
+    }
+
     this.randomNumbersInterval = setInterval(() => {
       this.totalHours = Math.floor(Math.random() * 100000)
     }, 10)
@@ -426,10 +437,10 @@ export default {
     }
   },
   url: {
-    selectedYear: {
-      param: 'year',
-      noHistory: true
-    },
+    // selectedYear: {
+    //   param: 'year',
+    //   noHistory: true
+    // },
     sortType: {
       param: 'sortType',
       noHistory: true

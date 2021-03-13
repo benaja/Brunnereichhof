@@ -107,7 +107,7 @@ export default {
       default: null
     },
     year: {
-      type: String,
+      type: [String, Number],
       required: true
     },
     week: {

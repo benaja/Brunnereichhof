@@ -90,7 +90,7 @@ class HourrecordController extends Controller
         if ($week > 52) {
             abort(400, 'the week can not be greater than 52');
         }
-        $year = new \DateTime($year);
+        $year = Carbon::now()->year($year);
 
         $customer = null;
         if (auth()->user()->type_id == UserTypeEnum::Customer) {

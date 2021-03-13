@@ -70,7 +70,7 @@ export default {
       default: null
     },
     year: {
-      type: String,
+      type: [String, Number],
       default: moment().format('YYYY')
     },
     adminMode: {

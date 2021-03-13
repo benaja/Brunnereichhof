@@ -109,9 +109,6 @@ export default {
     },
     reset() {
       return this.$refs.form.reset()
-    },
-    updateDate(date) {
-      console.log(date)
     }
   }
 }

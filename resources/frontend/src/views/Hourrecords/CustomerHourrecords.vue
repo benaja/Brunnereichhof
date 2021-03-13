@@ -56,7 +56,7 @@
         :week="week"
         :cultures="cultures"
         :customer="customer"
-        :year="$route.query.year"
+        :year="yearNumber"
         :edit="edit"
         admin-mode
         @input="w => (week = w)"
@@ -69,7 +69,7 @@
         v-model="addHourrecordDialog"
         :cultures="cultures"
         :customer="customer"
-        :year="$route.query.year"
+        :year="yearNumber"
         @add="addHourrecord"
       ></add-hourrecord>
     </v-container>
