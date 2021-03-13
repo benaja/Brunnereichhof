@@ -402,7 +402,7 @@ export default {
     async isToolFree(toolId, amount = 1) {
       const tool = this.tools.find(t => t.id === toolId)
 
-      if (this.amountOfUsePerTool[toolId] + amount <= tool.amount) return true
+      if ((this.amountOfUsePerTool[toolId] || 0) + amount <= tool.amount) return true
 
       const add = await this.confirmOverfill({
         title: this.$t('Werkzeug aufgebraucht'),
