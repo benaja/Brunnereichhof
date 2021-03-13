@@ -216,8 +216,8 @@ export default {
       this.axios.$post('resources', {
         customer_id: customerId,
         date: this.date
-      }).then(({ data }) => {
-        this.resources.push(data)
+      }).then(() => {
+        this.fetchResources()
       }).catch(() => {
         this.$dispatch('error', this.$t('Kunde konnte nicht hinzugefügt werden'))
       })
