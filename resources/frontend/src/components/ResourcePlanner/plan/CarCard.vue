@@ -4,7 +4,14 @@
     :name="car.name"
     :image="car.small_image_url"
     class="blue lighten-5"
-  ></draggable-card>
+  >
+    <template slot="name">
+      <p class="mb-0">
+        <span class="font-weight-bold">{{ car.name }}</span>
+        <span> {{ car.seats }} Sitze</span>
+      </p>
+    </template>
+  </draggable-card>
 </template>
 
 <script>

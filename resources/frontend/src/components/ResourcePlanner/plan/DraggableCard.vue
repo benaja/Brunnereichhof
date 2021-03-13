@@ -8,7 +8,9 @@
         :class="[color]"
       >
         <slot>
-          {{ name }}
+          <slot name="name">
+            {{ name }}
+          </slot>
           <div
             v-if="image"
             class="profile-image"
