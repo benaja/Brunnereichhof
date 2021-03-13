@@ -52,10 +52,11 @@ class EmployeeController extends Controller
 
 
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
-        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
-        else $employees = Employee::with('user');
+        if (isset($request->deleted)) $employees = Employee::onlyTrashed();
+        else if (isset($request->all)) $employees = Employee::withTrashed();
+        else $employees = Employee::query();
         return $employees
+            ->with('languages')
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
@@ -119,8 +120,6 @@ class EmployeeController extends Controller
                 'nationality' => $data['nationality'],
                 'isIntern' => $data['isIntern'],
                 'isDriver' => $data['isDriver'],
-                'german_knowledge' => $data['german_knowledge'],
-                'english_knowledge' => $data['english_knowledge'],
                 'sex' => $data['sex'],
                 'comment' => $data['comment'],
                 'experience' => $data['experience'],
@@ -170,6 +169,7 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
+        $employee->load('languages');
         $employee->profileimage = $employee->getProfileimageUrl();
         $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
         return $employee;
@@ -205,6 +205,8 @@ class EmployeeController extends Controller
 
             $employee->update($data);
             $employee->save();
+
+            $employee->languages()->sync($data['languages']);
 
             if ($request->isLoginActive && $employee->user->deleted_at) {
                 $employee->user->restore();
@@ -493,8 +495,7 @@ class EmployeeController extends Controller
         'isIntern' => 'nullable|boolean',
         'isDriver' => 'nullable|boolean',
         'isActive' => 'boolean',
-        'german_knowledge' => 'nullable|boolean',
-        'english_knowledge' => 'nullable|boolean',
+        'languages' => 'nullable|array',
         'function' => 'nullable|string',
         'resource_planner_white_listed' => 'nullable|boolean'
     ];

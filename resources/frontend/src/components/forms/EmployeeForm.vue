@@ -120,25 +120,16 @@
         cols="12"
         md="6"
       >
-        <v-checkbox
-          v-model="value.german_knowledge"
-          label="Deutschkenntnisse"
-          color="primary"
-          :readonly="readonly"
-          @change="$emit('change', 'german_knowledge')"
-        ></v-checkbox>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <v-checkbox
-          v-model="value.english_knowledge"
-          label="Englischkenntnisse"
-          color="primary"
-          :readonly="readonly"
-          @change="$emit('change', 'english_knowledge')"
-        ></v-checkbox>
+        <select-field
+          v-model="value.languages"
+          :items="languages"
+          :original="original.languages"
+          item-value="id"
+          item-text="name"
+          label="Sprachkenntnisse"
+          multiple
+          @change="$emit('change', 'languages')"
+        ></select-field>
       </v-col>
       <v-col
         cols="12"
@@ -316,9 +307,18 @@ export default {
           text: 'Weiblich'
         }
       ],
-      backendUrl: process.env.VUE_APP_URL
+      backendUrl: process.env.VUE_APP_URL,
+      languages: []
     }
   },
+
+  async mounted() {
+    const { data } = await this.axios.$get('languages')
+    this.languages = data
+
+    console.log(this.original.languages)
+  },
+
   methods: {
     validate() {
       return this.$refs.form.validate()

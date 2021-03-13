@@ -21,8 +21,6 @@ class Employee extends Model
         'nationality',
         'isIntern',
         'isDriver',
-        'german_knowledge',
-        'english_knowledge',
         'sex',
         'comment',
         'experience',

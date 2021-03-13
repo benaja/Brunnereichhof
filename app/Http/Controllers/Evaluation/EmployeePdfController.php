@@ -98,7 +98,11 @@ class EmployeePdfController extends Controller
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->pdf = new Pdf();
-        $employees = Employee::where('isActive', true)->where('isGuest', false)->get()->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
+        $employees = Employee::where('isActive', true)
+            ->where('isGuest', false)
+            ->with('languages')
+            ->get()
+            ->sortBy('lastname', SORT_NATURAL | SORT_FLAG_CASE);
         $numberOfEmployee = count($employees);
 
         $this->pdf->documentTitle("Mitarbeiterliste");
@@ -122,7 +126,7 @@ class EmployeePdfController extends Controller
                 $employee->callname,
                 $employee->isDriver == 1 ? "Ja" : "Nein",
                 $employee->drivingLicence ? "Ja" : "Nein",
-                $employee->german_knowledge == 1 ? "Ja" : "Nein",
+                $employee->languages->contains(fn ($l) => $l->value === "german") ? "Ja" : "Nein",
                 $employee->sex == "man" ? "Mann" : "Frau",
                 $employee->entryDate ? $employee->entryDate->format('Y') : ''
             ]);

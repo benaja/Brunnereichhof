@@ -29,6 +29,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::delete('employees/{employee}/profileimage', 'EmployeeController@deleteImage');
     Route::post('employees/{employee}/profileimage', 'EmployeeController@uploadImage');
     Route::resource('employees', 'EmployeeController');
+    Route::get('languages', 'LanguagesController@index');
     
     // Worker
     Route::resource('workers', 'WorkerController');
