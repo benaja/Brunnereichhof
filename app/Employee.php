@@ -60,6 +60,10 @@ class Employee extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function languages() {
+        return $this->belongsToMany(Language::class);
+    }
+
     public function name()
     {
         return "$this->lastname $this->firstname";
