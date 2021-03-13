@@ -87,6 +87,8 @@ class ResourcePlannerController extends Controller
 
         $resource->update($data);
 
+        // activity('resource-planner')->performedOn($resource)->log('Bearbeitet');
+
         return ResourceResource::make($resource);
     }
 

@@ -29,6 +29,7 @@ export default {
         this.$emit('input', newTime.format('HH:mm'))
       }
     },
+
     value() {
       const newTime = this.$moment(this.value, 'HH:mm')
       const time = this.$moment(this.internalValue, 'HH:mm')
@@ -51,7 +52,9 @@ export default {
 
   methods: {
     isSameTime(time1, time2) {
-      return time1.minutes() === time2.minutes() && time1.seconds() === time2.seconds()
+      return time1.hours() === time2.hours()
+        && time1.minutes() === time2.minutes()
+         && time1.seconds() === time2.seconds()
     }
   }
 }
