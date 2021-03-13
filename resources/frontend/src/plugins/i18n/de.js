@@ -65,5 +65,7 @@ export default {
   'Änderungen konnten nicht gespeichert werden': 'Änderungen konnten nicht gespeichert werden',
   Bearbeiten: 'Bearbeiten',
   'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?': 'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?',
-  'Ja, Bearbeiten': 'Ja, Bearbeiten'
+  'Ja, Bearbeiten': 'Ja, Bearbeiten',
+  Startzeit: 'Startzeit',
+  Endzeit: 'Endzeit'
 }

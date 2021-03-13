@@ -12,7 +12,7 @@
             class="d-flex justify-space-between "
           >
             <div class="d-flex flex-wrap">
-              <p class="mr-2 h3">
+              <p class="mr-2 h3 mb-1">
                 <span class="font-bold title">{{ customer.lastname }}
                   {{ customer.firstname }}{{ resource.rapportdetails.length ? ':': '' }}</span>
 
@@ -94,7 +94,7 @@
           >
             <time-text-field
               v-model="resource.start_time"
-              label="Startzeit"
+              :label="$t('Startzeit')"
               @input="debounceUpdate('start_time', $event)"
             ></time-text-field>
           </v-col>
@@ -105,7 +105,7 @@
           >
             <time-text-field
               v-model="resource.end_time"
-              label="Endzeit"
+              :label="$t('Endzeit')"
               @input="debounceUpdate('end_time', $event)"
             ></time-text-field>
           </v-col>

@@ -162,6 +162,31 @@
             @input="update('weekRapportText')"
           ></v-textarea>
         </v-col>
+        <v-col cols="12">
+          <h2>{{ $t('Stundenangaben') }}</h2>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-text-field
+            v-model="settings.resourcePlannerStartTime"
+            :label="$t('Endzeit')"
+            :readonly="!isUserAllowedToEdit"
+            @input="update('resourcePlannerStartTime')"
+          ></v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-text-field
+            v-model="settings.resourcePlannerEndTime"
+            :label="$t('Endzeit')"
+            :readonly="!isUserAllowedToEdit"
+            @input="update('resourcePlannerEndTime')"
+          ></v-text-field>
+        </v-col>
         <v-col
           cols="12"
           class="mt-4"
