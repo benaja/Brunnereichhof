@@ -204,6 +204,13 @@ export default {
 
   methods: {
     async addEmployee(employeeId) {
+      const alreadyExists = this.resource.rapportdetails
+        .find(r => r.employee.id === Number(employeeId))
+      if (alreadyExists) {
+        this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits bei diesem Kunde vorhanden') })
+        return
+      }
+
       const employee = this.activeEmployees.find(v => v.id === Number(employeeId))
       const alreayUsed = this.selectedEmployeeIds.includes(Number(employeeId))
       if (alreayUsed && employee && !employee.resource_planner_white_listed) {
@@ -222,7 +229,7 @@ export default {
         this.resource.rapportdetails.push(data)
       }).catch(error => {
         if (error.includes('Employee already exists fot that day and customer')) {
-          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits vorhanden') })
+          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits bei diesem Kunde vorhanden') })
         } else {
           this.$store.dispatch('error', this.$t('Mitarbeiter konnte nicht zu Kunde hinzugefügt werden'))
         }
@@ -241,6 +248,12 @@ export default {
     },
 
     async addCar(carId) {
+      const alreadyExists = this.resource.cars.find(c => c.id === Number(carId))
+      if (alreadyExists) {
+        this.$store.dispatch('alert', { type: 'warning', text: this.$t('Auto bereits bei diesem Kunde vorhanden') })
+        return
+      }
+
       const alreayUsed = this.usedCarIds.includes(Number(carId))
       if (alreayUsed) {
         const add = await this.confirmOverfill({
@@ -255,7 +268,7 @@ export default {
         this.resource.cars.push(data)
       }).catch(error => {
         if (error.includes('Car already exists fot that day and customer')) {
-          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Auto bereits vorhanden') })
+          this.$store.dispatch('alert', { type: 'warning', text: this.$t('Auto bereits bei diesem Kunde vorhanden') })
         } else {
           this.$store.dispatch('error', this.$t('Auto konnte nicht zu Kunde hinzugefügt werden'))
         }

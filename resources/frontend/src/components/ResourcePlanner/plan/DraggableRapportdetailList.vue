@@ -62,12 +62,6 @@ export default {
     add(value) {
       const { employeeId } = value.item.dataset
 
-      const alreadyExists = this.value.find(v => v.employee.id === Number(employeeId))
-      if (alreadyExists) {
-        this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits vorhanden') })
-        return
-      }
-
       this.$emit('add', employeeId)
     },
     remove(value) {
