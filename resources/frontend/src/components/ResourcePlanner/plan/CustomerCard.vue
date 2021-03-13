@@ -180,7 +180,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['activeEmployees', 'tools']),
+    ...mapGetters(['activeEmployees', 'tools', 'cars']),
 
     customer() {
       return this.resource.customer
@@ -266,6 +266,11 @@ export default {
         })
 
         if (!add) return
+      }
+
+      const car = this.cars.find(c => c.id === Number(carId))
+      if (car.important_comment) {
+        this.$swal(this.$t('Achtung'), car.important_comment)
       }
 
       this.axios.$post(`resources/${this.resource.id}/cars/${carId}`).then(({ data }) => {

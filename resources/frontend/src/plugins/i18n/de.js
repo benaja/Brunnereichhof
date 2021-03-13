@@ -67,5 +67,6 @@ export default {
   'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?': 'Willst du die Planung für diesen Tag wirklich wieder bearbeiten?',
   'Ja, Bearbeiten': 'Ja, Bearbeiten',
   Startzeit: 'Startzeit',
-  Endzeit: 'Endzeit'
+  Endzeit: 'Endzeit',
+  Achtung: 'Achtung'
 }
