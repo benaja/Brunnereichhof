@@ -68,5 +68,7 @@ export default {
   'Ja, Bearbeiten': 'Ja, Bearbeiten',
   Startzeit: 'Startzeit',
   Endzeit: 'Endzeit',
-  Achtung: 'Achtung'
+  Achtung: 'Achtung',
+  Stunden: 'Stunden',
+  Projekt: 'Projekt'
 }

@@ -2,13 +2,14 @@
   <draggable
     :value="internalValue"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
-    :data-customer-id="customerId"
+    :data-customer-id="customer.id"
     @add="add"
     @remove="remove"
   >
     <rapportdetail-card
       v-for="rapportdetail of internalValue"
       :key="rapportdetail.id"
+      :customer="customer"
       :value="rapportdetail"
     ></rapportdetail-card>
   </draggable>
@@ -29,9 +30,9 @@ export default {
       type: Array,
       default: () => []
     },
-    customerId: {
-      type: Number,
-      default: null
+    customer: {
+      type: Object,
+      required: true
     },
     selectedEmployeeIds: {
       type: Array,

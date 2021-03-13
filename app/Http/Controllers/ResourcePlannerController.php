@@ -31,7 +31,7 @@ class ResourcePlannerController extends Controller
         }
 
         $resources = Resource::where('date', $date)
-            ->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer'])
+            ->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer.projects'])
             ->join('customer', 'customer.id', '=', 'resources.customer_id')
             ->orderBy('customer.lastname')
             ->select('resources.*')

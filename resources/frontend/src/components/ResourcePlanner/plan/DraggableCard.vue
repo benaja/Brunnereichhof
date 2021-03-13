@@ -5,7 +5,7 @@
     >
       <div
         class="drag-item-container"
-        :class="[color]"
+        :class="[color, {flex: !noFlex}]"
       >
         <slot>
           <slot name="name">
@@ -37,6 +37,10 @@ export default {
     color: {
       type: String,
       default: null
+    },
+    noFlex: {
+      type: Boolean,
+      default: false
     }
   }
 }
@@ -48,11 +52,14 @@ export default {
 }
 
 .drag-item-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 4px 2px 2px 2px;
   width: 100%;
+
+  &.flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .profile-image {

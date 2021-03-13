@@ -41,7 +41,8 @@
         <v-row>
           <v-col
             cols="12"
-            md="6"
+            lg="7"
+            xl="8"
           >
             <p class="ma-0">
               {{ $t('Mitarbeiter') }}
@@ -49,7 +50,7 @@
             <draggable-rapportdetail-list
               v-model="resource.rapportdetails"
               class="employees draggable-list"
-              :customer-id="customer.id"
+              :customer="customer"
               :selected-employee-ids="selectedEmployeeIds"
               @add="addEmployee"
               @remove="removeEmployee"
@@ -57,7 +58,8 @@
           </v-col>
           <v-col
             cols="12"
-            md="6"
+            lg="5"
+            xl="4"
           >
             <p class="ma-0">
               {{ $t('Autos') }}

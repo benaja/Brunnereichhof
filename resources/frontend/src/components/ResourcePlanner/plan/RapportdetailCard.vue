@@ -2,9 +2,35 @@
   <draggable-card
     :data-rapportdetail-id="value.id"
     :data-employee-id="employee.id"
-    class="teal lighten-5"
+    class="teal lighten-5 mb-2"
+    no-flex
   >
-    <employee-card-content :employee="employee"></employee-card-content>
+    <div class="info-container">
+      <employee-card-content :employee="employee"></employee-card-content>
+    </div>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="4"
+      >
+        <v-text-field
+          dense
+          :label="$t('Stunden')"
+        ></v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+        lg="8"
+      >
+        <v-select
+          :label="$t('Projekt')"
+          :items="customer.projects"
+          item-value="id"
+          item-text="name"
+          dense
+        ></v-select>
+      </v-col>
+    </v-row>
   </draggable-card>
 </template>
 
@@ -21,6 +47,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    customer: {
+      type: Object,
+      required: true
     }
   },
   computed: {
@@ -31,6 +61,10 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.info-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 </style>
