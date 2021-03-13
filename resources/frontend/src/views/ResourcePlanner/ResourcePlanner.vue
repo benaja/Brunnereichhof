@@ -117,6 +117,7 @@
                 :selected-employee-ids="allSelectedEmployeeIds"
                 :used-car-ids="usedCarIds"
                 :available-tools="availableTools"
+                :amount-of-use-per-tool="amountOfUsePerTool"
                 @remove="removeResource(resource)"
               ></customer-card>
             </v-expansion-panels>
@@ -175,7 +176,7 @@ export default {
     amountOfUsePerTool() {
       return this.resources.flatMap(r => r.tools)
         .reduce((prev, curr) => {
-          prev[curr.id] = prev[curr.id] ? prev[curr.id] + 1 : 1
+          prev[curr.id] = prev[curr.id] ? prev[curr.id] + curr.pivot.amount : curr.pivot.amount
           return prev
         }, {})
     },

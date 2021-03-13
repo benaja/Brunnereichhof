@@ -51,7 +51,7 @@ export default {
   'Auto konnte nicht von Kunde entfernt werden': 'Auto konnte nicht von Kunde entfernt werden',
   'Kunde konnte nicht entfernt werden': 'Kunde konnte nicht entfernt werden',
   'Werkzeug aufgebraucht': 'Werkzeug aufgebraucht',
-  'Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?': 'Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?',
+  'Die Anzahl dieses Werkzeugs ist aufgebraucht. Möchtest du es trotzdem hinzufügen?': 'Die Anzahl dieses Werkzeugs ist aufgebraucht. Möchtest du es trotzdem hinzufügen?',
   'Werkzeug bereits vorhanden': 'Werkzeug bereits vorhanden',
   'Werkzeug konnte nicht zu Kunde hinzugefügt werden': 'Werkzeug konnte nicht zu Kunde hinzugefügt werden',
   'Werkzeug konnte nicht von Kunde entfernt werden': 'Werkzeug konnte nicht von Kunde entfernt werden',

@@ -172,11 +172,15 @@ export default {
     availableTools: {
       type: Array,
       default: () => []
+    },
+    amountOfUsePerTool: {
+      type: Object,
+      default: () => ({})
     }
   },
 
   computed: {
-    ...mapGetters(['activeEmployees']),
+    ...mapGetters(['activeEmployees', 'tools']),
 
     customer() {
       return this.resource.customer
@@ -301,15 +305,8 @@ export default {
     },
 
     async addTool(toolId, amount = 1) {
-      const free = this.availableTools.find(t => t.id === Number(toolId))
-      if (!free) {
-        const add = await this.confirmOverfill({
-          title: this.$t('Werkzeug aufgebraucht'),
-          text: this.$t('Dieses Werkzeug wird bereits bei anderen Kunden verwendet. Möchtest du es trotzdem zu diesem Kunden hinzufügen?')
-        })
-
-        if (!add) return
-      }
+      const free = await this.isToolFree(Number(toolId), Number(amount))
+      if (!free) return
 
       this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`, {
         amount
@@ -358,8 +355,11 @@ export default {
       return Number(from.el.dataset.customerId) !== this.customer.id
     },
 
-    increaseTool(tool) {
-      this.updateTool(tool, tool.pivot.amount + 1)
+    async increaseTool(tool) {
+      const free = await this.isToolFree(tool.id)
+      if (free) {
+        this.updateTool(tool, tool.pivot.amount + 1)
+      }
     },
 
     decreaseTool(tool) {
@@ -390,6 +390,19 @@ export default {
       })
 
       return value
+    },
+
+    async isToolFree(toolId, amount = 1) {
+      const tool = this.tools.find(t => t.id === toolId)
+
+      if (this.amountOfUsePerTool[toolId] + amount <= tool.amount) return true
+
+      const add = await this.confirmOverfill({
+        title: this.$t('Werkzeug aufgebraucht'),
+        text: this.$t('Die Anzahl dieses Werkzeugs ist aufgebraucht. Möchtest du es trotzdem hinzufügen?')
+      })
+
+      return add
     }
   }
 }
