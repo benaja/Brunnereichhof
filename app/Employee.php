@@ -35,7 +35,7 @@ class Employee extends Model
         'function'
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image'];
+    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url'];
 
     protected $dates = ['entryDate'];
 
@@ -104,6 +104,11 @@ class Employee extends Model
     }
 
     public function getProfileimageUrl()
+    {
+        return $this->profileImageUrl($this->profileimage);
+    }
+
+    public function getProfileimageUrlAttribute()
     {
         return $this->profileImageUrl($this->profileimage);
     }

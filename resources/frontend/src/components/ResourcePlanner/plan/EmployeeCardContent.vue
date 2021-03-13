@@ -15,19 +15,22 @@
         >{{ index !== 0 ? ', ' : '' }}{{ language.name }}</span>
       </p>
     </div>
-    <div
-      v-if="employee.small_profile_image"
-      class="profile-image"
-      :style="{ backgroundImage: `url(${employee.small_profile_image})`}"
-    >
-    </div>
+    <avatar-image
+      :avatar="employee.small_profile_image"
+      :image="employee.profileimage_url"
+    ></avatar-image>
   </fragment>
 </template>
 
 <script>
 import { employeeFunctions } from '@/utils'
+import AvatarImage from './AvatarImage'
 
 export default {
+  components: {
+    AvatarImage
+  },
+
   props: {
     employee: {
       type: Object,
@@ -44,12 +47,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.profile-image {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-  flex-shrink: 0;
-}
 </style>
