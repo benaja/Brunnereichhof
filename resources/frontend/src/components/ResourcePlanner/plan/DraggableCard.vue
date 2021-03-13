@@ -1,7 +1,12 @@
 <template>
-  <div>
-    <v-list-item class="drag-item">
-      <div class="drag-item-container">
+  <div class="mb-1">
+    <v-list-item
+      class="drag-item"
+    >
+      <div
+        class="drag-item-container"
+        :class="[color]"
+      >
         <slot>
           {{ name }}
           <div
@@ -13,7 +18,6 @@
         </slot>
       </div>
     </v-list-item>
-    <v-divider></v-divider>
   </div>
 </template>
 
@@ -27,6 +31,10 @@ export default {
     image: {
       type: String,
       default: null
+    },
+    color: {
+      type: String,
+      default: null
     }
   }
 }
@@ -34,7 +42,6 @@ export default {
 
 <style lang="scss" scoped>
 .drag-item {
-  background-color: white;
   cursor: pointer;
 }
 
@@ -44,7 +51,6 @@ export default {
   justify-content: space-between;
   padding: 4px 2px 2px 2px;
   width: 100%;
-  background-color: white;
 }
 
 .profile-image {

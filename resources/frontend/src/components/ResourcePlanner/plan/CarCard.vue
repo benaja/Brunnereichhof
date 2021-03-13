@@ -3,6 +3,7 @@
     :data-car-id="car.id"
     :name="car.name"
     :image="car.small_image"
+    class="blue lighten-5"
   ></draggable-card>
 </template>
 

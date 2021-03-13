@@ -2,6 +2,7 @@
   <draggable-card
     :data-tool-id="tool.id"
     :name="tool.name"
+    class="orange lighten-5"
   >
     <div class="d-flex align-center justify-space-between tool-container">
       <p class="mb-0">

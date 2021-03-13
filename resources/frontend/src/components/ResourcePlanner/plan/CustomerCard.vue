@@ -18,18 +18,18 @@
                 <span
                   v-for="(rapportdetail, index) of resource.rapportdetails"
                   :key="'r'+rapportdetail.id"
-                  class="mb-1"
+                  class="mb-1 teal--text text--darken-2"
                 >{{ index !== 0 ? ',' : '' }}
                   {{ rapportdetail.employee.lastname }}
                   {{ rapportdetail.employee.firstname }}</span><span
                   v-for="(car) of resource.cars"
                   :key="'c' +car.id"
-                  class="mb-1"
+                  class="mb-1 blue--text text--darken-2"
                 >, {{ car.name }}</span><span
                   v-for="(tool) of resource.tools"
                   :key="'t'+tool.id"
-                  class="mb-1"
-                >, {{ tool.name }}
+                  class="mb-1 orange--text text--darken-2"
+                >, {{ tool.pivot.amount > 1 ? tool.pivot.amount + 'x' : '' }} {{ tool.name }}
                 </span>
               </p>
             </div>
