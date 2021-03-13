@@ -3,6 +3,7 @@
     :value="internalValue"
     :data-customer-id="customerId"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
+    :disabled="disabled"
     @add="add"
     @remove="remove"
   >
@@ -35,6 +36,10 @@ export default {
     usedCarIds: {
       type: Array,
       default: () => []
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

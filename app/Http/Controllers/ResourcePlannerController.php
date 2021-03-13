@@ -44,14 +44,12 @@ class ResourcePlannerController extends Controller
         return JsonResource::make($resourceDay);
     }
 
-    public function store(Request $request)
+    public function store(ResourcePlannerDay $resourcePlannerDay, Request $request)
     {
         $data = $this->validate($request, [
-            'date' => ['required', 'date'],
             'customer_id' => ['required', 'integer', 'exists:customer,id']
         ]);
-        $date = Carbon::parse($data['date']);
-        $firstDayOfWeek = $date->clone()->weekday(0);
+        $firstDayOfWeek = $resourcePlannerDay->date->clone()->weekday(0);
 
         $customer = Customer::find($data['customer_id']);
 
@@ -67,11 +65,12 @@ class ResourcePlannerController extends Controller
         }
 
         $resource = Resource::create([
-            'date' => $date,
+            'date' => $resourcePlannerDay->date,
             'customer_id' => $customer->id,
             'rapport_id' => $rapport->id,
             'start_time' => Settings::value('resourcePlannerStartTime'),
-            'end_time' => Settings::value('resourcePlannerEndTime')
+            'end_time' => Settings::value('resourcePlannerEndTime'),
+            'resource_planner_day_id' => $resourcePlannerDay->id
         ]);
 
         $resource->load(['rapportdetails.employee.languages', 'cars', 'tools', 'customer']);

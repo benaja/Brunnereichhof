@@ -14,6 +14,7 @@
         class="d-flex align-center"
       >
         <v-btn
+          v-if="!disabled"
           icon
           color="red"
           @click="$emit('remove', tool)"
@@ -22,6 +23,7 @@
         </v-btn>
         <span>{{ tool.pivot.amount }}</span>
         <v-btn
+          v-if="!disabled"
           icon
           color="green"
           @click="$emit('add', tool)"
@@ -46,6 +48,10 @@ export default {
       required: true
     },
     withPivot: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

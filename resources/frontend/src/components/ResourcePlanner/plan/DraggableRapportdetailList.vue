@@ -3,6 +3,7 @@
     :value="internalValue"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
     :data-customer-id="customer.id"
+    :disabled="disabled"
     @add="add"
     @remove="remove"
   >
@@ -11,6 +12,7 @@
       :key="rapportdetail.id"
       :customer="customer"
       :value="rapportdetail"
+      :disabled="disabled"
     ></rapportdetail-card>
   </draggable>
 </template>
@@ -37,6 +39,10 @@ export default {
     selectedEmployeeIds: {
       type: Array,
       default: () => []
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

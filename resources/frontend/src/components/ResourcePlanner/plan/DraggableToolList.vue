@@ -3,6 +3,7 @@
     :value="internalValue"
     :data-customer-id="customerId"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
+    :disabled="disabled"
     @add="add"
     @remove="remove"
   >
@@ -11,6 +12,7 @@
       :key="tool.id"
       :tool="tool"
       :with-pivot="withPivot"
+      :disabled="disabled"
       @add="addOne"
       @remove="removeOne"
     ></tool-card>
@@ -40,6 +42,10 @@ export default {
       default: () => []
     },
     withPivot: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

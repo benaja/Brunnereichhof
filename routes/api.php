@@ -141,5 +141,6 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('resources/{resource}/tools/{tool}', 'ResourcePlannerController@addTool');
     Route::delete('resources/{resource}/tools/{tool}', 'ResourcePlannerController@removeTool');
     Route::patch('planner-day/{resourcePlannerDay}', 'ResourcePlannerController@updatePlannerDay');
+    Route::post('planner-day/{resourcePlannerDay}/customers', 'ResourcePlannerController@store');
     Route::patch('resources/{resource}/tools/{tool}', 'ResourcePlannerController@updateToolsPivot');
 });

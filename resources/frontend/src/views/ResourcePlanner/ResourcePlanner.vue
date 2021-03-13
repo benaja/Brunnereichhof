@@ -102,6 +102,7 @@
           :xl="isCompleted ? 12 : 8"
         >
           <select-customer
+            v-if="!isCompleted"
             :selected-customers="selectedCustomers"
             @input="addCustomer"
           ></select-customer>
@@ -125,6 +126,7 @@
                 :used-car-ids="usedCarIds"
                 :available-tools="availableTools"
                 :amount-of-use-per-tool="amountOfUsePerTool"
+                :disabled="isCompleted"
                 @remove="removeResource(resource)"
               ></customer-card>
             </v-expansion-panels>
@@ -203,7 +205,7 @@ export default {
       })
     },
     isCompleted() {
-      return this.plannerDay && this.plannerDay.completed
+      return !!(this.plannerDay && this.plannerDay.completed)
     }
   },
   watch: {
@@ -222,13 +224,12 @@ export default {
     addCustomer(customerId) {
       if (this.resources.find(r => r.customer.id === customerId)) return
 
-      this.axios.$post('resources', {
-        customer_id: customerId,
-        date: this.date
+      this.axios.$post(`planner-day/${this.plannerDay.id}/customers`, {
+        customer_id: customerId
       }).then(() => {
         this.fetchResources()
       }).catch(() => {
-        this.$dispatch('error', this.$t('Kunde konnte nicht hinzugefügt werden'))
+        this.$store.dispatch('error', this.$t('Kunde konnte nicht hinzugefügt werden'))
       })
     },
     async fetchResources() {

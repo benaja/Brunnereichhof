@@ -4,6 +4,7 @@
       :value="[]"
       :group="{ name: 'resource-planner', put: canPut, pull: false }"
       :data-customer-id="customer.id"
+      :disabled="disabled"
       @add="add"
     >
       <v-expansion-panel-header v-slot="{ open }">
@@ -64,6 +65,7 @@
               class="employees draggable-list"
               :customer="customer"
               :selected-employee-ids="selectedEmployeeIds"
+              :disabled="disabled"
               @add="addEmployee"
               @remove="removeEmployee"
             ></draggable-rapportdetail-list>
@@ -80,6 +82,7 @@
               v-model="resource.cars"
               :customer-id="customer.id"
               :used-car-ids="usedCarIds"
+              :disabled="disabled"
               class="cars draggable-list"
               @add="addCar"
               @remove="removeCar"
@@ -91,6 +94,7 @@
               v-model="resource.tools"
               :customer-id="customer.id"
               :available-tools="availableTools"
+              :disabled="disabled"
               with-pivot
               class="tools draggable-list"
               @add="addTool"
@@ -108,6 +112,7 @@
           >
             <time-text-field
               v-model="resource.start_time"
+              :disabled="disabled"
               :label="$t('Startzeit')"
               @input="debounceUpdate('start_time', $event)"
             ></time-text-field>
@@ -120,6 +125,7 @@
             <time-text-field
               v-model="resource.end_time"
               :label="$t('Endzeit')"
+              :disabled="disabled"
               @input="debounceUpdate('end_time', $event)"
             ></time-text-field>
           </v-col>
@@ -130,6 +136,7 @@
               v-model="resource.comment"
               auto-grow
               :rows="1"
+              :disabled="disabled"
               label="Kommentar"
               @input="debounceUpdate('comment', $event)"
             ></v-textarea>
@@ -166,6 +173,7 @@ export default {
     Draggable,
     TimeTextField
   },
+
   props: {
     resource: {
       type: Object,
@@ -190,6 +198,10 @@ export default {
     amountOfUsePerTool: {
       type: Object,
       default: () => ({})
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
