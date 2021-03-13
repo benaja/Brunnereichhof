@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     add(value) {
-      const { toolId } = value.item.dataset
+      const { toolId, toolAmount } = value.item.dataset
 
       const free = this.availableTools.find(t => t.id === Number(toolId))
       const toCustomerId = value.to.dataset.customerId
@@ -75,11 +75,11 @@ export default {
           icon: 'warning'
         }).then(result => {
           if (result.value) {
-            this.addTool(toolId)
+            this.addTool(toolId, toolAmount)
           }
         })
       } else {
-        this.addTool(toolId)
+        this.addTool(toolId, toolAmount)
       }
     },
 
@@ -104,12 +104,12 @@ export default {
       this.$emit('decrease', tool)
     },
 
-    addTool(toolId) {
+    addTool(toolId, amount) {
       const alreadyExists = this.value.find(t => t.id === Number(toolId))
       if (alreadyExists) {
-        this.$emit('increase', alreadyExists)
+        this.$emit('increase', alreadyExists, amount)
       } else {
-        this.$emit('add', toolId)
+        this.$emit('add', toolId, amount)
       }
     }
   }

@@ -1,6 +1,7 @@
 <template>
   <draggable-card
     :data-tool-id="tool.id"
+    :data-tool-amount="tool.pivot && tool.pivot.amount"
     :name="tool.name"
     class="orange lighten-5"
   >

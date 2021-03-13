@@ -256,10 +256,12 @@ export default {
         }
       })
     },
-    addTool(toolId) {
-      this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`).then(({ data }) => {
+    addTool(toolId, amount = 1) {
+      this.axios.$post(`resources/${this.resource.id}/tools/${toolId}`, {
+        amount
+      }).then(({ data }) => {
         data.pivot = {
-          amount: 1
+          amount
         }
         this.resource.tools.push(data)
       }).catch(error => {
@@ -289,7 +291,7 @@ export default {
         if (alreadyExists) {
           this.increaseTool(alreadyExists)
         } else {
-          this.addTool(data.toolId)
+          this.addTool(data.toolId, data.toolAmount)
         }
       } else if (data.employeeId) {
         this.addEmployee(data.employeeId)

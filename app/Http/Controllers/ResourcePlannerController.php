@@ -132,8 +132,12 @@ class ResourcePlannerController extends Controller
         $resource->cars()->detach($car);
     }
 
-    public function addTool(Resource $resource, Tool $tool) {
-        $resource->tools()->attach($tool);
+    public function addTool(Resource $resource, Tool $tool, Request $request) {
+        $data = $this->validate($request, [
+            'amount' => ['integer']
+        ]);
+
+        $resource->tools()->attach($tool, $data);
         return  ToolResource::make($tool);
     }
 
