@@ -52,14 +52,12 @@
         </template>
       </v-data-table>
 
-      <!-- Add Tool -->
       <v-dialog
         v-model="addCar"
         width="900"
       >
         <template v-slot:activator="{ on }">
           <v-btn
-            v-if="$auth.user().hasPermission(['superadmin'], ['tools_edit'])"
             fixed
             bottom
             right
@@ -78,7 +76,6 @@
         />
       </v-dialog>
 
-      <!-- Edit Tool -->
       <v-dialog
         :value="!!editCar"
         width="900"

@@ -48,7 +48,6 @@
       >
         <template v-slot:activator="{ on }">
           <v-btn
-            v-if="$auth.user().hasPermission(['superadmin'], ['tools_edit'])"
             fixed
             bottom
             right
