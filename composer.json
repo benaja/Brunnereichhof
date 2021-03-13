@@ -24,6 +24,7 @@
     "league/flysystem-aws-s3-v3": "^1.0",
     "maatwebsite/excel": "^3.1",
     "setasign/fpdi": "^2.3",
+    "spatie/laravel-activitylog": "^3.17",
     "tecnickcom/tcpdf": "^6.3",
     "tymon/jwt-auth": "^1.0"
   },
