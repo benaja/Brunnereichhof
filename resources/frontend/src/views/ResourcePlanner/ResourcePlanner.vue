@@ -11,7 +11,7 @@
       ></select-day>
       <template v-if="resources.length">
         <v-btn
-          v-if="!finished"
+          v-if="!isCompleted"
           color="primary"
           depressed
           @click="finish(true)"
@@ -40,7 +40,7 @@
     >
       <v-row no-gutters>
         <v-col
-          v-if="!finished"
+          v-if="!isCompleted"
           cols="12"
           md="6"
           lg="5"
@@ -97,9 +97,9 @@
         </v-col>
         <v-col
           cols="12"
-          :md="finished ? 12 : 6"
-          :lg="finished ? 12 : 7"
-          :xl="finished ? 12 : 8"
+          :md="isCompleted ? 12 : 6"
+          :lg="isCompleted ? 12 : 7"
+          :xl="isCompleted ? 12 : 8"
         >
           <select-customer
             :selected-customers="selectedCustomers"
@@ -168,7 +168,8 @@ export default {
       customerSearchString: null,
       filteredEmployees: [],
       filteredCars: [],
-      filteredTools: []
+      filteredTools: [],
+      plannerDay: null
     }
   },
   computed: {
@@ -201,8 +202,8 @@ export default {
           || customerName.toLowerCase().includes(this.customerSearchString.toLowerCase())
       })
     },
-    finished() {
-      return this.resources.length && this.resources[0].completed
+    isCompleted() {
+      return this.plannerDay && this.plannerDay.completed
     }
   },
   watch: {
@@ -232,7 +233,8 @@ export default {
     },
     async fetchResources() {
       const { data } = await this.axios.$get('resources', { params: { date: this.date } })
-      this.resources = data
+      this.resources = data.resources
+      this.plannerDay = data
     },
     removeResource(resource) {
       const index = this.resources.indexOf(resource)
@@ -259,13 +261,14 @@ export default {
         yes ? this.$t('Ja, Abschliessen') : this.$t('Ja, Bearbeiten')
       ).then(value => {
         if (value) {
-          this.axios.$post('resources/finish', {
-            date: this.date,
+          this.axios.$patch(`planner-day/${this.plannerDay.id}`, {
+            history_enabled: this.plannerDay.history_enabled || yes,
             completed: yes
           }).catch(() => {
             this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
           }).then(() => {
-            this.fetchResources()
+            this.plannerDay.history_enabled = this.plannerDay.history_enabled || yes
+            this.plannerDay.completed = yes
           })
         }
       })

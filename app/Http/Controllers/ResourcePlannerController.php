@@ -13,10 +13,12 @@ use App\Http\Resources\ToolResource;
 use App\Rapport;
 use App\Rapportdetail;
 use App\Resource;
+use App\ResourcePlannerDay;
 use App\Settings;
 use App\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 
 class ResourcePlannerController extends Controller
@@ -30,14 +32,16 @@ class ResourcePlannerController extends Controller
             $date = Carbon::now();
         }
 
-        $resources = Resource::where('date', $date)
-            ->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer.projects'])
-            ->join('customer', 'customer.id', '=', 'resources.customer_id')
-            ->orderBy('customer.lastname')
-            ->select('resources.*')
-            ->get();
+        $resourceDay = ResourcePlannerDay::firstOrCreate(['date' => $date]);
 
-        return ResourceResource::collection($resources);
+        $resourceDay->load(['resources' => function ($query) {
+            $query->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer.projects'])
+                ->join('customer', 'customer.id', '=', 'resources.customer_id')
+                ->orderBy('customer.lastname')
+                ->select('resources.*');
+        }]);
+
+        return JsonResource::make($resourceDay);
     }
 
     public function store(Request $request)
@@ -151,15 +155,13 @@ class ResourcePlannerController extends Controller
         $resource->tools()->detach($tool);
     }
 
-    public function finish(Request $request) {
+    public function updatePlannerDay(ResourcePlannerDay $resourcePlannerDay, Request $request) {
         $data = $this->validate($request, [
-            'date' => ['required', 'date'],
-            'completed'=> ['required', 'boolean']
+            'completed'=> ['required', 'boolean'],
+            'history_enabled'=> ['required', 'boolean']
         ]);
-        $date = Carbon::parse($data['date']);
 
-        Resource::where('date', $data)
-            ->update(['completed' => $data['completed']]);
+        $resourcePlannerDay->update($data);
     }
 
     public function updateToolsPivot(Resource $resource, Tool $tool, Request $request) {
