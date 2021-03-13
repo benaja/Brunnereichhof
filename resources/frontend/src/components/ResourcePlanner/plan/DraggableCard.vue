@@ -11,12 +11,10 @@
           <slot name="name">
             {{ name }}
           </slot>
-          <div
-            v-if="image"
-            class="profile-image"
-            :style="{ backgroundImage: `url(${image})`}"
-          >
-          </div>
+          <avatar-image
+            :avatar="avatar"
+            :image="image"
+          ></avatar-image>
         </slot>
       </div>
     </v-list-item>
@@ -24,9 +22,18 @@
 </template>
 
 <script>
+import AvatarImage from './AvatarImage'
+
 export default {
+  components: {
+    AvatarImage
+  },
   props: {
     name: {
+      type: String,
+      default: null
+    },
+    avatar: {
       type: String,
       default: null
     },
