@@ -70,5 +70,6 @@ export default {
   Endzeit: 'Endzeit',
   Achtung: 'Achtung',
   Stunden: 'Stunden',
-  Projekt: 'Projekt'
+  Projekt: 'Projekt',
+  'Nicht genügend Sitzplätze in den Autos vorhanden': 'Nicht genügend Sitzplätze in den Autos vorhanden'
 }

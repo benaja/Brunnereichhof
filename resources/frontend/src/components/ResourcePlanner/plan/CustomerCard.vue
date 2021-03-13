@@ -11,29 +11,41 @@
           <div
             class="d-flex justify-space-between "
           >
-            <div class="d-flex flex-wrap">
-              <p class="mr-2 h3 mb-1">
-                <span class="font-bold title">{{ customer.lastname }}
-                  {{ customer.firstname }}{{ resource.rapportdetails.length ? ':': '' }}</span>
+            <p class="mr-2 h3 mb-1">
+              <span class="font-bold title">{{ customer.lastname }}
+                {{ customer.firstname }}{{ resource.rapportdetails.length ? ':': '' }}</span>
 
-                <span
-                  v-for="(rapportdetail, index) of resource.rapportdetails"
-                  :key="'r'+rapportdetail.id"
-                  class="mb-1 teal--text text--darken-2"
-                >{{ index !== 0 ? ',' : '' }}
-                  {{ rapportdetail.employee.lastname }}
-                  {{ rapportdetail.employee.firstname }}</span><span
-                  v-for="(car) of resource.cars"
-                  :key="'c' +car.id"
-                  class="mb-1 blue--text text--darken-2"
-                >, {{ car.name }}</span><span
-                  v-for="(tool) of resource.tools"
-                  :key="'t'+tool.id"
-                  class="mb-1 orange--text text--darken-2"
-                >, {{ tool.pivot.amount > 1 ? tool.pivot.amount + 'x' : '' }} {{ tool.name }}
-                </span>
-              </p>
-            </div>
+              <span
+                v-for="(rapportdetail, index) of resource.rapportdetails"
+                :key="'r'+rapportdetail.id"
+                class="mb-1 teal--text text--darken-2"
+              >{{ index !== 0 ? ',' : '' }}
+                {{ rapportdetail.employee.lastname }}
+                {{ rapportdetail.employee.firstname }}</span><span
+                v-for="(car) of resource.cars"
+                :key="'c' +car.id"
+                class="mb-1 blue--text text--darken-2"
+              >, {{ car.name }}</span><span
+                v-for="(tool) of resource.tools"
+                :key="'t'+tool.id"
+                class="mb-1 orange--text text--darken-2"
+              >, {{ tool.pivot.amount > 1 ? tool.pivot.amount + 'x' : '' }} {{ tool.name }}
+              </span>
+            </p>
+            <v-tooltip
+              v-if="moreEmployeesAsCars"
+              top
+            >
+              <template v-slot:activator="{ on }">
+                <v-icon
+                  color="red"
+                  v-on="on"
+                >
+                  info
+                </v-icon>
+              </template>
+              <span>{{ $t('Nicht genügend Sitzplätze in den Autos vorhanden') }}</span>
+            </v-tooltip>
           </div>
         </div>
       </v-expansion-panel-header>
@@ -188,15 +200,6 @@ export default {
       return this.resource.customer
     },
 
-    employees: {
-      get() {
-        return this.resource.rapportdetails || []
-      },
-      set() {
-
-      }
-    },
-
     debounceUpdate() {
       return this._.debounce((key, value) => {
         this.axios.put(`resources/${this.resource.id}`, {
@@ -205,6 +208,12 @@ export default {
           this.$store.dispatch('error', this.$t('Änderungen konnten nicht gespeichert werden'))
         })
       }, 500)
+    },
+
+    moreEmployeesAsCars() {
+      const carSeats = this.resource.cars.reduce((seats, car) => seats + car.seats, 0)
+
+      return carSeats < this.resource.rapportdetails.length
     }
   },
 
