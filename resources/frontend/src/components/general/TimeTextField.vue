@@ -22,28 +22,28 @@ export default {
 
   watch: {
     internalValue() {
-      const time = this.$moment(this.internalValue, 'hh:mm')
+      const time = this.$moment(this.internalValue, 'HH:mm')
       if (time.isValid()) {
-        this.$emit('input', time.format('hh:mm'))
+        this.$emit('input', time.format('HH:mm'))
       }
     },
     value() {
-      const newTime = this.$moment(this.value, 'hh:mm')
-      const time = this.$moment(this.internalValue, 'hh:mm')
+      const newTime = this.$moment(this.value, 'HH:mm')
+      const time = this.$moment(this.internalValue, 'HH:mm')
 
       // only update internal time, when new time is different
       if (time.isValid()
         && (newTime.minutes() !== time.minutes() || newTime.seconds() !== time.seconds())) {
-        this.internalValue = time.format('hh:mm')
+        this.internalValue = time.format('HH:mm')
       }
     }
   },
 
   mounted() {
     if (this.value) {
-      const time = this.$moment(this.value, 'hh:mm')
+      const time = this.$moment(this.value, 'HH:mm')
       if (time.isValid()) {
-        this.internalValue = time.format('hh:mm')
+        this.internalValue = time.format('HH:mm')
       }
     }
   }

@@ -13,6 +13,7 @@ use App\Http\Resources\ToolResource;
 use App\Rapport;
 use App\Rapportdetail;
 use App\Resource;
+use App\Settings;
 use App\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -61,7 +62,9 @@ class ResourcePlannerController extends Controller
         $resource = Resource::create([
             'date' => $date,
             'customer_id' => $customer->id,
-            'rapport_id' => $rapport->id
+            'rapport_id' => $rapport->id,
+            'start_time' => Settings::value('resourcePlannerStartTime'),
+            'end_time' => Settings::value('resourcePlannerEndTime')
         ]);
 
         $resource->load(['rapportdetails.employee', 'cars', 'tools', 'customer']);
