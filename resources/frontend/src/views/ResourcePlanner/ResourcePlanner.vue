@@ -34,12 +34,17 @@
         </v-btn>
       </template>
     </navigation-bar>
-    <v-container class="pb-0">
+    <v-container
+      fluid
+      class="pb-0"
+    >
       <v-row no-gutters>
         <v-col
           v-if="!finished"
           cols="12"
           md="6"
+          lg="5"
+          xl="4"
           class="pr-5"
         >
           <v-tabs v-model="selectedTab">
@@ -93,6 +98,8 @@
         <v-col
           cols="12"
           :md="finished ? 12 : 6"
+          :lg="finished ? 12 : 7"
+          :xl="finished ? 12 : 8"
         >
           <select-customer
             :selected-customers="selectedCustomers"

@@ -2,18 +2,20 @@
   <draggable-card
     :data-rapportdetail-id="value.id"
     :data-employee-id="employee.id"
-    :name="`${employee.lastname} ${employee.firstname}`"
-    :image="employee.small_profile_image"
     class="teal lighten-5"
-  ></draggable-card>
+  >
+    <employee-card-content :employee="employee"></employee-card-content>
+  </draggable-card>
 </template>
 
 <script>
 import DraggableCard from './DraggableCard'
+import EmployeeCardContent from './EmployeeCardContent'
 
 export default {
   components: {
-    DraggableCard
+    DraggableCard,
+    EmployeeCardContent
   },
   props: {
     value: {

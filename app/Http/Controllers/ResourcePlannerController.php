@@ -31,7 +31,7 @@ class ResourcePlannerController extends Controller
         }
 
         $resources = Resource::where('date', $date)
-            ->with(['rapportdetails.employee', 'cars', 'tools', 'customer'])
+            ->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer'])
             ->join('customer', 'customer.id', '=', 'resources.customer_id')
             ->orderBy('customer.lastname')
             ->select('resources.*')
@@ -70,7 +70,7 @@ class ResourcePlannerController extends Controller
             'end_time' => Settings::value('resourcePlannerEndTime')
         ]);
 
-        $resource->load(['rapportdetails.employee', 'cars', 'tools', 'customer']);
+        $resource->load(['rapportdetails.employee.languages', 'cars', 'tools', 'customer']);
 
         return ResourceResource::make($resource);
     }
@@ -119,7 +119,7 @@ class ResourcePlannerController extends Controller
             'resource_id' => $resource->id
         ]);
 
-        $rapportdetail->load('employee');
+        $rapportdetail->load('employee.languages');
 
         return RapportdetailResource::make($rapportdetail);
     }
