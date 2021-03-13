@@ -48,7 +48,7 @@
             </p>
             <draggable-rapportdetail-list
               v-model="resource.rapportdetails"
-              class="employees"
+              class="employees draggable-list"
               :customer-id="customer.id"
               :selected-employee-ids="selectedEmployeeIds"
               @add="addEmployee"
@@ -66,7 +66,7 @@
               v-model="resource.cars"
               :customer-id="customer.id"
               :used-car-ids="usedCarIds"
-              class="cars"
+              class="cars draggable-list"
               @add="addCar"
               @remove="removeCar"
             ></draggable-car-list>
@@ -78,7 +78,7 @@
               :customer-id="customer.id"
               :available-tools="availableTools"
               with-pivot
-              class="tools"
+              class="tools draggable-list"
               @add="addTool"
               @remove="removeTool"
               @decrease="decreaseTool"
@@ -402,24 +402,21 @@ export default {
 }
 
 .employees {
-  background-color: rgb(232, 232, 232);
-  min-height: 110px;
+  min-height: 125px;
 }
 
 .cars {
-  min-height: 50px;
+  min-height: 45px;
   margin-bottom: 10px;
-  background-color: rgb(232, 232, 232);
 }
 
 .tools {
-  min-height: 50px;
-  background-color: rgb(232, 232, 232);
+  min-height: 45px;
 }
 
-.test-container {
-  background-color: lightgray;
-  min-height: 50px;
+.draggable-list {
+  background-color: white;
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
 }
 </style>
 

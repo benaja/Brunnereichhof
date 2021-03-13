@@ -2,7 +2,6 @@
   <draggable
     :value="internalValue"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
-    class="elevation-1"
     :data-customer-id="customerId"
     @add="add"
     @remove="remove"
@@ -18,7 +17,6 @@
 <script>
 import RapportdetailCard from '@/components/ResourcePlanner/plan/RapportdetailCard'
 import Draggable from 'vuedraggable'
-import { confirmAction } from '@/utils'
 import { mapGetters } from 'vuex'
 
 export default {

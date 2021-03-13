@@ -3,7 +3,6 @@
     :value="internalValue"
     :data-customer-id="customerId"
     :group="{name: 'resource-planner', pull: 'clone', put: canPut}"
-    class="elevation-1"
     @add="add"
     @remove="remove"
   >
@@ -21,7 +20,6 @@
 <script>
 import ToolCard from '@/components/ResourcePlanner/plan/ToolCard'
 import Draggable from 'vuedraggable'
-import { confirmAction } from '@/utils'
 
 export default {
   components: {
