@@ -14,8 +14,10 @@
         lg="4"
       >
         <v-text-field
+          v-model="value.hours"
           dense
           :label="$t('Stunden')"
+          @input="update('hours')"
         ></v-text-field>
       </v-col>
       <v-col
@@ -23,11 +25,13 @@
         lg="8"
       >
         <v-select
+          v-model="value.project_id"
           :label="$t('Projekt')"
           :items="customer.projects"
           item-value="id"
           item-text="name"
           dense
+          @input="update('project_id')"
         ></v-select>
       </v-col>
     </v-row>
@@ -56,6 +60,16 @@ export default {
   computed: {
     employee() {
       return this.value.employee
+    },
+
+    update() {
+      return this._.debounce(key => {
+        this.axios.$patch(`rapportdetails/${this.value.id}`, {
+          [key]: this.value[key]
+        }).catch(() => {
+          this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+        })
+      }, 300)
     }
   }
 }
