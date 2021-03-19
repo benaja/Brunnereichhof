@@ -36,7 +36,7 @@
     </navigation-bar>
     <v-container
       fluid
-      class="pb-0"
+      class="pb-0 red"
     >
       <v-row no-gutters>
         <v-col
