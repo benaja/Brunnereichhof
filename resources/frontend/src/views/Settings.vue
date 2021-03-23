@@ -171,7 +171,7 @@
         >
           <v-text-field
             v-model="settings.resourcePlannerStartTime"
-            :label="$t('Endzeit')"
+            :label="$t('Startzeit')"
             :readonly="!isUserAllowedToEdit"
             @input="update('resourcePlannerStartTime')"
           ></v-text-field>
@@ -185,6 +185,17 @@
             :label="$t('Endzeit')"
             :readonly="!isUserAllowedToEdit"
             @input="update('resourcePlannerEndTime')"
+          ></v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-text-field
+            v-model="settings.resourcePlannerDefaultDuration"
+            :label="$t('Standard Stunden pro Kunde')"
+            :readonly="!isUserAllowedToEdit"
+            @input="update('resourcePlannerDefaultDuration')"
           ></v-text-field>
         </v-col>
         <v-col

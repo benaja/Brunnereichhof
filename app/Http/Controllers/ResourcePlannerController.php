@@ -118,6 +118,7 @@ class ResourcePlannerController extends Controller
         $rapportdetail = Rapportdetail::create([
             'date' => $date,
             'day' => $date->dayOfWeek,
+            'hours' => Settings::value('resourcePlannerDefaultDuration'),
             'contract_type' => 'work_contract',
             'customer_id' => $resource->customer->id,
             'employee_id' => $data['employee_id'],

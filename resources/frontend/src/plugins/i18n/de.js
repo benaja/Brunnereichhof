@@ -71,5 +71,8 @@ export default {
   Achtung: 'Achtung',
   Stunden: 'Stunden',
   Projekt: 'Projekt',
-  'Nicht genügend Sitzplätze in den Autos vorhanden': 'Nicht genügend Sitzplätze in den Autos vorhanden'
+  'Nicht genügend Sitzplätze in den Autos vorhanden': 'Nicht genügend Sitzplätze in den Autos vorhanden',
+  'Standard Stunden pro Kunde': 'Standard Stunden pro Kunde',
+  'Stunden für alle anpassen': 'Stunden für alle anpassen',
+  'Projekt für alle anpassen': 'Projekt für alle anpassen'
 }

@@ -54,6 +54,30 @@
         <v-row>
           <v-col
             cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="updateHoursForAll"
+              type="number"
+              :label="$t('Stunden für alle anpassen')"
+              @keydown.enter="applyHoursForAll"
+            ></v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-select
+              v-model="updateProjectForAll"
+              :label="$t('Projekt für alle anpassen')"
+              :items="customer.projects"
+              item-value="id"
+              item-text="name"
+              @change="applyProjectForAll"
+            ></v-select>
+          </v-col>
+          <v-col
+            cols="12"
             lg="7"
             xl="8"
           >
@@ -202,6 +226,13 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    }
+  },
+
+  data() {
+    return {
+      updateHoursForAll: null,
+      updateProjectForAll: null
     }
   },
 
@@ -431,6 +462,40 @@ export default {
       })
 
       return add
+    },
+
+    async applyHoursForAll() {
+      try {
+        await Promise.all(
+          this.resource.rapportdetails.map(async rapportdetail => {
+            await this.axios.$patch(`rapportdetails/${rapportdetail.id}`, {
+              hours: this.updateHoursForAll
+            })
+            rapportdetail.hours = this.updateHoursForAll
+          })
+        )
+      } catch (e) {
+        this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+      }
+      this.updateHoursForAll = null
+    },
+
+    async applyProjectForAll() {
+      console.log('tst')
+      try {
+        await Promise.all(
+          this.resource.rapportdetails.map(async rapportdetail => {
+            await this.axios.$patch(`rapportdetails/${rapportdetail.id}`, {
+              project_id: this.updateProjectForAll
+            })
+            rapportdetail.project_id = this.updateProjectForAll
+          })
+        )
+      } catch (e) {
+        console.log(e)
+        this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+      }
+      this.updateProjectForAll = null
     }
   }
 }
