@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Hour extends Model
 {
     use SoftDeletes;
-    
-    public $table = "hours";
+
+    public $table = 'hours';
 
     protected $fillable = ['from', 'to', 'comment', 'date'];
 
@@ -25,13 +25,15 @@ class Hour extends Model
 
     public function getMarginTop()
     {
-        $different = $this->from()->diff(new \DateTime("00:00"));
+        $different = $this->from()->diff(new \DateTime('00:00'));
+
         return ($different->h * 41) + (41 / 60 * $different->i);
     }
 
     public function getHeight()
     {
         $different = $this->from()->diff($this->to());
+
         return ($different->h * 41) + (41 / 60 * $different->i);
     }
 
@@ -45,8 +47,10 @@ class Hour extends Model
         return $this->belongsTo(Worktype::class);
     }
 
-    public function hours() {
+    public function hours()
+    {
         $different = $this->from()->diff($this->to());
+
         return $different->h + number_format((float) $different->i / 60, 2, '.', '');
     }
 
@@ -54,7 +58,8 @@ class Hour extends Model
     {
         $different = $this->from()->diff($this->to());
         $minutesInHours = 100 / 60 * $different->i;
-        return $different->h . "." . number_format((float)$minutesInHours, 0, '.', '');
+
+        return $different->h.'.'.number_format((float) $minutesInHours, 0, '.', '');
     }
 
     protected static function booted()

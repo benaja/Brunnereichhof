@@ -8,7 +8,8 @@ class Language extends Model
 {
     protected $guarded = [];
 
-    public function employees() {
+    public function employees()
+    {
         return $this->belongsToMany(Employee::class);
     }
 }

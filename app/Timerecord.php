@@ -9,7 +9,7 @@ class Timerecord extends Model
 {
     use SoftDeletes;
 
-    public $table = "timerecord";
+    public $table = 'timerecord';
 
     protected $fillable = ['date', 'lunch', 'comment', 'breakfast', 'dinner'];
 
@@ -42,25 +42,27 @@ class Timerecord extends Model
             $total += $different->h;
             $total += number_format((float) $different->i / 60, 2, '.', '');
         }
+
         return $total;
     }
 
     public function worktype()
     {
         $hour = $this->hours->first();
+
         return $hour ? $hour->worktype : null;
     }
 
     public static function getMealsBetweenDate($firstDate, $lastDate)
     {
-        return Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'lunch') +
-            Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'breakfast') +
-            Timerecord::getMealsBetweenDateByType($firstDate, $lastDate, 'dinner');
+        return self::getMealsBetweenDateByType($firstDate, $lastDate, 'lunch') +
+            self::getMealsBetweenDateByType($firstDate, $lastDate, 'breakfast') +
+            self::getMealsBetweenDateByType($firstDate, $lastDate, 'dinner');
     }
 
     public static function getMealsBetweenDateByType($firstDate, $lastDate, $mealType)
     {
-        return Timerecord::where('date', '>=', $firstDate->format('Y-m-d'))
+        return self::where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->where($mealType, 1)
             ->get()

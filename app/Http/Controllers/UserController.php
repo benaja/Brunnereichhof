@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use App\User;
 use App\Customer;
-use Illuminate\Http\Request;
-use App\Mail\CustomerCreated;
 use App\Enums\UserTypeEnum;
-use Illuminate\Validation\Validator;
+use App\Mail\CustomerCreated;
+use App\User;
+use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Validator;
 
 class UserController extends Controller
 {
@@ -19,13 +19,13 @@ class UserController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    // POST password/change 
+    // POST password/change
     public function changePassword(Request $request)
     {
         $this->validate(request(), [
             'passwordOld' => 'required|string',
             'password' => ['required', 'string', 'min:6', 'max:100', 'confirmed'],
-            'email' => 'nullable|email|unique:user'
+            'email' => 'nullable|email|unique:user',
         ]);
 
         if (Hash::check(request('passwordOld'), Auth::user()->password)) {
@@ -40,6 +40,7 @@ class UserController extends Controller
                 $user->email = $request->email;
             }
             $user->save();
+
             return response('success');
         } else {
             // $errors = new \Illuminate\Support\MessageBag();
@@ -68,6 +69,7 @@ class UserController extends Controller
         $data['password'] = $password;
 
         $success = \Mail::to($user->email)->send(new CustomerCreated($data));
+
         return response('email send');
     }
 }

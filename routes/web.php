@@ -2,6 +2,7 @@
 
 Route::get('/{any}', function () {
     View::addExtension('html', 'php');
+
     return View::make('index');
 })->where('any', '.*');
 
@@ -23,14 +24,12 @@ Route::delete('/project/{projectName}/customer/{customer}', 'ProjectController@r
 Route::post('/project/add', 'ProjectController@addToCustomer');
 Route::resource('/project', 'ProjectController');
 
-
 Route::get('/plan', 'PlanController@index');
 Route::post('/plan', 'PlanController@store');
 Route::get('/cultures/all   ', 'PlanController@cultures');
 Route::get('/plan/edit', 'PlanController@edit');
 Route::patch('/plan/{id}', 'PlanController@update');
 Route::get('/plan/delete/{id}', 'PlanController@delete');
-
 
 Route::get('/evaluation', 'EvaluationController@index');
 Route::get('/evaluation/weeks', 'EvaluationController@weeks');
@@ -47,7 +46,6 @@ Route::post('/rapport/convertdate', 'RapportController@convertDate');
 Route::get('/rapport/week/{week}', 'RapportController@showWeek');
 Route::get('/rapport/{rapport}/pdf', 'RapportController@generatePdf');
 Route::resource('/rapport', 'RapportController');
-
 
 Route::get('/overview/employee/year/{year}', 'OverviewController@generateEmployeYearOverview');
 Route::get('/overview', 'OverviewController@index');

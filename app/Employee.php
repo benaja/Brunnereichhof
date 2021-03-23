@@ -12,7 +12,7 @@ class Employee extends Model
 {
     use SoftDeletes;
 
-    public $table = "employee";
+    public $table = 'employee';
 
     protected $with = ['user'];
 
@@ -32,7 +32,7 @@ class Employee extends Model
         'entryDate',
         'drivingLicence',
         'resource_planner_white_listed',
-        'function'
+        'function',
     ];
 
     protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url'];
@@ -54,11 +54,13 @@ class Employee extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function transactions() {
+    public function transactions()
+    {
         return $this->hasMany(Transaction::class);
     }
 
-    public function languages() {
+    public function languages()
+    {
         return $this->belongsToMany(Language::class);
     }
 
@@ -118,15 +120,15 @@ class Employee extends Model
         return $this->profileImageUrl('small/'.$this->profileimage);
     }
 
-    private function profileImageUrl($path) {
+    private function profileImageUrl($path)
+    {
         if ($this->profileimage) {
             return Storage::disk('s3')->temporaryUrl(
                 $path,
                 now()->addHours(5)
             );
         }
-    } 
-
+    }
 
     // user mutators
     public function setFirstnameAttribute($value)

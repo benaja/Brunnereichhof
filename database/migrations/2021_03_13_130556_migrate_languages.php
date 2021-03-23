@@ -15,12 +15,12 @@ class MigrateLanguages extends Migration
      */
     public function up()
     {
-        $german = Language::firstOrCreate([ 'name' => 'Deutsch', 'value' => 'german']);
-        $english = Language::firstOrCreate([ 'name' => 'Englisch', 'value' => 'english']);
-        Language::firstOrCreate([ 'name' => 'Französisch', 'value' => 'french']);
+        $german = Language::firstOrCreate(['name' => 'Deutsch', 'value' => 'german']);
+        $english = Language::firstOrCreate(['name' => 'Englisch', 'value' => 'english']);
+        Language::firstOrCreate(['name' => 'Französisch', 'value' => 'french']);
 
         $employees = Employee::all();
-        foreach($employees as $employee) {
+        foreach ($employees as $employee) {
             if ($employee->german_knowledge) {
                 $employee->languages()->attach($german);
             }

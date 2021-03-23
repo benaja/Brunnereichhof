@@ -27,7 +27,7 @@ class AddResourcesToExistingRapports extends Migration
                     'customer_id' => $rapportdetail->customer_id,
                     'rapport_id' => $rapportdetail->rapport_id,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
+                    'updated_at' => Carbon::now(),
                 ];
             })->values()->toArray();
 
@@ -36,7 +36,7 @@ class AddResourcesToExistingRapports extends Migration
         Rapportdetail::join('rapport', 'rapport.id', '=', 'rapportdetail.rapport_id')
             ->join('resources', 'resources.rapport_id', '=', 'rapport.id')
             ->update([
-                'rapportdetail.resource_id' => DB::raw('resources.id')
+                'rapportdetail.resource_id' => DB::raw('resources.id'),
             ]);
     }
 
@@ -47,6 +47,5 @@ class AddResourcesToExistingRapports extends Migration
      */
     public function down()
     {
-        
     }
 }

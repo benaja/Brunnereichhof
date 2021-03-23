@@ -9,7 +9,7 @@ class Rapport extends Model
 {
     use SoftDeletes;
 
-    public $table = "rapport";
+    public $table = 'rapport';
 
     protected $fillable = [
         'isFinished',
@@ -22,7 +22,7 @@ class Rapport extends Model
         'comment_th',
         'comment_fr',
         'comment_sa',
-        'customer_id'
+        'customer_id',
     ];
 
     protected $appends = ['hours'];

@@ -24,7 +24,7 @@ class StatsHelper
 
             $month = [
                 'hours' => round($totalHours),
-                'name' => $monthName
+                'name' => $monthName,
             ];
 
             array_push($totalHoursOfYear, $month);
@@ -59,7 +59,7 @@ class StatsHelper
 
             $month = [
                 'hours' => round($hours),
-                'name' => $monthName
+                'name' => $monthName,
             ];
 
             array_push($monthValues, $month);
@@ -86,8 +86,9 @@ class StatsHelper
         }
 
         $response = [
-            'hours' => round($hours, 2)
+            'hours' => round($hours, 2),
         ];
+
         return $response;
     }
 }

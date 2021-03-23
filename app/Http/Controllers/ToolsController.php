@@ -9,27 +9,31 @@ use Illuminate\Http\Request;
 
 class ToolsController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $tools = Tool::orderBy('name')
-          ->when($request->get('search'), function ($query, $search){
-            $query->where('name', 'LIKE', "%$search%");
+          ->when($request->get('search'), function ($query, $search) {
+              $query->where('name', 'LIKE', "%$search%");
           })
           ->get();
 
-        return ToolResource::collection($tools); 
+        return ToolResource::collection($tools);
     }
 
-    public function store(ToolRequest $request) {
+    public function store(ToolRequest $request)
+    {
         return ToolResource::make($request->store());
     }
 
-    public function update(ToolRequest $request, Tool $tool) {
+    public function update(ToolRequest $request, Tool $tool)
+    {
         $tool = $request->update($tool);
 
         return ToolResource::make($tool);
     }
 
-    public function destroy(Tool $tool) {
+    public function destroy(Tool $tool)
+    {
         $tool->delete();
     }
 }

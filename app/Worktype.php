@@ -9,7 +9,7 @@ class Worktype extends Model
 {
     use SoftDeletes;
 
-    public $table = "worktype";
+    public $table = 'worktype';
 
     public $timestamps = false;
 

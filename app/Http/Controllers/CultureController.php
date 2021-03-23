@@ -46,7 +46,8 @@ class CultureController extends Controller
 
     // PATCH project/{id}
     public function update(Request $request, $id)
-    { }
+    {
+    }
 
     // DELETE project/{id}
     public function destroy($id)

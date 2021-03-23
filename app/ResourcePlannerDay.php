@@ -9,10 +9,11 @@ class ResourcePlannerDay extends Model
     protected $guarded = [];
 
     protected $dates = [
-        'date'
+        'date',
     ];
 
-    public function resources() {
+    public function resources()
+    {
         return $this->hasMany(Resource::class);
     }
 }

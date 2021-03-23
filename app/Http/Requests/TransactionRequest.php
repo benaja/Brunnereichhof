@@ -25,26 +25,30 @@ class TransactionRequest extends FormRequest
     public function rules()
     {
         $sometimes = request()->method() === 'PATCH';
+
         return [
             'amount' => ['required', 'numeric', $sometimes ? 'sometimes' : ''],
-            'date' => ['required','date', $sometimes ? 'sometimes' : ''],
+            'date' => ['required', 'date', $sometimes ? 'sometimes' : ''],
             'comment' => ['nullable', 'string', $sometimes ? 'sometimes' : ''],
             'transaction_type_id' => ['required', 'exists:transaction_types,id', $sometimes ? 'sometimes' : ''],
             'employee_id' => ['required', 'exists:employee,id', $sometimes ? 'sometimes' : ''],
-            'entered' => ['nullable', 'boolean', $sometimes ? 'sometimes' : '']
+            'entered' => ['nullable', 'boolean', $sometimes ? 'sometimes' : ''],
         ];
     }
 
-    public function store() {
+    public function store()
+    {
         $data = $this->validated();
 
         return Transaction::create($data);
     }
 
-    public function update(Transaction $transaction) {
+    public function update(Transaction $transaction)
+    {
         $data = $this->validated();
 
         $transaction->update($data);
+
         return $transaction;
     }
 }

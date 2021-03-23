@@ -9,13 +9,13 @@ class Bed extends Model
 {
     use SoftDeletes;
 
-    public $table = "bed";
+    public $table = 'bed';
 
     protected $fillable = ['name', 'width', 'places', 'comment'];
 
     public function room()
     {
-        return $this->belongsToMany(Room::class)->withPivot('id');;
+        return $this->belongsToMany(Room::class)->withPivot('id');
     }
 
     public function inventars()

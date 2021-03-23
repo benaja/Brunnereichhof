@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Hourrecord extends Model
 {
     use SoftDeletes;
-    
-    public $table = "hourrecords";
+
+    public $table = 'hourrecords';
 
     protected $fillable = ['customer_id', 'culture_id', 'week', 'hours', 'comment', 'year', 'createdByAdmin'];
 

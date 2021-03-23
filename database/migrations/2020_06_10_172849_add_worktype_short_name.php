@@ -17,7 +17,7 @@ class AddWorktypeShortName extends Migration
         $productiveHours = Worktype::where('name', 'productiveHours')->first();
         if ($productiveHours) {
             $productiveHours->update([
-                'short_name' => 'P'
+                'short_name' => 'P',
             ]);
         }
     }

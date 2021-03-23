@@ -11,29 +11,30 @@ class TransactionPdfController extends Controller
 {
     private Pdf $pdf;
 
-    public function saldo($employeeId) {
+    public function saldo($employeeId)
+    {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->pdf = new Pdf('P');
-        
+
         if ($employeeId === 'all') {
-           return $this->saldoOverviewForAllEmployees();
+            return $this->saldoOverviewForAllEmployees();
         } else {
             return $this->saldoForEmployee($employeeId);
         }
     }
 
-    private function saldoOverviewForAllEmployees() {
-        $this->pdf->documentTitle("Saldo Übersicht der aktiven Mitarbeiter");
+    private function saldoOverviewForAllEmployees()
+    {
+        $this->pdf->documentTitle('Saldo Übersicht der aktiven Mitarbeiter');
         $this->pdf->newLine();
-        $this->pdf->textToInsertOnPageBreak = "Saldo Übersicht der aktiven Mitarbeiter";
+        $this->pdf->textToInsertOnPageBreak = 'Saldo Übersicht der aktiven Mitarbeiter';
 
         $employees = Employee::where('isActive', true)
             ->where('isGuest', false)
             ->with('transactions')
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE);
-
 
         $columns = $employees->map(function ($employee) {
             return [$employee->name(), $employee->transactions()->where('entered', false)->sum('amount')];
@@ -44,7 +45,8 @@ class TransactionPdfController extends Controller
         return $this->pdf->export('Saldo Mitarbeiter.pdf');
     }
 
-    private function saldoForEmployee($employeeId) {
+    private function saldoForEmployee($employeeId)
+    {
         $employee = Employee::with(['transactions' => function ($query) {
             $query->orderBy('date', 'desc');
             $query->with('type');
@@ -61,7 +63,7 @@ class TransactionPdfController extends Controller
                 $transaction->type->name,
                 $transaction->amount,
                 $transaction->entered ? 'Ja' : 'Nein',
-                $transaction->comment
+                $transaction->comment,
             ];
         });
 
@@ -70,7 +72,7 @@ class TransactionPdfController extends Controller
             'Vorschuss Typ',
             'Menge in CHF',
             'Verbucht',
-            'Kommentar'
+            'Kommentar',
         ], $columns, [0.6, 0.9, 0.7, 0.5, 1.5]);
 
         return $this->pdf->export("Saldo {$employee->name()}.pdf");

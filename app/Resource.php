@@ -8,27 +8,33 @@ class Resource extends Model
 {
     protected $guarded = [];
 
-    public function customer() {
+    public function customer()
+    {
         return $this->belongsTo(Customer::class);
     }
 
-    public function rapport() {
+    public function rapport()
+    {
         return $this->belongsTo(Rapport::class);
     }
 
-    public function rapportdetails() {
+    public function rapportdetails()
+    {
         return $this->hasMany(Rapportdetail::class);
     }
 
-    public function cars() {
+    public function cars()
+    {
         return $this->belongsToMany(Car::class);
     }
 
-    public function tools() {
+    public function tools()
+    {
         return $this->belongsToMany(Tool::class)->withPivot('amount');
     }
 
-    public function plannerDay() {
+    public function plannerDay()
+    {
         return $this->belongsTo(ResourcePlannerDay::class);
     }
 }

@@ -1,18 +1,18 @@
 <?php
 
+use App\Bed;
+use App\Customer;
+use App\Foodtype;
+use App\Inventar;
+use App\Project;
+use App\Role;
+use App\Room;
+use App\User;
+use App\UserType;
+use App\Worktype;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\UserType;
-use App\Role;
-use App\Inventar;
-use App\Bed;
-use App\Room;
-use App\Worktype;
-use App\User;
-use App\Customer;
-use App\Foodtype;
-use App\Project;
 
 class ExampleDataSeeder extends Seeder
 {
@@ -45,61 +45,61 @@ class ExampleDataSeeder extends Seeder
         DB::table('authorizationrule')->insert([
             [
                 'name' => 'rapport_read',
-                'name_de' => 'Wochenrapport einsehen'
+                'name_de' => 'Wochenrapport einsehen',
             ], [
                 'name' => 'rapport_write',
-                'name_de' => 'Wochenrapport schreiben'
+                'name_de' => 'Wochenrapport schreiben',
             ], [
                 'name' => 'employee_preview_read',
-                'name_de' => 'Mitarbeierverzeichnis einsehen (nur Vorschau)'
+                'name_de' => 'Mitarbeierverzeichnis einsehen (nur Vorschau)',
             ], [
                 'name' => 'employee_read',
-                'name_de' => 'Mitarbeiterverzeichnis einsehen mit Details'
+                'name_de' => 'Mitarbeiterverzeichnis einsehen mit Details',
             ], [
                 'name' => 'employee_write',
-                'name_de' => 'Mitarbeiterverzeuchnis schreiben'
+                'name_de' => 'Mitarbeiterverzeuchnis schreiben',
             ], [
                 'name' => 'customer_read',
-                'name_de' => 'Kundenverzeichnis einsehen'
+                'name_de' => 'Kundenverzeichnis einsehen',
             ], [
                 'name' => 'customer_write',
-                'name_de' => 'Kundenverzeichnis schreiben'
+                'name_de' => 'Kundenverzeichnis schreiben',
             ], [
                 'name' => 'roomdispositioner_read',
-                'name_de' => 'Raumplaner einsehen'
+                'name_de' => 'Raumplaner einsehen',
             ], [
                 'name' => 'roomdispositioner_write',
-                'name_de' => 'Raumplaner schreiben'
+                'name_de' => 'Raumplaner schreiben',
             ], [
                 'name' => 'hourrecord_read',
-                'name_de' => 'Sundenangaben einsehen'
+                'name_de' => 'Sundenangaben einsehen',
             ], [
                 'name' => 'hourrecord_write',
-                'name_de' => 'Sundenangaben schreiben'
+                'name_de' => 'Sundenangaben schreiben',
             ], [
                 'name' => 'worker_read',
-                'name_de' => 'Hofmitarbeiter einsehen'
+                'name_de' => 'Hofmitarbeiter einsehen',
             ], [
                 'name' => 'worker_write',
-                'name_de' => 'Hofmitarbeiter schreiben'
+                'name_de' => 'Hofmitarbeiter schreiben',
             ], [
                 'name' => 'settings_read',
-                'name_de' => 'Einstellungen einsehen'
+                'name_de' => 'Einstellungen einsehen',
             ], [
                 'name' => 'settings_write',
-                'name_de' => 'Einstellungen schreiben'
+                'name_de' => 'Einstellungen schreiben',
             ], [
                 'name' => 'timerecord_read_write',
-                'name_de' => 'Zeiterfassung'
+                'name_de' => 'Zeiterfassung',
             ], [
                 'name' => 'timerecord_stats',
-                'name_de' => 'Zeiterfassung Auswertung'
+                'name_de' => 'Zeiterfassung Auswertung',
             ], [
                 'name' => 'evaluation_customer',
-                'name_de' => 'Auswertungen Kunden'
+                'name_de' => 'Auswertungen Kunden',
             ], [
                 'name' => 'evaluation_employee',
-                'name_de' => 'Mitarbeiter Auswertung'
+                'name_de' => 'Mitarbeiter Auswertung',
             ],
         ]);
 
@@ -109,14 +109,13 @@ class ExampleDataSeeder extends Seeder
         foreach ($authorizationrules as $authorizationrule) {
             DB::table('role_authorizationrule')->insert([
                 'authorizationrule_id' => $authorizationrule->id,
-                'role_id' => $adminRole->id
+                'role_id' => $adminRole->id,
             ]);
         }
 
         $userTypeAdmin = DB::table('usertype')->where('name', 'superadmin')->first();
         $userTypeWorker = DB::table('usertype')->where('name', 'worker')->first();
         $userTypeCustomer = DB::table('usertype')->where('name', 'customer')->first();
-
 
         User::firstOrCreate([
             'email' => 'admin@outlook.com',
@@ -127,58 +126,58 @@ class ExampleDataSeeder extends Seeder
             'isPasswordChanged' => true,
             'password' => Hash::make('123abc123'),
             'type_id' => $userTypeAdmin->id,
-            'role_id' => null
+            'role_id' => null,
         ]);
         User::firstOrCreate([
             'email' => 'benhu00@outlook.com',
             'username' => 'benaja.hunzinger',
             'firstname' => 'Benaja',
-            'lastname' => 'Hunzinger'
+            'lastname' => 'Hunzinger',
         ], [
             'isPasswordChanged' => true,
             'password' => Hash::make('123abc123'),
             'type_id' => $userTypeWorker->id,
-            'role_id' => $adminRole->id
+            'role_id' => $adminRole->id,
         ]);
 
         $kissen = Inventar::firstOrCreate([
             'name' => 'Kissen',
-            'price' => 20
+            'price' => 20,
         ]);
         $leintuch = Inventar::firstOrCreate([
             'name' => 'Leintuch',
-            'price' => 8
+            'price' => 8,
         ]);
 
         $doubleBed = Bed::firstOrCreate([
             'name' => '2er Bett',
             'width' => '180cm',
-            'places' => 2
+            'places' => 2,
         ]);
         $singleBed = Bed::firstOrCreate([
             'name' => '1er Bett',
             'width' => '80cm',
-            'places' => 1
+            'places' => 1,
         ]);
 
         $doubleBed->inventars()->sync([
             $kissen->id => ['amount' => 2, 'amount_2' => 2],
-            $leintuch->id => ['amount' => 1, 'amount_2' => 1]
+            $leintuch->id => ['amount' => 1, 'amount_2' => 1],
         ]);
         $singleBed->inventars()->sync([
             $kissen->id => ['amount' => 2, 'amount_2' => 2],
-            $leintuch->id => ['amount' => 2, 'amount_2' => 2]
+            $leintuch->id => ['amount' => 2, 'amount_2' => 2],
         ]);
 
         $room1 = Room::firstOrCreate([
             'name' => '5er Zimmer',
             'number' => 3,
-            'location' => 'Bern'
+            'location' => 'Bern',
         ]);
         $room2 = Room::firstOrCreate([
             'name' => '2er Zimmer',
             'number' => 2,
-            'location' => 'Zürich'
+            'location' => 'Zürich',
         ]);
 
         $room1->beds()->sync([$doubleBed->id, $doubleBed->id, $singleBed->id]);
@@ -191,14 +190,14 @@ class ExampleDataSeeder extends Seeder
             'nationality' => 'CH',
             'isActive' => true,
             'isGuest' => false,
-            'sex' => 'man   '
+            'sex' => 'man   ',
         ], [
             'firstname' => 'America',
             'lastname' => 'Captain',
             'nationality' => 'US',
             'isActive' => true,
             'isGuest' => false,
-            'sex' => 'man'
+            'sex' => 'man',
         ]]);
 
         Foodtype::firstOrCreate(['foodname' => 'eichhof']);
@@ -209,102 +208,102 @@ class ExampleDataSeeder extends Seeder
         DB::table('settings')->insert([[
             'key' => 'fullDayShortStart',
             'value' => '08:00',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'fullDayShortEnd',
             'value' => '16:00',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'fullDayLongStart',
             'value' => '07:00',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'fullDayLongEnd',
             'value' => '16:00',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'hourrecordStartDate',
             'value' => '2019-10-11',
-            'type' => 'date'
+            'type' => 'date',
         ], [
             'key' => 'hourrecordEndDate',
             'value' => '2019-11-14',
-            'type' => 'date'
+            'type' => 'date',
         ], [
             'key' => 'welcomeText',
             'value' => 'Herrzlich Willkommen {name} im Kundenportal',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'subtitle',
             'value' => 'Hier haben Sie die Gelegenheit ihre vorgesehenen Arbeiten zu erfassen, damit wir besser planen können.',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'hourrecordTitle',
             'value' => 'Arbeiten im 2019',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'hourrecordValid',
             'value' => 'Tragen Sie bis am {datum} ihre vorgesehenen Arbeiten ein. Dies hilft uns ihre Bedürfnisse besser abzudecken.',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'hourrecordInvalid',
             'value' => 'Die Zeit zum Arbeiten erfassen ist abgelaufen. Sie können ihre vorgesehenen Arbeiten anschauen, jedoch nicht mehr bearbeiten. Falls sich etwas bei ihren Arbeiten geändert hat, bitte wenden sie sich an info@brunnereichhof.ch.',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'surveyTitle',
             'value' => 'Kunden Umfrage',
-            'type' => 'string'
+            'type' => 'string',
         ], [
             'key' => 'surveyText',
             'value' => 'Wir bitten Sie unsere Umfrage zur Kundenzufriedenheit auszufüllen.',
-            'type' => 'string'
+            'type' => 'string',
         ]]);
 
         Worktype::firstOrCreate([
             'name' => 'productiveHours',
             'name_de' => 'Produktivstunden',
             'short_name' => '',
-            'color' => 'primary'
+            'color' => 'primary',
         ]);
         Worktype::firstOrCreate([
             'name' => 'holidays',
             'name_de' => 'Ferien',
             'short_name' => 'F',
-            'color' => 'yellow darken-3'
+            'color' => 'yellow darken-3',
         ]);
         Worktype::firstOrCreate([
             'name' => 'sick',
             'name_de' => 'Krank',
             'short_name' => 'K',
-            'color' => 'red'
+            'color' => 'red',
         ]);
         Worktype::firstOrCreate([
             'name' => 'accident',
             'name_de' => 'Unfall',
             'short_name' => 'U',
-            'color' => 'red'
+            'color' => 'red',
         ]);
         Worktype::firstOrCreate([
             'name' => 'school',
             'name_de' => 'Schule',
             'short_name' => 'S',
-            'color' => 'blue'
+            'color' => 'blue',
         ]);
 
         DB::table('project')->delete();
         DB::table('project')->insert([[
             'name' => 'Allgemein',
-            'description' => 'Standart Projekt'
+            'description' => 'Standart Projekt',
         ], [
             'name' => 'Jätten',
-            'description' => 'Jätten auf den Feldern'
+            'description' => 'Jätten auf den Feldern',
         ]]);
 
         $customerUser = User::firstOrCreate([
             'email' => 'max.muster@test.com',
             'username' => 'max.muster',
             'firstname' => 'Max',
-            'lastname' => 'Muster'
+            'lastname' => 'Muster',
         ], [
             'isPasswordChanged' => true,
             'password' => Hash::make('123abc123'),

@@ -30,10 +30,10 @@ class RoomActive extends Migration
         });
 
         $rooms = Room::withTrashed()->get();
-        foreach($rooms as $room) {
-           RoomActiveHistory::create([
+        foreach ($rooms as $room) {
+            RoomActiveHistory::create([
                 'active_from' => $room->created_at,
-                'room_id' => $room->id
+                'room_id' => $room->id,
             ]);
         }
     }
