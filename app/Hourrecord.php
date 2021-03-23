@@ -16,12 +16,12 @@ class Hourrecord extends Model
     public function customer()
     {
         // return $this->belongsTo(Customer::class);
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function culture()
     {
         // return $this->belongsTo(Culture::class);
-        return $this->belongsTo('App\Culture');
+        return $this->belongsTo(\App\Culture::class);
     }
 }
