@@ -24,7 +24,7 @@ class ToolRequest extends FormRequest
      */
     public function rules()
     {
-        $sometimes =  $this->method() === 'PATCH' ? 'sometimes' : '';
+        $sometimes = $this->method() === 'PATCH' ? 'sometimes' : '';
 
         return [
             'name' => ['required', 'string', $sometimes],
@@ -32,13 +32,15 @@ class ToolRequest extends FormRequest
         ];
     }
 
-    public function store() {
+    public function store()
+    {
         $data = $this->validated();
 
         return Tool::create($data);
     }
 
-    public function update(Tool $tool) {
+    public function update(Tool $tool)
+    {
         $data = $this->validated();
 
         $tool->update($data);

@@ -16,8 +16,6 @@ class MigrateResourcePlannerDays extends Migration
      */
     public function up()
     {
-        
-
         $dates = Resource::groupBy('date')
             ->get()
             ->map(fn ($resource) => [

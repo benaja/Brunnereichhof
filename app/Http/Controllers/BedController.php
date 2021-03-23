@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Bed;
+use App\Http\Controllers\Controller;
 use App\Inventar;
 use App\Pivots\BedRoomPivot;
+use Illuminate\Http\Request;
 
 class BedController extends Controller
 {
@@ -36,7 +36,7 @@ class BedController extends Controller
             'name' => $request->name,
             'width' => $request->width,
             'places' => $request->places,
-            'comment' => $request->comment
+            'comment' => $request->comment,
         ]);
 
         $inventarIds = array_map(function ($inventar) {
@@ -58,6 +58,7 @@ class BedController extends Controller
         }
 
         $bed->inventars()->attach($attachInentars);
+
         return Bed::with('inventars')->find($bed->id);
     }
 
@@ -98,7 +99,7 @@ class BedController extends Controller
             $inventar->pivot->save();
         } else {
             $bed->inventars()->attach([
-                $inventarId => ['amount' => 1, 'amount_2' => 1]
+                $inventarId => ['amount' => 1, 'amount_2' => 1],
             ]);
             $bed->save();
         }

@@ -6,21 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Settings extends Model
 {
-    public $table = "settings";
+    public $table = 'settings';
 
-    protected $fillable = ["value", "key"];
+    protected $fillable = ['value', 'key'];
 
     public static function value($key)
     {
-        $setting = Settings::firstOrCreate([
-            'key' => $key
+        $setting = self::firstOrCreate([
+            'key' => $key,
         ], [
-            'key' => $key
+            'key' => $key,
         ]);
-        if ($setting->type == "int") {
+        if ($setting->type == 'int') {
             return intval($setting->value);
-        } else if ($setting->typ == "double") {
-            return doubleval($setting->value);
+        } elseif ($setting->typ == 'double') {
+            return floatval($setting->value);
         } else {
             return $setting->value;
         }
@@ -28,10 +28,10 @@ class Settings extends Model
 
     public static function put($key, $value)
     {
-        $setting = Settings::firstOrCreate([
-            'key' => $key
+        $setting = self::firstOrCreate([
+            'key' => $key,
         ], [
-            'key' => $key
+            'key' => $key,
         ]);
         $setting->value = $value;
         $setting->save();
@@ -39,18 +39,19 @@ class Settings extends Model
 
     public static function allSettings()
     {
-        $settings = Settings::all();
+        $settings = self::all();
 
         $response = [];
         foreach ($settings as $setting) {
-            if ($setting->type == "int") {
+            if ($setting->type == 'int') {
                 $response[$setting->key] = intval($setting->value);
-            } else if ($setting->tpye == "double") {
-                $response[$setting->key] = doubleval($setting->value);
+            } elseif ($setting->tpye == 'double') {
+                $response[$setting->key] = floatval($setting->value);
             } else {
                 $response[$setting->key] = $setting->value;
             }
         }
+
         return $response;
     }
 }

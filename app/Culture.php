@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Culture extends Model
 {
     use SoftDeletes;
-    
-    public $table = "culture";
+
+    public $table = 'culture';
 
     protected $fillable = ['name', 'isAutocomplete'];
 

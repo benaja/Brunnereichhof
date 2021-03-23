@@ -3,15 +3,16 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResetPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $data;
+
     /**
      * Create a new message instance.
      *
@@ -29,6 +30,6 @@ class ResetPassword extends Mailable
      */
     public function build()
     {
-        return $this->subject("Passwort zurücksetzen")->from('rapport@brunnereichhof.ch', 'Brunnereichhof')->view('mails.reset-password');
+        return $this->subject('Passwort zurücksetzen')->from('rapport@brunnereichhof.ch', 'Brunnereichhof')->view('mails.reset-password');
     }
 }

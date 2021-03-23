@@ -8,7 +8,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class LanguagesController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $languages = Language::all();
 
         return JsonResource::collection($languages);

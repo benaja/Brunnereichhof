@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Bed;
-use App\Room;
 use App\Helpers\Pdf;
-use App\Reservation;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
-use App\Pivots\BedRoomPivot;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Pivots\BedRoomPivot;
+use App\Reservation;
+use App\Room;
 use App\RoomActiveHistory;
 use App\RoomImage;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,9 +29,13 @@ class RoomController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        if (isset($request->deleted)) return Room::with('beds')->onlyTrashed()->get();
-        else if (isset($request->all)) return Room::with('beds')->withTrashed()->get();
-        else return Room::with('beds')->get();
+        if (isset($request->deleted)) {
+            return Room::with('beds')->onlyTrashed()->get();
+        } elseif (isset($request->all)) {
+            return Room::with('beds')->withTrashed()->get();
+        } else {
+            return Room::with('beds')->get();
+        }
     }
 
     public function store(Request $request)
@@ -42,7 +46,7 @@ class RoomController extends Controller
             'name' => 'required|max:100',
             'location' => 'required|max:100',
             'number' => 'required|integer',
-            'comment' => 'nullable|string|max:1000'
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -51,13 +55,13 @@ class RoomController extends Controller
                 'location' => $request->location,
                 'comment' => $request->comment,
                 'number' => $request->number,
-                'isActive' => $request->isActive
+                'isActive' => $request->isActive,
             ]);
 
             if ($request->isActive) {
                 RoomActiveHistory::create([
                     'room_id' => $room->id,
-                    'active_from' => new DateTime()
+                    'active_from' => new DateTime(),
                 ]);
             }
 
@@ -93,6 +97,7 @@ class RoomController extends Controller
         if (isset($request->deleted_at)) {
             $room = Room::withTrashed()->find($id);
             $room->restore();
+
             return response('success');
         }
 
@@ -112,12 +117,12 @@ class RoomController extends Controller
                 ->first();
                 if ($roomActiveHistory) {
                     $roomActiveHistory->update([
-                        'active_to' => null
+                        'active_to' => null,
                     ]);
                 } else {
                     RoomActiveHistory::create([
                         'room_id' => $id,
-                        'active_from' => new DateTime()
+                        'active_from' => new DateTime(),
                     ]);
                 }
             } else {
@@ -126,7 +131,7 @@ class RoomController extends Controller
                     ->first();
 
                 $roomActiveHistory->update([
-                    'active_to' => new DateTime()
+                    'active_to' => new DateTime(),
                 ]);
             }
         }
@@ -156,7 +161,7 @@ class RoomController extends Controller
 
         return BedRoomPivot::create([
             'bed_id' => $bedId,
-            'room_id' => $roomId
+            'room_id' => $roomId,
         ]);
     }
 
@@ -191,12 +196,14 @@ class RoomController extends Controller
                     ->where('entry', '<=', $request->exit)
                     ->where('exit', '>=', $request->entry)
                     ->get();
+
                     return count($reservations) < $bedPivot->bed->places;
-                })->map(function($bedPivot) {
+                })->map(function ($bedPivot) {
                     $bed = $bedPivot->bed;
                     $bed['pivot'] = [
-                        'id' => $bedPivot->id
+                        'id' => $bedPivot->id,
                     ];
+
                     return $bed;
                 })->values();
         }
@@ -251,7 +258,7 @@ class RoomController extends Controller
 
             $options = [
                 'linesOnSamePage' => count($room['bedsWithReservation']) - 1,
-                'rows' => 2
+                'rows' => 2,
             ];
             $pdf->paragraph("{$room['number']} / {$room['name']} ({$room['location']})", 0, 'B', $options);
 
@@ -259,15 +266,17 @@ class RoomController extends Controller
                 unset($options['linesOnSamePage']);
                 if (isset($reservation['employee'])) {
                     $pdf->paragraph("{$reservation['employee']['lastname']} {$reservation['employee']['firstname']} ({$reservation['bed']['name']})", 0, '', $options);
-                } else if ($request->showFreeBeds === "true") {
+                } elseif ($request->showFreeBeds === 'true') {
                     $pdf->paragraph("{$reservation['bedName']} (Freie Plätze: {$reservation['freePlaces']})", 0, 'I', $options);
                 }
             }
         }
+
         return $pdf->export("Raum-Auswertung {$date->format('d.m.Y')}.pdf");
     }
 
-    public function reservations(Request $request, $roomId) {
+    public function reservations(Request $request, $roomId)
+    {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $startDate = Utils::firstDate($request->dateRangeType, $request->date);
@@ -276,7 +285,8 @@ class RoomController extends Controller
         return $this->getReservationsByRoomAndTime($roomId, $startDate, $endDate);
     }
 
-    public function reservationsPdf(Request $request, $roomId) {
+    public function reservationsPdf(Request $request, $roomId)
+    {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $this->pdf = new Pdf();
@@ -297,6 +307,7 @@ class RoomController extends Controller
         $this->reservationsPdfTable($reservations);
 
         $monthName = isset($monthName) ? $monthName : '';
+
         return $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$firstDate->format('Y')}.pdf");
     }
 
@@ -312,6 +323,7 @@ class RoomController extends Controller
         $this->pdf->documentTitle("Jahr: {$dateTime->format('Y')}");
         $reservations = $this->getReservationsByYear($roomId, $date);
         $this->reservationsPdfTable($reservations);
+
         return $this->pdf->export("Reservationen für Raum {$room->name} {$dateTime->format('Y')}.pdf");
     }
 
@@ -328,6 +340,7 @@ class RoomController extends Controller
         $this->pdf->documentTitle("{$monthName} {$dateTime->format('Y')}");
         $reservations = $this->getReservationsByMonth($roomId, $date);
         $this->reservationsPdfTable($reservations);
+
         return $this->pdf->export("Reservationen für Raum {$room->name} {$monthName} {$dateTime->format('Y')}.pdf");
     }
 
@@ -343,7 +356,7 @@ class RoomController extends Controller
 
         if ($request->type === 'year') {
             $documentTitle .= "Jahr: {$firstDate->format('Y')}";
-        } else if ($request->type === 'month') {
+        } elseif ($request->type === 'month') {
             $documentTitle .= "Monat: {$firstDate->format('m.Y')}";
         } else {
             $documentTitle .= "Woche: {$firstDate->format('W')} ({$firstDate->format('d.m.Y')} - {$lastDate->format('d.m.Y')})";
@@ -367,9 +380,10 @@ class RoomController extends Controller
 
         if ($request->type === 'year') {
             return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('Y')}.pdf");
-        } else if ($request->type === 'month') {
+        } elseif ($request->type === 'month') {
             return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('m-Y')}.pdf");
         }
+
         return $this->pdf->export("Übernachtungen pro Zimmer {$firstDate->format('W')} ({$firstDate->format('d-m-Y')} - {$lastDate->format('d-m-Y')}).pdf");
     }
 
@@ -383,7 +397,7 @@ class RoomController extends Controller
                 (new \DateTime($reservation->entry))->format('d.m.Y'),
                 (new \DateTime($reservation->exit))->format('d.m.Y'),
                 "{$reservation->employee->lastname} {$reservation->employee->lastname}",
-                $reservation->bedRoomPivot->bed->name
+                $reservation->bedRoomPivot->bed->name,
             ]);
         }
         $this->pdf->table($headers, $columns);
@@ -401,16 +415,16 @@ class RoomController extends Controller
             ->get();
     }
 
-    private function getRoomsforEvaluation(\DateTime $date)
+    private function getRoomsforEvaluation(DateTime $date)
     {
         $rooms = Room::with(['bedRoomPivots' => function ($query) use ($date) {
             $query->withTrashed()
                 ->where(function ($query) use ($date) {
-                    $query->where('deleted_at', '>', $date->format('Y-m-d') . ' 23:59:59')
+                    $query->where('deleted_at', '>', $date->format('Y-m-d').' 23:59:59')
                         ->orWhere('deleted_at', null);
                 })
                 ->where(function ($query) use ($date) {
-                    $query->where('created_at', '<=', $date->format('Y-m-d') . ' 23:59:59')
+                    $query->where('created_at', '<=', $date->format('Y-m-d').' 23:59:59')
                         ->orWhere('created_at', null);
                 })
                 ->with(['reservations' => function ($query) use ($date) {
@@ -419,6 +433,7 @@ class RoomController extends Controller
                         ->where('reservation.exit', '>=', $date->format('Y-m-d'));
                 }])->with('bed');
         }])->with('activeHistory')->get();
+
         return $this->sortAndFormatRoomsForEvaluation($rooms->toArray());
     }
 
@@ -426,16 +441,16 @@ class RoomController extends Controller
     {
         foreach ($rooms as &$room) {
             $room['bedsWithReservation'] = [];
-            foreach ($room["bed_room_pivots"] as &$bedRoomPivot) {
-                $freePlacesInBed = $bedRoomPivot["bed"]["places"] - count($bedRoomPivot["reservations"]);
+            foreach ($room['bed_room_pivots'] as &$bedRoomPivot) {
+                $freePlacesInBed = $bedRoomPivot['bed']['places'] - count($bedRoomPivot['reservations']);
                 if ($freePlacesInBed > 0) {
                     $empyReservation = [
                         'freePlaces' => $freePlacesInBed,
-                        'bedName' => $bedRoomPivot["bed"]["name"]
+                        'bedName' => $bedRoomPivot['bed']['name'],
                     ];
                     array_push($room['bedsWithReservation'], $empyReservation);
                 }
-                foreach ($bedRoomPivot["reservations"] as $reservation) {
+                foreach ($bedRoomPivot['reservations'] as $reservation) {
                     $reservation['bed'] = $bedRoomPivot['bed'];
                     array_push($room['bedsWithReservation'], $reservation);
                 }
@@ -443,13 +458,17 @@ class RoomController extends Controller
             usort($room['bedsWithReservation'], function ($a, $b) {
                 if (isset($a['employee']) && isset($b['employee'])) {
                     $comparison = strcasecmp($a['employee']['lastname'], $b['employee']['lastname']);
+
                     return $comparison;
-                } else if (isset($a['employee'])) return -1;
-                else if (isset($b['employee'])) return 1;
-                else return 0;
+                } elseif (isset($a['employee'])) {
+                    return -1;
+                } elseif (isset($b['employee'])) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             });
         }
-
 
         return $rooms;
     }
@@ -462,10 +481,11 @@ class RoomController extends Controller
                 $imagePath = Storage::disk('s3')->put('rooms', $image);
                 $newImage = RoomImage::create([
                     'path' => $imagePath,
-                    'room_id' => $roomId
+                    'room_id' => $roomId,
                 ]);
                 array_push($createdImages, $newImage);
             }
+
             return $createdImages;
         }
     }

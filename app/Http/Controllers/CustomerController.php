@@ -3,21 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Address;
-use App\User;
-use App\Project;
 use App\Customer;
-use App\UserType;
-use Jenssegers\Agent\Agent;
-use Illuminate\Http\Request;
-use App\Mail\CustomerCreated;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Mail\CustomerCreated;
+use App\Project;
+use App\User;
+use App\UserType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Jenssegers\Agent\Agent;
 use Throwable;
 
 class CustomerController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('jwt.auth');
@@ -28,9 +27,13 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
 
-        if (isset($request->deleted)) $customers = Customer::with('address')->onlyTrashed()->orderBy('lastname')->get();
-        else if (isset($request->all)) $customers = Customer::with('address')->withTrashed()->orderBy('lastname')->get();
-        else $customers = Customer::with('address')->orderBy('lastname')->get();
+        if (isset($request->deleted)) {
+            $customers = Customer::with('address')->onlyTrashed()->orderBy('lastname')->get();
+        } elseif (isset($request->all)) {
+            $customers = Customer::with('address')->withTrashed()->orderBy('lastname')->get();
+        } else {
+            $customers = Customer::with('address')->orderBy('lastname')->get();
+        }
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user()->withTrashed()->first()->username;
@@ -49,7 +52,7 @@ class CustomerController extends Controller
         $this->validate($request, $this->validateArray);
         $this->validate($request, [
             'email' => 'nullable|email|unique:user',
-            'customer_number' => 'nullable|unique:customer'
+            'customer_number' => 'nullable|unique:customer',
         ]);
         $this->validateAddress($request, 'address');
         if ($request->differingBillingAddress) {
@@ -66,7 +69,7 @@ class CustomerController extends Controller
                 'lastname' => request('lastname'),
                 'email' => request('email'),
                 'username' => $request->customer_number,
-                'password' => Hash::make($password)
+                'password' => Hash::make($password),
             ]);
             $usertype->users()->save($user);
 
@@ -88,7 +91,7 @@ class CustomerController extends Controller
                 'needs_payment_order' => request('needs_payment_order'),
                 'differingBillingAddress' => request('differingBillingAddress'),
                 'is_blacklisted' => request('is_blacklisted'),
-                'blacklist_comment' => request('blacklist_comment')
+                'blacklist_comment' => request('blacklist_comment'),
             ]);
 
             $address = Address::create($request->address);
@@ -104,13 +107,12 @@ class CustomerController extends Controller
                 return response('no project called "Allgemein"', 404);
             }
 
-            $projectIds = array_map(function($project) {
-              return $project['id'];
+            $projectIds = array_map(function ($project) {
+                return $project['id'];
             }, $request->projects);
             array_push($projectIds, $defaultProject->id);
-            
-            $customer->projects()->sync($projectIds);
 
+            $customer->projects()->sync($projectIds);
 
             $customer->save();
 
@@ -136,8 +138,10 @@ class CustomerController extends Controller
         if ($customer->secret != null) {
             try {
                 $customer->secret = decrypt($customer->secret);
-            } catch(Throwable $e) {}
+            } catch (Throwable $e) {
+            }
         }
+
         return response($customer);
     }
 
@@ -150,6 +154,7 @@ class CustomerController extends Controller
             $customer = Customer::withTrashed()->find($id);
             $customer->restore();
             $customer->user()->withTrashed()->first()->restore();
+
             return response('success');
         }
         $this->validate($request, $this->validateArray);
@@ -172,7 +177,7 @@ class CustomerController extends Controller
             'needs_payment_order' => $request->needs_payment_order,
             'differingBillingAddress' => $request->differingBillingAddress,
             'is_blacklisted' => $request->is_blacklisted,
-            'blacklist_comment' => $request->blacklist_comment
+            'blacklist_comment' => $request->blacklist_comment,
         ]);
         $customer->user->username = $request->customer_number;
         $customer->user->save();
@@ -180,7 +185,7 @@ class CustomerController extends Controller
         $this->updateAddress($customer->address(), $request->address);
         // $customer->address()->update($request->address);
         if ($request->differingBillingAddress && $request->billing_address) {
-            if (!$customer->billingAddress) {
+            if (! $customer->billingAddress) {
                 $billingAddress = Address::create($request->billing_address);
                 $customer->billingAddress()->associate($billingAddress);
                 $customer->save();
@@ -190,15 +195,15 @@ class CustomerController extends Controller
             }
         }
 
-        $projectIds = array_map(function($project) {
+        $projectIds = array_map(function ($project) {
             return $project['id'];
         }, $request->projects);
-        
+
         $customer->projects()->sync($projectIds);
 
         if ($request->email != $customer->user->email) {
             $this->validate($request, [
-                'email' => 'nullable|email|unique:user'
+                'email' => 'nullable|email|unique:user',
             ]);
             $customer->user->email = $request->email;
             $customer->user->save();
@@ -208,9 +213,11 @@ class CustomerController extends Controller
                 $data['password'] = decrypt($customer->secret);
 
                 \Mail::to($request->email)->send(new CustomerCreated($data));
+
                 return response('email send');
             }
         }
+
         return response('success');
     }
 
@@ -268,7 +275,7 @@ class CustomerController extends Controller
         'needs_payment_order' => 'nullable|boolean',
         'differingBillingAddress' => 'nullable|boolean',
         'is_blacklisted' => 'nullable|boolean',
-        'blacklist_comment' => 'nullable|string|max:1000'
+        'blacklist_comment' => 'nullable|string|max:1000',
     ];
 
     private function validateAddress($request, $addressType)
@@ -281,12 +288,13 @@ class CustomerController extends Controller
         ]);
     }
 
-    private function updateAddress($address, $newAddress) {
+    private function updateAddress($address, $newAddress)
+    {
         $address->update([
             'street' => $newAddress['street'],
             'place' => $newAddress['place'],
             'plz' => $newAddress['plz'],
-            'addition' => $newAddress['addition']
+            'addition' => $newAddress['addition'],
         ]);
     }
 }

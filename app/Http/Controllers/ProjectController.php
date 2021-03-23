@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Project;
 use App\Customer;
+use App\Project;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -43,7 +43,7 @@ class ProjectController extends Controller
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
         $project = Project::create([
             'name' => $request->title,
-            'description' => $request->description
+            'description' => $request->description,
         ]);
 
         return $project;

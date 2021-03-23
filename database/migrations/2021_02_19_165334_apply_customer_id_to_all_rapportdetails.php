@@ -17,7 +17,7 @@ class ApplyCustomerIdToAllRapportdetails extends Migration
     {
         Rapportdetail::join('rapport', 'rapport.id', '=', 'rapportdetail.rapport_id')
             ->update([
-                'rapportdetail.customer_id' => DB::raw('rapport.customer_id')
+                'rapportdetail.customer_id' => DB::raw('rapport.customer_id'),
             ]);
     }
 
@@ -28,6 +28,5 @@ class ApplyCustomerIdToAllRapportdetails extends Migration
      */
     public function down()
     {
-        
     }
 }

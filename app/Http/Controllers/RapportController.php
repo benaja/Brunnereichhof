@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Project;
-use App\Rapport;
 use App\Customer;
 use App\Employee;
 use App\Enums\UserTypeEnum;
 use App\Foodtype;
-use App\Rapportdetail;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RapportResource;
+use App\Project;
+use App\Rapport;
+use App\Rapportdetail;
 use App\Resource;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class RapportController extends Controller
@@ -30,14 +30,13 @@ class RapportController extends Controller
 
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
             return Rapport::where('customer_id', auth()->user()->customer->id)->orderBy('startdate')->get();
-            // return auth()->user()->customer->rapports->sortBy('startdate');
+        // return auth()->user()->customer->rapports->sortBy('startdate');
         } else {
-
             if ($request->get('per_page') > 0) {
                 $paginatedResult = Rapport::orderBy('startdate', 'desc')
                     ->groupBy('startdate')
                     ->paginate($request->get('per_page'));
-;
+
                 $rapports = Rapport::whereIn('startdate', $paginatedResult->pluck('startdate'))
                     ->orderBy('startdate', 'desc')
                     ->get()
@@ -60,13 +59,14 @@ class RapportController extends Controller
                 $week = [
                     'date' => $date,
                     'hours' => $hours,
-                    'isFinished' => $isFinished
+                    'isFinished' => $isFinished,
                 ];
                 $rapportWeeks->push($week);
             }
 
             if ($request->get('per_page') > 0) {
                 $paginatedResult->setCollection($rapportWeeks);
+
                 return RapportResource::collection($paginatedResult);
             }
 
@@ -96,7 +96,7 @@ class RapportController extends Controller
 
         $rapport = Rapport::firstOrCreate([
             'startdate' => $week->format('Y-m-d'),
-            'customer_id' => $request->customer_id
+            'customer_id' => $request->customer_id,
         ]);
 
         if ($rapport->customer_id == null) {
@@ -115,7 +115,7 @@ class RapportController extends Controller
     {
         $this->authorize('view', $rapport);
 
-        $rapport = $this->rapportWithDetails($rapport, !!auth()->user()->customer);
+        $rapport = $this->rapportWithDetails($rapport, (bool) auth()->user()->customer);
 
         if (auth()->user()->customer) {
             return $rapport;
@@ -130,7 +130,7 @@ class RapportController extends Controller
 
         return [
             'rapport' => $rapport,
-            'employees' => $employees
+            'employees' => $employees,
         ];
     }
 
@@ -141,7 +141,7 @@ class RapportController extends Controller
         $date = Carbon::parse($rapport->startdate);
         $employee = Employee::find($request->employee_id);
         $defaultProject = Project::find($request->default_project_id);
-        if (!$defaultProject) {
+        if (! $defaultProject) {
             $$defaultProject = Project::where('name', 'Allgemein')->first();
         }
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
@@ -153,7 +153,7 @@ class RapportController extends Controller
                 $resource = Resource::firstOrCreate([
                     'date' => $date,
                     'rapport_id' => $rapport->id,
-                    'customer_id' => $rapport->custoemr_id
+                    'customer_id' => $rapport->custoemr_id,
                 ]);
 
                 $rapportdetail = Rapportdetail::create([
@@ -161,7 +161,7 @@ class RapportController extends Controller
                     'day' => $i,
                     'contract_type' => 'work_contract',
                     'customer_id' => $rapport->customer_id,
-                    'resource_id' => $resource->id
+                    'resource_id' => $resource->id,
                 ]);
                 $rapportdetail->employee()->associate($employee);
                 $rapportdetail->rapport()->associate($rapport);
@@ -177,8 +177,9 @@ class RapportController extends Controller
 
         $rapportdetails = Rapportdetail::where([
             'rapport_id' => $rapport->id,
-            'employee_id' => $employee->id
+            'employee_id' => $employee->id,
         ])->get();
+
         return $rapportdetails;
     }
 
@@ -188,7 +189,7 @@ class RapportController extends Controller
 
         Rapportdetail::where([
             'rapport_id' => $rapport->id,
-            'employee_id' => $employeeId
+            'employee_id' => $employeeId,
         ])->delete();
 
         return 'success';
@@ -207,7 +208,7 @@ class RapportController extends Controller
                 'comment_th' => $request->comment_th,
                 'comment_fr' => $request->comment_fr,
                 'comment_sa' => $request->comment_sa,
-                'isFinished' => $request->isFinished
+                'isFinished' => $request->isFinished,
             ]);
             foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
@@ -216,7 +217,7 @@ class RapportController extends Controller
                         'hours' => $newRapportdetail['hours'],
                         'foodtype_id' => $newRapportdetail['foodtype_id'],
                         'project_id' => $newRapportdetail['project_id'],
-                        'contract_type' => $newRapportdetail['contract_type']
+                        'contract_type' => $newRapportdetail['contract_type'],
                     ]);
                 }
             }
@@ -247,7 +248,7 @@ class RapportController extends Controller
         if ($updatetKey == 'project_id') {
             $project = Project::find($updatedValue);
             $rapportdetail->project()->associate($project);
-        } else if ($updatetKey == 'foodtype_id') {
+        } elseif ($updatetKey == 'foodtype_id') {
             $foodtype = Foodtype::find($updatedValue);
             $rapportdetail->foodtype()->associate($foodtype);
         } else {
@@ -257,7 +258,7 @@ class RapportController extends Controller
 
         // Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
         return [
-            'foodtype_ok' => $rapportdetail->foodtype_ok
+            'foodtype_ok' => $rapportdetail->foodtype_ok,
         ];
     }
 
@@ -274,6 +275,7 @@ class RapportController extends Controller
             $rapportdetail->save();
             array_push($rapportdetails, $rapportdetail);
         }
+
         return $rapportdetails;
     }
 
@@ -289,10 +291,11 @@ class RapportController extends Controller
             if ($rapportdetails->sum('hours') > 0) {
                 array_push($dayTotals, [
                     'employee' => $rapportdetails[0]->employee,
-                    'hours' => $rapportdetails->sum('hours')
+                    'hours' => $rapportdetails->sum('hours'),
                 ]);
             }
         }
+
         return $dayTotals;
     }
 
@@ -317,6 +320,7 @@ class RapportController extends Controller
             $rapport->rapportdetails = Rapportdetail::where('rapport_id', '=', $rapport->id)->get()->groupBy('employee_id')->toArray();
         }
         $rapport->rapportdetails = array_values($rapport->rapportdetails);
+
         return $rapport;
     }
 }

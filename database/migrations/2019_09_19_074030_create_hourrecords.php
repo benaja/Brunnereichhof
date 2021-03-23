@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateHourrecords extends Migration
 {
@@ -27,7 +27,6 @@ class CreateHourrecords extends Migration
             $table->foreign('customer_id')->references('id')->on('customer');
             $table->foreign('culture_id')->references('id')->on('culture');
         });
-
     }
 
     /**

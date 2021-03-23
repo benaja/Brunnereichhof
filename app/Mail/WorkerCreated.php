@@ -3,9 +3,9 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class WorkerCreated extends Mailable
 {
@@ -30,6 +30,6 @@ class WorkerCreated extends Mailable
      */
     public function build()
     {
-        return $this->subject("Willkommen")->from('rapport@brunnereichhof.ch', 'Brunnereichhof')->view('mails.worker-created');
+        return $this->subject('Willkommen')->from('rapport@brunnereichhof.ch', 'Brunnereichhof')->view('mails.worker-created');
     }
 }

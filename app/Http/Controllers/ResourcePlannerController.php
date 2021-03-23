@@ -47,7 +47,7 @@ class ResourcePlannerController extends Controller
     public function store(ResourcePlannerDay $resourcePlannerDay, Request $request)
     {
         $data = $this->validate($request, [
-            'customer_id' => ['required', 'integer', 'exists:customer,id']
+            'customer_id' => ['required', 'integer', 'exists:customer,id'],
         ]);
         $firstDayOfWeek = $resourcePlannerDay->date->clone()->weekday(0);
 
@@ -57,10 +57,10 @@ class ResourcePlannerController extends Controller
             ->where('startdate', $firstDayOfWeek)
             ->first();
 
-        if (!$rapport) {
+        if (! $rapport) {
             $rapport = Rapport::create([
                 'customer_id' => $customer->id,
-                'startdate' => $firstDayOfWeek
+                'startdate' => $firstDayOfWeek,
             ]);
         }
 
@@ -70,7 +70,7 @@ class ResourcePlannerController extends Controller
             'rapport_id' => $rapport->id,
             'start_time' => Settings::value('resourcePlannerStartTime'),
             'end_time' => Settings::value('resourcePlannerEndTime'),
-            'resource_planner_day_id' => $resourcePlannerDay->id
+            'resource_planner_day_id' => $resourcePlannerDay->id,
         ]);
 
         $resource->load(['rapportdetails.employee.languages', 'cars', 'tools', 'customer']);
@@ -78,11 +78,12 @@ class ResourcePlannerController extends Controller
         return ResourceResource::make($resource);
     }
 
-    public function update(Resource $resource, Request $request) {
+    public function update(Resource $resource, Request $request)
+    {
         $data = $this->validate($request, [
             'comment' => ['string'],
             'start_time' => ['date_format:H:i'],
-            'end_time' => ['date_format:H:i']
+            'end_time' => ['date_format:H:i'],
         ]);
 
         $resource->update($data);
@@ -92,7 +93,8 @@ class ResourcePlannerController extends Controller
         return ResourceResource::make($resource);
     }
 
-    public function destroy(Resource $resource) {
+    public function destroy(Resource $resource)
+    {
         $resource->delete();
     }
 
@@ -100,7 +102,7 @@ class ResourcePlannerController extends Controller
     {
         $data = $this->validate($request, [
             'employee_id' => ['required', 'integer', 'exists:employee,id'],
-            'date' => ['required', 'date']
+            'date' => ['required', 'date'],
         ]);
 
         $date = Carbon::parse($data['date']);
@@ -121,7 +123,7 @@ class ResourcePlannerController extends Controller
             'employee_id' => $data['employee_id'],
             'rapport_id' => $resource->rapport->id,
             'foodtype_id' => $defaultFoodType->id,
-            'resource_id' => $resource->id
+            'resource_id' => $resource->id,
         ]);
 
         $rapportdetail->load('employee.languages');
@@ -134,40 +136,48 @@ class ResourcePlannerController extends Controller
         $rapportdetail->delete();
     }
 
-    public function addCar(Resource $resource, Car $car) {
+    public function addCar(Resource $resource, Car $car)
+    {
         $resource->cars()->attach($car);
+
         return  CarResource::make($car);
     }
 
-    public function removeCar(Resource $resource, Car $car) {
+    public function removeCar(Resource $resource, Car $car)
+    {
         $resource->cars()->detach($car);
     }
 
-    public function addTool(Resource $resource, Tool $tool, Request $request) {
+    public function addTool(Resource $resource, Tool $tool, Request $request)
+    {
         $data = $this->validate($request, [
-            'amount' => ['integer']
+            'amount' => ['integer'],
         ]);
 
         $resource->tools()->attach($tool, $data);
+
         return  ToolResource::make($tool);
     }
 
-    public function removeTool(Resource $resource, Tool $tool) {
+    public function removeTool(Resource $resource, Tool $tool)
+    {
         $resource->tools()->detach($tool);
     }
 
-    public function updatePlannerDay(ResourcePlannerDay $resourcePlannerDay, Request $request) {
+    public function updatePlannerDay(ResourcePlannerDay $resourcePlannerDay, Request $request)
+    {
         $data = $this->validate($request, [
             'completed'=> ['required', 'boolean'],
-            'history_enabled'=> ['required', 'boolean']
+            'history_enabled'=> ['required', 'boolean'],
         ]);
 
         $resourcePlannerDay->update($data);
     }
 
-    public function updateToolsPivot(Resource $resource, Tool $tool, Request $request) {
+    public function updateToolsPivot(Resource $resource, Tool $tool, Request $request)
+    {
         $data = $this->validate($request, [
-            'amount' => ['required', 'integer']
+            'amount' => ['required', 'integer'],
         ]);
 
         DB::table('resource_tool')

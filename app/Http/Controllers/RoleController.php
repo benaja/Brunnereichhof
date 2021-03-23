@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\AuthorizationRule;
 use App\Http\Controllers\Controller;
 use App\Role;
-use App\AuthorizationRule;
+use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
@@ -26,18 +26,18 @@ class RoleController extends Controller
         auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $this->validate($request, [
-            'name' => 'required|string|max:200'
+            'name' => 'required|string|max:200',
         ]);
 
         $role = Role::create([
-            'name' => $request->name
+            'name' => $request->name,
         ]);
 
         try {
             $role->authorizationRules()->attach($request->authorizationRules);
         } catch (\Exception $e) {
             $role->forceDelete();
-            abort(500, "Could not create role");
+            abort(500, 'Could not create role');
         }
 
         return $role;
@@ -57,13 +57,13 @@ class RoleController extends Controller
         auth()->user()->authorize(['superadmin'], ['role_write']);
 
         $this->validate($request, [
-            'name' => 'required|string|max:200'
+            'name' => 'required|string|max:200',
         ]);
 
         $role = Role::find($id);
 
         $role->update([
-            'name' => $request->name
+            'name' => $request->name,
         ]);
 
         $role->authorizationRules()->sync($request->selectedAuthorizationRules);
@@ -75,7 +75,9 @@ class RoleController extends Controller
 
         $role = Role::find($id);
 
-        if (count($role->users) != 0) abort(400, "Role still has one or more users");
+        if (count($role->users) != 0) {
+            abort(400, 'Role still has one or more users');
+        }
 
         $role->authorizationRules()->detach();
 

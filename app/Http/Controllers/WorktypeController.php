@@ -37,14 +37,14 @@ class WorktypeController extends Controller
             'name_de' => 'required|string',
             'manually' => 'required|boolean',
             'work_input_types.*.name' => 'required|string',
-            'work_input_types.*.hours' => 'required|numeric'
+            'work_input_types.*.hours' => 'required|numeric',
         ]);
 
         DB::transaction(function () use ($request, $id) {
             $worktype = Worktype::find($id);
             $worktype->update([
                 'name_de' => $request->name_de,
-                'manually' => $request->manually
+                'manually' => $request->manually,
             ]);
 
             $existingWorkInputTypes = array_filter($request->work_input_types, function ($workInputType) {
