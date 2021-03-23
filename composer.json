@@ -8,12 +8,13 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^7.4",
+        "php": "^7.4 | ^8.0",
         "bensampo/laravel-enum": "^3.3",
         "doctrine/dbal": "^3.0",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
-        "illuminate/database": "^7.13",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "illuminate/database": "^8.34",
         "intervention/image": "^2.5",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^8.33",
@@ -26,8 +27,7 @@
         "setasign/fpdi": "^2.3",
         "spatie/laravel-activitylog": "^3.17",
         "tecnickcom/tcpdf": "^6.3",
-        "tymon/jwt-auth": "^1.0",
-        "guzzlehttp/guzzle": "^7.0.1"
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.9",
