@@ -105,6 +105,8 @@ class ResourcePlannerController extends Controller
             'date' => ['required', 'date'],
         ]);
 
+        $resource->load('rapport');
+
         $date = Carbon::parse($data['date']);
 
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
@@ -115,15 +117,35 @@ class ResourcePlannerController extends Controller
 
         abort_if($rapportdetailExists, 400, 'Employee already exists fot that day and customer');
 
-        $rapportdetail = Rapportdetail::create([
-            'date' => $date,
-            'day' => $date->dayOfWeek,
+        $rapportdetail = Rapportdetail::where('employee_id', $data['employee_id'])
+            ->where('date', $resource->date)
+            ->where('customer_id', $resource->customer_id)
+            ->first();
+
+        if (! $rapportdetail) {
+            $currentDate = Carbon::parse($resource->rapport()->first()->startdate);
+            for ($i = 0; $i < 6; $i++) {
+                Rapportdetail::create([
+                    'date' => $currentDate,
+                    'day' => $currentDate->dayOfWeek,
+                    'contract_type' => 'work_contract',
+                    'customer_id' => $resource->customer->id,
+                    'employee_id' => $data['employee_id'],
+                    'rapport_id' => $resource->rapport->id,
+                    'foodtype_id' => $defaultFoodType->id,
+                ]);
+
+                $currentDate->addDay();
+            }
+
+            $rapportdetail = Rapportdetail::where('employee_id', $data['employee_id'])
+                ->where('date', $resource->date)
+                ->where('customer_id', $resource->customer_id)
+                ->first();
+        }
+
+        $rapportdetail->update([
             'hours' => Settings::value('resourcePlannerDefaultDuration'),
-            'contract_type' => 'work_contract',
-            'customer_id' => $resource->customer->id,
-            'employee_id' => $data['employee_id'],
-            'rapport_id' => $resource->rapport->id,
-            'foodtype_id' => $defaultFoodType->id,
             'resource_id' => $resource->id,
         ]);
 

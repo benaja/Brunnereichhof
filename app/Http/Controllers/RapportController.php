@@ -308,6 +308,8 @@ class RapportController extends Controller
             $rapportdetail->delete();
         }
 
+        $rapport->resources()->delete();
+
         $rapport->delete();
     }
 

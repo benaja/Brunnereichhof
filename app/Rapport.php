@@ -51,4 +51,9 @@ class Rapport extends Model
     {
         return $this->hours();
     }
+
+    public function resources()
+    {
+        return $this->hasMany(Resource::class);
+    }
 }
