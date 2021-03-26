@@ -88,7 +88,11 @@ class ResourcePlannerController extends Controller
 
         $resource->update($data);
 
-        // activity('resource-planner')->performedOn($resource)->log('Bearbeitet');
+        // dump($resource->getOriginal('comment'));
+        // if ($resource->plannerDay->history_enabled) {
+        //     $updated = array_keys($data)[0];
+        //     activity('resource-planner')->performedOn($resource)->log(Resource::namesMap[$updated].' von ');
+        // }
 
         return ResourceResource::make($resource);
     }
@@ -105,10 +109,6 @@ class ResourcePlannerController extends Controller
             'date' => ['required', 'date'],
         ]);
 
-        $resource->load('rapport');
-
-        $date = Carbon::parse($data['date']);
-
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();
 
         $rapportdetailExists = Rapportdetail::where('employee_id', $data['employee_id'])
@@ -123,7 +123,7 @@ class ResourcePlannerController extends Controller
             ->first();
 
         if (! $rapportdetail) {
-            $currentDate = Carbon::parse($resource->rapport()->first()->startdate);
+            $currentDate = Carbon::parse($resource->rapport->startdate);
             for ($i = 0; $i < 6; $i++) {
                 Rapportdetail::create([
                     'date' => $currentDate,

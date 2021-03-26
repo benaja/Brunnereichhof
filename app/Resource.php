@@ -8,6 +8,12 @@ class Resource extends Model
 {
     protected $guarded = [];
 
+    public const namesMap = [
+        'start_time' => 'Startzeit',
+        'end_time' => 'Endzeit',
+        'comment' => 'Kommentar',
+    ];
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -35,6 +41,14 @@ class Resource extends Model
 
     public function plannerDay()
     {
-        return $this->belongsTo(ResourcePlannerDay::class);
+        return $this->belongsTo(ResourcePlannerDay::class, 'resource_planner_day_id');
     }
+
+    // protected static function booted()
+    // {
+    //     static::updating(function ($resource) {
+    //         if ($resource->plannerDay && $resource->plannerDay->history_enabled) {
+    //         }
+    //     });
+    // }
 }
