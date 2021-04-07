@@ -7,7 +7,7 @@
       :disabled="disabled"
       @add="add"
     >
-      <v-expansion-panel-header v-slot="{ open }">
+      <v-expansion-panel-header>
         <div>
           <div
             class="d-flex justify-space-between "
@@ -53,6 +53,7 @@
       <v-expansion-panel-content>
         <v-row>
           <v-col
+            v-if="!disabled"
             cols="12"
             md="6"
           >
@@ -60,10 +61,12 @@
               v-model="updateHoursForAll"
               type="number"
               :label="$t('Stunden für alle anpassen')"
+
               @keydown.enter="applyHoursForAll"
             ></v-text-field>
           </v-col>
           <v-col
+            v-if="!disabled"
             cols="12"
             md="6"
           >
@@ -136,7 +139,7 @@
           >
             <time-text-field
               v-model="resource.start_time"
-              :disabled="disabled"
+              :readonly="disabled"
               :label="$t('Startzeit')"
               @input="debounceUpdate('start_time', $event)"
             ></time-text-field>
@@ -149,7 +152,7 @@
             <time-text-field
               v-model="resource.end_time"
               :label="$t('Endzeit')"
-              :disabled="disabled"
+              :readonly="disabled"
               @input="debounceUpdate('end_time', $event)"
             ></time-text-field>
           </v-col>
@@ -160,7 +163,7 @@
               v-model="resource.comment"
               auto-grow
               :rows="1"
-              :disabled="disabled"
+              :readonly="disabled"
               label="Kommentar"
               @input="debounceUpdate('comment', $event)"
             ></v-textarea>
@@ -481,7 +484,6 @@ export default {
     },
 
     async applyProjectForAll() {
-      console.log('tst')
       try {
         await Promise.all(
           this.resource.rapportdetails.map(async rapportdetail => {
@@ -492,7 +494,6 @@ export default {
           })
         )
       } catch (e) {
-        console.log(e)
         this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
       }
       this.updateProjectForAll = null

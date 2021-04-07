@@ -16,6 +16,7 @@
         <v-text-field
           v-model="value.hours"
           dense
+          :readonly="disabled"
           :label="$t('Stunden')"
           @input="update('hours')"
         ></v-text-field>
@@ -30,6 +31,7 @@
           :items="customer.projects"
           item-value="id"
           item-text="name"
+          :readonly="disabled"
           dense
           @input="update('project_id')"
         ></v-select>
@@ -55,6 +57,10 @@ export default {
     customer: {
       type: Object,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
