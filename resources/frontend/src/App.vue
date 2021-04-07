@@ -254,12 +254,12 @@ export default {
           to: '/rapport',
           text: 'Wochenrapport',
           icon: 'event_note',
-          show: this.hasPermission(['superadmin'], ['rapport_read', 'tools_read', 'cars_read'])
+          show: this.hasPermission(['superadmin'], ['rapport_read'])
         },
         {
           text: this.$t('Einsatzplaner'),
           icon: 'edit_calendar',
-          show: this.hasPermission(['superadmin'], ['resource_planner_read']),
+          show: this.hasPermission(['superadmin'], ['resource_planner_read', 'tools_read', 'cars_read']),
           items: [
             {
               to: '/resource-planner/plan',

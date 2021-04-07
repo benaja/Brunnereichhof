@@ -21,7 +21,7 @@
           <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.amount }}</td>
-            <td>
+            <td v-if="isAllowedToEdit">
               <div class="d-flex jsutify-end">
                 <v-btn
                   icon
@@ -43,6 +43,7 @@
 
       <!-- Add Tool -->
       <v-dialog
+        v-if="isAllowedToEdit"
         v-model="addTool"
         width="900"
       >
@@ -96,21 +97,7 @@ export default {
     return {
       addTool: false,
       editTool: null,
-      searchString: null,
-      headers: [
-        {
-          text: this.$i18n.t('Name'),
-          value: 'name'
-        },
-        {
-          text: this.$t('Menge'),
-          value: 'amount'
-        },
-        {
-          text: this.$t('Aktionen'),
-          width: 100
-        }
-      ]
+      searchString: null
     }
   },
   computed: {
@@ -121,6 +108,30 @@ export default {
           search: this.searchString
         })
       }, 300)
+    },
+    isAllowedToEdit() {
+      return this.$auth.user().hasPermission(['superadmin'], ['tools_write'])
+    },
+    headers() {
+      const headers = [
+        {
+          text: this.$i18n.t('Name'),
+          value: 'name'
+        },
+        {
+          text: this.$t('Menge'),
+          value: 'amount'
+        }
+      ]
+
+      if (this.isAllowedToEdit) {
+        headers.push({
+          text: this.$t('Aktionen'),
+          width: 100
+        })
+      }
+
+      return headers
     }
   },
   mounted() {
