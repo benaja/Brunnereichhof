@@ -169,7 +169,10 @@
             ></v-textarea>
           </v-col>
         </v-row>
-        <div class="text-right">
+        <div
+          v-if="!disabled"
+          class="text-right"
+        >
           <v-btn
             color="red"
             icon

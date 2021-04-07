@@ -25,7 +25,7 @@ class CustomerController extends Controller
     // GET customer
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer']);
+        auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer', 'resource_planner_write']);
 
         if (isset($request->deleted)) {
             $customers = Customer::with('address')->onlyTrashed()->orderBy('lastname')->get();

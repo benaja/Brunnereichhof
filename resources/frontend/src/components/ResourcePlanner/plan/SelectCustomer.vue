@@ -20,7 +20,6 @@
         {{ $t('Kunde Hinzufügen') }}
       </h3>
       <v-autocomplete
-        v-if="$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
         v-model="selectedCustomer"
         :label="$t('Kunde Hinzufügen')"
         append-outer-icon="search"

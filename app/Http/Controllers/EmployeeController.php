@@ -32,7 +32,7 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee', 'resource_planner_write']);
 
         if ($request->get('paginate') === 'true') {
             $query = Employee::join('user', 'user.id', '=', 'employee.user_id')

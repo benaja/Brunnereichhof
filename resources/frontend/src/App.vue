@@ -254,32 +254,32 @@ export default {
           to: '/rapport',
           text: 'Wochenrapport',
           icon: 'event_note',
-          show: this.hasPermission(['superadmin'], ['rapport_read'])
+          show: this.hasPermission(['superadmin'], ['rapport_read', 'tools_read', 'cars_read'])
         },
         {
           text: this.$t('Einsatzplaner'),
           icon: 'edit_calendar',
-          show: this.hasPermission(['superadmin'], ['rapport_read']),
+          show: this.hasPermission(['superadmin'], ['resource_planner_read']),
           items: [
             {
               to: '/resource-planner/plan',
               text: this.$t('Planen'),
-              show: this.hasPermission(['superadmin'], ['rapport_read'])
+              show: this.hasPermission(['superadmin'], ['resource_planner_read'])
             },
             {
               to: '/einsatzplaner/planung',
               text: this.$t('Ansehen'),
-              show: this.hasPermission(['superadmin'], ['rapport_read'])
+              show: this.hasPermission(['superadmin'], ['resource_planner_read'])
             },
             {
               to: '/resource-planner/tools',
               text: this.$t('Werkzeuge'),
-              show: this.hasPermission(['superadmin'], ['rapport_read'])
+              show: this.hasPermission(['superadmin'], ['tools_read'])
             },
             {
               to: '/resource-planner/cars',
               text: this.$t('Autos'),
-              show: this.hasPermission(['superadmin'], ['rapport_read'])
+              show: this.hasPermission(['superadmin'], ['cars_read'])
             }
           ]
         },

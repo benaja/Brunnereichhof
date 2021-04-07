@@ -52,6 +52,8 @@ class ResourcePlannerController extends Controller
 
     public function store(ResourcePlannerDay $resourcePlannerDay, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'customer_id' => ['required', 'integer', 'exists:customer,id'],
         ]);
@@ -86,6 +88,8 @@ class ResourcePlannerController extends Controller
 
     public function update(Resource $resource, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'comment' => ['string'],
             'start_time' => ['date_format:H:i'],
@@ -105,11 +109,15 @@ class ResourcePlannerController extends Controller
 
     public function destroy(Resource $resource)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $resource->delete();
     }
 
     public function addRapportdetail(Resource $resource, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'employee_id' => ['required', 'integer', 'exists:employee,id'],
             'date' => ['required', 'date'],
@@ -162,11 +170,15 @@ class ResourcePlannerController extends Controller
 
     public function deleteRapportdetail(Rapportdetail $rapportdetail)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $rapportdetail->delete();
     }
 
     public function addCar(Resource $resource, Car $car)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $resource->cars()->attach($car);
 
         return  CarResource::make($car);
@@ -174,11 +186,15 @@ class ResourcePlannerController extends Controller
 
     public function removeCar(Resource $resource, Car $car)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $resource->cars()->detach($car);
     }
 
     public function addTool(Resource $resource, Tool $tool, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'amount' => ['integer'],
         ]);
@@ -190,11 +206,15 @@ class ResourcePlannerController extends Controller
 
     public function removeTool(Resource $resource, Tool $tool)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $resource->tools()->detach($tool);
     }
 
     public function updatePlannerDay(ResourcePlannerDay $resourcePlannerDay, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'completed'=> ['required', 'boolean'],
             'history_enabled'=> ['required', 'boolean'],
@@ -205,6 +225,8 @@ class ResourcePlannerController extends Controller
 
     public function updateToolsPivot(Resource $resource, Tool $tool, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_write']);
+
         $data = $this->validate($request, [
             'amount' => ['required', 'integer'],
         ]);
@@ -217,6 +239,8 @@ class ResourcePlannerController extends Controller
 
     public function generatePdf(ResourcePlannerDay $resourcePlannerDay)
     {
+        auth()->user()->authorize(['superadmin'], ['resource_planner_read']);
+
         $resources = $resourcePlannerDay->resources()
             ->with(['rapportdetails' => function ($query) {
                 $query->with('employee.languages', 'project');

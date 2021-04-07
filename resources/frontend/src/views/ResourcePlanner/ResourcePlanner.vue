@@ -18,7 +18,7 @@
         v-model="date"
         class="mr-10"
       ></select-day>
-      <template v-if="resources.length">
+      <template v-if="resources.length && isAllowedToEdit">
         <v-btn
           v-if="!isCompleted"
           color="primary"
@@ -49,7 +49,7 @@
     >
       <v-row no-gutters>
         <v-col
-          v-if="!isCompleted"
+          v-if="!isCompleted && isAllowedToEdit"
           cols="12"
           md="6"
           lg="5"
@@ -106,12 +106,12 @@
         </v-col>
         <v-col
           cols="12"
-          :md="isCompleted ? 12 : 6"
-          :lg="isCompleted ? 12 : 7"
-          :xl="isCompleted ? 12 : 8"
+          :md="isCompleted || !isAllowedToEdit ? 12 : 6"
+          :lg="isCompleted || !isAllowedToEdit ? 12 : 7"
+          :xl="isCompleted || !isAllowedToEdit ? 12 : 8"
         >
           <select-customer
-            v-if="!isCompleted"
+            v-if="!isCompleted && isAllowedToEdit"
             :selected-customers="selectedCustomers"
             @input="addCustomer"
           ></select-customer>
@@ -135,7 +135,7 @@
                 :used-car-ids="usedCarIds"
                 :available-tools="availableTools"
                 :amount-of-use-per-tool="amountOfUsePerTool"
-                :disabled="isCompleted"
+                :disabled="isCompleted || !isAllowedToEdit"
                 @remove="removeResource(resource)"
               ></customer-card>
             </v-expansion-panels>
@@ -216,6 +216,9 @@ export default {
     },
     isCompleted() {
       return !!(this.plannerDay && this.plannerDay.completed)
+    },
+    isAllowedToEdit() {
+      return this.$auth.user().hasPermission(['superadmin'], ['resource_planner_write'])
     }
   },
   watch: {
@@ -225,10 +228,13 @@ export default {
   },
   async mounted() {
     await this.fetchResources()
-    await this.$store.dispatch('fetchEmployees')
-    await this.$store.dispatch('fetchTools')
-    await this.$store.dispatch('fetchCars')
-    await this.$store.dispatch('fetchCustomers')
+
+    if (this.isAllowedToEdit) {
+      await this.$store.dispatch('fetchEmployees')
+      await this.$store.dispatch('fetchTools')
+      await this.$store.dispatch('fetchCars')
+      await this.$store.dispatch('fetchCustomers')
+    }
   },
   methods: {
     addCustomer(customerId) {

@@ -237,7 +237,7 @@ class RapportController extends Controller
 
     public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
     {
-        auth()->user()->authorize(['superadmin'], ['rapport_write']);
+        auth()->user()->authorize(['superadmin'], ['rapport_write', 'resource_planner_write']);
 
         $updatetKey = key($request->except('_token'));
 
