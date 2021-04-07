@@ -32,7 +32,7 @@
             <td>{{ item.seats }}</td>
             <td>{{ item.number }}</td>
             <td>{{ item.fuel === 'gas' ? $t('Benzin') : $t('Diesel') }}</td>
-            <td>
+            <td v-if="isAllowedToEdit">
               <div class="d-flex jsutify-end">
                 <v-btn
                   icon
@@ -53,6 +53,7 @@
       </v-data-table>
 
       <v-dialog
+        v-if="isAllowedToEdit"
         v-model="addCar"
         width="900"
       >
@@ -105,8 +106,23 @@ export default {
     return {
       addCar: false,
       editCar: null,
-      searchString: null,
-      headers: [
+      searchString: null
+    }
+  },
+  computed: {
+    ...mapGetters(['cars', 'isLoading']),
+    debounceSearch() {
+      return this._.debounce(() => {
+        this.$store.dispatch('fetchCars', {
+          search: this.searchString
+        })
+      }, 300)
+    },
+    isAllowedToEdit() {
+      return this.$auth.user().hasPermission(['superadmin'], ['cars_write'])
+    },
+    headers() {
+      const headers = [
         {
           text: this.$i18n.t('Bild'),
           width: 70
@@ -124,24 +140,19 @@ export default {
           value: 'number'
         },
         {
-          text: this.$t('Benzin'),
+          text: this.$t('Treibstoff'),
           value: 'fuel'
-        },
-        {
-          text: this.$t('Aktionen'),
-          width: 100
         }
       ]
-    }
-  },
-  computed: {
-    ...mapGetters(['cars', 'isLoading']),
-    debounceSearch() {
-      return this._.debounce(() => {
-        this.$store.dispatch('fetchCars', {
-          search: this.searchString
+
+      if (this.isAllowedToEdit) {
+        headers.push({
+          text: this.$t('Aktionen'),
+          width: 100
         })
-      }, 300)
+      }
+
+      return headers
     }
   },
   mounted() {
