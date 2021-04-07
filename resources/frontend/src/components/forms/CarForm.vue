@@ -50,7 +50,7 @@
       >
         <select-field
           v-model="value.fuel"
-          :label="`${$t('Benzin')}*`"
+          :label="`${$t('Treibstoff')}*`"
           :original="original.fuel"
           :rules="[rules.required]"
           :readonly="readonly"
