@@ -19,8 +19,14 @@
           v-model="date"
         ></select-day>
       </div>
+
+      <v-text-field
+        v-model="searchString"
+        :label="$t('Suchen')"
+        prepend-icon="search"
+      ></v-text-field>
       <div
-        v-for="resource of resources"
+        v-for="resource of searchResult"
         :key="resource.id"
         class="pa-4 white mb-8 customer-container"
       >
@@ -145,6 +151,7 @@
 <script>
 import SelectDay from '@/components/ResourcePlanner/SelectDay'
 import AvatarImage from '@/components/ResourcePlanner/plan/AvatarImage'
+import { debounce } from 'lodash'
 
 export default {
   components: {
@@ -157,13 +164,21 @@ export default {
       date: this.getCurrentDate(),
       resources: [],
       plannerDay: null,
-      isLoading: false
+      isLoading: false,
+      searchString: null,
+      searchResult: []
     }
+  },
+
+  computed: {
   },
 
   watch: {
     date() {
       this.fetchResources()
+    },
+    searchString() {
+      this.debounceSearch()
     }
   },
 
@@ -185,9 +200,30 @@ export default {
       this.isLoading = true
       const { data } = await this.axios.$get('resources', { params: { date: this.date } })
       this.resources = data.resources
+      this.searchResult = [...this.resources]
       this.plannerDay = data
       this.isLoading = false
-    }
+    },
+
+    debounceSearch: debounce(function () {
+      const search = this.searchString.toLowerCase()
+      const resources = this.resources.filter(resource => {
+        if (!search) return true
+
+        const customerName = `${resource.customer.lastname} ${resource.customer.firstname}`.toLowerCase()
+
+        if (customerName.includes(search)) return true
+
+        for (const rapportdetail of resource.rapportdetails) {
+          const employeeName = `${rapportdetail.employee.lastname} ${rapportdetail.employee.firstname}`.toLowerCase()
+          if (employeeName.includes(search)) return true
+        }
+
+        return false
+      })
+      this.searchResult = [...resources]
+    }, 300)
+
   }
 }
 
