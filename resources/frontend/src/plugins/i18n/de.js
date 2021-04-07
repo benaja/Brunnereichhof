@@ -77,5 +77,6 @@ export default {
   'Stunden für alle anpassen': 'Stunden für alle anpassen',
   'Projekt für alle anpassen': 'Projekt für alle anpassen',
   'Pdf generieren': 'Pdf generieren',
-  'Pdf konnte nicht erstellt werden': 'Pdf konnte nicht erstellt werden'
+  'Pdf konnte nicht erstellt werden': 'Pdf konnte nicht erstellt werden',
+  Ansehen: 'Ansehen'
 }

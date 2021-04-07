@@ -258,12 +258,17 @@ export default {
         },
         {
           text: this.$t('Einsatzplaner'),
-          icon: 'event_note',
+          icon: 'edit_calendar',
           show: this.hasPermission(['superadmin'], ['rapport_read']),
           items: [
             {
               to: '/resource-planner/plan',
               text: this.$t('Planen'),
+              show: this.hasPermission(['superadmin'], ['rapport_read'])
+            },
+            {
+              to: '/einsatzplaner/planung',
+              text: this.$t('Ansehen'),
               show: this.hasPermission(['superadmin'], ['rapport_read'])
             },
             {
