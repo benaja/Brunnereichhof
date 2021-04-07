@@ -132,7 +132,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('cars/{car}', 'CarsController@update');
     Route::resource('tools', 'ToolsController');
     Route::resource('cars', 'CarsController');
-    Route::patch('resources/{resource}', 'ResourcePlannerController@update');
+    Route::put('resources/{resource}', 'ResourcePlannerController@update');
     Route::delete('resource/{resource}', 'ResourcePlannerController@destroy');
     Route::post('resources/{resource}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
     Route::delete('rapportdetails/{rapportdetail}', 'ResourcePlannerController@deleteRapportdetail');

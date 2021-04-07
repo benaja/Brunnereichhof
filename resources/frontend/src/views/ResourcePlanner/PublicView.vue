@@ -22,8 +22,21 @@
       <div
         v-for="resource of resources"
         :key="resource.id"
+        class="pa-4 white mb-8 customer-container"
       >
         <h2>{{ resource.customer.lastname }} {{ resource.customer.firstname }}</h2>
+
+        <p class="mb-1">
+          {{ $t('Startzeit') }}: {{ $moment(resource.start_time, 'HH:mm:ss').format('HH:mm') }},
+          {{ $t('Endzeit') }}: {{ $moment(resource.end_time, 'HH:mm:ss').format('HH:mm') }}
+        </p>
+
+        <p
+          v-if="resource.comment"
+          class="mb-1"
+        >
+          {{ $t('Kommentar') }}: {{ resource.comment }}
+        </p>
 
         <v-row>
           <v-col
@@ -51,7 +64,7 @@
                   v-if="rapportdetail.project && rapportdetail.project.name !== 'Allgemein'"
                   class="font-italic"
                 >
-                  {{ $t('Prjekt') }}:{{ rapportdetail.project.name }}
+                  {{ $t('Projekt') }}:{{ rapportdetail.project.name }}
                 </p>
               </div>
             </div>
@@ -184,6 +197,10 @@ export default {
 <style lang="scss" scoped>
 .avatar-container {
   width: 30px;
+}
 
+.customer-container {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 </style>
