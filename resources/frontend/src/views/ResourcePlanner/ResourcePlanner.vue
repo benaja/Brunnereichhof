@@ -5,9 +5,18 @@
       full-width
       :loading="isLoading.employees"
     >
+      <v-btn
+        depressed
+        color="primary"
+        class="ml-auto"
+        :loading="isLoadingPdf"
+        @click="downloadPdf"
+      >
+        {{ $t('Pdf generieren') }}
+      </v-btn>
       <select-day
         v-model="date"
-        class="ml-auto mr-10"
+        class="mr-10"
       ></select-day>
       <template v-if="resources.length">
         <v-btn
@@ -146,7 +155,7 @@ import DraggableCarList from '@/components/ResourcePlanner/plan/DraggableCarList
 import DraggableEmployeeList from '@/components/ResourcePlanner/plan/DraggableEmployeeList'
 import DraggableToolList from '@/components/ResourcePlanner/plan/DraggableToolList'
 import ResourcePlannerFilter from '@/components/ResourcePlanner/plan/ResourcePlannerFilter'
-import { confirmAction } from '@/utils'
+import { confirmAction, downloadFile } from '@/utils'
 
 export default {
   components: {
@@ -171,7 +180,8 @@ export default {
       filteredEmployees: [],
       filteredCars: [],
       filteredTools: [],
-      plannerDay: null
+      plannerDay: null,
+      isLoadingPdf: false
     }
   },
   computed: {
@@ -272,6 +282,14 @@ export default {
             this.plannerDay.completed = yes
           })
         }
+      })
+    },
+    downloadPdf() {
+      this.isLoadingPdf = true
+      downloadFile(`pdf/planner-day/${this.plannerDay.id}`).catch(() => {
+        this.$store.dispatch('error', this.$t('Pdf konnte nicht erstellt werden'))
+      }).finally(() => {
+        this.isLoadingPdf = false
       })
     }
   }

@@ -141,4 +141,5 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::patch('planner-day/{resourcePlannerDay}', 'ResourcePlannerController@updatePlannerDay');
     Route::post('planner-day/{resourcePlannerDay}/customers', 'ResourcePlannerController@store');
     Route::patch('resources/{resource}/tools/{tool}', 'ResourcePlannerController@updateToolsPivot');
+    Route::get('pdf/planner-day/{resourcePlannerDay}', 'ResourcePlannerController@generatePdf');
 });

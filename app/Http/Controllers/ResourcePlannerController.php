@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Car;
 use App\Customer;
 use App\Foodtype;
+use App\Helpers\Pdf;
 use App\Http\Resources\CarResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\RapportdetailResource;
@@ -207,5 +208,58 @@ class ResourcePlannerController extends Controller
             ->where('resource_id', $resource->id)
             ->where('tool_id', $tool->id)
             ->update($data);
+    }
+
+    public function generatePdf(ResourcePlannerDay $resourcePlannerDay)
+    {
+        $resources = $resourcePlannerDay->resources()
+            ->with(['rapportdetails' => function ($query) {
+                $query->with('employee.languages', 'project');
+            }, 'cars', 'tools', 'customer'])
+            ->join('customer', 'customer.id', '=', 'resources.customer_id')
+            ->orderBy('customer.lastname')
+            ->select('resources.*')
+            ->get();
+
+        $pdf = new Pdf('P');
+
+        // $pdf->documentTitle('Einsatzplan '.$resourcePlannerDay->date->format('d.m.Y'));
+
+        $formatedDate = $resourcePlannerDay->date->format('d.m.Y');
+
+        foreach ($resources as $index => $resource) {
+            if ($index !== 0) {
+                $pdf->addNewPage();
+            }
+            $title = "Einsatzplan {$resource->customer->lastname} {$resource->customer->firstname} {$formatedDate}";
+            $pdf->textToInsertOnPageBreak = $title;
+            $pdf->documentTitle($title);
+            $pdf->paragraph("Start: {$resource->start_time} Ende: {$resource->end_time}");
+
+            if ($resource->comment) {
+                $pdf->paragraph('Kommentar', 0, 'B');
+                $pdf->paragraph($resource->comment);
+            }
+
+            $employeesTable = $resource->rapportdetails->map(fn ($rapportdetail) => [$rapportdetail->employee->name(), $rapportdetail->hours, optional($rapportdetail->project)->name]);
+
+            $toolsTable = $resource->tools->map(fn ($tool) => [$tool->name, $tool->pivot->amount]);
+
+            $carsTable = $resource->cars->map(fn ($car) => [$car->name, $car->seats, $car->fuel, $car->comment, $car->important_comment]);
+
+            $pdf->newLine();
+            $pdf->paragraph('Mitarbeiter', 13);
+            $pdf->table(['Name', 'Stunden', 'Prjekt'], $employeesTable);
+
+            $pdf->paragraph('Werkzeuge', 13);
+            $pdf->table(['Name', 'Menge'], $toolsTable);
+
+            $pdf->paragraph('Autos', 13);
+            $pdf->table(['Name', 'Sitze', 'Treibstoff', 'Bemerkung', 'Wichtige Bemerkung'], $carsTable, [1, 0.3, 0.5, 1, 1]);
+
+            // $
+        }
+
+        return $pdf->export('test.pdf');
     }
 }

@@ -74,5 +74,7 @@ export default {
   'Nicht genügend Sitzplätze in den Autos vorhanden': 'Nicht genügend Sitzplätze in den Autos vorhanden',
   'Standard Stunden pro Kunde': 'Standard Stunden pro Kunde',
   'Stunden für alle anpassen': 'Stunden für alle anpassen',
-  'Projekt für alle anpassen': 'Projekt für alle anpassen'
+  'Projekt für alle anpassen': 'Projekt für alle anpassen',
+  'Pdf generieren': 'Pdf generieren',
+  'Pdf konnte nicht erstellt werden': 'Pdf konnte nicht erstellt werden'
 }

@@ -57,11 +57,11 @@ class Pdf extends Fpdi
             $textSize = $this->textSize;
         }
 
-        $this->SetX($this->pagePaddingLeft + $this->documentWidth / $options['rows'] * $this->currentRow);
+        $this->SetX($this->pagePaddingLeft + $this->documentWidth / ($options['rows'] ?? 1) * $this->currentRow);
         if (
-      isset($options['linesOnSamePage']) &&
-      $this->GetY() >= $this->pageBreakeWidth + $textSize - $options['linesOnSamePage'] * $textSize
-    ) {
+            isset($options['linesOnSamePage']) &&
+            $this->GetY() >= $this->pageBreakeWidth + $textSize - $options['linesOnSamePage'] * $textSize
+        ) {
             if (isset($options['rows']) && $this->currentRow < $options['rows'] - 1) {
                 $this->currentRow++;
                 $this->SetY($this->topRowPosition);
