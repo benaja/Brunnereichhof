@@ -7,6 +7,7 @@ export default {
   Kommentar: 'Kommentar',
   Aktionen: 'Aktionen',
   Einsatzplaner: 'Einsatzplaner',
+  Einsatzplan: 'Einsatzplan',
   Werkzeuge: 'Werkzeuge',
   Planen: 'Planen',
   Name: 'Name',

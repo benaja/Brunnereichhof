@@ -6,6 +6,8 @@ use App\Http\Controllers\TransactionTypesController;
 
 Route::post('auth/login', 'AuthController@login');
 
+Route::get('resources', 'ResourcePlannerController@index');
+
 Route::group(['middleware' => 'jwt'], function () {
     Route::post('auth/reset-password', 'AuthController@resetPassword');
     Route::post('auth/set-password', 'AuthController@setPassword');
@@ -130,7 +132,8 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('cars/{car}', 'CarsController@update');
     Route::resource('tools', 'ToolsController');
     Route::resource('cars', 'CarsController');
-    Route::resource('resources', 'ResourcePlannerController');
+    Route::patch('resources/{resource}', 'ResourcePlannerController@update');
+    Route::delete('resource/{resource}', 'ResourcePlannerController@destroy');
     Route::post('resources/{resource}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
     Route::delete('rapportdetails/{rapportdetail}', 'ResourcePlannerController@deleteRapportdetail');
 

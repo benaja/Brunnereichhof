@@ -95,5 +95,6 @@ export default {
 <style lang="scss" scoped>
 .date-picker-activator {
   cursor: pointer;
+  width: 90px
 }
 </style>

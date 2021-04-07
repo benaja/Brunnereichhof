@@ -96,7 +96,10 @@
             </div>
           </template>
         </v-navigation-drawer>
-        <div class="router-view">
+        <div
+          class="router-view"
+          :class="{'no-margin': !$auth.user()}"
+        >
           <router-view />
         </div>
         <div
@@ -370,6 +373,10 @@ body {
 
 .router-view {
   margin-left: 256px;
+
+  &.no-margin {
+    margin-left: 0;
+  }
 }
 
 .no-select {

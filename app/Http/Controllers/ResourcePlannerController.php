@@ -24,6 +24,11 @@ use Illuminate\Support\Facades\DB;
 
 class ResourcePlannerController extends Controller
 {
+    public function getPublic(Request $request)
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request)
     {
         $date = $request->get('date');
@@ -36,7 +41,7 @@ class ResourcePlannerController extends Controller
         $resourceDay = ResourcePlannerDay::firstOrCreate(['date' => $date]);
 
         $resourceDay->load(['resources' => function ($query) {
-            $query->with(['rapportdetails.employee.languages', 'cars', 'tools', 'customer.projects'])
+            $query->with(['rapportdetails.employee.languages', 'rapportdetails.project', 'cars', 'tools', 'customer.projects'])
                 ->join('customer', 'customer.id', '=', 'resources.customer_id')
                 ->orderBy('customer.lastname')
                 ->select('resources.*');

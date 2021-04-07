@@ -33,6 +33,11 @@ export default new Router({
       component: () => import('./views/auth/SetPassword')
     },
     {
+      path: '/einsatzplaner/planung',
+      name: 'ResourceplannerPublicView',
+      component: () => import('./views/ResourcePlanner/PublicView')
+    },
+    {
       path: '/customer',
       name: 'Customers',
       component: () => import('./views/Customer/Customers'),
