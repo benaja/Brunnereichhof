@@ -41,7 +41,7 @@
           tag="a"
           :to="`/reset-password?email=${email || ''}`"
         >
-          Passwort vergessen?
+          Passwort setzen / Passwort vergessen?
         </router-link>
       </v-form>
     </template>
