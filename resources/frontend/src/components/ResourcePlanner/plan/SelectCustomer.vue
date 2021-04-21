@@ -27,7 +27,13 @@
         item-value="id"
         item-text="name"
         @input="addCustomer"
-      ></v-autocomplete>
+      >
+        <template v-slot:item="{ item }">
+          <div :class="{'green--text text--tarken-3': item.hourrecords.length}">
+            {{ item.name }}
+          </div>
+        </template>
+      </v-autocomplete>
       <div class="d-flex justify-end">
         <v-btn
           color="primary"
@@ -65,6 +71,11 @@ export default {
         .filter(customer => !this.selectedCustomers.find(c => c.id === customer.id))
     }
   },
+
+  mounted() {
+    console.log(this.customers.filter(c => c.hourrecords.length))
+  },
+
   methods: {
     addCustomer() {
       this.$emit('input', this.selectedCustomer)

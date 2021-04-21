@@ -246,7 +246,6 @@ export default {
       await this.$store.dispatch('fetchEmployees')
       await this.$store.dispatch('fetchTools')
       await this.$store.dispatch('fetchCars')
-      await this.$store.dispatch('fetchCustomers')
     }
   },
   methods: {
@@ -265,6 +264,12 @@ export default {
       const { data } = await this.axios.$get('resources', { params: { date: this.date } })
       this.resources = data.resources
       this.plannerDay = data
+
+      if (this.isAllowedToEdit) {
+        await this.$store.dispatch('fetchCustomers', {
+          withHourrecords: this.date
+        })
+      }
     },
     removeResource(resource) {
       const index = this.resources.indexOf(resource)
