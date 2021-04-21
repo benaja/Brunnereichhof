@@ -14,21 +14,11 @@
       >
         {{ $t('Pdf generieren') }}
       </v-btn>
-      <div
-        class="today-placeholder justify-center d-flex"
-      >
-        <v-btn text>
-          {{ $t('Heute') }}
-        </v-btn>
-      </div>
-      <select-day
-        v-model="date"
-        class="mr-10"
-      ></select-day>
       <template v-if="resources.length && isAllowedToEdit">
         <v-btn
           v-if="!isCompleted"
           color="primary"
+          class="mx-2"
           depressed
           @click="finish(true)"
         >
@@ -40,6 +30,7 @@
         <v-btn
           v-else
           color="primary"
+          class="my-2"
           outlined
           @click="finish(false)"
         >
@@ -49,6 +40,18 @@
           {{ $t('Bearbeiten') }}
         </v-btn>
       </template>
+      <v-btn
+        v-if="!isToday"
+        class="mx-2"
+        text
+        @click="setDateToToday"
+      >
+        {{ $t('Heute') }}
+      </v-btn>
+      <select-day
+        v-model="date"
+        class="mr-5"
+      ></select-day>
     </navigation-bar>
     <v-container
       fluid
@@ -226,6 +229,9 @@ export default {
     },
     isAllowedToEdit() {
       return this.$auth.user().hasPermission(['superadmin'], ['resource_planner_write'])
+    },
+    isToday() {
+      return this.$moment(this.date).isSame(this.$moment(), 'day')
     }
   },
   watch: {
@@ -304,6 +310,9 @@ export default {
       }).finally(() => {
         this.isLoadingPdf = false
       })
+    },
+    setDateToToday() {
+      this.date = this.$moment().format('YYYY-MM-DD')
     }
   }
 }
