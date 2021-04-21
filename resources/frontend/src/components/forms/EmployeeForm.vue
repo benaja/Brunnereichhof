@@ -3,7 +3,7 @@
     ref="form"
     @keyup.native.enter="$emit('submit')"
   >
-    <v-row>
+    <v-row no-gutters>
       <v-col
         cols="12"
         md="6"
@@ -53,7 +53,10 @@
           :delete="deleteImage"
         ></select-images>
       </v-col>
-      <v-col cols="12">
+      <v-col
+        cols="12"
+        md="6"
+      >
         <text-field
           v-model="value.email"
           :original="original.email"
@@ -63,34 +66,11 @@
           @change="$emit('change', 'email')"
         ></text-field>
       </v-col>
+
       <v-col
         cols="12"
         md="6"
       >
-        <v-checkbox
-          v-model="value.isLoginActive"
-          label="Login aktiviert"
-          color="primary"
-          :readonly="readonly"
-          @change="$emit('change', 'isLoginActive')"
-        ></v-checkbox>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <select-role
-          v-model="value.user.role_id"
-          :original="original.user.role_id"
-          :readonly="readonly"
-          @change="$emit('change', 'user.role_id')"
-        ></select-role>
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <!-- <input-field label="Arbeitseintrittsjahr"> -->
         <date-field
           v-model="value.entryDate"
           :original="original.entryDate"
@@ -98,7 +78,6 @@
           type="year"
           @input="$emit('change', 'entryDate')"
         ></date-field>
-        <!-- </input-field> -->
       </v-col>
 
       <v-col
@@ -141,25 +120,41 @@
         cols="12"
         md="6"
       >
-        <v-checkbox
-          v-model="value.german_knowledge"
-          label="Deutschkenntnisse"
-          color="primary"
-          :readonly="readonly"
-          @change="$emit('change', 'german_knowledge')"
-        ></v-checkbox>
+        <select-field
+          v-model="value.languages"
+          :items="languages"
+          :original="original.languages"
+          item-value="id"
+          item-text="name"
+          label="Sprachkenntnisse"
+          multiple
+          @change="$emit('change', 'languages')"
+        ></select-field>
       </v-col>
       <v-col
         cols="12"
         md="6"
       >
         <v-checkbox
-          v-model="value.english_knowledge"
-          label="Englischkenntnisse"
+          v-model="value.resource_planner_white_listed"
+          label="Mehrfache Zuteilung bei Einsatzplaner"
           color="primary"
           :readonly="readonly"
-          @change="$emit('change', 'english_knowledge')"
+          @change="$emit('change', 'resource_planner_white_listed')"
         ></v-checkbox>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <select-field
+          v-model="value.function"
+          :original="original.function"
+          :items="employeeFunctions"
+          label="Funktion"
+          :readonly="readonly"
+          @change="$emit('change', 'function')"
+        ></select-field>
       </v-col>
       <v-col
         cols="12"
@@ -210,6 +205,29 @@
         md="6"
       >
         <v-checkbox
+          v-model="value.isLoginActive"
+          label="Login aktiviert"
+          color="primary"
+          :readonly="readonly"
+          @change="$emit('change', 'isLoginActive')"
+        ></v-checkbox>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <select-role
+          v-model="value.user.role_id"
+          :original="original.user.role_id"
+          :readonly="readonly"
+          @change="$emit('change', 'user.role_id')"
+        ></select-role>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <v-checkbox
           v-model="value.isActive"
           label="Aktiv"
           color="primary"
@@ -236,7 +254,7 @@
 <script>
 import { TextField, SelectField, DateField } from '@/components/FormComponents'
 import SelectRole from '@/components/Authorization/SelectRole'
-import { rules } from '@/utils'
+import { rules, employeeFunctions } from '@/utils'
 import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
 
 export default {
@@ -278,6 +296,7 @@ export default {
   data() {
     return {
       rules,
+      employeeFunctions,
       genders: [
         {
           value: 'man',
@@ -288,9 +307,18 @@ export default {
           text: 'Weiblich'
         }
       ],
-      backendUrl: process.env.VUE_APP_URL
+      backendUrl: process.env.VUE_APP_URL,
+      languages: []
     }
   },
+
+  async mounted() {
+    const { data } = await this.axios.$get('languages')
+    this.languages = data
+
+    console.log(this.original.languages)
+  },
+
   methods: {
     validate() {
       return this.$refs.form.validate()

@@ -2,15 +2,15 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Pivots\BedRoomPivot;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Room extends Model
 {
     use SoftDeletes;
 
-    public $table = "room";
+    public $table = 'room';
 
     protected $fillable = ['name', 'location', 'comment', 'number', 'isActive'];
 
@@ -29,7 +29,8 @@ class Room extends Model
         return $this->hasMany(RoomImage::class);
     }
 
-    public function activeHistory() {
+    public function activeHistory()
+    {
         return $this->hasMany(RoomActiveHistory::class);
     }
 }

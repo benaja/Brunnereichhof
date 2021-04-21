@@ -9,7 +9,7 @@ class Project extends Model
 {
     use SoftDeletes;
 
-    public $table = "project";
+    public $table = 'project';
 
     protected $fillable = ['name', 'description'];
 

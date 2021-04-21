@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Foodtype extends Model
 {
-    public $table = "foodtype";
+    public $table = 'foodtype';
 
     protected $fillable = ['foodname'];
 
@@ -14,5 +14,4 @@ class Foodtype extends Model
     {
         return $this->hasMany(Rapportdetail::class);
     }
-
 }

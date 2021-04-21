@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkInputType extends Model
 {
-    public $table = "work_input_type";
+    public $table = 'work_input_type';
 
     protected $fillable = ['name', 'hours'];
 

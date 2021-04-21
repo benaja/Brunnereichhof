@@ -3,10 +3,10 @@
 use App\Employee;
 use App\User;
 use App\UserType;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersForEmployees extends Migration
 {
@@ -24,7 +24,7 @@ class CreateUsersForEmployees extends Migration
 
         UserType::firstOrCreate([
             'id' => 4,
-            'name' => 'employee'
+            'name' => 'employee',
         ]);
 
         $employeeUserType = UserType::find(4);
@@ -35,7 +35,7 @@ class CreateUsersForEmployees extends Migration
             $user = User::create([
                 'firstname' => $employee->firstname,
                 'lastname' => $employee->lastname,
-                'username' => $employee->firstname . "." . $employee->lastname,
+                'username' => $employee->firstname.'.'.$employee->lastname,
                 'password' => Hash::make($password),
                 'isPasswordChanged' => 0,
             ]);

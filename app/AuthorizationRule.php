@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuthorizationRule extends Model
 {
-    public $table = "authorizationrule";
+    public $table = 'authorizationrule';
 
     protected $fillable = ['name', 'name_de'];
 

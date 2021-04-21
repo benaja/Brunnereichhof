@@ -107,7 +107,10 @@ export default {
   mounted() {
     this.isLoading = true
     this.axios.get(this.apiUrl).then(response => {
-      this.employee = response.data
+      this.employee = {
+        ...response.data,
+        languages: response.data.languages.map(l => l.id)
+      }
       this.original = this._.cloneDeep(this.employee)
     }).catch(() => {
       this.$store.dispatch('error', 'Mitarbeiter konnte nicht geladen werden')

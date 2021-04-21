@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Inventar;
+use Illuminate\Http\Request;
 
 class InventarController extends Controller
 {
@@ -17,6 +17,7 @@ class InventarController extends Controller
     public function index()
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
+
         return Inventar::all();
     }
 
@@ -26,12 +27,12 @@ class InventarController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_write']);
         $this->validate($request, [
             'name' => 'required|max:100',
-            'price' => 'required|numeric'
+            'price' => 'required|numeric',
         ]);
 
         $inventar = Inventar::create([
             'name' => $request->name,
-            'price' => $request->price
+            'price' => $request->price,
         ]);
 
         return $inventar;

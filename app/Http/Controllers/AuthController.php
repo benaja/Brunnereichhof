@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserTypeEnum;
 // use Auth;
-use App\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Mail\ResetPassword;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -23,16 +23,16 @@ class AuthController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (!$token = auth()->attempt($credentials)) {
+        if (! $token = auth()->attempt($credentials)) {
             $credentials = [
                 'username' => $credentials['email'],
-                'password' => $credentials['password']
+                'password' => $credentials['password'],
             ];
-            if (!$token = auth()->attempt($credentials)) {
+            if (! $token = auth()->attempt($credentials)) {
                 return response([
                     'status' => 'error',
                     'error' => 'invalid.credentials',
-                    'msg' => 'Invalid Credentials.'
+                    'msg' => 'Invalid Credentials.',
                 ], 401);
             }
         }
@@ -48,7 +48,7 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $user = User::where('email', $request->email)->first();
-        if (!$user) {
+        if (! $user) {
             return response('Email does not exist.', 400);
         }
 
@@ -57,7 +57,7 @@ class AuthController extends Controller
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'token' => $token,
-            'userId' => $user->id
+            'userId' => $user->id,
         ];
         \Mail::to($user->email)->send(new ResetPassword($data));
         $user->passwordResetToken = Hash::make($token);
@@ -69,11 +69,11 @@ class AuthController extends Controller
         $this->validate($request, [
             'password' => 'required|min:6',
             'token' => 'required',
-            'userId' => 'required'
+            'userId' => 'required',
         ]);
 
         $user = User::find($request->userId);
-        if (!$user || !Hash::check($request->token, $user->passwordResetToken)) {
+        if (! $user || ! Hash::check($request->token, $user->passwordResetToken)) {
             return response('Token is invalid', 400);
         }
         $user->password = Hash::make($request->password);
@@ -91,13 +91,15 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user = User::with(['role.authorizationRules', 'customer'])->with('type')->find(auth()->user()->id);
-        if (!$user->isActive) {
+        if (! $user->isActive) {
             auth()->invalidate();
+
             return response('Your account has been deactivated', 403);
         }
+
         return response([
             'status' => 'success',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -106,17 +108,18 @@ class AuthController extends Controller
         return response([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
     }
 
     public function logout()
     {
         JWTAuth::invalidate();
+
         return response([
             'status' => 'success',
             // return response()->json(['error' => 'Unauthorized'], 401);
-            'msg' => 'Logged out Successfully.'
+            'msg' => 'Logged out Successfully.',
         ], 200);
     }
 }

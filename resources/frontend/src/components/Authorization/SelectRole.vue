@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="mb-4">
     <select-field
       v-model="role"
       :items="roles"
       :rules="rules"
       :original="original"
-      label="Rolle"
+      label="Berechtigungs Rolle"
       item-text="name"
       item-value="id"
       :readonly="readonly"

@@ -96,7 +96,10 @@
             </div>
           </template>
         </v-navigation-drawer>
-        <div class="router-view">
+        <div
+          class="router-view"
+          :class="{'no-margin': !$auth.user()}"
+        >
           <router-view />
         </div>
         <div
@@ -254,6 +257,33 @@ export default {
           show: this.hasPermission(['superadmin'], ['rapport_read'])
         },
         {
+          text: this.$t('Einsatzplaner'),
+          icon: 'edit_calendar',
+          show: this.hasPermission(['superadmin'], ['resource_planner_read', 'tools_read', 'cars_read']),
+          items: [
+            {
+              to: '/resource-planner/plan',
+              text: this.$t('Planen'),
+              show: this.hasPermission(['superadmin'], ['resource_planner_read'])
+            },
+            {
+              to: '/einsatzplaner/planung',
+              text: this.$t('Ansehen'),
+              show: this.hasPermission(['superadmin'], ['resource_planner_read'])
+            },
+            {
+              to: '/resource-planner/tools',
+              text: this.$t('Werkzeuge'),
+              show: this.hasPermission(['superadmin'], ['tools_read'])
+            },
+            {
+              to: '/resource-planner/cars',
+              text: this.$t('Autos'),
+              show: this.hasPermission(['superadmin'], ['cars_read'])
+            }
+          ]
+        },
+        {
           to: '/evaluation',
           text: 'Auswertung',
           icon: 'show_chart',
@@ -348,6 +378,10 @@ body {
 
 .router-view {
   margin-left: 256px;
+
+  &.no-margin {
+    margin-left: 0;
+  }
 }
 
 .no-select {

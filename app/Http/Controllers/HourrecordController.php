@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Hourrecord;
-use App\Customer;
 use App\Culture;
-use Illuminate\Http\Request;
+use App\Customer;
 use App\Enums\UserTypeEnum;
 use App\Helpers\Pdf;
-use App\Settings;
+use App\Hourrecord;
 use App\Project;
+use App\Settings;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class HourrecordController extends Controller
 {
@@ -28,19 +28,20 @@ class HourrecordController extends Controller
         if (auth()->user()->type_id == UserTypeEnum::Customer) {
             return Hourrecord::with('culture')->where([
                 'customer_id' => auth()->user()->customer->id,
-                'year' => (new \DateTime())->format('Y')
+                'year' => (new \DateTime())->format('Y'),
             ])->get()->groupBy('week');
         } else {
             $date = new \DateTime($request->year);
             if (isset($request->sortBy) && $request->sortBy === 'customer') {
-                return Customer::withTrashed()->with(array('Hourrecords' => function ($query) use ($date) {
+                return Customer::withTrashed()->with(['Hourrecords' => function ($query) use ($date) {
                     $query->where('year', $date->format('Y'))->orderBy('week');
-                }))->orderBy('lastname')->get();
-            } else if (isset($request->sortBy) && $request->sortBy === 'project') {
+                }])->orderBy('lastname')->get();
+            } elseif (isset($request->sortBy) && $request->sortBy === 'project') {
                 return Culture::withTrashed()->with(['hourrecords' => function ($query) use ($date) {
                     $query->where('year', $date->format('Y'));
                 }])->orderBy('name')->get();
             }
+
             return Hourrecord::with('culture')
                 ->where('year', $date->format('Y'))
                 ->get()
@@ -58,7 +59,7 @@ class HourrecordController extends Controller
         $hourrecords = auth()->user()->customer->hourrecords()->where('year', Carbon::now()->format('Y'))->get();
 
         foreach ($hourrecords as $hourrecord) {
-            if (!in_array($hourrecord->week, $request->get('weeks', []))) {
+            if (! in_array($hourrecord->week, $request->get('weeks', []))) {
                 $hourrecord->delete();
             }
         }
@@ -71,14 +72,14 @@ class HourrecordController extends Controller
                     'week' => $week,
                     'year' => Carbon::now()->format('Y'),
                     'createdByAdmin' => false,
-                    'customer_id' => auth()->user()->customer->id
+                    'customer_id' => auth()->user()->customer->id,
                 ]);
             }
         }
 
         return Hourrecord::with('culture')->where([
             'customer_id' => auth()->user()->customer->id,
-            'year' => (new \DateTime())->format('Y')
+            'year' => (new \DateTime())->format('Y'),
         ])->get()->groupBy('week');
     }
 
@@ -101,13 +102,13 @@ class HourrecordController extends Controller
 
         if (is_array($request->culture)) {
             $culture = Culture::find($request->culture['id']);
-        } else if ($request->culture) {
+        } elseif ($request->culture) {
             $culture = Culture::firstOrCreate(
                 [
-                    'name' => $request->culture
+                    'name' => $request->culture,
                 ],
                 [
-                    'isAutocomplete' => 0
+                    'isAutocomplete' => 0,
                 ]
             );
         } else {
@@ -119,8 +120,8 @@ class HourrecordController extends Controller
             'comment' => $request->comment,
             'week' => $week,
             'year' => $year->format('Y'),
-            'createdByAdmin' => !(auth()->user()->type_id == UserTypeEnum::Customer),
-            'customer_id' => $customer->id
+            'createdByAdmin' => ! (auth()->user()->type_id == UserTypeEnum::Customer),
+            'customer_id' => $customer->id,
         ]);
 
         $this->addProjectToCustomer($culture, $hourrecord);
@@ -159,7 +160,7 @@ class HourrecordController extends Controller
         return Customer::withTrashed()->with(['hourrecords' => function ($query) use ($year, $week) {
             $query->with('culture')->where([
                 'year' => $year,
-                'week' => $week
+                'week' => $week,
             ]);
         }])->get();
     }
@@ -198,10 +199,12 @@ class HourrecordController extends Controller
             if ($totalHourrecords === 0) {
                 abort(400, 'No hourrecords for selected time');
             }
+
             return $this->pdf->export("Stundenangaben {$year->format('Y')}.pdf");
         } else {
             $customer = Customer::with('hourrecords')->find($customer);
             $this->customerYearRapport($customer, $year);
+
             return $this->pdf->export("Stundenangaben {$customer->lastname} {$customer->firstname} {$year->format('Y')}.pdf");
         }
     }
@@ -212,7 +215,7 @@ class HourrecordController extends Controller
 
         return Hourrecord::with('culture')->where([
             'customer_id' => $id,
-            'year' => (new \DateTime($request->year))->format('Y')
+            'year' => (new \DateTime($request->year))->format('Y'),
         ])->get()->groupBy('week');
     }
 
@@ -223,7 +226,7 @@ class HourrecordController extends Controller
 
         $this->validate($request, [
             'week' => 'required|string',
-            'year' => 'required|string'
+            'year' => 'required|string',
         ]);
         $date = new \DateTime();
         $date->setISODate($request->year, $request->week);
@@ -246,14 +249,13 @@ class HourrecordController extends Controller
                 "{$hourrecord->customer->lastname} {$hourrecord->customer->firstname}",
                 $hourrecord->hours,
                 $hourrecord->culture ? $hourrecord->culture->name : '',
-                $hourrecord->comment
+                $hourrecord->comment,
             ]);
         }
         $this->pdf->table($headers, $columns, [1, 0.5, 1, 1.5]);
 
         return $this->pdf->export("{$headline}.pdf");
     }
-
 
     // --helpers--
     private function isEditDate()
@@ -268,12 +270,13 @@ class HourrecordController extends Controller
                 return false;
             }
         }
+
         return true;
     }
 
     private function validateEditeDate()
     {
-        if (!$this->isEditDate()) {
+        if (! $this->isEditDate()) {
             abort(400, 'the edit duration is over');
         }
     }
@@ -282,9 +285,9 @@ class HourrecordController extends Controller
     {
         if ($culture != null) {
             $project = Project::firstOrCreate([
-                'name' => $culture->name
+                'name' => $culture->name,
             ]);
-            if (!$hourrecord->customer->projects->find($project->id)) {
+            if (! $hourrecord->customer->projects->find($project->id)) {
                 $hourrecord->customer->projects()->save($project);
             }
         }
@@ -292,7 +295,9 @@ class HourrecordController extends Controller
 
     private function customerYearRapport($customer, $year, $addNewPage = false)
     {
-        if ($addNewPage) $this->pdf->addNewPage();
+        if ($addNewPage) {
+            $this->pdf->addNewPage();
+        }
         $hourrecords = $customer->hourrecords->where('year', $year->format('Y'))->sortBy('week');
         $totalHours = $hourrecords->sum('hours');
         $title = "{$customer->lastname} {$customer->firstname}\nJahr: {$year->format('Y')}\nTotale Stunden: {$totalHours}";
@@ -325,10 +330,10 @@ class HourrecordController extends Controller
         } else {
             $culture = Culture::firstOrCreate(
                 [
-                    'name' => $hourrecord['culture']
+                    'name' => $hourrecord['culture'],
                 ],
                 [
-                    'isAutocomplete' => 0
+                    'isAutocomplete' => 0,
                 ]
             );
         }

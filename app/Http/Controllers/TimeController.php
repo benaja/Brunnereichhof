@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Hour;
-use App\Worktype;
-use App\Timerecord;
-use App\Rules\ValidTime;
 use App\Enums\WorkTypeEnum;
+use App\Hour;
+use App\Rules\ValidTime;
+use App\Timerecord;
 use App\User;
+use App\Worktype;
 use Illuminate\Http\Request;
 
 class TimeController extends Controller
@@ -89,13 +89,13 @@ class TimeController extends Controller
             'lunch' => 'boolean',
             'dinner' => 'boolean',
             'date' => 'required|date',
-            'comment' => 'nullable|string'
+            'comment' => 'nullable|string',
         ]);
 
         if ($request->hasBreak) {
             $request->validate([
                 'breakFrom' => 'required|after:from',
-                'breakTo' => 'required|after:breakFrom|before:to'
+                'breakTo' => 'required|after:breakFrom|before:to',
             ]);
         }
 
@@ -104,7 +104,7 @@ class TimeController extends Controller
         $timerecord->dinner = $request->dinner;
         $timerecord->save();
 
-        if (!$this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->worktype)) {
+        if (! $this->createHour($timerecord, $request->from, $request->to, $request->comment, $request->worktype)) {
             abort(500, 'could not create hourrecord');
         }
 
@@ -130,7 +130,7 @@ class TimeController extends Controller
                 'from' => 'required|before_or_equal:to',
                 'to' => ['required', new ValidTime($request->from, $hour->timerecord, $hour->id)],
                 'lunch' => 'nullable|boolean',
-                'commnet' => 'nullable|string'
+                'commnet' => 'nullable|string',
             ]);
 
             $hour->from = $request->from;
@@ -170,7 +170,7 @@ class TimeController extends Controller
                 $timerecord->update([
                     'breakfast' => false,
                     'lunch' => false,
-                    'dinner' => false
+                    'dinner' => false,
                 ]);
             }
 
@@ -187,12 +187,12 @@ class TimeController extends Controller
 
         if (strlen($date) == 7) {
             return [
-                'week' => $this->getMonthStats($date, $userId)
+                'week' => $this->getMonthStats($date, $userId),
             ];
         } else {
             return [
                 'month' => $this->getMonthStats($date, $userId),
-                'week' => $this->getWeekStats($date, $userId)
+                'week' => $this->getWeekStats($date, $userId),
             ];
         }
     }
@@ -204,12 +204,13 @@ class TimeController extends Controller
             'from' => $from,
             'to' => $to,
             'comment' => $comment,
-            'date' => $timerecord->date
+            'date' => $timerecord->date,
         ]);
         $worktype = Worktype::find($workTypeId);
 
         $timerecord->hours()->save($hour);
         $worktype->hours()->save($hour);
+
         return true;
     }
 
@@ -222,6 +223,7 @@ class TimeController extends Controller
             $hour->lunch = $timerecord->lunch;
             $hour->dinner = $timerecord->dinner;
         }
+
         return $timerecord->hours;
     }
 
@@ -267,7 +269,7 @@ class TimeController extends Controller
 
         return [
             'totalHours' => $totalHours,
-            'holidayHours' => $holidayHours
+            'holidayHours' => $holidayHours,
         ];
     }
 
@@ -275,9 +277,12 @@ class TimeController extends Controller
     {
         if (
             auth()->user()->hasRule(['timerecord_read_write']) &&
-            !auth()->user()->hasRule('worker_write') &&
+            ! auth()->user()->hasRule('worker_write') &&
             auth()->user()->id != $userId
-        ) abort(403, 'This action is forbidden.');
+        ) {
+            abort(403, 'This action is forbidden.');
+        }
+
         return true;
     }
 }

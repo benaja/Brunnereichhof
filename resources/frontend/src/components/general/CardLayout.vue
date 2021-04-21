@@ -16,7 +16,7 @@
         text
         @click="$emit('cancel')"
       >
-        Abbrechen
+        {{ $t('Abbrechen') }}
       </v-btn>
       <v-spacer></v-spacer>
       <v-btn
@@ -27,7 +27,7 @@
         class="white--text"
         @click="$emit('save')"
       >
-        Speichern
+        {{ $t('Speichern') }}
       </v-btn>
     </v-card-actions>
   </v-card>

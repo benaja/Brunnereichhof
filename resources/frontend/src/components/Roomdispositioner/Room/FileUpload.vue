@@ -20,7 +20,7 @@
           >
             <v-icon x-large>
               add
-            </v-icon>Bild hinzufügen
+            </v-icon>{{ $t('Bild hinzufügen') }}
           </v-btn>
         </p>
         <input

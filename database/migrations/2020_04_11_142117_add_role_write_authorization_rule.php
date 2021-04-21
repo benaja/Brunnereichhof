@@ -1,9 +1,9 @@
 <?php
 
 use App\AuthorizationRule;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddRoleWriteAuthorizationRule extends Migration
 {
@@ -16,7 +16,7 @@ class AddRoleWriteAuthorizationRule extends Migration
     {
         AuthorizationRule::create([
             'name' => 'role_write',
-            'name_de' => 'Rollen bearbeiten'
+            'name_de' => 'Rollen bearbeiten',
         ]);
     }
 

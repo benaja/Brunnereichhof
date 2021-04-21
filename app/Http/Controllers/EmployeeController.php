@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Image;
 use App\Employee;
-use Illuminate\Http\Request;
-use App\Rapportdetail;
 use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
 use App\Http\Resources\EmployeeResource;
+use App\Rapportdetail;
 use App\Reservation;
 use App\Role;
 use App\User;
 use App\UserType;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Image;
 
 class EmployeeController extends Controller
 {
@@ -32,7 +32,7 @@ class EmployeeController extends Controller
     // GET employee
     public function index(Request $request)
     {
-        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
+        auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee', 'resource_planner_write']);
 
         if ($request->get('paginate') === 'true') {
             $query = Employee::join('user', 'user.id', '=', 'employee.user_id')
@@ -50,12 +50,17 @@ class EmployeeController extends Controller
             return EmployeeResource::collection($employees);
         }
 
-
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
-        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
-        else $employees = Employee::with('user');
+        if (isset($request->deleted)) {
+            $employees = Employee::onlyTrashed();
+        } elseif (isset($request->all)) {
+            $employees = Employee::withTrashed();
+        } else {
+            $employees = Employee::query();
+        }
+
         return $employees
+            ->with('languages')
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
@@ -67,9 +72,14 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_preview_read', 'employee_read', 'roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
-        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
-        else $employees = Employee::with('user');
+        if (isset($request->deleted)) {
+            $employees = Employee::with('user')->onlyTrashed();
+        } elseif (isset($request->all)) {
+            $employees = Employee::with('user')->withTrashed();
+        } else {
+            $employees = Employee::with('user');
+        }
+
         return $employees->where('isGuest', true)
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
@@ -82,9 +92,14 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read', 'evaluation_employee']);
 
         $employees = [];
-        if (isset($request->deleted)) $employees = Employee::with('user')->onlyTrashed();
-        else if (isset($request->all)) $employees = Employee::with('user')->withTrashed();
-        else $employees = Employee::with('user');
+        if (isset($request->deleted)) {
+            $employees = Employee::with('user')->onlyTrashed();
+        } elseif (isset($request->all)) {
+            $employees = Employee::with('user')->withTrashed();
+        } else {
+            $employees = Employee::with('user');
+        }
+
         return $employees->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
@@ -100,18 +115,20 @@ class EmployeeController extends Controller
         }
         $request['data'] = json_decode($request->data, true);
         $modifiedValidateArray = [];
-        foreach($this->validateArray as $key => $validate) {
+        foreach ($this->validateArray as $key => $validate) {
             $modifiedValidateArray[$key] = "data.$validate";
         }
         $request->validate($modifiedValidateArray);
         $this->validate($request, [
-            'data.email' => 'nullable|email|unique:user,email'
+            'data.email' => 'nullable|email|unique:user,email',
         ]);
 
         return DB::transaction(function () use ($request) {
             $data = $request['data'];
-            foreach(array_keys($this->validateArray) as $key) {
-                if (array_key_exists($key, $data)) continue;
+            foreach (array_keys($this->validateArray) as $key) {
+                if (array_key_exists($key, $data)) {
+                    continue;
+                }
                 $data[$key] = null;
             }
             $employee = Employee::create([
@@ -119,8 +136,6 @@ class EmployeeController extends Controller
                 'nationality' => $data['nationality'],
                 'isIntern' => $data['isIntern'],
                 'isDriver' => $data['isDriver'],
-                'german_knowledge' => $data['german_knowledge'],
-                'english_knowledge' => $data['english_knowledge'],
                 'sex' => $data['sex'],
                 'comment' => $data['comment'],
                 'experience' => $data['experience'],
@@ -129,22 +144,22 @@ class EmployeeController extends Controller
                 'allergy' => $data['allergy'],
                 'isLoginActive' => $data['isLoginActive'] || false,
                 'drivingLicence' => $data['drivingLicence'],
-                'entryDate' => $data['entryDate']
+                'entryDate' => $data['entryDate'],
             ]);
-    
+
             $user = User::create([
                 'firstname' => $data['firstname'],
                 'lastname' => $data['lastname'],
-                'username' => Utils::getUniqueUsername($data['firstname'] . "." . $data['lastname']),
+                'username' => Utils::getUniqueUsername($data['firstname'].'.'.$data['lastname']),
                 'email' => strtolower($data['email']),
                 'password' => Hash::make(str_random(8)),
                 'isPasswordChanged' => 0,
             ]);
-    
-            if (!$data['isLoginActive']) {
+
+            if (! $data['isLoginActive']) {
                 $user->delete();
             }
-    
+
             if (array_key_exists('role_id', $data['user'])) {
                 $role = Role::find($data['user']['role_id']);
                 $role->users()->save($user);
@@ -153,11 +168,11 @@ class EmployeeController extends Controller
             if ($request->file('profileimage')) {
                 $this->handleProfileImage($employee->id, $request->file('profileimage'));
             }
-    
+
             $employeeUserType = UserType::where('name', 'employee')->first();
             $user->employee()->save($employee);
             $employeeUserType->users()->save($user);
-    
+
             return $employee->id;
         });
     }
@@ -170,8 +185,10 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
+        $employee->load('languages');
         $employee->profileimage = $employee->getProfileimageUrl();
         $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
+
         return $employee;
     }
 
@@ -187,10 +204,11 @@ class EmployeeController extends Controller
             $employe = Employee::withTrashed()->find($id);
             $employe->restore();
             $employe->user->restore();
+
             return response('success');
         }
 
-        $this->validate($request, $this->validateArray);
+        $data = $this->validate($request, $this->validateArray);
 
         $employee = Employee::find($id);
 
@@ -201,30 +219,15 @@ class EmployeeController extends Controller
             return response('Email already exist', 400);
         }
 
-        DB::transaction(function () use ($request, $employee) {
-
-            $employee->update([
-                'callname' => $request->callname,
-                'nationality' => $request->nationality,
-                'isIntern' => $request->isIntern,
-                'isDriver' => $request->isDriver,
-                'german_knowledge' => $request->german_knowledge,
-                'english_knowledge' => $request->english_knowledge,
-                'sex' => $request->sex,
-                'comment' => $request->comment,
-                'experience' => $request->experience,
-                'isActive' => $request->isActive,
-                'isGuest' => $request->isGuest,
-                'allergy' => $request->allergy,
-                'isLoginActive' => $request->isLoginActive,
-                'drivingLicence' => $request->drivingLicence,
-                'entryDate' => $request->entryDate
-            ]);
+        DB::transaction(function () use ($request, $employee, $data) {
+            $employee->update($data);
             $employee->save();
+
+            $employee->languages()->sync($data['languages']);
 
             if ($request->isLoginActive && $employee->user->deleted_at) {
                 $employee->user->restore();
-            } else if (!$request->isLoginActive) {
+            } elseif (! $request->isLoginActive) {
                 $employee->user->delete();
             }
 
@@ -236,7 +239,7 @@ class EmployeeController extends Controller
             $employee->user->update([
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
-                'email' => strtolower($request->email)
+                'email' => strtolower($request->email),
             ]);
             $employee->user->save();
         });
@@ -272,8 +275,8 @@ class EmployeeController extends Controller
         auth()->user()->authorize(['superadmin'], ['employee_write']);
 
         if ($employee->profileimage != null) {
-            $imagePath = public_path('profileimages/') . $employee->profileimage;
-            $smallImagePath = public_path('profileimages/') . "small-" . $employee->profileimage;
+            $imagePath = public_path('profileimages/').$employee->profileimage;
+            $smallImagePath = public_path('profileimages/').'small-'.$employee->profileimage;
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
@@ -297,12 +300,15 @@ class EmployeeController extends Controller
     }
 
     // GET pdf/day-total/employees/{employeeId}
-    public function dayTotalsPdf(Request $request, $employeeId) {
+    public function dayTotalsPdf(Request $request, $employeeId)
+    {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $employee = Employee::find($employeeId);
-        if (!$employee) abort(400, 'Employee not found');
-        
+        if (! $employee) {
+            abort(400, 'Employee not found');
+        }
+
         $this->pdf = new Pdf('P');
         $originalDate = Utils::firstDate($request->dateRangeType, new \DateTime($request->date));
         $firstDayOfMonth = clone $originalDate;
@@ -312,13 +318,16 @@ class EmployeeController extends Controller
         for ($i = 0; $i < 12; $i++) {
             $lines = $this->dayTotalsByMonthTable($employee, $firstDayOfMonth, $lastDayOfMonth);
             if (count($lines) > 0 || $request->dateRangeType === 'month') {
-                if ($monthsAdded > 0) $this->pdf->addNewPage();
+                if ($monthsAdded > 0) {
+                    $this->pdf->addNewPage();
+                }
                 $monthsAdded++;
 
                 $this->addDayTotalsTable($lines, $employee, $firstDayOfMonth);
             }
             if ($request->dateRangeType === 'month') {
                 $monthName = Settings::getMonthName($firstDayOfMonth);
+
                 return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$monthName} {$firstDayOfMonth->format('Y')}.pdf");
             }
             $firstDayOfMonth->modify('first day of next month');
@@ -329,35 +338,37 @@ class EmployeeController extends Controller
         }
 
         return $this->pdf->export("Tagestotale $employee->lastname $employee->firstname {$originalDate->format('Y')}.pdf");
-        
     }
 
-    public function reservationsPdf(Request $request, $employeeId) {
+    public function reservationsPdf(Request $request, $employeeId)
+    {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
         $this->pdf = new Pdf();
 
         if ($employeeId === 'all') {
             $firstDayOfYear = Utils::firstDate('year', new \DateTime($request->date));
             $lastDayOfYear = Utils::lastDate('year', new \DateTime($request->date));
-    
+
             $reservationsThisYear = Reservation::where('entry', '<=', $lastDayOfYear->format('Y-m-d'))
                 ->where('exit', '>=', $firstDayOfYear->format('Y-m-d'))
                 ->orderBy('entry')
                 ->get();
             $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
-    
+
             $this->pdf->documentTitle("Übernachtungen im Jahr {$firstDayOfYear->format('Y')}");
             $this->pdf->documentTitle("Totale Übernachtungen: $sleepOver");
-    
+
             $employees = Employee::withTrashed()->get();
             foreach ($employees as $employee) {
                 $this->reservationsByYearSingleEmployee($employee, $firstDayOfYear, false);
             }
+
             return $this->pdf->export("Übernachtungen im Jahr {$firstDayOfYear->format('Y')}.pdf");
         } else {
             $employee = Employee::find($employeeId);
             $date = new \DateTime($request->date);
             $this->reservationsByYearSingleEmployee($employee, $date);
+
             return $this->pdf->export("Übernachtungen von {$employee->name()} {$date->format('Y')}.pdf");
         }
     }
@@ -370,7 +381,7 @@ class EmployeeController extends Controller
         $reservationsThisYear = $employee->reservationsBetweenDates($firstDayOfYear, $lastDayOfYear);
         $sleepOver = Reservation::getSleepOver($reservationsThisYear, $firstDayOfYear, $lastDayOfYear);
         if ($sleepOver > 0 || $addWhenEmpty) {
-            if (!$addWhenEmpty) {
+            if (! $addWhenEmpty) {
                 $this->pdf->addNewPage();
             }
             $this->pdf->documentTitle("Übernachtungen von {$employee->name()}");
@@ -409,7 +420,7 @@ class EmployeeController extends Controller
                 (new \DateTime($reservation->entry))->format('d.m.Y'),
                 (new \DateTime($reservation->exit))->format('d.m.Y'),
                 $reservation->bedRoomPivot->room->name,
-                $reservation->bedRoomPivot->bed->name
+                $reservation->bedRoomPivot->bed->name,
             ]);
         }
         $this->pdf->table($headers, $columns);
@@ -436,12 +447,16 @@ class EmployeeController extends Controller
                     $customer = $rapportdetail->rapport->customer;
                     array_push($cells, "{$customer->lastname} {$customer->firstname}");
 
-                    $projectName = $rapportdetail->project ? $rapportdetail->project->name : "";
+                    $projectName = $rapportdetail->project ? $rapportdetail->project->name : '';
                     array_push($cells, $projectName);
 
-                    $footType = "Eichhof";
-                    if ($rapportdetail->foodtype_id === FoodTypeEnum::Customer) $footType = "Kunde";
-                    if ($rapportdetail->foodtype_id === FoodTypeEnum::None) $footType = "Keine Angabe";
+                    $footType = 'Eichhof';
+                    if ($rapportdetail->foodtype_id === FoodTypeEnum::Customer) {
+                        $footType = 'Kunde';
+                    }
+                    if ($rapportdetail->foodtype_id === FoodTypeEnum::None) {
+                        $footType = 'Keine Angabe';
+                    }
                     array_push($cells, $footType);
 
                     if (count($rapportdetails) > 1) {
@@ -450,7 +465,7 @@ class EmployeeController extends Controller
                         array_push($cells, $hours);
                     }
                     array_push($lines, $cells);
-                    $cells = [""];
+                    $cells = [''];
                     $totalHours += $hours;
                 }
             }
@@ -472,23 +487,26 @@ class EmployeeController extends Controller
 
         $this->pdf->newLine();
         $this->pdf->table($titles, $lines, [0.7, 1.5, 1, 1, 0.8]);
+
         return true;
     }
 
-    private function handleProfileImage($employeeId, $file) {
-            $employee = Employee::find($employeeId);
+    private function handleProfileImage($employeeId, $file)
+    {
+        $employee = Employee::find($employeeId);
 
-            $img = Image::make($file);
-            $width = $img->width();
-            $height = $img->height();
-            $factor = $width / $height;
-            $img->resize(150 * $factor, 150);
+        $img = Image::make($file);
+        $width = $img->width();
+        $height = $img->height();
+        $factor = $width / $height;
+        $img->resize(150 * $factor, 150);
 
-            $imagePath = Storage::disk('s3')->putFile('profileimages',$file);
-            Storage::disk('s3')->put('small/'.$imagePath, (string)$img->stream());
-            $employee->profileimage = $imagePath;
-            $employee->save();
-            return $employee->getProfileImageUrl();
+        $imagePath = Storage::disk('s3')->putFile('profileimages', $file);
+        Storage::disk('s3')->put('small/'.$imagePath, (string) $img->stream());
+        $employee->profileimage = $imagePath;
+        $employee->save();
+
+        return $employee->getProfileImageUrl();
     }
 
     private $validateArray = [
@@ -509,7 +527,8 @@ class EmployeeController extends Controller
         'isIntern' => 'nullable|boolean',
         'isDriver' => 'nullable|boolean',
         'isActive' => 'boolean',
-        'german_knowledge' => 'nullable|boolean',
-        'english_knowledge' => 'nullable|boolean'
+        'languages' => 'nullable|array',
+        'function' => 'nullable|string',
+        'resource_planner_white_listed' => 'nullable|boolean',
     ];
 }

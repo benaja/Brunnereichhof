@@ -17,12 +17,17 @@ class RapportPolicy
 
     public function before($user, $ability)
     {
-        if ($user->isType('superadmin')) return true;
+        if ($user->isType('superadmin')) {
+            return true;
+        }
     }
 
     public function view(User $user, Rapport $rapport)
     {
-        if ($user->hasRule(['rapport_read'])) return true;
+        if ($user->hasRule(['rapport_read'])) {
+            return true;
+        }
+
         return $this->hasCustomerAccessToRapport($user, $rapport);
     }
 
@@ -33,7 +38,10 @@ class RapportPolicy
 
     public function update(User $user, Rapport $rapport)
     {
-        if ($user->hasRule(['rapport_write'])) return true;
+        if ($user->hasRule(['rapport_write'])) {
+            return true;
+        }
+
         return $this->hasCustomerAccessToRapport($user, $rapport);
     }
 

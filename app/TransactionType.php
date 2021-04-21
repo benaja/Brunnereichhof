@@ -11,10 +11,11 @@ class TransactionType extends Model
 
     protected $fillable = [
         'name',
-        'is_positive'
+        'is_positive',
     ];
 
-    public function transactions() {
+    public function transactions()
+    {
         return $this->hasMany(Transaction::class);
     }
 }

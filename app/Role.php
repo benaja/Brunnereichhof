@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    public $table = "role";
+    public $table = 'role';
 
     protected $fillable = ['name', 'name_de'];
 
     public function users()
     {
-        return $this->hasMany(User::class);;
+        return $this->hasMany(User::class);
     }
 
     public function authorizationRules()

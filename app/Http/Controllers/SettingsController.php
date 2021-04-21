@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Settings;
-use Illuminate\Http\Request;
 use App\Worktype;
+use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
@@ -19,7 +19,7 @@ class SettingsController extends Controller
 
         if (auth()->user()->customer) {
             return [
-                'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled')
+                'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled'),
             ];
         }
 
@@ -37,7 +37,7 @@ class SettingsController extends Controller
             'fullDayShortEnd' => Settings::value('fullDayShortEnd'),
             'fullDayLongStart' => Settings::value('fullDayLongStart'),
             'fullDayLongEnd' => Settings::value('fullDayLongEnd'),
-            'worktypes' => Worktype::all()
+            'worktypes' => Worktype::all(),
         ];
 
         return $response;
@@ -59,7 +59,7 @@ class SettingsController extends Controller
             'subtitle' => Settings::value('subtitle'),
             'weekRapportTitle' => Settings::value('weekRapportTitle'),
             'weekRapportText' => Settings::value('weekRapportText'),
-            'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled')
+            'rapportFoodTypeEnabled' => Settings::value('rapportFoodTypeEnabled'),
         ];
     }
 

@@ -63,8 +63,13 @@
                 <h4 class="mb-2">
                   Sprachkenntnisse
                 </h4>
-                <p>{{ employee.german_knowledge == 1 ? 'Deutsch' : '' }}</p>
-                <p>{{ employee.english_knowledge == 1 ? 'Englisch' : '' }}</p>
+                <p
+                  v-for="language of employee.languages"
+                  :key="language.id"
+                  class="mb-1"
+                >
+                  {{ language.name }}
+                </p>
               </v-col>
               <v-col
                 cols="12"

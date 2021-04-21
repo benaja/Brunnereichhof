@@ -11,9 +11,21 @@ class Rapportdetail extends Model
 {
     use SoftDeletes;
 
-    public $table = "rapportdetail";
+    public $table = 'rapportdetail';
 
-    protected $fillable = ['hours', 'comment', 'day', 'foodtype_id', 'date', 'project_id', 'work_contract'];
+    protected $fillable = [
+        'hours',
+        'comment',
+        'day',
+        'foodtype_id',
+        'date',
+        'project_id',
+        'work_contract',
+        'customer_id',
+        'employee_id',
+        'rapport_id',
+        'resource_id',
+    ];
 
     protected $appends = ['foodtype_ok'];
 
@@ -37,12 +49,17 @@ class Rapportdetail extends Model
         return $this->belongsTo(Foodtype::class);
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function getFoodtypeOkAttribute()
     {
         if ($this->hours > 0) {
-            $otherRapportdetailsForThisEmployee =  Rapportdetail::where([
+            $otherRapportdetailsForThisEmployee = self::where([
                 'date' => $this->date,
-                'employee_id' => $this->employee_id
+                'employee_id' => $this->employee_id,
             ])->where('id', '!=', $this->id)->where('hours', '>', 0)->get();
 
             foreach ($otherRapportdetailsForThisEmployee as $rapportdetail) {
@@ -51,12 +68,13 @@ class Rapportdetail extends Model
                 }
             }
         }
+
         return true;
     }
 
     public static function foodAmountBetweenDates($firstDate, $lastDate, $foodType = [FoodTypeEnum::Eichhof])
     {
-        return Rapportdetail::where('date', '>=', $firstDate->format('Y-m-d'))
+        return self::where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->whereIn('foodtype_id', $foodType)
             ->where('hours', '>', 0)

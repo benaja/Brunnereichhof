@@ -3,6 +3,7 @@
     <div class="nav-bar">
       <div
         class="toolbar"
+        :class="{'without-nav': withoutNav}"
       >
         <v-container
           :fluid="fullWidth"
@@ -90,6 +91,14 @@ export default {
     mobileTitleBelow: {
       type: Boolean,
       default: false
+    },
+    withoutNav: {
+      type: Boolean,
+      default: false
+    },
+    showTitleOnMobile: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -124,6 +133,10 @@ export default {
   left: 0;
   top: 0;
   padding-left: 256px;
+
+  &.without-nav {
+    padding-left: 0;
+  }
 }
 
 .nav-content-container {

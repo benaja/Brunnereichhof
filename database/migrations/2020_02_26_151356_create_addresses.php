@@ -2,9 +2,9 @@
 
 use App\Address;
 use App\Customer;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAddresses extends Migration
 {
@@ -21,7 +21,7 @@ class CreateAddresses extends Migration
                 'place' => $customer->place,
                 'plz' => $customer->plz,
                 'street' => $customer->street,
-                'addition' => $customer->addition
+                'addition' => $customer->addition,
             ]);
             $customer->address()->associate($address);
             $customer->save();

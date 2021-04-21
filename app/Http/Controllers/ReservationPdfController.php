@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Bed;
 use App\Employee;
-use App\Reservation;
 use App\Helpers\Pdf;
 use App\Helpers\Utils;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Reservation;
+use Illuminate\Http\Request;
 
 class ReservationPdfController extends Controller
 {
@@ -33,7 +33,7 @@ class ReservationPdfController extends Controller
                 ->with('bedRoomPivot.room')
                 ->with('employee');
         }])->withTrashed()
-            ->when($request->employeeId, function($query, $employeeId) {
+            ->when($request->employeeId, function ($query, $employeeId) {
                 $query->where('id', $employeeId);
             })
             ->get()
@@ -53,14 +53,14 @@ class ReservationPdfController extends Controller
                 $inventars = $bed->inventars;
                 foreach ($inventars as $inventar) {
                     $amount = $inventar->pivot->amount;
-                    array_push($lines, [$amount, $inventar->name, 'CHF ' . number_format($inventar->price, 2), '', '', '']);
+                    array_push($lines, [$amount, $inventar->name, 'CHF '.number_format($inventar->price, 2), '', '', '']);
                 }
 
-                $this->pdf->documentTitle($reservation->employee->lastname . ' ' . $reservation->employee->firstname);
+                $this->pdf->documentTitle($reservation->employee->lastname.' '.$reservation->employee->firstname);
 
-                $this->pdf->documentTitle('Raum: ' . $reservation->bedRoomPivot->room->name);
-                $this->pdf->documentTitle('Standort: ' . $reservation->bedRoomPivot->room->location);
-                $this->pdf->documentTitle('Bett: ' . $bed->name);
+                $this->pdf->documentTitle('Raum: '.$reservation->bedRoomPivot->room->name);
+                $this->pdf->documentTitle('Standort: '.$reservation->bedRoomPivot->room->location);
+                $this->pdf->documentTitle('Bett: '.$bed->name);
                 $this->pdf->documentTitle('');
                 $this->pdf->documentTitle('Bettwäsche und Bettinhalt', $this->pdf->titleSize, 'B');
 
@@ -70,11 +70,13 @@ class ReservationPdfController extends Controller
             }
         }
 
-        $employeename = count($employees) == 1 ? " $employee->lastname $employee->firstname" : "";
-        return $this->pdf->export('Raumbelegung ' . (new \DateTime($request->date))->format('d-m-Y') . $employeename . '.pdf');
+        $employeename = count($employees) == 1 ? " $employee->lastname $employee->firstname" : '';
+
+        return $this->pdf->export('Raumbelegung '.(new \DateTime($request->date))->format('d-m-Y').$employeename.'.pdf');
     }
 
-    public function sleepOversPerEmployee(Request $request) {
+    public function sleepOversPerEmployee(Request $request)
+    {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
         $firstDate = Utils::firstDate($request->dateRangeType, $request->date);
@@ -85,7 +87,7 @@ class ReservationPdfController extends Controller
             ->get();
 
         $sleepOversByEmployee = [];
-        foreach($reservations as $reservation) {
+        foreach ($reservations as $reservation) {
             $sleepOvers = $reservation->sleepOver($firstDate, $lastDate);
             if (isset($sleepOversByEmployee[$reservation->employee_id])) {
                 $sleepOversByEmployee[$reservation->employee_id] += $sleepOvers;
@@ -100,11 +102,11 @@ class ReservationPdfController extends Controller
             ->get()
             ->sortBy('user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
-            
-        foreach($employees as $employee) {
+
+        foreach ($employees as $employee) {
             array_push($columns, [$employee->name(), $sleepOversByEmployee[$employee->id]]);
         }
-        
+
         $documentTitle = "Übernachtungen pro Mitarbeiter \n";
         if ($request->dateRangeType === 'year') {
             $documentTitle .= "Jahr: {$firstDate->format('Y')}";

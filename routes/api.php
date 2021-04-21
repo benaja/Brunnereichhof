@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\TransactionTypesController;
 
 Route::post('auth/login', 'AuthController@login');
 Route::post('auth/reset-password', 'AuthController@resetPassword');
 Route::post('auth/set-password', 'AuthController@setPassword');
+
+Route::get('resources', 'ResourcePlannerController@index');
 
 Route::group(['middleware' => 'jwt'], function () {
     Route::get('auth/user', 'AuthController@user');
@@ -28,6 +31,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::delete('employees/{employee}/profileimage', 'EmployeeController@deleteImage');
     Route::post('employees/{employee}/profileimage', 'EmployeeController@uploadImage');
     Route::resource('employees', 'EmployeeController');
+    Route::get('languages', 'LanguagesController@index');
 
     // Worker
     Route::resource('workers', 'WorkerController');
@@ -122,4 +126,24 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
     Route::get('employees/{employee}/transactions/sum', 'TransactionsController@saldo');
     Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
+
+    // resource planner
+    // take post method for update because image upload doesnt work on put
+    Route::post('cars/{car}', 'CarsController@update');
+    Route::post('tools/{tool}', 'ToolsController@update');
+    Route::resource('tools', 'ToolsController');
+    Route::resource('cars', 'CarsController');
+    Route::put('resources/{resource}', 'ResourcePlannerController@update');
+    Route::delete('resources/{resource}', 'ResourcePlannerController@destroy');
+    Route::post('resources/{resource}/rapportdetails', 'ResourcePlannerController@addRapportdetail');
+    Route::delete('rapportdetails/{rapportdetail}', 'ResourcePlannerController@deleteRapportdetail');
+
+    Route::post('resources/{resource}/cars/{car}', 'ResourcePlannerController@addCar');
+    Route::delete('resources/{resource}/cars/{car}', 'ResourcePlannerController@removeCar');
+    Route::post('resources/{resource}/tools/{tool}', 'ResourcePlannerController@addTool');
+    Route::delete('resources/{resource}/tools/{tool}', 'ResourcePlannerController@removeTool');
+    Route::patch('planner-day/{resourcePlannerDay}', 'ResourcePlannerController@updatePlannerDay');
+    Route::post('planner-day/{resourcePlannerDay}/customers', 'ResourcePlannerController@store');
+    Route::patch('resources/{resource}/tools/{tool}', 'ResourcePlannerController@updateToolsPivot');
+    Route::get('pdf/planner-day/{resourcePlannerDay}', 'ResourcePlannerController@generatePdf');
 });

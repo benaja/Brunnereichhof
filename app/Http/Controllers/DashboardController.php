@@ -26,7 +26,7 @@ class DashboardController extends Controller
 
         if ($request->get('dateRange') === 'all') {
             $startDate = new Carbon('2018-10-01');
-        } else if ($request->get('dateRange') && $request->get('dateRange') !== 'last-12-months') {
+        } elseif ($request->get('dateRange') && $request->get('dateRange') !== 'last-12-months') {
             $startDate = Carbon::now()->year($request->get('dateRange'))->startOfYear();
             $endDate = $startDate->clone()->endOfYear();
         }
@@ -43,7 +43,6 @@ class DashboardController extends Controller
             ->where('date', '<=', $endDate)
             ->sum('hours');
 
-
         if ($request->get('withPreviousYear') && $request->get('withPreviousYear') === 'true' && $request->get('dateRange') !== 'all') {
             $startDateLastYear = $startDate->clone()->subtract('year', 1);
             $endDateLastYear = $endDate->clone()->subtract('year', 1);
@@ -56,12 +55,12 @@ class DashboardController extends Controller
             'employees' => [
                 'hoursByMonth' => $employeeHoursByMonth,
                 'totalHours' => trim(number_format($employeeTotalHours, 2, '.', "'"), '0'),
-                'active' => Employee::where('isActive', 1)->count()
+                'active' => Employee::where('isActive', 1)->count(),
             ],
             'workers' => [
                 'hoursByMonth' => $workerHoursByMonth,
-                'totalHours' => trim(number_format($workerTotalHours, 2, '.', "'"), '0')
-            ]
+                'totalHours' => trim(number_format($workerTotalHours, 2, '.', "'"), '0'),
+            ],
         ];
     }
 
@@ -96,8 +95,9 @@ class DashboardController extends Controller
         return $stats;
     }
 
-    private function workerHoursByMonth($startDate, $endDate) {
-       $hoursByMonth = Hour::selectRaw("date, sum(duration) as duration, MONTH(date) as month, YEAR(date) as year")
+    private function workerHoursByMonth($startDate, $endDate)
+    {
+        $hoursByMonth = Hour::selectRaw('date, sum(duration) as duration, MONTH(date) as month, YEAR(date) as year')
         ->groupBy('month', 'year')
         ->orderBy('date')
         ->where('date', '>=', $startDate)
@@ -107,7 +107,8 @@ class DashboardController extends Controller
         return $this->toLineChart($hoursByMonth, $startDate, $endDate);
     }
 
-    private function employeeHoursByMonth($startDate, $endDate) {
+    private function employeeHoursByMonth($startDate, $endDate)
+    {
         $hoursByMonth = Rapportdetail::selectRaw('date, sum(hours) as duration, MONTH(date) as month, YEAR(date) as year')
             ->groupBy('month', 'year')
             ->orderBy('date')
@@ -118,23 +119,25 @@ class DashboardController extends Controller
         return $this->toLineChart($hoursByMonth, $startDate, $endDate);
     }
 
-    private function toLineChart($items, $startDate, $endDate) {
+    private function toLineChart($items, $startDate, $endDate)
+    {
         $items = $items->reduce(function ($prev, $curr) {
             $prev[$this->monthWithYear(new Carbon($curr->date))] = $curr;
+
             return $prev;
         }, []);
 
         $chart = collect();
-        for($i = $startDate->clone(); $i->lessThanOrEqualTo($endDate); $i->addMonth()) {
+        for ($i = $startDate->clone(); $i->lessThanOrEqualTo($endDate); $i->addMonth()) {
             if (isset($items[$this->monthWithYear($i)])) {
                 $chart->push([
                     'name' => Settings::getShortMonthName($i),
-                    'hours' => round($items[$this->monthWithYear($i)]->duration, 2)
+                    'hours' => round($items[$this->monthWithYear($i)]->duration, 2),
                 ]);
             } else {
                 $chart->push([
                     'name' => Settings::getShortMonthName($i),
-                    'hours' => 0
+                    'hours' => 0,
                 ]);
             }
         }
@@ -142,7 +145,8 @@ class DashboardController extends Controller
         return $chart;
     }
 
-    private function monthWithYear($date) {
-        return $date->year . '-' . $date->month;
+    private function monthWithYear($date)
+    {
+        return $date->year.'-'.$date->month;
     }
 }
