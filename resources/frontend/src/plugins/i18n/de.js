@@ -79,5 +79,6 @@ export default {
   'Pdf generieren': 'Pdf generieren',
   'Pdf konnte nicht erstellt werden': 'Pdf konnte nicht erstellt werden',
   Ansehen: 'Ansehen',
-  Treibstoff: 'Treibstoff'
+  Treibstoff: 'Treibstoff',
+  Heute: 'Heute'
 }

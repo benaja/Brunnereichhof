@@ -30,8 +30,8 @@ export default {
 
 <style lang="scss" scoped>
 .avatar-image {
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;

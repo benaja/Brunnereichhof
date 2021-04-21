@@ -14,6 +14,13 @@
       >
         {{ $t('Pdf generieren') }}
       </v-btn>
+      <div
+        class="today-placeholder justify-center d-flex"
+      >
+        <v-btn text>
+          {{ $t('Heute') }}
+        </v-btn>
+      </div>
       <select-day
         v-model="date"
         class="mr-10"
@@ -324,5 +331,9 @@ export default {
 
 .list-min-height {
   min-height: 400px;
+}
+
+.today-placeholder {
+  width: 100px;
 }
 </style>

@@ -4,7 +4,7 @@
       class="drag-item"
     >
       <div
-        class="drag-item-container"
+        class="drag-item-container pb-1"
         :class="[color, {flex: !noFlex}]"
       >
         <slot>
