@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-between">
-    <div class="mr-12">
+    <div class="mr-6">
       <p class="mx-0 mt-3 text-center">
         <v-btn
           text
@@ -43,7 +43,7 @@
         ></v-date-picker>
       </v-dialog>
     </div>
-    <div class="ml-12">
+    <div class="ml-6">
       <p class="mx-0 mt-3 text-center">
         <v-btn
           text
@@ -95,6 +95,6 @@ export default {
 <style lang="scss" scoped>
 .date-picker-activator {
   cursor: pointer;
-  width: 90px
+  width: 70px
 }
 </style>

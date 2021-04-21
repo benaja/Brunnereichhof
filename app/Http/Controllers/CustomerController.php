@@ -9,6 +9,7 @@ use App\Mail\CustomerCreated;
 use App\Project;
 use App\User;
 use App\UserType;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -28,12 +29,23 @@ class CustomerController extends Controller
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer', 'resource_planner_write']);
 
         if (isset($request->deleted)) {
-            $customers = Customer::with('address')->onlyTrashed()->orderBy('lastname')->get();
+            $query = Customer::with('address')->onlyTrashed();
         } elseif (isset($request->all)) {
-            $customers = Customer::with('address')->withTrashed()->orderBy('lastname')->get();
+            $query = Customer::with('address')->withTrashed();
         } else {
-            $customers = Customer::with('address')->orderBy('lastname')->get();
+            $query = Customer::with('address');
         }
+
+        if ($request->get('withHourrecords')) {
+            $query->with(['hourrecords' => function ($query) use ($request) {
+                $date = Carbon::parse($request->get('withHourrecords'));
+
+                $query->where('week', $date->format('W'));
+                $query->where('year', $date->format('Y'));
+            }]);
+        }
+
+        $customers = $query->orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
             $customer->username = $customer->user()->withTrashed()->first()->username;

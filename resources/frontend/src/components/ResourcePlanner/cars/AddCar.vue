@@ -12,17 +12,6 @@
         @submit="save"
       >
       </car-form>
-      <!-- <v-row>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <select-images
-            v-model="car.image"
-            single-file
-          ></select-images>
-        </v-col>
-      </v-row> -->
     </template>
   </card-layout>
 </template>

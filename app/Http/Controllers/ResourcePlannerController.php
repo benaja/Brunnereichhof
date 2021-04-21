@@ -252,8 +252,6 @@ class ResourcePlannerController extends Controller
 
         $pdf = new Pdf('P');
 
-        // $pdf->documentTitle('Einsatzplan '.$resourcePlannerDay->date->format('d.m.Y'));
-
         $formatedDate = $resourcePlannerDay->date->format('d.m.Y');
 
         foreach ($resources as $index => $resource) {
@@ -263,7 +261,10 @@ class ResourcePlannerController extends Controller
             $title = "Einsatzplan {$resource->customer->lastname} {$resource->customer->firstname} {$formatedDate}";
             $pdf->textToInsertOnPageBreak = $title;
             $pdf->documentTitle($title);
-            $pdf->paragraph("Start: {$resource->start_time} Ende: {$resource->end_time}");
+
+            $startTime = Carbon::parse($resource->start_time)->format('H:i');
+            $endTime = Carbon::parse($resource->end_time)->format('H:i');
+            $pdf->paragraph("Start: {$startTime} Ende: {$endTime}");
 
             if ($resource->comment) {
                 $pdf->paragraph('Kommentar', 0, 'B');
@@ -278,17 +279,15 @@ class ResourcePlannerController extends Controller
 
             $pdf->newLine();
             $pdf->paragraph('Mitarbeiter', 13);
-            $pdf->table(['Name', 'Stunden', 'Prjekt'], $employeesTable);
+            $pdf->table(['Name', 'Stunden', 'Projekt'], $employeesTable);
 
             $pdf->paragraph('Werkzeuge', 13);
             $pdf->table(['Name', 'Menge'], $toolsTable);
 
             $pdf->paragraph('Autos', 13);
             $pdf->table(['Name', 'Sitze', 'Treibstoff', 'Bemerkung', 'Wichtige Bemerkung'], $carsTable, [1, 0.3, 0.5, 1, 1]);
-
-            // $
         }
 
-        return $pdf->export('test.pdf');
+        return $pdf->export('Einsatzplan '.$resourcePlannerDay->date->format('d_m_Y').'.pdf');
     }
 }

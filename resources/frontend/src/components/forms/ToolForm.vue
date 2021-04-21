@@ -31,6 +31,16 @@
           @change="$emit('change', 'amount')"
         ></text-field>
       </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <select-images
+          v-model="value.image"
+          :image-url="value.image_url"
+          single-file
+        ></select-images>
+      </v-col>
     </v-row>
   </v-form>
 </template>
@@ -38,10 +48,12 @@
 <script>
 import { TextField } from '@/components/FormComponents'
 import { rules } from '@/utils'
+import SelectImages from '@/components/Roomdispositioner/Room/SelectImages'
 
 export default {
   components: {
-    TextField
+    TextField,
+    SelectImages
   },
   props: {
     value: {
@@ -67,6 +79,7 @@ export default {
       return this.$refs.form.validate()
     },
     reset() {
+      this.value.image = null
       return this.$refs.form.reset()
     }
   }
