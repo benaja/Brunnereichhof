@@ -2,9 +2,9 @@
 
 namespace App;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use DateTimeInterface;
 
 class Transaction extends Model
 {
@@ -16,18 +16,20 @@ class Transaction extends Model
         'comment',
         'transaction_type_id',
         'employee_id',
-        'entered'
+        'entered',
     ];
 
     protected $dates = [
-        'date'
+        'date',
     ];
 
-    public function employee() {
+    public function employee()
+    {
         return $this->belongsTo(Employee::class);
     }
 
-    public function type() {
+    public function type()
+    {
         return $this->belongsTo(TransactionType::class, 'transaction_type_id');
     }
 

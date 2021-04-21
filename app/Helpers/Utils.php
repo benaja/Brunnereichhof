@@ -13,19 +13,20 @@ class Utils
     {
         $username = Str::ascii(strtolower($username));
 
-        if (Utils::checkIfUsernameExist($username)) {
+        if (self::checkIfUsernameExist($username)) {
             $usernameIsUnique = false;
             $counter = 1;
 
-            while (!$usernameIsUnique) {
-                if (Utils::checkIfUsernameExist($username . $counter)) {
+            while (! $usernameIsUnique) {
+                if (self::checkIfUsernameExist($username.$counter)) {
                     $counter++;
                 } else {
-                    $username = $username . $counter;
+                    $username = $username.$counter;
                     $usernameIsUnique = true;
                 }
             }
         }
+
         return $username;
     }
 
@@ -43,11 +44,12 @@ class Utils
         }
         if ($type === 'year') {
             $date->modify('first day of january this year');
-        } else if ($type === 'month') {
+        } elseif ($type === 'month') {
             $date->modify('first day of this month');
         } else {
             $date->modify('monday this week');
         }
+
         return $date;
     }
 
@@ -60,11 +62,12 @@ class Utils
         }
         if ($type === 'year') {
             $date->modify('last day of december this year');
-        } else if ($type === 'month') {
+        } elseif ($type === 'month') {
             $date->modify('last day of this month');
         } else {
             $date->modify('sunday this week');
         }
+
         return $date;
     }
 }

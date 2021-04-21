@@ -18,6 +18,7 @@ import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
 import NavigationBar from '@/components/NavigationBar'
 import Fragment from 'vue-fragment'
+import i18n from '@/plugins/i18n'
 import { COLORS } from './constants'
 import axios from './axios'
 import store from './store'
@@ -92,5 +93,6 @@ App.store = Vue.store
 
 new Vue({
   vuetify: new Vuetify(vuetifyOpts),
-  render: h => h(App)
+  render: h => h(App),
+  i18n
 }).$mount('#app')

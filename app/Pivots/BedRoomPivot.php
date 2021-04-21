@@ -2,10 +2,10 @@
 
 namespace App\Pivots;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Bed;
-use App\Room;
 use App\Reservation;
+use App\Room;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BedRoomPivot extends Pivot
@@ -13,7 +13,7 @@ class BedRoomPivot extends Pivot
     use SoftDeletes;
     public $incrementing = true;
 
-    public $table = "bed_room";
+    public $table = 'bed_room';
 
     protected $fillable = ['bed_id', 'room_id'];
 

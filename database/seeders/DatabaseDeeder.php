@@ -1,6 +1,10 @@
 <?php
+
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-class DatabaseSeeder extends Seeder
+
+class DatabaseDeeder extends Seeder
 {
     /**
      * Run the database seeds.

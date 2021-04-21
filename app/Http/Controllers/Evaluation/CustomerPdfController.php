@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Evaluation;
 
-use App\Helpers\Pdf;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Customer;
-use App\Rapportdetail;
-use App\Project;
 use App\Enums\FoodTypeEnum;
 use App\Exports\CustomerExport;
+use App\Helpers\Pdf;
+use App\Http\Controllers\Controller;
+use App\Project;
 use App\Rapport;
+use App\Rapportdetail;
 use App\Settings;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -34,11 +34,12 @@ class CustomerPdfController extends Controller
         $this->pdf = new Pdf();
         $this->weekRapportForSingleCustomer($rapport);
         $date = new \DateTime($rapport->startdate);
+
         return $this->pdf->export("Wochenrapport {$rapport->customer->lastname} {$rapport->customer->firstname} KW {$date->format('W')}.pdf");
     }
 
     // GET /pdf/customer/week/{date}
-    public function weekRapport(Request $request, $customerId,  $date)
+    public function weekRapport(Request $request, $customerId, $date)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
 
@@ -66,8 +67,9 @@ class CustomerPdfController extends Controller
                 }
             }
             if ($customersAdded == 0) {
-                $this->pdf->documentTitle("Keine Einträge vorhanden in dieser Woche.");
+                $this->pdf->documentTitle('Keine Einträge vorhanden in dieser Woche.');
             }
+
             return $this->pdf->export("Wochenrapport Kunden KW {$date->format('W')}.pdf");
         } else {
             $customer = Customer::find($customerId);
@@ -77,6 +79,7 @@ class CustomerPdfController extends Controller
             } else {
                 $this->pdf->documentTitle("Keine Enträge vorhanden für {$customer->lastname} {$customer->firstname} in der Woche {$date->format('W')}.");
             }
+
             return $this->pdf->export("Wochenrapport {$customer->lastname} {$customer->firstname} KW {$date->format('W')}.pdf");
         }
     }
@@ -85,11 +88,12 @@ class CustomerPdfController extends Controller
     public function csvExport(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_customer']);
-        $fileName = "Kundenverzeichnis.csv";
-        $file = storage_path() . "/app/" . $fileName;
+        $fileName = 'Kundenverzeichnis.csv';
+        $file = storage_path().'/app/'.$fileName;
         Excel::store(new CustomerExport, $fileName, null, \Maatwebsite\Excel\Excel::CSV);
+
         return response()->download($file, $fileName, [
-            'Pragma' => $fileName
+            'Pragma' => $fileName,
         ])->deleteFileAfterSend();
     }
 
@@ -107,12 +111,16 @@ class CustomerPdfController extends Controller
             $isNotFirstPage = false;
             foreach ($customers as $customer) {
                 $pageAdded = $this->singleCustomerYearRapport($customer, $year, true, $isNotFirstPage);
-                if ($pageAdded) $isNotFirstPage = true;
+                if ($pageAdded) {
+                    $isNotFirstPage = true;
+                }
             }
+
             return $this->pdf->export("Jahresrapport $year.pdf");
         } else {
             $customer = Customer::find($customerId);
             $this->singleCustomerYearRapport($customer, $year);
+
             return $this->pdf->export("Jahresrapport $year {$customer->firstname} {$customer->lastname}.pdf");
         }
     }
@@ -131,15 +139,16 @@ class CustomerPdfController extends Controller
             ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->sum('hours');
 
-        if ($onlyWhenNotZeroHours && $totalHours === 0) return false;
+        if ($onlyWhenNotZeroHours && $totalHours === 0) {
+            return false;
+        }
 
         $mondayThisWeek = clone $firstDate;
-        $mondayThisWeek->modify("monday this week");
+        $mondayThisWeek->modify('monday this week');
         $rapportsByWeek = $customer->rapports
             ->where('startdate', '>=', $mondayThisWeek->format('Y-m-d'))
             ->where('startdate', '<=', $lastDate->format('Y-m-d'))
             ->sortBy('startdate');
-
 
         if ($isNotFirstPage) {
             $this->pdf->addNewPage();
@@ -147,7 +156,7 @@ class CustomerPdfController extends Controller
 
         $this->pdf->documentTitle("Kunde: {$customer->firstname} {$customer->lastname}");
         $this->pdf->documentTitle("Jahr: $year");
-        $this->pdf->documentTitle("Totale Arbeitsstunden: " . $totalHours . "h");
+        $this->pdf->documentTitle('Totale Arbeitsstunden: '.$totalHours.'h');
 
         foreach ($customer->projects as $project) {
             $hoursByProject = $project->rapportdetails->whereIn('rapport_id', $rapportIds)
@@ -166,19 +175,19 @@ class CustomerPdfController extends Controller
             $startDate = new \DateTime($week->startdate);
             $endDate = clone $startDate;
             $endDate->modify('+6 days');
-            if ($startDate->format("Y") != $year) {
-                $startDate->modify("first day of january");
-                $startDate->modify("+1 year");
+            if ($startDate->format('Y') != $year) {
+                $startDate->modify('first day of january');
+                $startDate->modify('+1 year');
             }
-            if ($endDate->format("Y") != $year) {
-                $endDate->modify("last day of december");
-                $endDate->modify("-1 year");
+            if ($endDate->format('Y') != $year) {
+                $endDate->modify('last day of december');
+                $endDate->modify('-1 year');
             }
             $hours = $week->rapportdetails->where('date', '>=', $startDate->format('Y-m-d'))
                 ->where('date', '<=', $endDate->format('Y-m-d'))->sum('hours');
             array_push($lines, [
                 "KW {$startDate->format('W')} ({$startDate->format('d.m.Y')}-{$endDate->format('d.m.Y')})",
-                $hours . "h"
+                $hours.'h',
             ]);
         }
         $this->pdf->table($titles, $lines);
@@ -191,6 +200,7 @@ class CustomerPdfController extends Controller
                 $this->weekRapportForSingleCustomer($rapport);
             }
         }
+
         return true;
     }
 
@@ -220,14 +230,16 @@ class CustomerPdfController extends Controller
             $this->pdf->documentTitle("Verpflegungen durch Kunde: $meals");
         }
         if ($rapport->customer->needs_payment_order) {
-            $this->pdf->documentTitle("Einzahlungsschein erwünscht");
+            $this->pdf->documentTitle('Einzahlungsschein erwünscht');
         }
         if ($rapport->customer->differingBillingAddress) {
             $this->pdf->newLine();
             $billingAddress = $rapport->customer->billingAddress;
-            $this->pdf->documentTitle("Rechnungsadresse", 0, "B");
+            $this->pdf->documentTitle('Rechnungsadresse', 0, 'B');
             $documentTitle = "{$billingAddress->street}";
-            if ($billingAddress->addition) $documentTitle .= ", {$billingAddress->addition}";
+            if ($billingAddress->addition) {
+                $documentTitle .= ", {$billingAddress->addition}";
+            }
             $documentTitle .= "\n{$billingAddress->plz} {$billingAddress->place}";
             $this->pdf->documentTitle($documentTitle);
         }
@@ -259,7 +271,7 @@ class CustomerPdfController extends Controller
             foreach ($rapportdetails as $rapportdetail) {
                 $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
                 // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
-                if ($rapportdetail->project && $rapportdetail->project->name != "Allgemein" && $cell > 0) {
+                if ($rapportdetail->project && $rapportdetail->project->name != 'Allgemein' && $cell > 0) {
                     $cell = "{$cell} ({$rapportdetail->project->name})";
                 }
                 array_push($cells, $cell);
@@ -277,6 +289,6 @@ class CustomerPdfController extends Controller
         $rappordetailsByProjects = array_keys($rappordetailsByProjects);
 
         $projects = Project::whereIn('id', $rappordetailsByProjects)->pluck('name');
-        $this->pdf->documentTitle("Projekte: " . $projects->implode(', '));
+        $this->pdf->documentTitle('Projekte: '.$projects->implode(', '));
     }
 }

@@ -33,6 +33,11 @@ export default new Router({
       component: () => import('./views/auth/SetPassword')
     },
     {
+      path: '/einsatzplaner/planung',
+      name: 'ResourceplannerPublicView',
+      component: () => import('./views/ResourcePlanner/PublicView')
+    },
+    {
       path: '/customer',
       name: 'Customers',
       component: () => import('./views/Customer/Customers'),
@@ -142,6 +147,30 @@ export default new Router({
       path: '/rapport/:id',
       name: 'Rapport',
       component: () => import('./views/Rapport/Rapport'),
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/resource-planner/plan',
+      name: 'ResourcePlanner',
+      component: () => import('./views/ResourcePlanner/ResourcePlanner'),
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/resource-planner/tools',
+      name: 'Tools',
+      component: () => import('./views/ResourcePlanner/Tools'),
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/resource-planner/cars',
+      name: 'Cars',
+      component: () => import('./views/ResourcePlanner/Cars'),
       meta: {
         auth: true
       }

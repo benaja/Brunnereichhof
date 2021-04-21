@@ -36,16 +36,16 @@ class TransactionsController extends Controller
             )
             ->when(
                 $request->has('sort_by') &&
-                !Str::is('employee.lastname', $request->get('sort_by')) && 
+                ! Str::is('employee.lastname', $request->get('sort_by')) &&
                 $request->get('sort_by') !== 'type.name',
                 function (Builder $query) use ($request, $dir) {
                     return $query->orderBy($request->get('sort_by'), $dir);
                 }
             )
-            ->when($request->get('sort_by') === 'type.name', function (Builder $query) use ($dir){
+            ->when($request->get('sort_by') === 'type.name', function (Builder $query) use ($dir) {
                 return $query->orderByRaw("transaction_types.name $dir");
             })
-            ->when(!$request->has('sort_by'), function (Builder $query) {
+            ->when(! $request->has('sort_by'), function (Builder $query) {
                 return $query->orderBy('created_at', 'desc');
             })
             ->when($request->has('search'), function (Builder $query) use ($request) {
@@ -65,6 +65,7 @@ class TransactionsController extends Controller
         } else {
             $transactions = $transactions->get();
         }
+
         return TransactionResource::collection($transactions);
     }
 
@@ -79,10 +80,10 @@ class TransactionsController extends Controller
         return TransactionResource::make($request->store());
     }
 
-    public function bulkCreate(TransactionBulkRequest $request) {
+    public function bulkCreate(TransactionBulkRequest $request)
+    {
         return $request->store();
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -109,7 +110,8 @@ class TransactionsController extends Controller
         $transaction->delete();
     }
 
-    public function getByEmployee(Employee $employee) {
+    public function getByEmployee(Employee $employee)
+    {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
         $transactions = $employee->transactions()->with('type')
@@ -120,26 +122,29 @@ class TransactionsController extends Controller
         } else {
             $transactions = $transactions->get();
         }
+
         return TransactionResource::collection($transactions);
     }
 
-    public function saldo (Employee $employee) {
+    public function saldo(Employee $employee)
+    {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
-        
+
         return [
-            'data' => $employee->transactions()->where('entered', false)->sum('amount')
+            'data' => $employee->transactions()->where('entered', false)->sum('amount'),
         ];
     }
 
-    public function stats () {
+    public function stats()
+    {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
         return [
             'data' => [
                 'positive' => Transaction::where('entered', false)->where('amount', '>', 0)->sum('amount'),
                 'negative' => Transaction::where('entered', false)->where('amount', '<', 0)->sum('amount'),
-                'total' => Transaction::where('entered', false)->sum('amount')
-            ]
+                'total' => Transaction::where('entered', false)->sum('amount'),
+            ],
         ];
     }
 }

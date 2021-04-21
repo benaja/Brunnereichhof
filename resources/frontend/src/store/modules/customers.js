@@ -33,11 +33,16 @@ export default {
     }
   },
   actions: {
-    fetchCustomers({ commit, getters, dispatch }) {
+    fetchCustomers({ commit, getters, dispatch }, params = {}) {
       return new Promise((resolve, reject) => {
         commit('loading', { customers: true })
         axios
-          .get('/customers?all=true')
+          .get('/customers', {
+            params: {
+              all: true,
+              ...params
+            }
+          })
           .then(response => {
             commit('setCustomers', response.data)
             resolve(getters.customers)

@@ -9,7 +9,7 @@ class Customer extends Model
 {
     use SoftDeletes;
 
-    public $table = "customer";
+    public $table = 'customer';
 
     protected $fillable = [
         'firstname',
@@ -29,7 +29,7 @@ class Customer extends Model
         'needs_payment_order',
         'differingBillingAddress',
         'is_blacklisted',
-        'blacklist_comment'
+        'blacklist_comment',
     ];
 
     public function user()
@@ -60,5 +60,15 @@ class Customer extends Model
     public function billingAddress()
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function rapportdetails()
+    {
+        return $this->hasMany(Rapportdetail::class);
+    }
+
+    public function resources()
+    {
+        return $this->hasMany(Resource::class);
     }
 }

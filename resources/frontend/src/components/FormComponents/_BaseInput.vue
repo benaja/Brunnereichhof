@@ -6,7 +6,9 @@
     >
       {{ label }}
     </p>
-    <div class="d-flex">
+    <div
+      class="d-flex"
+    >
       <slot></slot>
       <v-tooltip
         v-if="restoreMessage"
@@ -25,7 +27,10 @@
             <v-icon>restore</v-icon>
           </v-btn>
         </template>
-        <span v-html="restoreMessage"></span>
+        <span
+          ref="restoreMessage"
+          v-html="restoreMessage"
+        ></span>
       </v-tooltip>
     </div>
   </div>

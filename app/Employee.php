@@ -12,7 +12,7 @@ class Employee extends Model
 {
     use SoftDeletes;
 
-    public $table = "employee";
+    public $table = 'employee';
 
     protected $with = ['user'];
 
@@ -21,8 +21,6 @@ class Employee extends Model
         'nationality',
         'isIntern',
         'isDriver',
-        'german_knowledge',
-        'english_knowledge',
         'sex',
         'comment',
         'experience',
@@ -32,10 +30,12 @@ class Employee extends Model
         'allergy',
         'isLoginActive',
         'entryDate',
-        'drivingLicence'
+        'drivingLicence',
+        'resource_planner_white_listed',
+        'function',
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email'];
+    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url'];
 
     protected $dates = ['entryDate'];
 
@@ -54,8 +54,14 @@ class Employee extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function transactions() {
+    public function transactions()
+    {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function languages()
+    {
+        return $this->belongsToMany(Language::class);
     }
 
     public function name()
@@ -101,16 +107,28 @@ class Employee extends Model
 
     public function getProfileimageUrl()
     {
-        if ($this->profileimage) {
-            return Storage::disk('s3')->temporaryUrl(
-                $this->profileimage,
-                now()->addHours(5)
-            );
-        } else {
-            return null;
-        }
+        return $this->profileImageUrl($this->profileimage);
     }
 
+    public function getProfileimageUrlAttribute()
+    {
+        return $this->profileImageUrl($this->profileimage);
+    }
+
+    public function getSmallProfileImageAttribute()
+    {
+        return $this->profileImageUrl('small/'.$this->profileimage);
+    }
+
+    private function profileImageUrl($path)
+    {
+        if ($this->profileimage) {
+            return Storage::disk('s3')->temporaryUrl(
+                $path,
+                now()->addHours(5)
+            );
+        }
+    }
 
     // user mutators
     public function setFirstnameAttribute($value)

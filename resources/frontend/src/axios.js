@@ -59,4 +59,12 @@ axios.interceptors.response.use(
   },
 )
 
+// Request helpers ($get, $post, ...)
+// see nuxt axios module
+for (const method of ['request', 'delete', 'get', 'head', 'options', 'post', 'put', 'patch']) {
+  // eslint-disable-next-line prefer-spread
+  axios[`$${method}`] = function (...args) { return axios[method].apply(axios, args).then(res => res && res.data) }
+}
+
+
 export default axios

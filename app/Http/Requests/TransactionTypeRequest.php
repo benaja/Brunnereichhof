@@ -26,21 +26,23 @@ class TransactionTypeRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'is_positive' => ['required', 'boolean']
+            'is_positive' => ['required', 'boolean'],
         ];
     }
 
-    public function store() {
+    public function store()
+    {
         $data = $this->validated();
 
         return TransactionType::create($data);
     }
 
-    public function update(TransactionType $transactionType) {
+    public function update(TransactionType $transactionType)
+    {
         $data = $this->validated();
 
         $transactionType->update($data);
-        
+
         return $transactionType;
     }
 }

@@ -2,16 +2,16 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Pivots\BedRoomPivot;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reservation extends Model
 {
     use SoftDeletes;
 
-    public $table = "reservation";
+    public $table = 'reservation';
 
     protected $fillable = ['entry', 'exit', 'bed_room_id'];
 
@@ -38,10 +38,11 @@ class Reservation extends Model
 
     protected $dates = [
         'entry',
-        'exit'
+        'exit',
     ];
 
-    public function sleepOver($firstDay, $lastDay) {
+    public function sleepOver($firstDay, $lastDay)
+    {
         $sleepDays = $this->days();
         if ($firstDay > $this->entry) {
             $sleepDays -= $firstDay->diff($this->entry)->days;
@@ -55,12 +56,13 @@ class Reservation extends Model
         // count the night from the 3. to 4.
         // But when he leaves at the 3. and dont goes to an other bed id sould not count an additional
         // night
-        $hasEmployeeChangedBed = Reservation::where('employee_id', $this->employee_id)
+        $hasEmployeeChangedBed = self::where('employee_id', $this->employee_id)
             ->where('entry', $reservationExitDate->format('Y-m-d'))
             ->count();
         if ($hasEmployeeChangedBed && $this->exit <= $lastDay) {
-           return $sleepDays + 1;
+            return $sleepDays + 1;
         }
+
         return $sleepDays;
     }
 
@@ -70,6 +72,7 @@ class Reservation extends Model
         foreach ($reservations as $reservation) {
             $sleepOver += $reservation->sleepOver($firstDay, $lastDay);
         }
+
         return $sleepOver;
     }
 

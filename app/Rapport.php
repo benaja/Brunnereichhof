@@ -9,9 +9,21 @@ class Rapport extends Model
 {
     use SoftDeletes;
 
-    public $table = "rapport";
+    public $table = 'rapport';
 
-    protected $fillable = ['isFinished', 'startdate', 'rapporttype', 'comment_mo', 'default_project_id', 'comment_tu', 'comment_we', 'comment_th', 'comment_fr', 'comment_sa'];
+    protected $fillable = [
+        'isFinished',
+        'startdate',
+        'rapporttype',
+        'comment_mo',
+        'default_project_id',
+        'comment_tu',
+        'comment_we',
+        'comment_th',
+        'comment_fr',
+        'comment_sa',
+        'customer_id',
+    ];
 
     protected $appends = ['hours'];
 
@@ -38,5 +50,10 @@ class Rapport extends Model
     public function getHoursAttribute()
     {
         return $this->hours();
+    }
+
+    public function resources()
+    {
+        return $this->hasMany(Resource::class);
     }
 }

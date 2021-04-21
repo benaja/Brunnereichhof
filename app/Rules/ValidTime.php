@@ -2,8 +2,8 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
 use App\Timerecord;
+use Illuminate\Contracts\Validation\Rule;
 
 class ValidTime implements Rule
 {
@@ -12,7 +12,6 @@ class ValidTime implements Rule
      *
      * @return void
      */
-
     private $from;
     private $timerecord;
     private $id;
@@ -47,6 +46,7 @@ class ValidTime implements Rule
                 }
             }
         }
+
         return true;
     }
 
