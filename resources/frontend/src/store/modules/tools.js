@@ -44,12 +44,22 @@ export default {
       return getters.tools
     },
     async updateTool({ commit }, tool) {
-      const { data } = await axios.put(`tools/${tool.id}`, tool)
+      const formData = new FormData()
+      for (const key of Object.keys(tool)) {
+        formData.append(key, tool[key] || '')
+      }
+
+      const { data } = await axios.post(`tools/${tool.id}`, formData)
       commit('updateTool', data.data)
       return data.data
     },
     async createTool({ dispatch }, tool) {
-      const { data } = await axios.post('tools', tool)
+      const formData = new FormData()
+      for (const key of Object.keys(tool)) {
+        formData.append(key, tool[key] || '')
+      }
+
+      const { data } = await axios.post('tools', formData)
 
       dispatch('fetchTools')
       return data.data

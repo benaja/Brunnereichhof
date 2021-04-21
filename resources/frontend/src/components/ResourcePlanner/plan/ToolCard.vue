@@ -3,9 +3,14 @@
     :data-tool-id="tool.id"
     :data-tool-amount="tool.pivot && tool.pivot.amount"
     :name="tool.name"
+    :avatar="tool.small_image_url"
+    :image="tool.image_url"
     class="orange lighten-5"
   >
-    <div class="d-flex align-center justify-space-between tool-container">
+    <div
+      slot="name"
+      class="d-flex align-center justify-space-between tool-container"
+    >
       <p class="mb-0">
         {{ tool.name }}
       </p>
