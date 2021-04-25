@@ -13,6 +13,7 @@ vendor
 
 # local env files
 resources/frontend/node_modules
+resources/frontend/.env.production
 .env.local
 .env.*.local
 .env
