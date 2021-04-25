@@ -28,12 +28,16 @@ class CustomerController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['customer_read', 'rapport_read', 'hourrecord_write', 'evaluation_customer', 'resource_planner_write']);
 
+        $query = Customer::with(['address', 'user' => function ($query) {
+            $query->withTrashed();
+        }]);
+
         if (isset($request->deleted)) {
-            $query = Customer::with('address')->onlyTrashed();
+            $query = $query->onlyTrashed();
         } elseif (isset($request->all)) {
-            $query = Customer::with('address')->withTrashed();
+            $query = $query->withTrashed();
         } else {
-            $query = Customer::with('address');
+            $query = $query;
         }
 
         if ($request->get('withHourrecords')) {
@@ -48,8 +52,8 @@ class CustomerController extends Controller
         $customers = $query->orderBy('lastname')->get();
 
         foreach ($customers as $customer) {
-            $customer->username = $customer->user()->withTrashed()->first()->username;
-            $customer->email = $customer->user()->withTrashed()->first()->email;
+            $customer->username = $customer->user->username;
+            $customer->email = $customer->user->email;
         }
         $customers = $customers->toArray();
 
