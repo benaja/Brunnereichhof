@@ -4,8 +4,6 @@ resources/views/index.html
 storage/pdfs/*
 .vscode/*
 
-composer.lock
-
 .env
 
 .DS_Store
