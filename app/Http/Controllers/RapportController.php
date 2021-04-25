@@ -47,7 +47,7 @@ class RapportController extends Controller
 
             $rapportWeeks = collect();
             foreach ($rapports as $rapportGroup) {
-                $date = new \DateTime($rapportGroup[0]->startdate);
+                $date = Carbon::parse($rapportGroup[0]->startdate);
                 $isFinished = true;
                 $hours = 0;
                 foreach ($rapportGroup as $rapport) {
@@ -57,7 +57,7 @@ class RapportController extends Controller
                     $hours += $rapport->hours();
                 }
                 $week = [
-                    'date' => $date,
+                    'date' => $date->format('Y-m-d'),
                     'hours' => $hours,
                     'isFinished' => $isFinished,
                 ];

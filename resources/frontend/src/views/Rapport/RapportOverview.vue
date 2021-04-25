@@ -121,7 +121,7 @@ export default {
         .then(response => {
           this.rapports = response.data.data.map(r => ({
             ...r,
-            date: moment(r.date.date)
+            date: moment(r.date)
           }))
           this.meta = response.data.meta || {}
         })
