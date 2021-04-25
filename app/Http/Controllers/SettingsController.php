@@ -15,7 +15,7 @@ class SettingsController extends Controller
 
     public function index()
     {
-        auth()->user()->authorize(['superadmin', 'customer'], ['settings_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['settings_read', 'rapport_read']);
 
         if (auth()->user()->customer) {
             return [
