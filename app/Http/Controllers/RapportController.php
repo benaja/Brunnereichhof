@@ -32,18 +32,18 @@ class RapportController extends Controller
             return Rapport::where('customer_id', auth()->user()->customer->id)->orderBy('startdate')->get();
         // return auth()->user()->customer->rapports->sortBy('startdate');
         } else {
-            if ($request->get('per_page') > 0) {
-                $paginatedResult = Rapport::orderBy('startdate', 'desc')
-                    ->groupBy('startdate')
-                    ->paginate($request->get('per_page'));
+            // if ($request->get('per_page') > 0) {
+            //     $paginatedResult = Rapport::orderBy('startdate', 'desc')
+            //         ->groupBy('startdate')
+            //         ->paginate($request->get('per_page'));
 
-                $rapports = Rapport::whereIn('startdate', $paginatedResult->pluck('startdate'))
-                    ->orderBy('startdate', 'desc')
-                    ->get()
-                    ->groupBy('startdate');
-            } else {
-                $rapports = Rapport::orderBy('startdate', 'desc')->get()->groupBy('startdate');
-            }
+            //     $rapports = Rapport::whereIn('startdate', $paginatedResult->pluck('startdate'))
+            //         ->orderBy('startdate', 'desc')
+            //         ->get()
+            //         ->groupBy('startdate');
+            // } else {
+            $rapports = Rapport::orderBy('startdate', 'desc')->get()->groupBy('startdate');
+            // }
 
             $rapportWeeks = collect();
             foreach ($rapports as $rapportGroup) {
@@ -64,11 +64,11 @@ class RapportController extends Controller
                 $rapportWeeks->push($week);
             }
 
-            if ($request->get('per_page') > 0) {
-                $paginatedResult->setCollection($rapportWeeks);
+            // if ($request->get('per_page') > 0) {
+            //     $paginatedResult->setCollection($rapportWeeks);
 
-                return RapportResource::collection($paginatedResult);
-            }
+            //     return RapportResource::collection($paginatedResult);
+            // }
 
             return RapportResource::collection($rapportWeeks);
         }
