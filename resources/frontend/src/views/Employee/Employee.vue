@@ -49,6 +49,7 @@
           </v-btn>
         </v-col>
       </v-row>
+      <family-allowance-accordion></family-allowance-accordion>
       <v-btn
         v-if="isUserAllowedToEdit"
         color="red white--text my-4"
@@ -66,12 +67,14 @@
 </template>
 
 <script>
-import { rules, downloadFile } from '@/utils'
+import { rules, downloadFile, confirmAction } from '@/utils'
 import EmployeeForm from '@/components/forms/EmployeeForm'
+import FamilyAllowanceAccordion from '@/components/FamilyAllowance/FamilyAllowanceAccordion'
 
 export default {
   components: {
-    EmployeeForm
+    EmployeeForm,
+    FamilyAllowanceAccordion
   },
   data() {
     return {
@@ -169,13 +172,17 @@ export default {
       })
     },
     deleteEmployee() {
-      this.isLoadingDelete = true
-      this.axios.delete(this.apiUrl).then(() => {
-        if (this.employee.isGuest) this.$router.push('/guests')
-        else this.$router.push('/employee')
-      }).catch(() => {
-        this.isLoadingDelete = false
-        this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
+      confirmAction().then(value => {
+        if (value) {
+          this.isLoadingDelete = true
+          this.axios.delete(this.apiUrl).then(() => {
+            if (this.employee.isGuest) this.$router.push('/guests')
+            else this.$router.push('/employee')
+          }).catch(() => {
+            this.isLoadingDelete = false
+            this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
+          })
+        }
       })
     },
     generateSaldoPdf() {

@@ -80,5 +80,6 @@ export default {
   'Pdf konnte nicht erstellt werden': 'Pdf konnte nicht erstellt werden',
   Ansehen: 'Ansehen',
   Treibstoff: 'Treibstoff',
-  Heute: 'Heute'
+  Heute: 'Heute',
+  Familienzulagen: 'Familienzulagen'
 }
