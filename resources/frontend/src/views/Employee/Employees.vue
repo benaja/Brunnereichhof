@@ -23,7 +23,7 @@
         <v-expansion-panel
           v-for="employee in employeesFiltered"
           :key="employee.id"
-          :readonly="$auth.user().hasPermission('', 'employee_preview_read')"
+          :readonly="!$auth.user().hasPermission('superadmin', 'employee_read')"
         >
           <v-expansion-panel-header hide-actions>
             <p class="pt-2 mt-1 header-text">
