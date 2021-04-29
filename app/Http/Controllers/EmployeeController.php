@@ -185,7 +185,7 @@ class EmployeeController extends Controller
         } else {
             auth()->user()->authorize(['superadmin'], ['employee_read']);
         }
-        $employee->load('languages');
+        $employee->load('languages', 'familyAllowance');
         $employee->profileimage = $employee->getProfileimageUrl();
         $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
 

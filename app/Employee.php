@@ -66,7 +66,7 @@ class Employee extends Model
 
     public function familyAllowance()
     {
-        return $this->morphOne(FamilyAllowance::class, 'familiyAllowanceable');
+        return $this->morphOne(FamilyAllowance::class, 'family_allowanceable');
     }
 
     public function name()
