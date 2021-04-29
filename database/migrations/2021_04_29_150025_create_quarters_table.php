@@ -16,7 +16,7 @@ class CreateQuartersTable extends Migration
         Schema::create('quarters', function (Blueprint $table) {
             $table->id();
             $table->foreignId('family_allowance_id')->constrained()->cascadeOnDelete();
-            $table->string('type');
+            $table->integer('type');
             $table->string('quarter')->nullable();
             $table->boolean('value')->nullable();
             $table->date('expiration_date')->nullable();

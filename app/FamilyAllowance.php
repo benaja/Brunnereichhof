@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\QuarterType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,6 +27,11 @@ class FamilyAllowance extends Model
 
     public function employerConfirmation()
     {
-        return $this->hasMany(Quarter::class)->where('type');
+        return $this->hasMany(Quarter::class)->where('type', QuarterType::EmployerConfirmation);
+    }
+
+    public function creditToEichhof()
+    {
+        return $this->hasMany(Quarter::class)->where('type', QuarterType::CreditToEichhof);
     }
 }
