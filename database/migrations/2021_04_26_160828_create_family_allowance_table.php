@@ -28,6 +28,8 @@ class CreateFamilyAllowanceTable extends Migration
             $table->date('family_allowance_expiration_date')->nullable();
             $table->boolean('claim_id_received')->nullable();
             $table->date('claim_id_expiration_date')->nullable();
+            $table->foreignId('family_allowanceable_id');
+            $table->string('family_allowanceable_type');
             $table->timestamps();
         });
     }
