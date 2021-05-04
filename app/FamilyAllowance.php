@@ -10,6 +10,10 @@ class FamilyAllowance extends Model
 {
     use HasFactory;
 
+    protected $protected = [];
+
+    protected $with = ['files'];
+
     public function familyAllowanceable()
     {
         return $this->morphTo();

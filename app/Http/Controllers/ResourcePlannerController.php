@@ -141,7 +141,7 @@ class ResourcePlannerController extends Controller
             for ($i = 0; $i < 6; $i++) {
                 Rapportdetail::create([
                     'date' => $currentDate,
-                    'day' => $currentDate->dayOfWeek,
+                    'day' => $currentDate->dayOfWeekIso - 1,
                     'contract_type' => 'work_contract',
                     'customer_id' => $resource->customer->id,
                     'employee_id' => $data['employee_id'],

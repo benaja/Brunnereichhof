@@ -81,5 +81,10 @@ export default {
   Ansehen: 'Ansehen',
   Treibstoff: 'Treibstoff',
   Heute: 'Heute',
-  Familienzulagen: 'Familienzulagen'
+  Familienzulagen: 'Familienzulagen',
+  'Datei hochladen': 'Datei hochladen',
+  Ja: 'Ja',
+  Eingereicht: 'Eingereicht',
+  Verfallsdatum: 'Verfallsdatum',
+  'ID/Pass': 'ID/Pass'
 }
