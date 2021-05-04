@@ -31,4 +31,13 @@ class FileRequest extends FormRequest
 
         return File::create($data);
     }
+
+    public function update(File $file)
+    {
+        $data = $this->validated();
+
+        $file->update($data);
+
+        return $file;
+    }
 }

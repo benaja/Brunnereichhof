@@ -14,6 +14,7 @@
       <v-btn
         v-if="isSubmitted || disableToggle"
         text
+        :loading="isLoading"
         class="center upload-button my-0"
         @click="$refs.fileInput.click()"
       >
@@ -32,6 +33,7 @@
         v-if="file && file.path"
         v-model="file.expiration_date"
         :label="$t('Verfallsdatum')"
+        @input="changeExpirationDate"
       ></date-picker>
     </div>
   </div>
@@ -70,6 +72,13 @@ export default {
       required: true
     }
   },
+
+  data() {
+    return {
+      isLoading: false
+    }
+  },
+
   computed: {
     isSubmitted: {
       get() {
@@ -85,10 +94,33 @@ export default {
     }
   },
   methods: {
-    uploadFieldChange() {
+    uploadFieldChange(e) {
+      const files = e.target.files || e.dataTransfer.files
+      if (!files.length) return
+
+      const formData = new FormData()
+      formData.append('file', files[0])
+
+      this.isLoading = true
+      this.$store.commit('isSaving', true)
+      this.axios
+        .$post(`files/${this.file.id}/upload`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(({ data }) => {
+          this.$emit('change', data)
+        })
+        .catch(() => {
+          this.$store.dispatch('error', this.$t('Datei konnte nicht hochgeladen werden'))
+        })
+        .finally(() => {
+          this.$store.commit('isSaving', false)
+          this.isLoading = false
+        })
       console.log('upload file')
     },
     createFile(props) {
+      this.$store.commit('isSaving', true)
       this.axios.$post('files', {
         filable_id: this.familyAllowanceId,
         filable_type: 'App\\FamilyAllowance',
@@ -98,6 +130,15 @@ export default {
         this.$emit('add', data)
       }).catch(() => {
         this.$store.dispatch('error', this.$t('unbekannter-fehler'))
+      }).finally(() => {
+        this.$store.commit('isSaving', false)
+      })
+    },
+    changeExpirationDate() {
+      this.axios.$patch(`files/${this.file.id}`, {
+        expiration_date: this.file.expiration_date
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Datei konnte nicht hochgeladen werden'))
       })
     }
   }

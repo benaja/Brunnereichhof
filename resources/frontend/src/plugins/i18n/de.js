@@ -86,5 +86,6 @@ export default {
   Ja: 'Ja',
   Eingereicht: 'Eingereicht',
   Verfallsdatum: 'Verfallsdatum',
-  'ID/Pass': 'ID/Pass'
+  'ID/Pass': 'ID/Pass',
+  'Datei konnte nicht hochgeladen werden': 'Datei konnte nicht hochgeladen werden'
 }
