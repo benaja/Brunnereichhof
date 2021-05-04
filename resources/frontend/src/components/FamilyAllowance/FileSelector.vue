@@ -11,16 +11,37 @@
         :label="`${$t('Eingereicht')}: ${isSubmitted ? $t('Ja') : $t('Nein') }`"
         hide-details
       ></v-switch>
+      <template v-if="isFileSelected">
+        <v-btn
+          v-if="isFileSelected"
+          text
+          color="primary"
+          :href="file.url"
+          target="blank"
+        >
+          {{ $t('Datei öffnen') }}
+        </v-btn>
+        <v-btn
+          text
+          @click="removeFile"
+        >
+          <v-icon class="mr-1">
+            delete
+          </v-icon>
+          {{ $t('Datei löschen') }}
+        </v-btn>
+      </template>
       <v-btn
-        v-if="isSubmitted || disableToggle"
+        v-if="!isFileSelected && isSubmitted"
         text
         :loading="isLoading"
-        class="center upload-button my-0"
+        class="my-0"
         @click="$refs.fileInput.click()"
       >
-        <v-icon x-large>
+        <v-icon class="mr-1">
           add
-        </v-icon>{{ $t('Datei hochladen') }}
+        </v-icon>
+        {{ $t('Datei hochladen') }}
       </v-btn>
       <input
         ref="fileInput"
@@ -30,10 +51,10 @@
       />
 
       <date-picker
-        v-if="file && file.path"
+        v-if="isFileSelected"
         v-model="file.expiration_date"
         :label="$t('Verfallsdatum')"
-        @input="changeExpirationDate"
+        @input="update"
       ></date-picker>
     </div>
   </div>
@@ -41,6 +62,7 @@
 
 <script>
 import DatePicker from '@/components/general/DatePicker'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -89,8 +111,12 @@ export default {
           this.createFile({ is_submitted: value })
         } else {
           this.file.is_submitted = value
+          this.update()
         }
       }
+    },
+    isFileSelected() {
+      return (this.isSubmitted || this.disableToggle) && this.file.path
     }
   },
   methods: {
@@ -117,7 +143,6 @@ export default {
           this.$store.commit('isSaving', false)
           this.isLoading = false
         })
-      console.log('upload file')
     },
     createFile(props) {
       this.$store.commit('isSaving', true)
@@ -134,11 +159,24 @@ export default {
         this.$store.commit('isSaving', false)
       })
     },
-    changeExpirationDate() {
+    update() {
+      this.$store.commit('isSaving', true)
       this.axios.$patch(`files/${this.file.id}`, {
-        expiration_date: this.file.expiration_date
+        expiration_date: this.file.expiration_date,
+        is_submitted: this.file.is_submitted,
+        path: this.file.path
       }).catch(() => {
         this.$store.dispatch('error', this.$t('Datei konnte nicht hochgeladen werden'))
+      }).finally(() => {
+        this.$store.commit('isSaving', false)
+      })
+    },
+    removeFile() {
+      confirmAction(this.$t('Willst du die Datei wirklich löschen?')).then(value => {
+        if (value) {
+          this.file.path = null
+          this.update()
+        }
       })
     }
   }
@@ -146,7 +184,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.upload-button {
-  // margin
-}
+
 </style>

@@ -22,6 +22,7 @@ class FileRequest extends FormRequest
             'type' => [$required, 'string'],
             'is_submitted' => ['boolean'],
             'expiration_date' => ['date'],
+            'path' => ['string', 'nullable'],
         ];
     }
 

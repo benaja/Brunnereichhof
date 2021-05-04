@@ -87,5 +87,8 @@ export default {
   Eingereicht: 'Eingereicht',
   Verfallsdatum: 'Verfallsdatum',
   'ID/Pass': 'ID/Pass',
-  'Datei konnte nicht hochgeladen werden': 'Datei konnte nicht hochgeladen werden'
+  'Datei konnte nicht hochgeladen werden': 'Datei konnte nicht hochgeladen werden',
+  'Datei öffnen': 'Datei öffnen',
+  'Datei löschen': 'Datei löschen',
+  'Willst du die Datei wirklich löschen?': 'Willst du die Datei wirklich löschen?'
 }

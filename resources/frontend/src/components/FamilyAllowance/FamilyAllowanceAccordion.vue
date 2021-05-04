@@ -49,9 +49,10 @@ export default {
       return this.value.files.find(f => f.type === type)
     },
     updateFile(file) {
-      const originalFile = this.files.find(f => f.type === file.type)
-      const index = this.files.indexOf(originalFile)
-      this.value.files.splice(index, 1)
+      const originalFile = this.value.files.find(f => f.type === file.type)
+      const index = this.value.files.indexOf(originalFile)
+
+      this.value.files[index] = file
 
       this.value.files = [...this.value.files]
     },
