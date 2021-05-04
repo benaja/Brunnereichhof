@@ -90,5 +90,6 @@ export default {
   'Datei konnte nicht hochgeladen werden': 'Datei konnte nicht hochgeladen werden',
   'Datei öffnen': 'Datei öffnen',
   'Datei löschen': 'Datei löschen',
-  'Willst du die Datei wirklich löschen?': 'Willst du die Datei wirklich löschen?'
+  'Willst du die Datei wirklich löschen?': 'Willst du die Datei wirklich löschen?',
+  Ausländerausweis: 'Ausländerausweis'
 }

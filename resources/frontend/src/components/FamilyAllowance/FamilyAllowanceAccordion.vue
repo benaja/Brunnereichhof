@@ -15,6 +15,16 @@
           :file="fileByType('id')"
           :label="$t('ID/Pass')"
           :family-allowance-id="value.id"
+          disable-submitted
+          @add="addFile"
+          @change="updateFile"
+        ></file-selector>
+        <file-selector
+          type="foreign_id"
+          :file="fileByType('foreign_id')"
+          :label="$t('Ausländerausweis')"
+          :family-allowance-id="value.id"
+          disable-submitted
           @add="addFile"
           @change="updateFile"
         ></file-selector>

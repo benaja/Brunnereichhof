@@ -5,57 +5,58 @@
         {{ label }}
       </p>
       <v-switch
-        v-if="!disableToggle"
+        v-if="!disableSubmitted"
         v-model="isSubmitted"
         class="my-0 mr-6"
         :label="`${$t('Eingereicht')}: ${isSubmitted ? $t('Ja') : $t('Nein') }`"
         hide-details
       ></v-switch>
-      <template v-if="isFileSelected">
+      <template v-if="isSubmitted || disableSubmitted">
+        <template v-if="isFileSelected">
+          <v-btn
+            text
+            color="primary"
+            :href="file.url"
+            target="blank"
+          >
+            {{ $t('Datei öffnen') }}
+          </v-btn>
+          <v-btn
+            text
+            @click="removeFile"
+          >
+            <v-icon class="mr-1">
+              delete
+            </v-icon>
+            {{ $t('Datei löschen') }}
+          </v-btn>
+        </template>
         <v-btn
-          v-if="isFileSelected"
+          v-else
           text
-          color="primary"
-          :href="file.url"
-          target="blank"
-        >
-          {{ $t('Datei öffnen') }}
-        </v-btn>
-        <v-btn
-          text
-          @click="removeFile"
+          :loading="isLoading"
+          class="my-0"
+          @click="$refs.fileInput.click()"
         >
           <v-icon class="mr-1">
-            delete
+            add
           </v-icon>
-          {{ $t('Datei löschen') }}
+          {{ $t('Datei hochladen') }}
         </v-btn>
-      </template>
-      <v-btn
-        v-if="!isFileSelected && isSubmitted"
-        text
-        :loading="isLoading"
-        class="my-0"
-        @click="$refs.fileInput.click()"
-      >
-        <v-icon class="mr-1">
-          add
-        </v-icon>
-        {{ $t('Datei hochladen') }}
-      </v-btn>
-      <input
-        ref="fileInput"
-        class="d-none"
-        type="file"
-        @change="uploadFieldChange"
-      />
+        <input
+          ref="fileInput"
+          class="d-none"
+          type="file"
+          @change="uploadFieldChange"
+        />
 
-      <date-picker
-        v-if="isFileSelected"
-        v-model="file.expiration_date"
-        :label="$t('Verfallsdatum')"
-        @input="update"
-      ></date-picker>
+        <date-picker
+          v-if="isFileSelected"
+          v-model="file.expiration_date"
+          :label="$t('Verfallsdatum')"
+          @input="update"
+        ></date-picker>
+      </template>
     </div>
   </div>
 </template>
@@ -69,7 +70,7 @@ export default {
     DatePicker
   },
   props: {
-    disableToggle: {
+    disableSubmitted: {
       type: Boolean,
       default: false
     },
@@ -116,13 +117,17 @@ export default {
       }
     },
     isFileSelected() {
-      return (this.isSubmitted || this.disableToggle) && this.file.path
+      return this.file && this.file.path
     }
   },
   methods: {
-    uploadFieldChange(e) {
+    async uploadFieldChange(e) {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
+
+      if (!this.file) {
+        await this.createFile()
+      }
 
       const formData = new FormData()
       formData.append('file', files[0])
@@ -144,19 +149,23 @@ export default {
           this.isLoading = false
         })
     },
-    createFile(props) {
-      this.$store.commit('isSaving', true)
-      this.axios.$post('files', {
-        filable_id: this.familyAllowanceId,
-        filable_type: 'App\\FamilyAllowance',
-        type: this.type,
-        ...props
-      }).then(({ data }) => {
-        this.$emit('add', data)
-      }).catch(() => {
-        this.$store.dispatch('error', this.$t('unbekannter-fehler'))
-      }).finally(() => {
-        this.$store.commit('isSaving', false)
+    async createFile(props) {
+      return new Promise(resolve => {
+        this.$store.commit('isSaving', true)
+        this.axios.$post('files', {
+          filable_id: this.familyAllowanceId,
+          filable_type: 'App\\FamilyAllowance',
+          type: this.type,
+          ...props
+        }).then(({ data }) => {
+          this.$emit('add', data)
+        }).catch(() => {
+          this.$store.dispatch('error', this.$t('unbekannter-fehler'))
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+
+          this.$nextTick(() => resolve())
+        })
       })
     },
     update() {
