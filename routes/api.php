@@ -150,4 +150,5 @@ Route::group(['middleware' => 'jwt'], function () {
     // family allowance
     Route::resource('files', 'FilesController');
     Route::post('files/{file}/upload', 'FilesController@uploadFile');
+    Route::resource('family-allowances', 'FamilyAllowancesController');
 });

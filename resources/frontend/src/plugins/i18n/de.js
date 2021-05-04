@@ -91,5 +91,22 @@ export default {
   'Datei öffnen': 'Datei öffnen',
   'Datei löschen': 'Datei löschen',
   'Willst du die Datei wirklich löschen?': 'Willst du die Datei wirklich löschen?',
-  Ausländerausweis: 'Ausländerausweis'
+  Ausländerausweis: 'Ausländerausweis',
+  Zivilstand: 'Zivilstand',
+  Ledig: 'Ledig',
+  Verheirated: 'Verheirated',
+  Geschieden: 'Geschieden',
+  Verwitwet: 'Verwitwet',
+  'Bansprucht Familienzulagen': 'Bansprucht Familienzulagen',
+  'Verfallsdatum Familienzulagen': 'Verfallsdatum Familienzulagen',
+  'Partner erwerbstätig': 'Partner erwerbstätig',
+  'Benötigt Formular E411': 'Benötigt Formular E411',
+  'E411 ausgeteilt': 'E411 ausgeteilt',
+  E411: 'E411',
+  Hochzeitsurkunde: 'Hochzeitsurkunde',
+  Vorhanden: 'Vorhanden',
+  Scheidungsurteil: 'Scheidungsurteil',
+  'Anspruchsausweis erhalten': 'Anspruchsausweis erhalten',
+  'Anmeldung für Familienzulagen abgesendet': 'Anmeldung für Familienzulagen abgesendet',
+  'Anspruchsausweis Verfallsdatum': 'Anspruchsausweis Verfallsdatum'
 }

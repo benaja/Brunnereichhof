@@ -10,7 +10,7 @@ class FamilyAllowance extends Model
 {
     use HasFactory;
 
-    protected $protected = [];
+    protected $guarded = [];
 
     protected $with = ['files'];
 

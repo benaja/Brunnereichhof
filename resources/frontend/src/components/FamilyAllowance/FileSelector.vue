@@ -8,7 +8,7 @@
         v-if="!disableSubmitted"
         v-model="isSubmitted"
         class="my-0 mr-6"
-        :label="`${$t('Eingereicht')}: ${isSubmitted ? $t('Ja') : $t('Nein') }`"
+        :label="submittedLabel"
         hide-details
       ></v-switch>
       <template v-if="isSubmitted || disableSubmitted">
@@ -64,6 +64,7 @@
 <script>
 import DatePicker from '@/components/general/DatePicker'
 import { confirmAction } from '@/utils'
+import i18n from '@/plugins/i18n'
 
 export default {
   components: {
@@ -93,6 +94,10 @@ export default {
     familyAllowanceId: {
       type: Number,
       required: true
+    },
+    submittedLabel: {
+      type: String,
+      default: i18n.tc('Eingereicht')
     }
   },
 
@@ -120,6 +125,13 @@ export default {
       return this.file && this.file.path
     }
   },
+
+  mounted() {
+    if (!this.submittedLabel) {
+      this.submittedLabel = this.$t('Eingereicht')
+    }
+  },
+
   methods: {
     async uploadFieldChange(e) {
       const files = e.target.files || e.dataTransfer.files

@@ -16,7 +16,7 @@ class CreateFamilyAllowanceTable extends Migration
         Schema::create('family_allowances', function (Blueprint $table) {
             $table->id();
             $table->string('civil_status')->nullable();
-            $table->boolean('has_faily_allowance')->default(false);
+            $table->boolean('has_family_allowance')->default(false);
             $table->date('expiration_of_family_allowance')->nullable();
             $table->boolean('partner_employed')->nullable();
             $table->boolean('needs_e411_form')->nullable();
