@@ -65,12 +65,8 @@ export default {
       type: String,
       default: null
     },
-    parentId: {
+    familyAllowanceId: {
       type: Number,
-      required: true
-    },
-    parentModel: {
-      type: String,
       required: true
     }
   },
@@ -94,8 +90,8 @@ export default {
     },
     createFile(props) {
       this.axios.$post('files', {
-        filable_id: this.parentId,
-        filable_type: this.parentModel,
+        filable_id: this.familyAllowanceId,
+        filable_type: 'App\\FamilyAllowance',
         type: this.type,
         ...props
       }).then(({ data }) => {

@@ -14,8 +14,7 @@
           type="id"
           :file="fileByType('id')"
           :label="$t('ID/Pass')"
-          :parent-id="parent.id"
-          :parent-model="model"
+          :family-allowance-id="value.id"
           @add="addFile"
           @change="updateFile"
         ></file-selector>
