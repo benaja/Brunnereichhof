@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="my-1">
     <div class="d-flex align-center">
       <p class="mb-0 font-weight-bold mr-6">
         {{ label }}
@@ -91,13 +91,17 @@ export default {
       type: String,
       default: null
     },
-    familyAllowanceId: {
-      type: Number,
-      required: true
-    },
     submittedLabel: {
       type: String,
       default: i18n.tc('Eingereicht')
+    },
+    filableId: {
+      type: Number,
+      required: true
+    },
+    filableType: {
+      type: String,
+      default: 'App\\FamilyAllowance'
     }
   },
 
@@ -165,8 +169,8 @@ export default {
       return new Promise(resolve => {
         this.$store.commit('isSaving', true)
         this.axios.$post('files', {
-          filable_id: this.familyAllowanceId,
-          filable_type: 'App\\FamilyAllowance',
+          filable_id: this.filableId,
+          filable_type: this.filableType,
           type: this.type,
           ...props
         }).then(({ data }) => {

@@ -11,8 +11,15 @@ class Child extends Model
 
     protected $guarded = [];
 
+    protected $with = ['files'];
+
     public function familyAllowance()
     {
         return $this->belongsTo(FamilyAllowance::class);
+    }
+
+    public function files()
+    {
+        return $this->morphMany(File::class, 'filable');
     }
 }

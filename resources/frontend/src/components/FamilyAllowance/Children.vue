@@ -12,10 +12,13 @@
     </Child>
     <v-btn
       color="primary"
+      class="mt-3"
       text
       @click="addChild"
     >
-      {{ $t('Kind hinzufügen') }}
+      {{ $t('Kind hinzufügen') }} <v-icon class="ml-1">
+        add
+      </v-icon>
     </v-btn>
   </div>
 </template>
@@ -42,6 +45,7 @@ export default {
       this.axios.$post('children', {
         family_allowance_id: this.familyAllowance.id
       }).then(data => {
+        data.files = []
         this.value.push(data)
         this.$emit('input', [...this.value])
       }).catch(() => {

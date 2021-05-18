@@ -14,7 +14,7 @@
           type="id"
           :file="fileByType('id')"
           :label="$t('ID/Pass')"
-          :family-allowance-id="value.id"
+          :filable-id="value.id"
           disable-submitted
           @add="addFile"
           @change="updateFile"
@@ -23,7 +23,7 @@
           type="foreign_id"
           :file="fileByType('foreign_id')"
           :label="$t('Ausländerausweis')"
-          :family-allowance-id="value.id"
+          :filable-id="value.id"
           disable-submitted
           @add="addFile"
           @change="updateFile"
@@ -71,7 +71,7 @@
             type="e411"
             :file="fileByType('e411')"
             :label="$t('E411')"
-            :family-allowance-id="value.id"
+            :filable-id="value.id"
             @add="addFile"
             @change="updateFile"
           ></file-selector>
@@ -81,7 +81,7 @@
             :file="fileByType('marriage_document')"
             :label="$t('Hochzeitsurkunde')"
             :submitted-label="$t('Vorhanden')"
-            :family-allowance-id="value.id"
+            :filable-id="value.id"
             @add="addFile"
             @change="updateFile"
           ></file-selector>
@@ -91,7 +91,7 @@
             :file="fileByType('divorce_document')"
             :label="$t('Scheidungsurteil')"
             :submitted-label="$t('Vorhanden')"
-            :family-allowance-id="value.id"
+            :filable-id="value.id"
             @add="addFile"
             @change="updateFile"
           ></file-selector>

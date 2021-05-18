@@ -113,5 +113,7 @@ export default {
   Kinder: 'Kinder',
   Geburtstag: 'Geburtstag',
   Vorname: 'Vorname',
-  Nachname: 'Nachname'
+  Nachname: 'Nachname',
+  Geburtsurkunde: 'Geburtsurkunde',
+  Schulbestätigung: 'Schulbestätigung'
 }
