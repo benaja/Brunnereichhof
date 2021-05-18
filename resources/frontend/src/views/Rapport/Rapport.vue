@@ -104,6 +104,16 @@
             :settings="settings"
             :projects="projects"
           ></RapportEmployee>
+
+          <tr class="total-hours">
+            <th>Total</th>
+            <td
+              v-for="(rapportdetailsByDay, index) of rapportdetailsByDays"
+              :key="`t-${index}`"
+            >
+              {{ totalHoursOfRapportdetails(rapportdetailsByDay) }}
+            </td>
+          </tr>
         </table>
         <v-col
           v-if="false"
@@ -417,6 +427,10 @@ export default {
         }).finally(() => {
           this.isSaving = false
         })
+    },
+    totalHoursOfRapportdetails(rapportdetails) {
+      return rapportdetails
+        .reduce((total, rapportdetail) => Number(total) + Number(rapportdetail.hours), 0)
     }
   }
 }
@@ -474,6 +488,12 @@ export default {
 
   .weekday {
     padding: 5px 10px;
+  }
+}
+
+.total-hours {
+  td {
+    padding: 0 10px;
   }
 }
 

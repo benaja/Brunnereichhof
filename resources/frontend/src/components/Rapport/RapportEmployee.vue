@@ -106,6 +106,26 @@ export default {
     hasPermisstionToChangeRapport() {
       return this.$auth.user().hasPermission(['superadmin'], ['rapport_write'])
     }
+  },
+  methods: {
+    change(changedElement, rapportdetail) {
+      if (changedElement === 'hours' && rapportdetail.hours < 0) rapportdetail.hours = 0
+      this.$store.commit('isSaving', true)
+      this.axios
+        .patch(`rapportdetails/${rapportdetail.id}`, {
+          [changedElement]: rapportdetail[changedElement]
+        })
+        .then(response => {
+          if (changedElement === 'foodtype_id' || changedElement === 'hours') {
+            rapportdetail.foodtype_ok = response.data.foodtype_ok
+          }
+        })
+        .catch(() => {
+          this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
+        }).finally(() => {
+          this.$store.commit('isSaving', false)
+        })
+    }
   }
 }
 </script>

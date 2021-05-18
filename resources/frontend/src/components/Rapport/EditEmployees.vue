@@ -108,6 +108,7 @@ export default {
           })
           .then(response => {
             this.rapport.rapportdetails.push(response.data)
+            this.rapport.rapportdetails = [...this.rapport.rapportdetails]
             this.selectedEmployee = null
           })
           .catch(error => {

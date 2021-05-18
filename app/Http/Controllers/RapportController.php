@@ -175,10 +175,11 @@ class RapportController extends Controller
             return response('employee already exists', 400);
         }
 
-        $rapportdetails = Rapportdetail::where([
-            'rapport_id' => $rapport->id,
-            'employee_id' => $employee->id,
-        ])->get();
+        $rapportdetails = Rapportdetail::with('employee')
+            ->where([
+                'rapport_id' => $rapport->id,
+                'employee_id' => $employee->id,
+            ])->get();
 
         return $rapportdetails;
     }
