@@ -116,7 +116,7 @@ export default {
   methods: {
     getDayTotal() {
       this.axios
-        .get(`rapport/daytotal/${this.date}`)
+        .get(`rapports/daytotal/${this.date}`)
         .then(response => {
           this.dayTotals = response.data
         })
