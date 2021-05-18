@@ -137,31 +137,24 @@ class ResourcePlannerController extends Controller
             ->first();
 
         if (! $rapportdetail) {
-            $currentDate = Carbon::parse($resource->rapport->startdate);
-            for ($i = 0; $i < 6; $i++) {
-                Rapportdetail::create([
-                    'date' => $currentDate,
-                    'day' => $currentDate->dayOfWeek,
+            $date = Carbon::parse($resource->date);
+            $rapportdetail = Rapportdetail::create([
+                    'date' => $resource->date,
+                    'day' => $date->dayOfWeek,
                     'contract_type' => 'work_contract',
                     'customer_id' => $resource->customer->id,
                     'employee_id' => $data['employee_id'],
                     'rapport_id' => $resource->rapport->id,
                     'foodtype_id' => $defaultFoodType->id,
+                    'hours' => Settings::value('resourcePlannerDefaultDuration'),
+                    'resource_id' => $resource->id,
                 ]);
-
-                $currentDate->addDay();
-            }
-
-            $rapportdetail = Rapportdetail::where('employee_id', $data['employee_id'])
-                ->where('date', $resource->date)
-                ->where('customer_id', $resource->customer_id)
-                ->first();
+        } else {
+            $rapportdetail->update([
+                'hours' => Settings::value('resourcePlannerDefaultDuration'),
+                'resource_id' => $resource->id,
+            ]);
         }
-
-        $rapportdetail->update([
-            'hours' => Settings::value('resourcePlannerDefaultDuration'),
-            'resource_id' => $resource->id,
-        ]);
 
         $rapportdetail->load('employee.languages');
 
