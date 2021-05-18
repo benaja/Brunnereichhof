@@ -140,7 +140,7 @@ class ResourcePlannerController extends Controller
             $date = Carbon::parse($resource->date);
             $rapportdetail = Rapportdetail::create([
                     'date' => $resource->date,
-                    'day' => $date->dayOfWeek,
+                    'day' => $date->dayOfWeekIso - 1,
                     'contract_type' => 'work_contract',
                     'customer_id' => $resource->customer->id,
                     'employee_id' => $data['employee_id'],

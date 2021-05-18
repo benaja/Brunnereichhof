@@ -174,7 +174,7 @@
                   class="pt-0"
                 >
                   <rapport-day
-                    :date="date.clone().add(rapportdetail[0].day, 'days')"
+                    :date="$moment(rapportdetail[0].date, 'YYYY-MM-DD')"
                     :rapport="rapport"
                     :day="Number(key)"
                     :projects="projects"
