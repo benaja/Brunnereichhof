@@ -20,6 +20,7 @@
       :disabled="disabled"
       :readonly="readonly"
       :rules="rules"
+      :hide-details="hideDetails"
       validate-on-blur
       @input="$emit('input', text)"
       @change="$emit('change')"
@@ -68,6 +69,10 @@ export default {
     readonly: {
       default: false,
       type: Boolean
+    },
+    hideDetails: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

@@ -57,7 +57,21 @@
       </div>
       <div>
         <!-- Table -->
+        <table class="rapport-table">
+          <tr>
+            <th>Wochentag</th>
+            <th>Montag</th>
+            <th>Dienstag</th>
+            <th>Mittwoch</th>
+            <th>Donnerstag</th>
+            <th>Freitag</th>
+            <th>Samstag</th>
+          </tr>
+
+          <RapportComments :rapport="rapport"></RapportComments>
+        </table>
         <v-col
+          v-if="false"
           cols="12"
           class="table"
         >
@@ -183,6 +197,7 @@ import moment from 'moment'
 import EditEmployees from '@/components/Rapport/EditEmployees'
 import SelectProjects from '@/components/Rapport/SelectProjects'
 import RapportDay from '@/components/Rapport/RapportDay'
+import RapportComments from '@/components/Rapport/RapportComments'
 import DayTotal from '@/components/Rapport/DayTotal'
 import LoadingDots from '@/components/general/LoadingDots'
 import { downloadFile } from '@/utils'
@@ -195,7 +210,8 @@ export default {
     SelectProjects,
     RapportDay,
     DayTotal,
-    LoadingDots
+    LoadingDots,
+    RapportComments
   },
   data() {
     return {
@@ -390,6 +406,15 @@ export default {
   bottom: 0;
   right: 5px;
   width: 40%;
+}
+
+.rapport-table {
+  width: 100%;
+
+  th, td
+  {
+    text-align: left;
+  }
 }
 
 @media only screen and (max-width: 600px) {

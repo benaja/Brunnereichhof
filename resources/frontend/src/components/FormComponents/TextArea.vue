@@ -6,11 +6,11 @@
   >
     <v-textarea
       :value="value"
-      :class="['no-label', classes]"
-      class="edit-field"
+      :class="['no-label', classes, outline ? 'outlined' : 'not-outlined']"
+      class="edit-field text-area"
       solo
       text
-      :rows="2"
+      :rows="rows"
       auto-grow
       :type="type"
       :outlined="outline"
@@ -21,6 +21,7 @@
       :readonly="readonly"
       :rules="rules"
       validate-on-blur
+      :hide-details="hideDetails"
       @input="input"
       @focus="outline = true"
       @blur="outline = false"
@@ -73,6 +74,14 @@ export default {
     readonly: {
       default: false,
       type: Boolean
+    },
+    rows: {
+      type: Number,
+      default: 2
+    },
+    hideDetails: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -104,4 +113,22 @@ export default {
 .edit-field .v-input__slot {
   box-shadow: none !important;
 }
+
+.text-area {
+  textarea {
+    margin-bottom: 10px;
+  }
+
+  &.outlined {
+   textarea {
+     margin: 12px 0 !important;
+   }
+  }
+
+  &.not-outlined {
+    // padding-top: 2px  !important;
+    padding: 2px 0px !important;
+  }
+}
+
 </style>
