@@ -430,7 +430,7 @@ export default {
     },
     totalHoursOfRapportdetails(rapportdetails) {
       return rapportdetails
-        .reduce((total, rapportdetail) => Number(total) + Number(rapportdetail.hours), 0)
+        .reduce((total, rapportdetail) => Number(total) + Number(rapportdetail.hours || 0), 0)
     }
   }
 }

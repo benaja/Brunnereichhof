@@ -54,6 +54,7 @@
         v-else
         color="primary"
         text
+        @click="createRapportdetail(index)"
       >
         Hinzufügen
       </v-btn>
@@ -125,6 +126,20 @@ export default {
         }).finally(() => {
           this.$store.commit('isSaving', false)
         })
+    },
+    createRapportdetail(day) {
+      const date = this.$moment(this.rapport.startdate, 'YYYY-MM-DD').add(day, 'days')
+
+      this.axios.$post('rapportdetails', {
+        rapport_id: this.rapport.id,
+        project_id: this.rapport.default_project_id,
+        employee_id: this.employee.id,
+        day,
+        contract_type: this.contractTypes[0].value,
+        date: date.format('YYYY-MM-DD')
+      }).then(data => {
+        this.rapportdetails.push(data)
+      })
     }
   }
 }

@@ -50,6 +50,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::patch('rapportdetails', 'RapportController@updateMultibleRapportdetails');
     Route::get('rapports/daytotal/{date}', 'RapportController@daytotal');
     Route::resource('rapports', 'RapportController');
+    Route::post('rapportdetails', 'RapportdetailsController@store');
 
     // Pdfs
     Route::get('pdf/timerecords/meals', 'Evaluation\WorkerPdfController@meals');
