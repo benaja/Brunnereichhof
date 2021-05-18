@@ -108,5 +108,10 @@ export default {
   Scheidungsurteil: 'Scheidungsurteil',
   'Anspruchsausweis erhalten': 'Anspruchsausweis erhalten',
   'Anmeldung für Familienzulagen abgesendet': 'Anmeldung für Familienzulagen abgesendet',
-  'Anspruchsausweis Verfallsdatum': 'Anspruchsausweis Verfallsdatum'
+  'Anspruchsausweis Verfallsdatum': 'Anspruchsausweis Verfallsdatum',
+  'Kind hinzufügen': 'Kind hinzufügen',
+  Kinder: 'Kinder',
+  Geburtstag: 'Geburtstag',
+  Vorname: 'Vorname',
+  Nachname: 'Nachname'
 }

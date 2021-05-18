@@ -12,7 +12,7 @@ class FamilyAllowance extends Model
 
     protected $guarded = [];
 
-    protected $with = ['files'];
+    protected $with = ['files', 'children'];
 
     public function familyAllowanceable()
     {

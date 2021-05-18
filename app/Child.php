@@ -9,6 +9,8 @@ class Child extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function familyAllowance()
     {
         return $this->belongsTo(FamilyAllowance::class);

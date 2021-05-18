@@ -1,0 +1,62 @@
+<template>
+  <div>
+    <p class="mb-0 font-weight-bold">
+      {{ $t('Kinder') }}
+    </p>
+    <Child
+      v-for="child of value"
+      :key="child.id"
+      :child="child"
+      @remove="removeChild"
+    >
+    </Child>
+    <v-btn
+      color="primary"
+      text
+      @click="addChild"
+    >
+      {{ $t('Kind hinzufügen') }}
+    </v-btn>
+  </div>
+</template>
+
+<script>
+import Child from './Child'
+
+export default {
+  components: {
+    Child
+  },
+  props: {
+    value: {
+      type: Array,
+      default: () => []
+    },
+    familyAllowance: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    addChild() {
+      this.axios.$post('children', {
+        family_allowance_id: this.familyAllowance.id
+      }).then(data => {
+        this.value.push(data)
+        this.$emit('input', [...this.value])
+      }).catch(() => {
+        this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+      })
+    },
+    removeChild(child) {
+      const index = this.value.indexOf(child)
+      this.value.splice(index, 1)
+      this.$emit('input', [...this.value])
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+
+</style>

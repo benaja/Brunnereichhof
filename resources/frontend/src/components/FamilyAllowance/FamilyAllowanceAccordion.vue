@@ -113,6 +113,11 @@
             :label="$t('Anspruchsausweis Verfallsdatum')"
             @input="update('claim_id_expiration_date')"
           ></DatePicker>
+
+          <Children
+            v-model="value.children"
+            :family-allowance="value"
+          ></Children>
         </template>
       </v-expansion-panel-content>
     </v-expansion-panel>
@@ -122,11 +127,13 @@
 <script>
 import DatePicker from '@/components/general/DatePicker'
 import FileSelector from './FileSelector'
+import Children from './Children'
 
 export default {
   components: {
     FileSelector,
-    DatePicker
+    DatePicker,
+    Children
   },
   props: {
     value: {

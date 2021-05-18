@@ -18,6 +18,7 @@ class CreateChildrenTable extends Migration
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();
             $table->date('birthdate')->nullable();
+            $table->foreignId('family_allowance_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

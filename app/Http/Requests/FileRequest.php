@@ -20,7 +20,7 @@ class FileRequest extends FormRequest
             'filable_id' => [$required, 'integer'],
             'filable_type' => [$required, 'string'],
             'type' => [$required, 'string'],
-            'is_submitted' => ['boolean'],
+            'is_submitted' => ['boolean', 'nullable'],
             'expiration_date' => ['date'],
             'path' => ['string', 'nullable'],
         ];
