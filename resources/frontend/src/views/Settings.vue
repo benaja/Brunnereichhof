@@ -163,7 +163,7 @@
           ></v-textarea>
         </v-col>
         <v-col cols="12">
-          <h2>{{ $t('Stundenangaben') }}</h2>
+          <h2>{{ $t('Einsatzplaner') }}</h2>
         </v-col>
         <v-col
           cols="12"
