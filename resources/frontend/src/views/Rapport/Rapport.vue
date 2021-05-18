@@ -60,15 +60,50 @@
         <table class="rapport-table">
           <tr>
             <th>Wochentag</th>
-            <th>Montag</th>
-            <th>Dienstag</th>
-            <th>Mittwoch</th>
-            <th>Donnerstag</th>
-            <th>Freitag</th>
-            <th>Samstag</th>
+            <th class="weekday">
+              Montag
+            </th>
+            <th class="weekday">
+              Dienstag
+            </th>
+            <th class="weekday">
+              Mittwoch
+            </th>
+            <th class="weekday">
+              Donnerstag
+            </th>
+            <th class="weekday">
+              Freitag
+            </th>
+            <th class="weekday">
+              Samstag
+            </th>
           </tr>
 
           <RapportComments :rapport="rapport"></RapportComments>
+
+          <tr>
+            <th class="pt-2">
+              Alle
+            </th>
+            <EditAllEmployees
+              v-for="(rapportdetailsByDay, index) of rapportdetailsByDays"
+              :key="`i-${index}`"
+              :rapportdetails="rapportdetailsByDay"
+              :rapport="rapport"
+              :settings="settings"
+              :projects="projects"
+            ></EditAllEmployees>
+          </tr>
+
+          <RapportEmployee
+            v-for="(rapportdetailsByEmployee, index) of rapport.rapportdetails"
+            :key="index"
+            :rapportdetails="rapportdetailsByEmployee"
+            :rapport="rapport"
+            :settings="settings"
+            :projects="projects"
+          ></RapportEmployee>
         </table>
         <v-col
           v-if="false"
@@ -198,6 +233,8 @@ import EditEmployees from '@/components/Rapport/EditEmployees'
 import SelectProjects from '@/components/Rapport/SelectProjects'
 import RapportDay from '@/components/Rapport/RapportDay'
 import RapportComments from '@/components/Rapport/RapportComments'
+import RapportEmployee from '@/components/Rapport/RapportEmployee'
+import EditAllEmployees from '@/components/Rapport/EditAllEmployees'
 import DayTotal from '@/components/Rapport/DayTotal'
 import LoadingDots from '@/components/general/LoadingDots'
 import { downloadFile } from '@/utils'
@@ -211,7 +248,9 @@ export default {
     RapportDay,
     DayTotal,
     LoadingDots,
-    RapportComments
+    RapportComments,
+    RapportEmployee,
+    EditAllEmployees
   },
   data() {
     return {
@@ -259,6 +298,18 @@ export default {
         ${this.rapport.customer.lastname}" der Woche ${this.formatedWeek}`
       }
       return null
+    },
+    rapportdetailsByDays() {
+      const startdate = this.$moment(this.rapport.startdate, 'YYYY-MM-DD')
+      const rapportdetails = this.rapport.rapportdetails.flat()
+
+      const days = []
+      for (let i = 0; i < 6; i++) {
+        const day = startdate.clone().add(i, 'days').format('YYYY-MM-DD')
+        days.push(rapportdetails.filter(r => r.date === day))
+      }
+
+      return days
     }
   },
   watch: {
@@ -414,6 +465,15 @@ export default {
   th, td
   {
     text-align: left;
+  }
+
+  th {
+    vertical-align: top;
+  }
+
+
+  .weekday {
+    padding: 5px 10px;
   }
 }
 

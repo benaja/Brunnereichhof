@@ -115,7 +115,7 @@ class RapportController extends Controller
     {
         $this->authorize('view', $rapport);
 
-        $rapport = $this->rapportWithDetails($rapport, (bool) auth()->user()->customer);
+        $rapport = $this->rapportWithDetails($rapport, true);
 
         if (auth()->user()->customer) {
             return $rapport;

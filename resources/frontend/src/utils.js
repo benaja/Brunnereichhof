@@ -76,6 +76,32 @@ const employeeFunctions = [
   }
 ]
 
+const contractTypes = [
+  {
+    value: 'work_contract',
+    text: 'Werksvertrag'
+  },
+  {
+    value: 'staff_grant',
+    text: 'Personalverleih'
+  }
+]
+
+const foodTypes = [
+  {
+    value: 1,
+    text: 'Eichhof'
+  },
+  {
+    value: 2,
+    text: 'Kunde'
+  },
+  {
+    value: 3,
+    text: 'Keine Angabe'
+  }
+]
+
 export {
-  downloadFile, rules, confirmAction, employeeFunctions
+  downloadFile, rules, confirmAction, employeeFunctions, contractTypes, foodTypes
 }

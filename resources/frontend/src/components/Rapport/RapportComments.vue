@@ -70,7 +70,8 @@ export default {
 
 th {
   vertical-align: middle;
-
+  text-align: left;
 }
+
 
 </style>
