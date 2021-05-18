@@ -277,7 +277,7 @@ export default {
       this.resources = [...this.resources]
     },
     getEmployeeName(customer) {
-      return `${customer.lastname} ${customer.firstname}`
+      return `${customer.lastname} ${customer.firstname} ${customer.callname || ''}`
     },
     isEmployeeUsed(employee) {
       return this.allSelectedEmployeeIds.includes(employee.id)

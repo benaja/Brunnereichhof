@@ -5,6 +5,10 @@
         <span class="font-weight-bold">
           {{ employee.lastname }} {{ employee.firstname }}
         </span>
+        <span
+          v-if="employee.callname"
+          class="font-italic"
+        >{{ employee.callname }}</span>
         <span v-if="employee.function">{{ employeeFunction.text }}</span>
       </p>
       <p class="mb-0 font-italic">
