@@ -267,12 +267,11 @@ class CustomerPdfController extends Controller
         foreach ($rapportdetailsGruped as $rapportdetails) {
             $cells = [$rapportdetails[0]->employee->name()];
 
-            $counter = 1;
             for ($i = 0; $i < 6; $i++) {
                 $rapportdetail = $rapportdetails->where('day', $i)->first();
 
                 if (! $rapportdetail) {
-                    array_push($cells, '');
+                    array_push($cells, 0);
                 } else {
                     $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
 
@@ -280,19 +279,9 @@ class CustomerPdfController extends Controller
                         $cell = "{$cell} ({$rapportdetail->project->name})";
                     }
                     array_push($cells, $cell);
-                    $timePerDay[$counter] += $rapportdetail->hours;
+                    $timePerDay[$i + 1] += $rapportdetail->hours;
                 }
             }
-            // foreach ($rapportdetails as $rapportdetail) {
-            //     $cell = $rapportdetail->hours ? $rapportdetail->hours : 0;
-            //     // $cell = $hasNonCommonProject ? $cell . "\n" : $cell;
-            //     if ($rapportdetail->project && $rapportdetail->project->name != 'Allgemein' && $cell > 0) {
-            //         $cell = "{$cell} ({$rapportdetail->project->name})";
-            //     }
-            //     array_push($cells, $cell);
-            //     $timePerDay[$counter] += $rapportdetail->hours;
-            //     $counter++;
-            // }
             array_push($lines, $cells);
         }
 
