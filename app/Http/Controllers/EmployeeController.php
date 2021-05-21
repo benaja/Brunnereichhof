@@ -187,7 +187,7 @@ class EmployeeController extends Controller
         }
         $employee->load('languages');
 
-        if (auth()->user()->hasRule(['family_allowance_read'])) {
+        if (auth()->user()->hasRule(['family_allowance_read']) || auth()->user()->isAnyType(['superadmin'])) {
             $employee->load('familyAllowance');
         }
 
