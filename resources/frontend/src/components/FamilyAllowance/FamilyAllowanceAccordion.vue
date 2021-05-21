@@ -165,7 +165,6 @@
 
 <script>
 import DatePicker from '@/components/general/DatePicker'
-import QuarterPicker from '@/components/general/QuarterPicker'
 import { QuarterType } from '@/utils'
 import QuarterConfirmation from './QuarterConfirmation'
 import FileSelector from './FileSelector'
@@ -176,7 +175,6 @@ export default {
     FileSelector,
     DatePicker,
     Children,
-    QuarterPicker,
     QuarterConfirmation
   },
   props: {
