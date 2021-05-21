@@ -5,6 +5,7 @@
     transition="scale-transition"
     offset-y
     min-width="290px"
+    :disabled="readonly"
     :close-on-content-click="false"
   >
     <template v-slot:activator="{ on }">
@@ -49,6 +50,10 @@ export default {
     value: {
       type: String,
       default: null
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

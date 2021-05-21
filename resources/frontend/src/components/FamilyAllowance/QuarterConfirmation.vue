@@ -35,6 +35,7 @@
         <QuarterPicker
           v-model="quarter.expiration_date"
           :label="$t('Quartal')"
+          :readonly="readonly"
           @input="editQuarter(quarter)"
         ></QuarterPicker>
       </v-col>
@@ -46,11 +47,13 @@
         <v-switch
           v-model="quarter.value"
           :label="confirmationLabel"
+          :readonly="readonly"
           @change="editQuarter(quarter)"
         ></v-switch>
       </v-col>
 
       <v-col
+        v-if="!readonly"
         cols="12"
         md="1"
       >
@@ -66,6 +69,7 @@
     </v-row>
 
     <v-btn
+      v-if="!readonly"
       text
       color="primary"
       @click="addQuarter"
@@ -103,6 +107,10 @@ export default {
     parentId: {
       type: Number,
       required: true
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

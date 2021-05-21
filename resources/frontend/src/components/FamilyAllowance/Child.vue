@@ -9,6 +9,7 @@
           v-model="child.firstname"
           :label="$t('Vorname')"
           hide-details
+          :readonly="readonly"
           @input="update"
         ></v-text-field>
       </v-col>
@@ -20,6 +21,7 @@
           v-model="child.lastname"
           :label="$t('Nachname')"
           hide-details
+          :readonly="readonly"
           @input="update"
         ></v-text-field>
       </v-col>
@@ -30,6 +32,7 @@
         <date-picker
           v-model="child.birthdate"
           :label="$t('Geburtstag')"
+          :readonly="readonly"
           @input="update"
         ></date-picker>
       </v-col>
@@ -41,6 +44,7 @@
       :submitted-label="$t('Eingereicht')"
       :filable-id="child.id"
       filable-type="App\\Child"
+      :readonly="readonly"
       @add="addFile"
       @change="updateFile"
     ></file-selector>
@@ -51,11 +55,15 @@
       :submitted-label="$t('Eingereicht')"
       :filable-id="child.id"
       filable-type="App\\Child"
+      :readonly="readonly"
       @add="addFile"
       @change="updateFile"
     ></file-selector>
 
-    <p class="text-right">
+    <p
+      v-if="!readonly"
+      class="text-right"
+    >
       <v-btn
         color="red"
         text
@@ -84,6 +92,10 @@ export default {
     child: {
       type: Object,
       required: true
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

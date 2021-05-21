@@ -1,6 +1,6 @@
 <template>
   <v-expansion-panels
-    v-if="value"
+    v-if="value && $auth.user().hasPermission('superadmin', 'family_allowance_read')"
     class="my-10"
   >
     <v-expansion-panel
@@ -16,6 +16,7 @@
           :label="$t('ID/Pass')"
           :filable-id="value.id"
           disable-submitted
+          :readonly="disabled"
           @add="addFile"
           @change="updateFile"
         ></file-selector>
@@ -25,6 +26,7 @@
           :label="$t('Ausländerausweis')"
           :filable-id="value.id"
           disable-submitted
+          :readonly="disabled"
           @add="addFile"
           @change="updateFile"
         ></file-selector>
@@ -33,30 +35,35 @@
           v-model="value.civil_status"
           :label="$t('Zivilstand')"
           :items="civilStates"
+          :readonly="disabled"
           @input="update('civil_status')"
         ></v-select>
 
         <v-switch
           v-model="value.has_family_allowance"
           :label="$t('Bansprucht Familienzulagen')"
+          :readonly="disabled"
           @change="update('has_family_allowance')"
         ></v-switch>
 
         <template v-if="value.has_family_allowance">
           <DatePicker
             v-model="value.expiration_of_family_allowance"
+            :readonly="disabled"
             :label="$t('Verfallsdatum Familienzulagen')"
             @input="update('expiration_of_family_allowance')"
           ></DatePicker>
 
           <v-switch
             v-model="value.partner_employed"
+            :readonly="disabled"
             :label="$t('Partner erwerbstätig')"
             @change="update('partner_employed')"
           ></v-switch>
 
           <v-switch
             v-model="value.needs_e411_form"
+            :readonly="disabled"
             :label="$t('Benötigt Formular E411')"
             @change="update('needs_e411_form')"
           ></v-switch>
@@ -64,6 +71,7 @@
           <v-switch
             v-model="value.is_e411_handed_out"
             :label="$t('E411 ausgeteilt')"
+            :readonly="disabled"
             @change="update('is_e411_handed_out')"
           ></v-switch>
 
@@ -72,6 +80,7 @@
             :file="fileByType('e411')"
             :label="$t('E411')"
             :filable-id="value.id"
+            :readonly="disabled"
             @add="addFile"
             @change="updateFile"
           ></file-selector>
@@ -82,6 +91,7 @@
             :label="$t('Hochzeitsurkunde')"
             :submitted-label="$t('Vorhanden')"
             :filable-id="value.id"
+            :readonly="disabled"
             @add="addFile"
             @change="updateFile"
           ></file-selector>
@@ -92,6 +102,7 @@
             :label="$t('Scheidungsurteil')"
             :submitted-label="$t('Vorhanden')"
             :filable-id="value.id"
+            :readonly="disabled"
             @add="addFile"
             @change="updateFile"
           ></file-selector>
@@ -99,24 +110,28 @@
           <v-switch
             v-model="value.it_registration_family_allowances_send"
             :label="$t('Anmeldung für Familienzulagen abgesendet')"
+            :readonly="disabled"
             @change="update('it_registration_family_allowances_send')"
           ></v-switch>
 
           <v-switch
             v-model="value.claim_id_received"
             :label="$t('Anspruchsausweis erhalten')"
+            :readonly="disabled"
             @change="update('claim_id_received')"
           ></v-switch>
 
           <DatePicker
             v-model="value.claim_id_expiration_date"
             :label="$t('Anspruchsausweis Verfallsdatum')"
+            :readonly="disabled"
             @input="update('claim_id_expiration_date')"
           ></DatePicker>
 
           <Children
             v-model="value.children"
             :family-allowance="value"
+            :readonly="disabled"
           ></Children>
 
           <QuarterConfirmation
@@ -124,6 +139,7 @@
             :label="$t('Arbeitgeberbescheinigung')"
             :parent-id="value.id"
             :type="QuarterType.EmployerConfirmation"
+            :readonly="disabled"
           ></QuarterConfirmation>
 
           <QuarterConfirmation
@@ -131,6 +147,7 @@
             :label="$t('Gutschrift FZ an Eichhof')"
             :parent-id="value.id"
             :type="QuarterType.CreditToEichhof"
+            :readonly="disabled"
           ></QuarterConfirmation>
 
           <QuarterConfirmation
@@ -138,6 +155,7 @@
             :label="$t('Familienzulagen ausbezahlt an Mitarbeiter')"
             :parent-id="value.id"
             :type="QuarterType.FamilyAllowancesPaid"
+            :readonly="disabled"
           ></QuarterConfirmation>
         </template>
       </v-expansion-panel-content>
@@ -207,6 +225,9 @@ export default {
           this.$store.dispatch('error', this.$t('unbekannter-fehler'))
         })
       }, 300)
+    },
+    disabled() {
+      return !this.$auth.user().hasPermission('superadmin', 'family_allowance_write')
     }
   },
   methods: {

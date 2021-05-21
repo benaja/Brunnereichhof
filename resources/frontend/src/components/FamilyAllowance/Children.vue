@@ -7,10 +7,12 @@
       v-for="child of value"
       :key="child.id"
       :child="child"
+      :readonly="readonly"
       @remove="removeChild"
     >
     </Child>
     <v-btn
+      v-if="!readonly"
       color="primary"
       class="mt-3"
       text
@@ -38,6 +40,10 @@ export default {
     familyAllowance: {
       type: Object,
       required: true
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="my-1">
+  <div class="my-2">
     <div class="d-flex align-center">
       <p class="mb-0 font-weight-bold mr-6">
         {{ label }}
@@ -10,6 +10,7 @@
         class="my-0 mr-6"
         :label="submittedLabel"
         hide-details
+        :readonly="readonly"
       ></v-switch>
       <template v-if="isSubmitted || disableSubmitted">
         <template v-if="isFileSelected">
@@ -23,6 +24,7 @@
           </v-btn>
           <v-btn
             text
+            :disabled="readonly"
             @click="removeFile"
           >
             <v-icon class="mr-1">
@@ -33,6 +35,7 @@
         </template>
         <v-btn
           v-else
+          :disabled="readonly"
           text
           :loading="isLoading"
           class="my-0"
@@ -45,6 +48,7 @@
         </v-btn>
         <input
           ref="fileInput"
+          :disabled="readonly"
           class="d-none"
           type="file"
           @change="uploadFieldChange"
@@ -53,6 +57,7 @@
         <date-picker
           v-if="isFileSelected"
           v-model="file.expiration_date"
+          :readonly="readonly"
           :label="$t('Verfallsdatum')"
           @input="update"
         ></date-picker>
@@ -102,6 +107,10 @@ export default {
     filableType: {
       type: String,
       default: 'App\\FamilyAllowance'
+    },
+    readonly: {
+      type: Boolean,
+      default: null
     }
   },
 
