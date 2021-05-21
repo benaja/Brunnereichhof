@@ -4,22 +4,24 @@
       {{ label }}
     </p>
 
-    <v-btn
-      v-if="value.length > displayableQuarters.length"
-      small
-      text
-      @click="showAll = true"
-    >
-      {{ $t('Alle anzeigen') }}
-    </v-btn>
-    <v-btn
-      v-else
-      small
-      text
-      @click="showAll = false"
-    >
-      {{ $t('Weniger anzeigen') }}
-    </v-btn>
+    <template v-if="value.length > 2">
+      <v-btn
+        v-if="value.length > displayableQuarters.length"
+        small
+        text
+        @click="showAll = true"
+      >
+        {{ $t('Alle anzeigen') }}
+      </v-btn>
+      <v-btn
+        v-else
+        small
+        text
+        @click="showAll = false"
+      >
+        {{ $t('Weniger anzeigen') }}
+      </v-btn>
+    </template>
 
     <v-row
       v-for="quarter of displayableQuarters"
@@ -75,6 +77,7 @@
 
 <script>
 import QuarterPicker from '@/components/general/QuarterPicker'
+import { confirmAction } from '@/utils'
 
 export default {
   components: {
@@ -129,12 +132,16 @@ export default {
       })
     },
     deleteQuarter(quarter) {
-      this.axios.delete(`quarters/${quarter.id}`).then(() => {
-        const index = this.value.indexOf(quarter)
-        this.value.splice(index, 1)
-        this.$emit('input', [...this.value])
-      }).catch(() => {
-        this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+      confirmAction().then(value => {
+        if (value) {
+          this.axios.delete(`quarters/${quarter.id}`).then(() => {
+            const index = this.value.indexOf(quarter)
+            this.value.splice(index, 1)
+            this.$emit('input', [...this.value])
+          }).catch(() => {
+            this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
+          })
+        }
       })
     },
     editQuarter(quarter) {
