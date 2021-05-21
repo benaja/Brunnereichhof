@@ -61,6 +61,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasManyThrough(Hour::class, Timerecord::class);
     }
 
+    public function familyAllowance()
+    {
+        return $this->morphOne(FamilyAllowance::class, 'family_allowanceable');
+    }
+
     public function authorize($userTypes, $rules = [])
     {
         if ($this->deleted_at !== null) {

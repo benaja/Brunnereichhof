@@ -102,6 +102,12 @@ const foodTypes = [
   }
 ]
 
+const QuarterType = {
+  EmployerConfirmation: 0,
+  CreditToEichhof: 1,
+  FamilyAllowancesPaid: 2
+}
+
 export {
-  downloadFile, rules, confirmAction, employeeFunctions, contractTypes, foodTypes
+  downloadFile, rules, confirmAction, employeeFunctions, contractTypes, foodTypes, QuarterType
 }

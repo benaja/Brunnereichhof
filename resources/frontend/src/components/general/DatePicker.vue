@@ -5,6 +5,7 @@
     transition="scale-transition"
     offset-y
     min-width="290px"
+    :disabled="readonly"
     :close-on-content-click="type === 'year'"
   >
     <template v-slot:activator="{ on }">
@@ -88,6 +89,10 @@ export default {
       default: undefined
     },
     noIcon: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
       type: Boolean,
       default: false
     }

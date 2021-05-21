@@ -64,6 +64,11 @@ class Employee extends Model
         return $this->belongsToMany(Language::class);
     }
 
+    public function familyAllowance()
+    {
+        return $this->morphOne(FamilyAllowance::class, 'family_allowanceable');
+    }
+
     public function name()
     {
         return "$this->lastname $this->firstname";

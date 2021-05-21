@@ -49,7 +49,11 @@
           </v-btn>
         </v-col>
       </v-row>
-      <family-allowance-accordion></family-allowance-accordion>
+      <family-allowance-accordion
+        :value="employee.family_allowance"
+        :parent="employee"
+        model="App\Employee"
+      ></family-allowance-accordion>
       <v-btn
         v-if="isUserAllowedToEdit"
         color="red white--text my-4"
