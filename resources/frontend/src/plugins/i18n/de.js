@@ -115,5 +115,6 @@ export default {
   Vorname: 'Vorname',
   Nachname: 'Nachname',
   Geburtsurkunde: 'Geburtsurkunde',
-  Schulbestätigung: 'Schulbestätigung'
+  Schulbestätigung: 'Schulbestätigung',
+  'Kind löschen': 'Kind löschen'
 }

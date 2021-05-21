@@ -11,6 +11,8 @@ class FamilyAllowancesController extends Controller
 {
     public function update(FamilyAllowance $familyAllowance, FamilyAllowanceRequest $request)
     {
+        auth()->user()->authorize(['superadmin'], ['family_allowance_write']);
+
         return JsonResource::make($request->update($familyAllowance));
     }
 }

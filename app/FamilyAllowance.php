@@ -12,7 +12,7 @@ class FamilyAllowance extends Model
 
     protected $guarded = [];
 
-    protected $with = ['files', 'children'];
+    protected $with = ['files', 'children', 'employerConfirmation', 'creditToEichhof', 'familyAllowancesPaid'];
 
     public function familyAllowanceable()
     {
@@ -37,5 +37,10 @@ class FamilyAllowance extends Model
     public function creditToEichhof()
     {
         return $this->hasMany(Quarter::class)->where('type', QuarterType::CreditToEichhof);
+    }
+
+    public function familyAllowancesPaid()
+    {
+        return $this->hasMany(Quarter::class)->where('type', QuarterType::FamilyAllowancesPaid);
     }
 }

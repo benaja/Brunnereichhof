@@ -118,6 +118,15 @@
             v-model="value.children"
             :family-allowance="value"
           ></Children>
+
+          <QuarterConfirmation
+            v-model="value.employer_confirmation"
+            label="Arbeitgeberbescheinigung"
+            :parent-id="value.id"
+            :type="0"
+          ></QuarterConfirmation>
+
+          <QuarterPicker label="TEst"></QuarterPicker>
         </template>
       </v-expansion-panel-content>
     </v-expansion-panel>
@@ -126,6 +135,8 @@
 
 <script>
 import DatePicker from '@/components/general/DatePicker'
+import QuarterPicker from '@/components/general/QuarterPicker'
+import QuarterConfirmation from './QuarterConfirmation'
 import FileSelector from './FileSelector'
 import Children from './Children'
 
@@ -133,7 +144,9 @@ export default {
   components: {
     FileSelector,
     DatePicker,
-    Children
+    Children,
+    QuarterPicker,
+    QuarterConfirmation
   },
   props: {
     value: {

@@ -13,4 +13,5 @@ final class QuarterType extends Enum
 {
     const EmployerConfirmation = 0;
     const CreditToEichhof = 1;
+    const FamilyAllowancesPaid = 2;
 }

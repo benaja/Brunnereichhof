@@ -13,11 +13,15 @@ class FilesController extends Controller
 {
     public function store(FileRequest $request)
     {
+        auth()->user()->authorize(['superadmin'], ['family_allowance_write']);
+
         return JsonResource::make($request->store());
     }
 
     public function uploadFile(File $file, Request $request)
     {
+        auth()->user()->authorize(['superadmin'], ['family_allowance_write']);
+
         $imagePath = Storage::disk('s3')
             ->putFileAs('files/'.$file->id, $request->file('file'), $request->file('file')->getClientOriginalName());
 
@@ -29,6 +33,8 @@ class FilesController extends Controller
 
     public function update(File $file, FileRequest $request)
     {
+        auth()->user()->authorize(['superadmin'], ['family_allowance_write']);
+
         return JsonResource::make($request->update($file));
     }
 }
