@@ -1,9 +1,28 @@
 <template>
-  <div>
-    <p>{{ label }}</p>
+  <div class="mt-10">
+    <p class="font-weight-bold">
+      {{ label }}
+    </p>
+
+    <v-btn
+      v-if="value.length > displayableQuarters.length"
+      small
+      text
+      @click="showAll = true"
+    >
+      {{ $t('Alle anzeigen') }}
+    </v-btn>
+    <v-btn
+      v-else
+      small
+      text
+      @click="showAll = false"
+    >
+      {{ $t('Weniger anzeigen') }}
+    </v-btn>
 
     <v-row
-      v-for="quarter of value"
+      v-for="quarter of displayableQuarters"
       :key="quarter.id"
       no-gutters
     >
@@ -13,7 +32,7 @@
       >
         <QuarterPicker
           v-model="quarter.expiration_date"
-          label="Quartal"
+          :label="$t('Quartal')"
           @input="editQuarter(quarter)"
         ></QuarterPicker>
       </v-col>
@@ -49,7 +68,7 @@
       color="primary"
       @click="addQuarter"
     >
-      Quartal hinzufügen
+      {{ $t('Quartal hinzufügen') }}
     </v-btn>
   </div>
 </template>
@@ -81,6 +100,20 @@ export default {
     parentId: {
       type: Number,
       required: true
+    }
+  },
+  data() {
+    return {
+      showAll: false
+    }
+  },
+  computed: {
+    displayableQuarters() {
+      if (this.showAll) return this.value
+
+      const quarters = [...this.value]
+      quarters.splice(0, quarters.length - 2)
+      return quarters
     }
   },
   methods: {

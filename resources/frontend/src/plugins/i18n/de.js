@@ -116,5 +116,9 @@ export default {
   Nachname: 'Nachname',
   Geburtsurkunde: 'Geburtsurkunde',
   Schulbestätigung: 'Schulbestätigung',
-  'Kind löschen': 'Kind löschen'
+  'Kind löschen': 'Kind löschen',
+  'Alle anzeigen': 'Alle anzeigen',
+  'Weniger anzeigen': 'Weniger anzeigen',
+  Quartal: 'Quartal',
+  'Quartal hinzufügen': 'Quartal hinzufügen'
 }

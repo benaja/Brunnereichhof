@@ -68,11 +68,11 @@ export default {
   watch: {
     model() {
       if (this.model) {
-        this.$nextTick(() => {
+        setTimeout(() => {
           if (this.$refs.picker) {
             this.$refs.picker.activePicker = 'YEAR'
           }
-        })
+        }, 50)
       }
     },
     value() {
