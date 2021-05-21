@@ -121,12 +121,24 @@
 
           <QuarterConfirmation
             v-model="value.employer_confirmation"
-            label="Arbeitgeberbescheinigung"
+            :label="$t('Arbeitgeberbescheinigung')"
             :parent-id="value.id"
-            :type="0"
+            :type="QuarterType.EmployerConfirmation"
           ></QuarterConfirmation>
 
-          <QuarterPicker label="TEst"></QuarterPicker>
+          <QuarterConfirmation
+            v-model="value.credit_to_eichhof"
+            :label="$t('Gutschrift FZ an Eichhof')"
+            :parent-id="value.id"
+            :type="QuarterType.CreditToEichhof"
+          ></QuarterConfirmation>
+
+          <QuarterConfirmation
+            v-model="value.family_allowances_paid"
+            :label="$t('Familienzulagen ausbezahlt an Mitarbeiter')"
+            :parent-id="value.id"
+            :type="QuarterType.FamilyAllowancesPaid"
+          ></QuarterConfirmation>
         </template>
       </v-expansion-panel-content>
     </v-expansion-panel>
@@ -136,6 +148,7 @@
 <script>
 import DatePicker from '@/components/general/DatePicker'
 import QuarterPicker from '@/components/general/QuarterPicker'
+import { QuarterType } from '@/utils'
 import QuarterConfirmation from './QuarterConfirmation'
 import FileSelector from './FileSelector'
 import Children from './Children'
@@ -164,6 +177,7 @@ export default {
   },
   data() {
     return {
+      QuarterType,
       civilStates: [
         {
           value: 'single',

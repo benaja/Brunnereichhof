@@ -120,5 +120,8 @@ export default {
   'Alle anzeigen': 'Alle anzeigen',
   'Weniger anzeigen': 'Weniger anzeigen',
   Quartal: 'Quartal',
-  'Quartal hinzufügen': 'Quartal hinzufügen'
+  'Quartal hinzufügen': 'Quartal hinzufügen',
+  Arbeitgeberbescheinigung: 'Arbeitgeberbescheinigung',
+  'Gutschrift FZ an Eichhof': 'Gutschrift FZ an Eichhof',
+  'Familienzulagen ausbezahlt an Mitarbeiter': 'Familienzulagen ausbezahlt an Mitarbeiter'
 }

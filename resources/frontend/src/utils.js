@@ -76,6 +76,12 @@ const employeeFunctions = [
   }
 ]
 
+const QuarterType = {
+  EmployerConfirmation: 0,
+  CreditToEichhof: 1,
+  FamilyAllowancesPaid: 2
+}
+
 export {
-  downloadFile, rules, confirmAction, employeeFunctions
+  downloadFile, rules, confirmAction, employeeFunctions, QuarterType
 }
