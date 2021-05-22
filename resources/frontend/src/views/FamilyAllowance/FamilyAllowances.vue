@@ -12,11 +12,10 @@
         <template v-slot:item="{item}">
           <tr>
             <td>
-              {{ item.family_allowanceable.lastname }}
+              {{ item.family_allowanceable.lastname }} {{ item.family_allowanceable.firstname }}
             </td>
-            <td>
-              {{ item.family_allowanceable.firstname }}
-            </td>
+
+            <!-- Marriage Document -->
             <td>
               <span v-if="item.civil_status === 'single'">
                 {{ $t('Nicht benötigt') }}
@@ -29,6 +28,68 @@
                 class="red--text"
               >
                 {{ $t('Nicht vorhanden') }}
+              </span>
+            </td>
+
+            <!-- Birth Documents of children -->
+            <td
+              :class="{'red--text': item.childrenWithBirthDocument.length < item.children.length}"
+            >
+              {{ item.childrenWithBirthDocument.length }}/{{ item.children.length }}
+            </td>
+
+            <!-- School Confirmations of children -->
+            <td
+              :class="{'red--text': item.childrenWithSchoolConfirmatin.length
+                < item.childrenAbove16.length}"
+            >
+              {{ item.childrenWithSchoolConfirmatin.length }}/{{ item.childrenAbove16.length }}
+            </td>
+
+            <!-- E411 handed out-->
+            <td>
+              <span v-if="!item.needs_e411_form">
+                {{ $t('Nicht benötigt') }}
+              </span>
+              <span v-else-if="item.is_e411_handed_out">
+                {{ $t('Ja') }}
+              </span>
+              <span
+                v-else
+                class="red--text"
+              >
+                {{ $t('Nein') }}
+              </span>
+            </td>
+
+            <!-- E411 submitted -->
+            <td>
+              <span v-if="!item.needs_e411_form">
+                {{ $t('Nicht benötigt') }}
+              </span>
+              <span v-else-if="item.e411 && item.e411.is_submitted">
+                {{ $t('Ja') }}
+              </span>
+              <span
+                v-else
+                class="red--text"
+              >
+                {{ $t('Nein') }}
+              </span>
+            </td>
+
+            <td>
+              {{ item.it_registration_family_allowances_send ? $t('Ja') : $t('Nein') }}
+            </td>
+            <td>
+              <span
+                v-if="!item.claimIDValid"
+                class="red--text"
+              >
+                {{ $t('Abgelaufen') }}
+              </span>
+              <span v-else>
+                {{ item.claim_id_received ? $t('Ja') : $t('Nein') }}
               </span>
             </td>
           </tr>
@@ -45,16 +106,34 @@ export default {
       familyAllowances: [],
       headers: [
         {
-          text: this.$t('Nachname'),
+          text: this.$t('Name'),
           value: 'family_allowanceable.lastname'
-        },
-        {
-          text: this.$t('Vorname'),
-          value: 'family_allowanceable.firstname'
         },
         {
           text: this.$t('Hochzeitsurkunde'),
           value: 'marriageDocument'
+        },
+        {
+          text: this.$t('Geburtsurkunden'),
+          value: 'children'
+        },
+        {
+          text: this.$t('Schulbestätigugen'),
+          value: 'children'
+        },
+        {
+          text: this.$t('E411 ausgeteilt')
+        },
+        {
+          text: this.$t('E411 eingegangen')
+        },
+        {
+          text: this.$t('Anmeldung abgesendet'),
+          value: 'it_registration_family_allowances_send'
+        },
+        {
+          text: this.$t('Anspruchsausweis erhalten'),
+          value: 'claim_id_received'
         }
       ]
     }
@@ -62,7 +141,11 @@ export default {
   mounted() {
     this.axios.$get('family-allowances').then(({ data }) => {
       this.familyAllowances = data.map(familyAllowance => {
-        const marriageDocument = this.fileByType(familyAllowance, 'marriage_document')
+        const childrenAbove16 = familyAllowance.children
+          .filter(c => this.$moment().diff(this.$moment(c.birthdate), 'years') >= 16)
+
+        console.log(childrenAbove16)
+
         // if (familyAllowance.civil_status === 'single') {
         //   marriageDocument = this.$t('Nicht benötigt')
         // } else if (marriageDocument && marriageDocument.is_submitted) {
@@ -73,7 +156,14 @@ export default {
 
         return {
           ...familyAllowance,
-          marriageDocument
+          marriageDocument: this.fileByType(familyAllowance, 'marriage_document'),
+          e411: this.fileByType(familyAllowance, 'e411'),
+          childrenWithBirthDocument: this.childrenWithDocument(familyAllowance.children, 'birth_document'),
+          childrenAbove16,
+          childrenWithSchoolConfirmatin: this.childrenWithDocument(childrenAbove16, 'school_confirmation'),
+          claimIDValid: !familyAllowance.claim_id_received
+            || !familyAllowance.claim_id_expiration_date
+            || this.$moment(familyAllowance.claim_id_expiration_date).isSameOrAfter(this.$moment(), 'day')
         }
       })
     }).catch(() => {
@@ -83,6 +173,13 @@ export default {
   methods: {
     fileByType(familyAllowance, type) {
       return familyAllowance.files.find(f => f.type === type)
+    },
+    childrenWithDocument(children, document) {
+      return children.filter(c => {
+        const birthDocument = this.fileByType(c, document)
+
+        return birthDocument && birthDocument.is_submitted
+      })
     }
   }
 }

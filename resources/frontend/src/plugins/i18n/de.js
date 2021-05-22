@@ -115,6 +115,7 @@ export default {
   Vorname: 'Vorname',
   Nachname: 'Nachname',
   Geburtsurkunde: 'Geburtsurkunde',
+  Geburtsurkunden: 'Geburtsurkunden',
   Schulbestätigung: 'Schulbestätigung',
   'Kind löschen': 'Kind löschen',
   'Alle anzeigen': 'Alle anzeigen',
@@ -123,5 +124,11 @@ export default {
   'Quartal hinzufügen': 'Quartal hinzufügen',
   Arbeitgeberbescheinigung: 'Arbeitgeberbescheinigung',
   'Gutschrift FZ an Eichhof': 'Gutschrift FZ an Eichhof',
-  'Familienzulagen ausbezahlt an Mitarbeiter': 'Familienzulagen ausbezahlt an Mitarbeiter'
+  'Familienzulagen ausbezahlt an Mitarbeiter': 'Familienzulagen ausbezahlt an Mitarbeiter',
+  'Nicht benötigt': 'Nicht benötigt',
+  'Nicht vorhanden': 'Nicht vorhanden',
+  Schulbestätigugen: 'Schulbestätigugen',
+  'E411 eingegangen': 'E411 eingegangen',
+  'Anmeldung abgesendet': 'Anmeldung abgesendet',
+  Abgelaufen: 'Abgelaufen'
 }
