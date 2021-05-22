@@ -18,6 +18,8 @@
         :items="familyAllowancesMaped"
         :headers="headers"
         :custom-sort="customSort"
+        :items-per-page="-1"
+        hide-default-footer
       >
         <template v-slot:item="{item}">
           <tr
