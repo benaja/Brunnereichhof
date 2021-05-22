@@ -76,6 +76,14 @@ export default new Router({
       props: true
     },
     {
+      path: '/family-allowances',
+      name: 'FamilyAllowances',
+      component: () => import('./views/FamilyAllowance/FamilyAllowances'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/employee',
       name: 'Employees',
       component: () => import('./views/Employee/Employees'),

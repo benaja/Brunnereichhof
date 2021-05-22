@@ -225,6 +225,12 @@ export default {
           ),
           items: [
             {
+              to: '/family-allowances',
+              text: 'Familienzulagen',
+              icon: 'supervisor_account',
+              show: this.hasPermission(['superadmin'], ['family_allowance_read'])
+            },
+            {
               to: '/customer',
               text: 'Kunden',
               icon: 'supervisor_account',

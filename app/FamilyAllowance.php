@@ -19,6 +19,16 @@ class FamilyAllowance extends Model
         return $this->morphTo();
     }
 
+    public function worker()
+    {
+        return $this->morphTo('family_allowanceable', 'family_allowanceable_type')->where('family_allowanceable_type', User::class);
+    }
+
+    public function employee()
+    {
+        return $this->morphTo('family_allowanceable', 'family_allowanceable_type')->where('family_allowanceable_type', Employee::class);
+    }
+
     public function files()
     {
         return $this->morphMany(File::class, 'filable');
