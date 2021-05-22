@@ -130,5 +130,6 @@ export default {
   Schulbestätigugen: 'Schulbestätigugen',
   'E411 eingegangen': 'E411 eingegangen',
   'Anmeldung abgesendet': 'Anmeldung abgesendet',
-  Abgelaufen: 'Abgelaufen'
+  Abgelaufen: 'Abgelaufen',
+  'Familienzulagen ausbezahlt': 'Familienzulagen ausbezahlt'
 }

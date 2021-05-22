@@ -5,8 +5,17 @@
       full-width
     ></navigation-bar>
     <v-container fluid>
+      <div class="d-flex my-4">
+        <div class="quarter-picker">
+          <QuarterPicker
+            v-model="date"
+            outlined
+            :label="$t('Quartal')"
+          ></QuarterPicker>
+        </div>
+      </div>
       <v-data-table
-        :items="familyAllowances"
+        :items="familyAllowancesMaped"
         :headers="headers"
       >
         <template v-slot:item="{item}">
@@ -92,6 +101,45 @@
                 {{ item.claim_id_received ? $t('Ja') : $t('Nein') }}
               </span>
             </td>
+
+            <!-- Employer confirmation for quarter -->
+            <td>
+              <span v-if="item.employerConfirmation && item.employerConfirmation.value">
+                {{ $t('Ja') }}
+              </span>
+              <span
+                v-else
+                class="red--text"
+              >
+                {{ $t('Nein') }}
+              </span>
+            </td>
+
+            <!-- Credit to Eichhof for quarter -->
+            <td>
+              <span v-if="item.creditToEchhof && item.creditToEchhof.value">
+                {{ $t('Ja') }}
+              </span>
+              <span
+                v-else
+                class="red--text"
+              >
+                {{ $t('Nein') }}
+              </span>
+            </td>
+
+            <!-- FamilyAllowances paid for quarter -->
+            <td>
+              <span v-if="item.familyAllowancesPaid && item.familyAllowancesPaid.value">
+                {{ $t('Ja') }}
+              </span>
+              <span
+                v-else
+                class="red--text"
+              >
+                {{ $t('Nein') }}
+              </span>
+            </td>
           </tr>
         </template>
       </v-data-table>
@@ -100,9 +148,15 @@
 </template>
 
 <script>
+import QuarterPicker from '@/components/general/QuarterPicker'
+
 export default {
+  components: {
+    QuarterPicker
+  },
   data() {
     return {
+      date: this.$moment().format('YYYY-MM-DD'),
       familyAllowances: [],
       headers: [
         {
@@ -134,25 +188,25 @@ export default {
         {
           text: this.$t('Anspruchsausweis erhalten'),
           value: 'claim_id_received'
+        },
+        {
+          text: this.$t('Arbeitgeberbescheinigung')
+        },
+        {
+          text: this.$t('Gutschrift FZ an Eichhof')
+        },
+        {
+          text: this.$t('Familienzulagen ausbezahlt')
         }
       ]
     }
   },
-  mounted() {
-    this.axios.$get('family-allowances').then(({ data }) => {
-      this.familyAllowances = data.map(familyAllowance => {
+  computed: {
+    familyAllowancesMaped() {
+      return this.familyAllowances.map(familyAllowance => {
         const childrenAbove16 = familyAllowance.children
           .filter(c => this.$moment().diff(this.$moment(c.birthdate), 'years') >= 16)
-
-        console.log(childrenAbove16)
-
-        // if (familyAllowance.civil_status === 'single') {
-        //   marriageDocument = this.$t('Nicht benötigt')
-        // } else if (marriageDocument && marriageDocument.is_submitted) {
-        //   marriageDocument = this.$t('Vorhanden')
-        // } else {
-        //   marriageDocument = this.$t('Nicht vorhanden')
-        // }
+        const selectedQuarter = this.$moment(this.date).quarter()
 
         return {
           ...familyAllowance,
@@ -163,9 +217,20 @@ export default {
           childrenWithSchoolConfirmatin: this.childrenWithDocument(childrenAbove16, 'school_confirmation'),
           claimIDValid: !familyAllowance.claim_id_received
             || !familyAllowance.claim_id_expiration_date
-            || this.$moment(familyAllowance.claim_id_expiration_date).isSameOrAfter(this.$moment(), 'day')
+            || this.$moment(familyAllowance.claim_id_expiration_date).isSameOrAfter(this.$moment(), 'day'),
+          employerConfirmation: familyAllowance.employer_confirmation
+            .find(e => this.$moment(e.expiration_date).quarter() === selectedQuarter),
+          creditToEchhof: familyAllowance.credit_to_eichhof
+            .find(c => this.$moment(c.expiration_date).quarter() === selectedQuarter),
+          familyAllowancesPaid: familyAllowance.family_allowances_paid
+            .find(f => this.$moment(f.expiration_date).quarter() === selectedQuarter)
         }
       })
+    }
+  },
+  mounted() {
+    this.axios.$get('family-allowances').then(({ data }) => {
+      this.familyAllowances = data
     }).catch(() => {
       this.$store.dispatch('error', this.$t('Es ist ein unerwarteter Fehler aufgetreten'))
     })
@@ -186,5 +251,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.quarter-picker {
+  max-width: 150px;
+}
 </style>
