@@ -17,6 +17,7 @@
       <v-data-table
         :items="familyAllowancesMaped"
         :headers="headers"
+        :custom-sort="customSort"
       >
         <template v-slot:item="{item}">
           <tr>
@@ -169,7 +170,7 @@ export default {
         },
         {
           text: this.$t('Geburtsurkunden'),
-          value: 'children'
+          value: 'childrenWithBirthDocument'
         },
         {
           text: this.$t('Schulbestätigugen'),
@@ -245,6 +246,46 @@ export default {
 
         return birthDocument && birthDocument.is_submitted
       })
+    },
+    customSort(items, sortBy, sortDesc) {
+      // console.log(sortBy)
+      if (sortBy.includes('marriageDocument')) {
+        items.sort(this.marriageDocumentSort)
+      }
+      if (sortBy.includes('childrenWithBirthDocument')) {
+        items.sort(this.childrenBirthDocumentSort)
+      }
+
+      // console.log(sortDesc)
+
+      if (sortDesc[0]) {
+        return items
+      }
+      return items.reverse()
+    },
+    documentSubmitted(document) {
+      return document && document.is_submitted
+    },
+
+    marriageDocumentSort(a, b) {
+      let stateA = this.documentSubmitted(a.marriageDocument) ? 0 : 2
+      let stateB = this.documentSubmitted(b.marriageDocument) ? 0 : 2
+
+      if (a.civil_status === 'single') {
+        stateA = 1
+      }
+      if (b.civil_status === 'single') {
+        stateB = 1
+      }
+
+      return stateA - stateB
+    },
+    childrenBirthDocumentSort(a, b) {
+      let scoreA; let
+        scoreB = 0
+
+      if (a.childrenWithBirthDocument.lenght < a.children.length) scoreA = 1
+      if (b.childrenWithBirthDocument.length < b.children.lenght) scoreB = 1
     }
   }
 }
