@@ -32,6 +32,11 @@
         @submit="saveChanges"
         @change="change($event)"
       ></worker-form>
+      <family-allowance-accordion
+        :value="worker.family_allowance"
+        :parent="worker"
+        model="App\User"
+      ></family-allowance-accordion>
       <v-row v-if="isAlowedToEdit">
         <v-col cols="12">
           <v-divider></v-divider>
@@ -74,11 +79,13 @@
 import TimeView from '@/views/Time'
 import { confirmAction } from '@/utils'
 import WorkerForm from '@/components/worker/WorkerForm'
+import FamilyAllowanceAccordion from '@/components/FamilyAllowance/FamilyAllowanceAccordion'
 
 export default {
   components: {
     TimeView,
-    WorkerForm
+    WorkerForm,
+    FamilyAllowanceAccordion
   },
   data() {
     return {

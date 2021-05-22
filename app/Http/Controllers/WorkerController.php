@@ -80,6 +80,10 @@ class WorkerController extends Controller
 
         $worker = User::find($id);
 
+        if (auth()->user()->hasRule(['family_allowance_read']) || auth()->user()->isAnyType(['superadmin'])) {
+            $worker->load('familyAllowance');
+        }
+
         $worker->workHoursThisMonth = $worker->totalHoursOfThisMonth();
         $worker->mealsThisMonth = $worker->getNumberOfMealsByMonth(new \DateTime('first day of this month'));
 
