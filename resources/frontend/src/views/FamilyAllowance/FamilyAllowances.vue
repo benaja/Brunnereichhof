@@ -23,7 +23,7 @@
       >
         <template v-slot:item="{item}">
           <tr
-            class="table-item"
+            class="family-allowance-table-item"
             @click="selectedFamilyAllowance = item"
           >
             <td>
@@ -315,7 +315,11 @@ export default {
   max-width: 150px;
 }
 
-.table-item {
+
+</style>
+
+<style lang="scss">
+.family-allowance-table-item {
   cursor: pointer;
 }
 </style>
