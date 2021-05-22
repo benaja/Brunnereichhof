@@ -20,7 +20,10 @@
         :custom-sort="customSort"
       >
         <template v-slot:item="{item}">
-          <tr>
+          <tr
+            class="table-item"
+            @click="selectedFamilyAllowance = item"
+          >
             <td>
               {{ item.family_allowanceable.lastname }} {{ item.family_allowanceable.firstname }}
             </td>
@@ -144,21 +147,35 @@
           </tr>
         </template>
       </v-data-table>
+
+      <v-dialog
+        :value="!!selectedFamilyAllowance"
+        width="900"
+        @input="selectedFamilyAllowance = null"
+      >
+        <EditFamilyAllowance
+          v-model="selectedFamilyAllowance"
+          @close="selectedFamilyAllowance = null"
+        ></EditFamilyAllowance>
+      </v-dialog>
     </v-container>
   </fragment>
 </template>
 
 <script>
 import QuarterPicker from '@/components/general/QuarterPicker'
+import EditFamilyAllowance from '@/components/FamilyAllowance/EditFamilyAllowance'
 
 export default {
   components: {
-    QuarterPicker
+    QuarterPicker,
+    EditFamilyAllowance
   },
   data() {
     return {
       date: this.$moment().format('YYYY-MM-DD'),
       familyAllowances: [],
+      selectedFamilyAllowance: null,
       headers: [
         {
           text: this.$t('Name'),
@@ -248,7 +265,6 @@ export default {
       })
     },
     customSort(items, sortBy, sortDesc) {
-      // console.log(sortBy)
       if (sortBy.includes('marriageDocument')) {
         items.sort(this.marriageDocumentSort)
       }
@@ -256,7 +272,6 @@ export default {
         items.sort(this.childrenBirthDocumentSort)
       }
 
-      // console.log(sortDesc)
 
       if (sortDesc[0]) {
         return items
@@ -286,6 +301,8 @@ export default {
 
       if (a.childrenWithBirthDocument.lenght < a.children.length) scoreA = 1
       if (b.childrenWithBirthDocument.length < b.children.lenght) scoreB = 1
+
+      return scoreA - scoreB
     }
   }
 }
@@ -294,5 +311,9 @@ export default {
 <style lang="scss" scoped>
 .quarter-picker {
   max-width: 150px;
+}
+
+.table-item {
+  cursor: pointer;
 }
 </style>
