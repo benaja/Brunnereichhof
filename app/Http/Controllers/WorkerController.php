@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\FamilyAllowance;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Mail\WorkerCreated;
@@ -64,6 +65,9 @@ class WorkerController extends Controller
         ]);
 
         $usertype->users()->save($user);
+
+        $familyAllowance = FamilyAllowance::create();
+        $user->familyAllowance()->save($familyAllowance);
 
         $data['mail'] = $user->email;
         $data['password'] = $password;

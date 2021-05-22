@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Employee;
 use App\Enums\FoodTypeEnum;
+use App\FamilyAllowance;
 use App\Helpers\Pdf;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
@@ -155,6 +156,10 @@ class EmployeeController extends Controller
                 'password' => Hash::make(str_random(8)),
                 'isPasswordChanged' => 0,
             ]);
+
+            $familyAllowance = FamilyAllowance::create();
+
+            $employee->familyAllowance()->save($familyAllowance);
 
             if (! $data['isLoginActive']) {
                 $user->delete();
