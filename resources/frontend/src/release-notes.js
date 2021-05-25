@@ -1,5 +1,32 @@
 export default [
   {
+    version: '2.8.1',
+    changes: [
+      '"Stellvertretung" als neue Mitarbeiter Funktion'
+    ],
+    bugfixes: [
+      'Mitarbeiter auf Übersicht aktiv und inaktiv setzen'
+    ],
+    date: '28.05.2021'
+  },
+  {
+    version: '2.8',
+    changes: [
+      'Familienzulagen verwalten',
+      'Übersicht der Familienzulagen'
+    ],
+    date: '22.05.2021'
+  },
+  {
+    version: '2.7',
+    changes: [
+      'Einsatzplan erstellen',
+      'Werkzeuge verwalten',
+      'Autos verwalten'
+    ],
+    date: '30.04.2021'
+  },
+  {
     version: '2.6',
     changes: [
       'Ladegeschwindigkeit der Hofmitarbeiter verbessert.',
