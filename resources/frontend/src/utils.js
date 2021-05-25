@@ -73,6 +73,10 @@ const employeeFunctions = [
   {
     value: 'group-leader',
     text: i18n.tc('Gruppenführer')
+  },
+  {
+    value: 'representation',
+    text: i18n.tc('Stellvertretung')
   }
 ]
 

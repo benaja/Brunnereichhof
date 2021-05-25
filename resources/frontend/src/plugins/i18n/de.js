@@ -131,5 +131,6 @@ export default {
   'E411 eingegangen': 'E411 eingegangen',
   'Anmeldung abgesendet': 'Anmeldung abgesendet',
   Abgelaufen: 'Abgelaufen',
-  'Familienzulagen ausbezahlt': 'Familienzulagen ausbezahlt'
+  'Familienzulagen ausbezahlt': 'Familienzulagen ausbezahlt',
+  Stellvertretung: 'Stellvertretung'
 }
