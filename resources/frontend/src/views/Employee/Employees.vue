@@ -135,7 +135,10 @@ export default {
   },
   methods: {
     update(employee) {
-      this.axios.patch(`/employee/${employee.id}`, employee).catch(() => {
+      this.axios.patch(`employees/${employee.id}`, {
+        ...employee,
+        languages: employee.languages.map(l => l.id)
+      }).catch(() => {
         employee.isActive = !employee.isActive
         this.$swal('Fehler', 'Aktion konnte nicht durchgeführt werden.', 'error')
       })
