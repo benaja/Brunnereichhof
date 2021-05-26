@@ -132,5 +132,6 @@ export default {
   'Anmeldung abgesendet': 'Anmeldung abgesendet',
   Abgelaufen: 'Abgelaufen',
   'Familienzulagen ausbezahlt': 'Familienzulagen ausbezahlt',
-  Stellvertretung: 'Stellvertretung'
+  Stellvertretung: 'Stellvertretung',
+  Suche: 'Suche'
 }

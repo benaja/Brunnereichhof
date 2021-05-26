@@ -1,5 +1,14 @@
 export default [
   {
+    version: '2.8.2',
+    changes: [
+      'Suche nach Mitarbeiter in Familienzulagen',
+      'Sortierung der Tabelle anhand der verschiedenen Spalten bei Familienzulagen'
+    ],
+    bugfixes: [],
+    date: '26.05.2021'
+  },
+  {
     version: '2.8.1',
     changes: [
       '"Stellvertretung" als neue Mitarbeiter Funktion'
@@ -7,7 +16,7 @@ export default [
     bugfixes: [
       'Mitarbeiter auf Übersicht aktiv und inaktiv setzen'
     ],
-    date: '28.05.2021'
+    date: '25.05.2021'
   },
   {
     version: '2.8',
