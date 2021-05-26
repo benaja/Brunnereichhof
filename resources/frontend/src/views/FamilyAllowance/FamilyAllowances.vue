@@ -5,7 +5,13 @@
       full-width
     ></navigation-bar>
     <v-container fluid>
-      <div class="d-flex my-4">
+      <div class="d-flex justify-space-between flex-wrap my-4">
+        <v-text-field
+          v-model="searchString"
+          outlined
+          :label="$t('Suche')"
+          class="search-field"
+        ></v-text-field>
         <div class="quarter-picker">
           <QuarterPicker
             v-model="date"
@@ -178,6 +184,7 @@ export default {
       date: this.$moment().format('YYYY-MM-DD'),
       familyAllowances: [],
       selectedFamilyAllowance: null,
+      searchString: null,
       headers: [
         {
           text: this.$t('Name'),
@@ -223,29 +230,31 @@ export default {
   },
   computed: {
     familyAllowancesMaped() {
-      return this.familyAllowances.map(familyAllowance => {
-        const childrenAbove16 = familyAllowance.children
-          .filter(c => this.$moment().diff(this.$moment(c.birthdate), 'years') >= 16)
-        const selectedQuarter = this.$moment(this.date).quarter()
+      return this.familyAllowances.filter(e => !this.searchString
+        || `${e.family_allowanceable.lastname} ${e.family_allowanceable.lastname}`.toLowerCase().includes(this.searchString.toLowerCase()))
+        .map(familyAllowance => {
+          const childrenAbove16 = familyAllowance.children
+            .filter(c => this.$moment().diff(this.$moment(c.birthdate), 'years') >= 16)
+          const selectedQuarter = this.$moment(this.date).quarter()
 
-        return {
-          ...familyAllowance,
-          marriageDocument: this.fileByType(familyAllowance, 'marriage_document'),
-          e411: this.fileByType(familyAllowance, 'e411'),
-          childrenWithBirthDocument: this.childrenWithDocument(familyAllowance.children, 'birth_document'),
-          childrenAbove16,
-          childrenWithSchoolConfirmatin: this.childrenWithDocument(childrenAbove16, 'school_confirmation'),
-          claimIDValid: !familyAllowance.claim_id_received
+          return {
+            ...familyAllowance,
+            marriageDocument: this.fileByType(familyAllowance, 'marriage_document'),
+            e411: this.fileByType(familyAllowance, 'e411'),
+            childrenWithBirthDocument: this.childrenWithDocument(familyAllowance.children, 'birth_document'),
+            childrenAbove16,
+            childrenWithSchoolConfirmatin: this.childrenWithDocument(childrenAbove16, 'school_confirmation'),
+            claimIDValid: !familyAllowance.claim_id_received
             || !familyAllowance.claim_id_expiration_date
             || this.$moment(familyAllowance.claim_id_expiration_date).isSameOrAfter(this.$moment(), 'day'),
-          employerConfirmation: familyAllowance.employer_confirmation
-            .find(e => this.$moment(e.expiration_date).quarter() === selectedQuarter),
-          creditToEchhof: familyAllowance.credit_to_eichhof
-            .find(c => this.$moment(c.expiration_date).quarter() === selectedQuarter),
-          familyAllowancesPaid: familyAllowance.family_allowances_paid
-            .find(f => this.$moment(f.expiration_date).quarter() === selectedQuarter)
-        }
-      })
+            employerConfirmation: familyAllowance.employer_confirmation
+              .find(e => this.$moment(e.expiration_date).quarter() === selectedQuarter),
+            creditToEchhof: familyAllowance.credit_to_eichhof
+              .find(c => this.$moment(c.expiration_date).quarter() === selectedQuarter),
+            familyAllowancesPaid: familyAllowance.family_allowances_paid
+              .find(f => this.$moment(f.expiration_date).quarter() === selectedQuarter)
+          }
+        })
     }
   },
   mounted() {
@@ -313,6 +322,10 @@ export default {
 <style lang="scss" scoped>
 .quarter-picker {
   max-width: 150px;
+}
+
+.search-field {
+  max-width: 400px;
 }
 
 
