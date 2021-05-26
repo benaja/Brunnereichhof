@@ -15,7 +15,8 @@ class Transaction extends Model
         'date',
         'comment',
         'transaction_type_id',
-        'employee_id',
+        'transactionable_id',
+        'transactionable_type',
         'entered',
     ];
 
@@ -23,9 +24,9 @@ class Transaction extends Model
         'date',
     ];
 
-    public function employee()
+    public function transactionable()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->morphTo();
     }
 
     public function type()

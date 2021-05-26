@@ -66,6 +66,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->morphOne(FamilyAllowance::class, 'family_allowanceable');
     }
 
+    public function transactions()
+    {
+        return $this->morphMany(Transaction::class, 'transactionable');
+    }
+
     public function authorize($userTypes, $rules = [])
     {
         if ($this->deleted_at !== null) {
