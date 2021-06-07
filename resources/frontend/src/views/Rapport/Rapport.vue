@@ -143,9 +143,9 @@
       <div class="alert">
         <v-alert
           :value="savedSuccessful"
-          color="success"
           icon="check_circle"
           transition="slide-y-reverse-transition"
+          type="success"
         >
           Rapport erfolgreich gespeichert.
         </v-alert>
