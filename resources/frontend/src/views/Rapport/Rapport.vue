@@ -415,8 +415,7 @@ export default {
       this.isSaving = true
       this.axios
         .put(`rapports/${this.rapport.id}`, this.rapport)
-        .then(response => {
-          this.rapport = response.data
+        .then(() => {
           this.savedSuccessful = true
           setTimeout(() => {
             this.savedSuccessful = false

@@ -202,16 +202,9 @@ class RapportController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
-        if ($request->id) {
-            $rapport->update([
-                'comment_mo' => $request->comment_mo,
-                'comment_tu' => $request->comment_tu,
-                'comment_we' => $request->comment_we,
-                'comment_th' => $request->comment_th,
-                'comment_fr' => $request->comment_fr,
-                'comment_sa' => $request->comment_sa,
-                'isFinished' => $request->isFinished,
-            ]);
+        $request->update($rapport);
+
+        if (isset($request->rapportdetails)) {
             foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
                     $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
@@ -223,8 +216,6 @@ class RapportController extends Controller
                     ]);
                 }
             }
-        } else {
-            $request->update($rapport);
         }
 
         return $this->rapportWithDetails(Rapport::find($rapport->id));
