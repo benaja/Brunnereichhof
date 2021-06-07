@@ -221,33 +221,6 @@ class RapportController extends Controller
         return $this->rapportWithDetails(Rapport::find($rapport->id));
     }
 
-    public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
-    {
-        auth()->user()->authorize(['superadmin'], ['rapport_write', 'resource_planner_write']);
-
-        $updatetKey = key($request->except('_token'));
-
-        $updatedValue = (string) $request->$updatetKey;
-        if ($updatedValue == '') {
-            $updatedValue = null;
-        }
-        if ($updatetKey == 'project_id') {
-            $project = Project::find($updatedValue);
-            $rapportdetail->project()->associate($project);
-        } elseif ($updatetKey == 'foodtype_id') {
-            $foodtype = Foodtype::find($updatedValue);
-            $rapportdetail->foodtype()->associate($foodtype);
-        } else {
-            $rapportdetail->$updatetKey = $updatedValue;
-        }
-        $rapportdetail->save();
-
-        // Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
-        return [
-            'foodtype_ok' => $rapportdetail->foodtype_ok,
-        ];
-    }
-
     public function updateMultibleRapportdetails(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
