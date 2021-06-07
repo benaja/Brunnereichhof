@@ -1,5 +1,15 @@
 export default [
   {
+    version: '2.8.3',
+    changes: [],
+    bugfixes: [
+      'Rapport Kommentar update behoben',
+      'Rapport totale Stunden pro Tag nicht richtig mehr ausgerechnet bug behoben',
+      'Andere kleine Bugs zum Wochenrapport behoben'
+    ],
+    date: '07.06.2021'
+  },
+  {
     version: '2.8.2',
     changes: [
       'Suche nach Mitarbeiter in Familienzulagen',
