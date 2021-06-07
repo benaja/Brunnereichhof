@@ -26,6 +26,8 @@ class User extends Authenticatable implements JWTSubject
         'password', 'remember_token', 'passwordResetToken',
     ];
 
+    protected $appends = ['name'];
+
     public function fullName()
     {
         return "{$this->lastname} {$this->firstname}";
@@ -112,6 +114,11 @@ class User extends Authenticatable implements JWTSubject
         $currentDate = new \DateTime('now');
 
         return $this->totalHoursByMonth($currentDate);
+    }
+
+    public function getNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
     }
 
     public function totalHoursByMonth($dateOfMonth, $worktype = null)

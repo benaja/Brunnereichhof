@@ -7,6 +7,7 @@ use App\Http\Requests\TransactionBulkRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Transaction;
+use App\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -126,12 +127,18 @@ class TransactionsController extends Controller
         return TransactionResource::collection($transactions);
     }
 
-    public function saldo(Employee $employee)
+    public function saldo(Request $request)
     {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
+        if ($request->boolean('isWorker')) {
+            $user = User::find($request->get('id'));
+        } else {
+            $user = Employee::find($request->get('id'));
+        }
+
         return [
-            'data' => $employee->transactions()->where('entered', false)->sum('amount'),
+            'data' => $user->transactions()->where('entered', false)->sum('amount'),
         ];
     }
 

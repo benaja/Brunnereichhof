@@ -35,7 +35,7 @@ class Employee extends Model
         'function',
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url'];
+    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url', 'name'];
 
     protected $dates = ['entryDate'];
 
@@ -108,6 +108,11 @@ class Employee extends Model
     public function getEmailAttribute()
     {
         return $this->user ? $this->user->email : '';
+    }
+
+    public function getNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
     }
 
     public function getProfileimageUrl()

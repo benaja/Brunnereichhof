@@ -2,7 +2,7 @@
   <fragment>
     <navigation-bar
       title="Vorschüsse Verwalten"
-      :loading="isLoading.employees"
+      :loading="isLoading.employees || isLoading.workers"
     >
     </navigation-bar>
     <v-container>
@@ -14,16 +14,28 @@
           lg="9"
         >
           <v-autocomplete
-            v-model="selectedEmployee"
+            v-model="selectedUser"
             label="Mitarbeiter"
-            :items="employees"
+            :items="users"
             item-value="id"
             item-text="name"
             no-data-text="keine Daten"
             autocomplete="off"
             return-object
             clearable
-          ></v-autocomplete>
+          >
+            <template v-slot:item="{item}">
+              {{ item.name }}
+
+              <v-chip
+                v-if="item.isWorker"
+                class="ml-2"
+                small
+              >
+                {{ $t('Hofmitarbeiter') }}
+              </v-chip>
+            </template>
+          </v-autocomplete>
         </v-col>
         <v-col
           cols="12"
@@ -40,7 +52,7 @@
 
       <v-divider class="mb-10"></v-divider>
 
-      <template v-if="selectedEmployee">
+      <template v-if="selectedUser">
         <add-transaction
           v-model="transaction"
           @created="transactionCreated"
@@ -126,9 +138,9 @@ export default {
   },
   data() {
     return {
-      selectedEmployee: null,
+      selectedUser: null,
       transaction: {
-        employee_id: null,
+        transactionable_id: null,
         date: this.$moment().format('YYYY-MM-DD')
       },
       loadingSaldo: false,
@@ -142,14 +154,28 @@ export default {
   },
   computed: {
     ...mapGetters(['isLoading']),
-    employees() {
-      return this.$store.getters[this.onlyActive ? 'activeEmployees' : 'employees']
+    users() {
+      return [
+        ...this.$store.getters[this.onlyActive ? 'activeEmployees' : 'employees'],
+        ...this.$store.getters[this.onlyActive ? 'activeWorkers' : 'workers'].map(w => ({
+          ...w,
+          isWorker: true
+        }))
+      ].sort((a, b) => {
+        const nameA = `${a.name}`.toLowerCase()
+        const nameB = `${b.name}`.toLowerCase()
+
+        if (nameA < nameB) return -1
+        if (nameA > nameB) return 1
+        return 0
+      })
     }
   },
   watch: {
-    selectedEmployee() {
-      if (this.selectedEmployee) {
-        this.transaction.employee_id = this.selectedEmployee.id
+    selectedUser() {
+      if (this.selectedUser) {
+        this.transaction.transactionable_id = this.selectedUser.id
+        this.transaction.transactionable_type = this.selectedUser.isWorker ? 'App\\User' : 'App\\Employee'
       }
 
       this.saldo = null
@@ -159,12 +185,18 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch('fetchEmployees')
+    await this.$store.dispatch('fetchWorkers')
     await this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {
     loadSaldo() {
       this.loadingSaldo = true
-      this.axios.get(`employees/${this.selectedEmployee.id}/transactions/sum`).then(response => {
+      this.axios.get('transactions-sum', {
+        params: {
+          isWorker: this.selectedUser.isWorker,
+          id: this.selectedUser.id
+        }
+      }).then(response => {
         this.saldo = response.data.data
       }).catch(() => {
         this.$store.dispatch('error', 'Fehler beim Laden des Saldos')
@@ -181,7 +213,7 @@ export default {
     },
     loadTransactions(pagination = {}) {
       this.loadingTransactions = true
-      this.axios.get(`employees/${this.selectedEmployee.id}/transactions`, {
+      this.axios.get(`employees/${this.selectedUser.id}/transactions`, {
         params: {
           page: pagination.page,
           per_page: pagination.itemsPerPage
@@ -210,7 +242,7 @@ export default {
     },
     generatePdf() {
       this.isLoadingPdf = true
-      downloadFile(`pdf/employees/${this.selectedEmployee.id}/saldo`).catch(() => {
+      downloadFile(`pdf/employees/${this.selectedUser.id}/saldo`).catch(() => {
         this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
       }).finally(() => {
         this.isLoadingPdf = false

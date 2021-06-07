@@ -125,7 +125,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::get('transactions/stats', 'TransactionsController@stats');
     Route::resource('transactions', 'TransactionsController');
     Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
-    Route::get('employees/{employee}/transactions/sum', 'TransactionsController@saldo');
+    Route::get('transactions-sum', 'TransactionsController@saldo');
     Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
 
     // resource planner
