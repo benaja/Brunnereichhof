@@ -209,10 +209,10 @@ class RapportController extends Controller
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
                     $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
                     $rapportdetail->update([
-                        'hours' => $newRapportdetail['hours'],
-                        'foodtype_id' => $newRapportdetail['foodtype_id'],
-                        'project_id' => $newRapportdetail['project_id'],
-                        'contract_type' => $newRapportdetail['contract_type'],
+                        'hours' => data_get($newRapportdetail, 'hours'),
+                        'foodtype_id' => data_get($newRapportdetail, 'foodtype_id'),
+                        'project_id' => data_get($newRapportdetail, 'project_id'),
+                        'contract_type' => data_get($newRapportdetail, 'contract_type'),
                     ]);
                 }
             }
