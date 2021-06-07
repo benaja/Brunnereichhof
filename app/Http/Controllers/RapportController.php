@@ -7,6 +7,7 @@ use App\Employee;
 use App\Enums\UserTypeEnum;
 use App\Foodtype;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RapportRequest;
 use App\Http\Resources\RapportResource;
 use App\Project;
 use App\Rapport;
@@ -197,7 +198,7 @@ class RapportController extends Controller
     }
 
     // PATCH rapport/{id}
-    public function update(Request $request, Rapport $rapport)
+    public function update(RapportRequest $request, Rapport $rapport)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
@@ -223,14 +224,7 @@ class RapportController extends Controller
                 }
             }
         } else {
-            $updatetKey = key($request->except('_token'));
-
-            $updatedValue = (string) $request->$updatetKey;
-            if ($updatedValue == '') {
-                $updatedValue = null;
-            }
-            $rapport->$updatetKey = $updatedValue;
-            $rapport->save();
+            $request->update($rapport);
         }
 
         return $this->rapportWithDetails(Rapport::find($rapport->id));

@@ -50,11 +50,14 @@ export default {
     }
   },
   methods: {
-    updateComment: debounce(function(day) {
+    updateComment: debounce(function () {
       this.$store.commit('isSaving', true)
       this.axios
         .patch(`rapports/${this.rapport.id}`, {
-          [day]: this.rapport[day]
+          ...this.days.reduce((prev, curr) => {
+            prev[curr] = this.rapport[curr]
+            return prev
+          }, {})
         })
         .catch(() => {
           this.$swal('Fehler beim speicher', 'Es ist ein unbekannter Fehler aufgetreten', 'error')
