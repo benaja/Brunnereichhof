@@ -22,6 +22,7 @@ class RapportRequest extends FormRequest
             'comment_fr' => ['string', 'nullable'],
             'comment_sa' => ['string', 'nullable'],
             'isFinished' => ['boolean', 'nullable'],
+            'default_project_id' => ['integer', 'exists:project,id'],
         ];
     }
 
