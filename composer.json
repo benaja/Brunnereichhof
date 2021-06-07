@@ -11,6 +11,7 @@
         "php": "^8.0",
         "bensampo/laravel-enum": "^3.3",
         "doctrine/dbal": "^3.0",
+        "facade/ignition": "^2.10",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -36,8 +37,7 @@
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.3.3",
-        "fakerphp/faker": "^1.9.1",
-        "facade/ignition": "^2.5"
+        "fakerphp/faker": "^1.9.1"
     },
     "autoload": {
         "classmap": [
