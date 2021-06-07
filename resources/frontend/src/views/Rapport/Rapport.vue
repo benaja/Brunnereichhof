@@ -169,7 +169,6 @@
 import moment from 'moment'
 import EditEmployees from '@/components/Rapport/EditEmployees'
 import SelectProjects from '@/components/Rapport/SelectProjects'
-import RapportDay from '@/components/Rapport/RapportDay'
 import RapportComments from '@/components/Rapport/RapportComments'
 import RapportEmployee from '@/components/Rapport/RapportEmployee'
 import EditAllEmployees from '@/components/Rapport/EditAllEmployees'
@@ -183,7 +182,6 @@ export default {
   components: {
     EditEmployees,
     SelectProjects,
-    RapportDay,
     DayTotal,
     LoadingDots,
     RapportComments,
