@@ -46,11 +46,11 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::get('rapports/week/{week}', 'RapportController@showWeek');
     Route::post('rapports/{rapport}/employees', 'RapportController@addEmployee');
     Route::delete('rapports/{rapport}/employee/{employeeId}', 'RapportController@removeEmployee');
-    Route::patch('rapportdetails/{rapportdetail}', 'RapportController@updateRapportdetail');
     Route::patch('rapportdetails', 'RapportController@updateMultibleRapportdetails');
     Route::get('rapports/daytotal/{date}', 'RapportController@daytotal');
     Route::resource('rapports', 'RapportController');
     Route::post('rapportdetails', 'RapportdetailsController@store');
+    Route::patch('rapportdetails/{rapportdetail}', 'RapportdetailsController@update');
 
     // Pdfs
     Route::get('pdf/timerecords/meals', 'Evaluation\WorkerPdfController@meals');

@@ -25,7 +25,7 @@
           <edit-projects
             v-model="customer.projects"
             :customer-id="rapport.customer_id"
-            @updateProjects="updatedProjects => $emit('updatedProjects', updatedProjects)"
+            @input="$emit('updatedProjects', customer.projects)"
           ></edit-projects>
           <v-row justify="center">
             <v-btn

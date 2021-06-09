@@ -25,6 +25,7 @@ class Rapportdetail extends Model
         'employee_id',
         'rapport_id',
         'resource_id',
+        'contract_type',
     ];
 
     protected $appends = ['foodtype_ok'];

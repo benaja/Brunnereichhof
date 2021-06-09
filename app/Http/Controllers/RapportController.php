@@ -7,6 +7,7 @@ use App\Employee;
 use App\Enums\UserTypeEnum;
 use App\Foodtype;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RapportRequest;
 use App\Http\Resources\RapportResource;
 use App\Project;
 use App\Rapport;
@@ -197,70 +198,27 @@ class RapportController extends Controller
     }
 
     // PATCH rapport/{id}
-    public function update(Request $request, Rapport $rapport)
+    public function update(RapportRequest $request, Rapport $rapport)
     {
         auth()->user()->authorize(['superadmin'], ['rapport_write']);
 
-        if ($request->id) {
-            $rapport->update([
-                'comment_mo' => $request->comment_mo,
-                'comment_tu' => $request->comment_tu,
-                'comment_we' => $request->comment_we,
-                'comment_th' => $request->comment_th,
-                'comment_fr' => $request->comment_fr,
-                'comment_sa' => $request->comment_sa,
-                'isFinished' => $request->isFinished,
-            ]);
+        $request->update($rapport);
+
+        if (isset($request->rapportdetails)) {
             foreach ($request->rapportdetails as $rapprotdetailsByCustomer) {
                 foreach ($rapprotdetailsByCustomer as $newRapportdetail) {
                     $rapportdetail = Rapportdetail::find($newRapportdetail['id']);
                     $rapportdetail->update([
-                        'hours' => $newRapportdetail['hours'],
-                        'foodtype_id' => $newRapportdetail['foodtype_id'],
-                        'project_id' => $newRapportdetail['project_id'],
-                        'contract_type' => $newRapportdetail['contract_type'],
+                        'hours' => data_get($newRapportdetail, 'hours'),
+                        'foodtype_id' => data_get($newRapportdetail, 'foodtype_id'),
+                        'project_id' => data_get($newRapportdetail, 'project_id'),
+                        'contract_type' => data_get($newRapportdetail, 'contract_type'),
                     ]);
                 }
             }
-        } else {
-            $updatetKey = key($request->except('_token'));
-
-            $updatedValue = (string) $request->$updatetKey;
-            if ($updatedValue == '') {
-                $updatedValue = null;
-            }
-            $rapport->$updatetKey = $updatedValue;
-            $rapport->save();
         }
 
         return $this->rapportWithDetails(Rapport::find($rapport->id));
-    }
-
-    public function updateRapportdetail(Request $request, Rapportdetail $rapportdetail)
-    {
-        auth()->user()->authorize(['superadmin'], ['rapport_write', 'resource_planner_write']);
-
-        $updatetKey = key($request->except('_token'));
-
-        $updatedValue = (string) $request->$updatetKey;
-        if ($updatedValue == '') {
-            $updatedValue = null;
-        }
-        if ($updatetKey == 'project_id') {
-            $project = Project::find($updatedValue);
-            $rapportdetail->project()->associate($project);
-        } elseif ($updatetKey == 'foodtype_id') {
-            $foodtype = Foodtype::find($updatedValue);
-            $rapportdetail->foodtype()->associate($foodtype);
-        } else {
-            $rapportdetail->$updatetKey = $updatedValue;
-        }
-        $rapportdetail->save();
-
-        // Log::info("Updated Rapportdetail $rapportdetail->id with the key: $updatetKey");
-        return [
-            'foodtype_ok' => $rapportdetail->foodtype_ok,
-        ];
     }
 
     public function updateMultibleRapportdetails(Request $request)

@@ -115,78 +115,6 @@
             </td>
           </tr>
         </table>
-        <v-col
-          v-if="false"
-          cols="12"
-          class="table"
-        >
-          <v-row>
-            <v-col
-              cols="12"
-              md="2"
-              class="pl-2 d-none d-md-block"
-            >
-              <p class="font-weight-bold">
-                Wochentag
-              </p>
-              <p class="font-weight-bold pt-3 mt-4">
-                Kommentar
-              </p>
-              <p
-                class="font-weight-bold all-employees"
-                :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
-              >
-                Alle
-              </p>
-              <div
-                v-for="rapportdetail of rapport.rapportdetails"
-                :key="'e-' + rapportdetail[0].id"
-                class="employee-name mx-1 mt-4"
-                :class="{ 'small-height': !settings.rapportFoodTypeEnabled }"
-              >
-                <p
-                  v-if="employees.find(e => e.id == rapportdetail[0].employee_id)"
-                  class="font-weight-bold"
-                >
-                  {{ employees.find(e => e.id == rapportdetail[0].employee_id).lastname }}
-                  {{ employees.find(e => e.id == rapportdetail[0].employee_id).firstname }}
-                </p>
-              </div>
-              <p class="font-weight-bold">
-                Total
-              </p>
-            </v-col>
-            <v-col
-              cols="12"
-              md="10"
-              class="pt-0"
-            >
-              <v-row
-                v-if="rapportLoaded && rapport.rapportdetails.length > 0"
-                row
-                wrap
-              >
-                <v-col
-                  v-for="(rapportdetail, key) in rapportdetailsFiltered"
-                  :key="key"
-                  cols="12"
-                  md="2"
-                  class="pt-0"
-                >
-                  <rapport-day
-                    :date="$moment(rapportdetail[0].date, 'YYYY-MM-DD')"
-                    :rapport="rapport"
-                    :day="Number(key)"
-                    :projects="projects"
-                    :rapportdetails="rapportdetail"
-                    :employees="employees"
-                    :settings="settings"
-                  ></rapport-day>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-col>
         <v-col cols="12">
           <p
             v-if="$auth.user().hasPermission(['superadmin'], ['rapport_write'])"
@@ -215,9 +143,9 @@
       <div class="alert">
         <v-alert
           :value="savedSuccessful"
-          color="success"
           icon="check_circle"
           transition="slide-y-reverse-transition"
+          type="success"
         >
           Rapport erfolgreich gespeichert.
         </v-alert>
@@ -241,7 +169,6 @@
 import moment from 'moment'
 import EditEmployees from '@/components/Rapport/EditEmployees'
 import SelectProjects from '@/components/Rapport/SelectProjects'
-import RapportDay from '@/components/Rapport/RapportDay'
 import RapportComments from '@/components/Rapport/RapportComments'
 import RapportEmployee from '@/components/Rapport/RapportEmployee'
 import EditAllEmployees from '@/components/Rapport/EditAllEmployees'
@@ -255,7 +182,6 @@ export default {
   components: {
     EditEmployees,
     SelectProjects,
-    RapportDay,
     DayTotal,
     LoadingDots,
     RapportComments,
@@ -415,8 +341,7 @@ export default {
       this.isSaving = true
       this.axios
         .put(`rapports/${this.rapport.id}`, this.rapport)
-        .then(response => {
-          this.rapport = response.data
+        .then(() => {
           this.savedSuccessful = true
           setTimeout(() => {
             this.savedSuccessful = false

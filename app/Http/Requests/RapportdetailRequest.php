@@ -15,15 +15,17 @@ class RapportdetailRequest extends FormRequest
      */
     public function rules()
     {
+        $required = $this->method() === 'POST' ? 'required' : '';
+
         return [
-            'rapport_id' => ['required', 'integer', 'exists:rapport,id'],
-            'employee_id' => ['required', 'integer', 'exists:employee,id'],
+            'rapport_id' => [$required, 'integer', 'exists:rapport,id'],
+            'employee_id' => [$required, 'integer', 'exists:employee,id'],
             'foodtype_id' => ['nullable', 'integer'],
-            'date' => ['required', 'date'],
+            'date' => [$required, 'date'],
             'hours' => ['nullable', 'numeric'],
             'project_id' => ['nullable', 'integer'],
-            'contract_type' => ['required', 'string'],
-            'day' => ['required', 'integer'],
+            'contract_type' => [$required, 'string'],
+            'day' => [$required, 'integer'],
         ];
     }
 
@@ -36,5 +38,14 @@ class RapportdetailRequest extends FormRequest
         $data['customer_id'] = $rapport->customer_id;
 
         return Rapportdetail::create($data);
+    }
+
+    public function update(Rapportdetail $rapportdetail)
+    {
+        $data = $this->validated();
+
+        $rapportdetail->update($data);
+
+        return $rapportdetail;
     }
 }
