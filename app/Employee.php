@@ -54,11 +54,6 @@ class Employee extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function transactions()
-    {
-        return $this->morphMany(Transaction::class, 'transactionable');
-    }
-
     public function languages()
     {
         return $this->belongsToMany(Language::class);

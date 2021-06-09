@@ -70,7 +70,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function transactions()
     {
-        return $this->morphMany(Transaction::class, 'transactionable');
+        return $this->hasMany(Transaction::class);
     }
 
     public function authorize($userTypes, $rules = [])
