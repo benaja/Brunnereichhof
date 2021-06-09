@@ -6,7 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class MakeTransactionsMorphable extends Migration
+class AttachTransactionsToUser extends Migration
 {
     /**
      * Run the migrations.
@@ -16,14 +16,16 @@ class MakeTransactionsMorphable extends Migration
     public function up()
     {
         Schema::table('transactions', function (Blueprint $query) {
-            $query->renameColumn('employee_id', 'transactionable_id');
+            $query->foreignId('employee_id')->nullable()->change();
 
-            $query->string('transactionable_type')->nullable()->after('employee_id');
+            $query->renameColumn('employee_id', 'user_id');
         });
 
-        DB::table('transactions')->update([
-            'transactionable_type' => Employee::class,
-        ]);
+        DB::table('transactions')
+            ->join('employee', 'employee.id', '=', 'transactions.user_id')
+            ->update([
+                'transactions.user_id' => DB::raw('employee.user_id'),
+            ]);
     }
 
     /**
@@ -34,9 +36,7 @@ class MakeTransactionsMorphable extends Migration
     public function down()
     {
         Schema::table('transactions', function (Blueprint $query) {
-            $query->renameColumn('transactionable_id', 'employee_id');
-
-            $query->dropColumn('transactionable_type');
+            $query->renameColumn('user_id', 'employee_id');
         });
     }
 }
