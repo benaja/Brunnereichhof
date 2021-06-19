@@ -1,5 +1,8 @@
 <template>
-  <div class="mb-1">
+  <div
+    class="mb-1"
+    @contextmenu.prevent="$emit('rightClick', $event)"
+  >
     <v-list-item
       class="drag-item"
     >

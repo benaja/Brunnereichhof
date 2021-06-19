@@ -120,7 +120,6 @@ class ResourcePlannerController extends Controller
 
         $data = $this->validate($request, [
             'employee_id' => ['required', 'integer', 'exists:employee,id'],
-            'date' => ['required', 'date'],
         ]);
 
         $defaultFoodType = Foodtype::where('foodname', 'eichhof')->first();

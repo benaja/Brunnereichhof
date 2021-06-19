@@ -83,6 +83,7 @@
                 <draggable-employee-list
                   :value="filteredEmployees"
                   class="list-min-height"
+                  :selected-resource="selectedResource"
                 ></draggable-employee-list>
               </div>
             </v-tab-item>
@@ -133,7 +134,7 @@
           ></v-text-field>
           <div class="item-list-scroll-container">
             <v-expansion-panels
-              multiple
+              v-model="openCustomer"
               flat
             >
               <customer-card
@@ -191,7 +192,8 @@ export default {
       filteredCars: [],
       filteredTools: [],
       plannerDay: null,
-      isLoadingPdf: false
+      isLoadingPdf: false,
+      openCustomer: null
     }
   },
   computed: {
@@ -232,6 +234,11 @@ export default {
     },
     isToday() {
       return this.$moment(this.date).isSame(this.$moment(), 'day')
+    },
+    selectedResource() {
+      if (this.openCustomer === null) return null
+
+      return this.filteredResources[this.openCustomer]
     }
   },
   watch: {

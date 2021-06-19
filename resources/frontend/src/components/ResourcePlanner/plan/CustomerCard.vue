@@ -287,8 +287,7 @@ export default {
       }
 
       this.axios.$post(`resources/${this.resource.id}/rapportdetails`, {
-        employee_id: employeeId,
-        date: this.date
+        employee_id: employeeId
       }).then(({ data }) => {
         this.resource.rapportdetails.push(data)
       }).catch(error => {
