@@ -4,6 +4,7 @@
     :data-employee-id="employee.id"
     class="teal lighten-5 mb-2"
     no-flex
+    @rightClick="$emit('rightClick', $event)"
   >
     <div class="info-container">
       <employee-card-content :employee="employee"></employee-card-content>
