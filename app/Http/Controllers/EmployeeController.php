@@ -143,7 +143,6 @@ class EmployeeController extends Controller
                 'isActive' => $data['isActive'],
                 'isGuest' => $data['isGuest'],
                 'allergy' => $data['allergy'],
-                'isLoginActive' => $data['isLoginActive'] || false,
                 'drivingLicence' => $data['drivingLicence'],
                 'entryDate' => $data['entryDate'],
             ]);
@@ -154,6 +153,8 @@ class EmployeeController extends Controller
                 'username' => Utils::getUniqueUsername($data['firstname'].'.'.$data['lastname']),
                 'email' => strtolower($data['email']),
                 'password' => Hash::make(str_random(8)),
+                'isLoginActive' => $data['isLoginActive'] || false,
+                'isActive' => $data['isActive'],
                 'isPasswordChanged' => 0,
             ]);
 
@@ -197,7 +198,7 @@ class EmployeeController extends Controller
         }
 
         $employee->profileimage = $employee->getProfileimageUrl();
-        $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
+        // $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
 
         return $employee;
     }
@@ -235,23 +236,22 @@ class EmployeeController extends Controller
 
             $employee->languages()->sync($data['languages']);
 
-            if ($request->isLoginActive && $employee->user->deleted_at) {
-                $employee->user->restore();
-            } elseif (! $request->isLoginActive) {
-                $employee->user->delete();
-            }
-
             if ($request->user['role_id']) {
                 $role = Role::find($request->user['role_id']);
                 $role->users()->save($employee->user);
             }
 
-            $employee->user->update([
+            $employee->user()->update([
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
                 'email' => strtolower($request->email),
+                'isLoginActive' => $request->isLoginActive,
+                'isActive' => $request->isActive,
             ]);
-            $employee->user->save();
+
+            // if (! $request->isLoginActive) {
+            //     $employee->user->logout();
+            // }
         });
     }
 

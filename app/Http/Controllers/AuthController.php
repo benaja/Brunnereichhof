@@ -32,6 +32,11 @@ class AuthController extends Controller
             }
         }
 
+        $user = auth()->user();
+        if (! $user->isActive || ! $user->isLoginActive) {
+            return response('Your account has been deactivated', 403);
+        }
+
         return $this->respondWithToken($token);
     }
 
@@ -85,9 +90,11 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = User::with(['role.authorizationRules', 'customer'])->with('type')->find(auth()->user()->id);
-        if (! $user->isActive) {
-            auth()->invalidate();
+        $user = User::with(['role.authorizationRules', 'customer', 'type'])
+            ->find(auth()->user()->id);
+
+        if (! $user->isActive || ! $user->isLoginActive) {
+            // auth()->logout();
 
             return response('Your account has been deactivated', 403);
         }

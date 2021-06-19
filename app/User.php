@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -75,7 +76,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function authorize($userTypes, $rules = [])
     {
-        if ($this->deleted_at !== null) {
+        if ($this->deleted_at !== null || ! $this->isActive || ! $this->isLoginActive) {
             return abort(401, 'This action is unauthorized.');
         }
 

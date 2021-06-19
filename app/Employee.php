@@ -28,14 +28,13 @@ class Employee extends Model
         'isGuest',
         'profileimage',
         'allergy',
-        'isLoginActive',
         'entryDate',
         'drivingLicence',
         'resource_planner_white_listed',
         'function',
     ];
 
-    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url', 'name'];
+    protected $appends = ['firstname', 'lastname', 'email', 'small_profile_image', 'profileimage_url', 'name', 'isLoginActive'];
 
     protected $dates = ['entryDate'];
 
@@ -103,6 +102,11 @@ class Employee extends Model
     public function getEmailAttribute()
     {
         return $this->user ? $this->user->email : '';
+    }
+
+    public function getIsLoginActiveAttribute()
+    {
+        return $this->user ? $this->user->isLoginActive : false;
     }
 
     public function getNameAttribute()

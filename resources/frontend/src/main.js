@@ -59,6 +59,7 @@ Vue.use(auth, {
   http: vueAuthAxios,
   router: vueAuthRouter,
   parseUserData(body) {
+    console.log(body)
     const user = body.data
     if (user) {
       user.hasPermission = function(types, roles = []) {
@@ -71,7 +72,6 @@ Vue.use(auth, {
     return user
   },
   refreshData: { enabled: false, interval: 0 }
-
 })
 
 const vuetifyOpts = {

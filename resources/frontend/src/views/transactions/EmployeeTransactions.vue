@@ -16,7 +16,7 @@
           <v-autocomplete
             v-model="selectedUser"
             label="Mitarbeiter"
-            :items="users"
+            :items="filteredUsers"
             item-value="id"
             item-text="name"
             no-data-text="keine Daten"
@@ -149,19 +149,21 @@ export default {
       transactionsMeta: {},
       loadingTransactions: false,
       onlyActive: true,
-      isLoadingPdf: false
+      isLoadingPdf: false,
+      users: []
     }
   },
   computed: {
     ...mapGetters(['isLoading']),
-    users() {
-      return [
-        ...this.$store.getters[this.onlyActive ? 'activeEmployees' : 'employees'],
-        ...this.$store.getters[this.onlyActive ? 'activeWorkers' : 'workers'].map(w => ({
-          ...w,
-          isWorker: true
-        }))
-      ].sort((a, b) => {
+    filteredUsers() {
+      return [...this.users].filter(u => true
+        // return u.employee && u.employee.isActive
+        // if (u.employee) {
+        //   console.log(!!u.employee.isActive === this.onlyActive)
+        //   return !!u.employee.isActive === this.onlyActive
+        // }
+        // return !!u.isActive === this.onlyActive
+      ).sort((a, b) => {
         const nameA = `${a.name}`.toLowerCase()
         const nameB = `${b.name}`.toLowerCase()
 
@@ -184,8 +186,7 @@ export default {
     }
   },
   async mounted() {
-    await this.$store.dispatch('fetchEmployees')
-    await this.$store.dispatch('fetchWorkers')
+    this.users = await this.axios.$get('users')
     await this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {

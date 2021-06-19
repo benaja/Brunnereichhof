@@ -67,6 +67,7 @@ Route::group(['middleware' => 'jwt'], function () {
 
     Route::post('password/change', 'UserController@changePassword');
     Route::post('resetpassword/{user}', 'UserController@resetPassword');
+    Route::get('users', 'UserController@index');
 
     Route::get('times/{date}', 'TimeController@index');
     Route::get('times/week/{date}', 'TimeController@week');
