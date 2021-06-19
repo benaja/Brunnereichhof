@@ -6,6 +6,7 @@
     :avatar="tool.small_image_url"
     :image="tool.image_url"
     class="orange lighten-5"
+    @rightClick="$emit('rightClick', $event)"
   >
     <div
       slot="name"

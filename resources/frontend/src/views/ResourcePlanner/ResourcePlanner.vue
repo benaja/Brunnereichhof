@@ -97,6 +97,7 @@
                 <draggable-car-list
                   class="list-min-height"
                   :value="filteredCars"
+                  @add="addCardToSelectedResource"
                 ></draggable-car-list>
               </div>
             </v-tab-item>
@@ -139,6 +140,7 @@
             >
               <customer-card
                 v-for="resource of filteredResources"
+                ref="customerCards"
                 :key="resource.id"
                 :resource="resource"
                 :date="date"
@@ -325,6 +327,11 @@ export default {
     },
     setDateToToday() {
       this.date = this.$moment().format('YYYY-MM-DD')
+    },
+    addCardToSelectedResource(carId) {
+      if (this.selectedResource) {
+        this.$refs.customerCards[this.openCustomer].addCar(carId)
+      }
     }
   }
 }

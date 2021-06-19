@@ -5,6 +5,7 @@
     :avatar="car.small_image_url"
     :image="car.image_url"
     class="blue lighten-5"
+    @rightClick="$emit('rightClick', $event)"
   >
     <template slot="name">
       <p class="mb-0">

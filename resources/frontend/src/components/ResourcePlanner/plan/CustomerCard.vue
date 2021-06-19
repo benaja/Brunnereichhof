@@ -108,7 +108,6 @@
             <draggable-car-list
               v-model="resource.cars"
               :customer-id="customer.id"
-              :used-car-ids="usedCarIds"
               :disabled="disabled"
               class="cars draggable-list"
               @add="addCar"
