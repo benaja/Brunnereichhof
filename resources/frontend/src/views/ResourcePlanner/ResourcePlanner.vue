@@ -111,6 +111,7 @@
                 <draggable-tool-list
                   :value="filteredTools"
                   class="list-min-height"
+                  @add="addToolToSelectedResource"
                 ></draggable-tool-list>
               </div>
             </v-tab-item>
@@ -331,6 +332,16 @@ export default {
     addCardToSelectedResource(carId) {
       if (this.selectedResource) {
         this.$refs.customerCards[this.openCustomer].addCar(carId)
+      }
+    },
+    addToolToSelectedResource(toolId) {
+      if (this.selectedResource) {
+        const alreadyExists = this.selectedResource.tools.find(t => t.id === toolId)
+        if (alreadyExists) {
+          this.$refs.customerCards[this.openCustomer].increaseTool(alreadyExists)
+        } else {
+          this.$refs.customerCards[this.openCustomer].addTool(toolId)
+        }
       }
     }
   }

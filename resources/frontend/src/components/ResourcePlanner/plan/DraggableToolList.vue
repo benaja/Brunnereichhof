@@ -15,6 +15,7 @@
       :disabled="disabled"
       @add="addOne"
       @remove="removeOne"
+      @rightClick="rightClickOnTool(tool.id)"
     ></tool-card>
   </draggable>
 </template>
@@ -94,6 +95,14 @@ export default {
 
     removeOne(tool) {
       this.$emit('decrease', tool)
+    },
+
+    rightClickOnTool(toolId) {
+      if (this.customerId) {
+        this.$emit('remove', toolId)
+      } else {
+        this.$emit('add', toolId)
+      }
     }
   }
 }
