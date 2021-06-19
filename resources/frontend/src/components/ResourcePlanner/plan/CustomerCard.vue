@@ -289,6 +289,7 @@ export default {
         employee_id: employeeId
       }).then(({ data }) => {
         this.resource.rapportdetails.push(data)
+        this.$emit('employeeAdded')
       }).catch(error => {
         if (error.includes('Employee already exists fot that day and customer')) {
           this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits bei diesem Kunde vorhanden') })

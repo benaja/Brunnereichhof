@@ -74,6 +74,7 @@
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
               <resource-planner-filter
+                ref="employeeSearch"
                 v-model="filteredEmployees"
                 :items="activeEmployees"
                 :item-search-text="getEmployeeName"
@@ -152,6 +153,7 @@
                 :amount-of-use-per-tool="amountOfUsePerTool"
                 :disabled="isCompleted || !isAllowedToEdit"
                 @remove="removeResource(resource)"
+                @employeeAdded="employeeAdded"
               ></customer-card>
             </v-expansion-panels>
           </div>
@@ -348,6 +350,11 @@ export default {
         } else {
           this.$refs.customerCards[this.openCustomer].addTool(toolId)
         }
+      }
+    },
+    employeeAdded() {
+      if (this.$refs.employeeSearch) {
+        this.$refs.employeeSearch.reset()
       }
     }
   }
