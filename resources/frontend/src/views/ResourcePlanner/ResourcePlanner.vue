@@ -30,7 +30,7 @@
         <v-btn
           v-else
           color="primary"
-          class="my-2"
+          class="mx-2"
           outlined
           @click="finish(false)"
         >
