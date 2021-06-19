@@ -84,6 +84,7 @@
                   :value="filteredEmployees"
                   class="list-min-height"
                   :selected-resource="selectedResource"
+                  @add="addEmployeeToSelectedResource"
                 ></draggable-employee-list>
               </div>
             </v-tab-item>
@@ -328,6 +329,11 @@ export default {
     },
     setDateToToday() {
       this.date = this.$moment().format('YYYY-MM-DD')
+    },
+    addEmployeeToSelectedResource(employeeId) {
+      if (this.selectedResource) {
+        this.$refs.customerCards[this.openCustomer].addEmployee(employeeId)
+      }
     },
     addCardToSelectedResource(carId) {
       if (this.selectedResource) {
