@@ -17,7 +17,7 @@
                 {{ customer.firstname }}{{ resource.rapportdetails.length ? ':': '' }}</span>
 
               <span
-                v-for="(rapportdetail, index) of resource.rapportdetails"
+                v-for="(rapportdetail, index) of sortedRapportdetails"
                 :key="'r'+rapportdetail.id"
                 class="mb-1 teal--text text--darken-2"
               >{{ index !== 0 ? ',' : '' }}
@@ -88,11 +88,12 @@
               {{ $t('Mitarbeiter') }}
             </p>
             <draggable-rapportdetail-list
-              v-model="resource.rapportdetails"
+              :value="sortedRapportdetails"
               class="employees draggable-list"
               :customer="customer"
               :selected-employee-ids="selectedEmployeeIds"
               :disabled="disabled"
+              @input="rapport.rapportdetails = $event"
               @add="addEmployee"
               @remove="removeEmployee"
             ></draggable-rapportdetail-list>
@@ -188,7 +189,7 @@
 <script>
 import Draggable from 'vuedraggable'
 import TimeTextField from '@/components/general/TimeTextField'
-import { confirmAction } from '@/utils'
+import { confirmAction, employeeFunctions } from '@/utils'
 import { mapGetters } from 'vuex'
 import DraggableRapportdetailList from './DraggableRapportdetailList'
 import DraggableCarList from './DraggableCarList'
@@ -262,6 +263,15 @@ export default {
       const carSeats = this.resource.cars.reduce((seats, car) => seats + car.seats, 0)
 
       return carSeats < this.resource.rapportdetails.length
+    },
+
+    sortedRapportdetails() {
+      return [...this.resource.rapportdetails].sort((a, b) => {
+        const functionA = employeeFunctions.find(f => f.value === a.employee.function)
+        const functionB = employeeFunctions.find(f => f.value === b.employee.function)
+
+        return functionB.rank - functionA.rank
+      })
     }
   },
 

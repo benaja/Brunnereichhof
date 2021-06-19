@@ -64,19 +64,23 @@ function confirmAction(text = 'Willst du diesen Eintrag wirklich löschen?', con
 const employeeFunctions = [
   {
     value: null,
-    text: i18n.tc('Standartmitarbeiter')
+    text: i18n.tc('Standartmitarbeiter'),
+    rank: 0
   },
   {
     value: 'driver',
-    text: i18n.tc('Fahrer')
+    text: i18n.tc('Fahrer'),
+    rank: 1
   },
   {
     value: 'group-leader',
-    text: i18n.tc('Gruppenführer')
+    text: i18n.tc('Gruppenführer'),
+    rank: 2
   },
   {
     value: 'representation',
-    text: i18n.tc('Stellvertretung')
+    text: i18n.tc('Stellvertretung'),
+    rank: 3
   }
 ]
 
