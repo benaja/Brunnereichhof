@@ -1,5 +1,15 @@
 export default [
   {
+    version: '2.8.4',
+    changes: [
+      'Im Einsatzplaner können Mitarbeiter, Autos und Werkzeuge per Rechtsklick zum geöffneten Kunden hinzugefügt und auch wieder entfernt werden.',
+      'Beim Einsatzplaner werden die Mitarbeiter in den einzelnen Kunden anhand ihrer Funktion sortiert.',
+      'Nachdem ein Mitarbeiter zu einem Kunde hinzugefügt wurde, wird die Suche zurückgesetzt.'
+    ],
+    bugfixes: [],
+    date: '16.06.2021'
+  },
+  {
     version: '2.8.3',
     changes: [],
     bugfixes: [
