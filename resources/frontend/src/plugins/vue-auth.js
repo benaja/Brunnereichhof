@@ -2,7 +2,6 @@ import Vue from 'vue'
 import vueAuthAxios from '@websanova/vue-auth/drivers/http/axios.1.x'
 import vueAuthRouter from '@websanova/vue-auth/drivers/router/vue-router.2.x'
 import auth from '@websanova/vue-auth'
-import axios from 'axios'
 
 export default {
   register() {
@@ -20,7 +19,6 @@ export default {
       http: vueAuthAxios,
       router: vueAuthRouter,
       parseUserData(body) {
-        console.log(body)
         const user = body.data
         if (user) {
           user.hasPermission = function(types, roles = []) {
@@ -30,18 +28,9 @@ export default {
             return this.role && !!this.role.authorization_rules.find(r => roles.includes(r.name))
           }
         }
-        return {
-          hasPermission: () => {}
-        }
+        return user
       },
       refreshData: { enabled: false, interval: 0 }
-      // fetchData: {
-      //   enabled: false
-      // }
     })
-
-    // axios.get('auth/user').then(response => {
-    //   console.log(response)
-    // })
   }
 }
