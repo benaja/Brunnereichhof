@@ -112,6 +112,13 @@ const QuarterType = {
   FamilyAllowancesPaid: 2
 }
 
+const UserType = {
+  Customer: 1,
+  Worker: 2,
+  SuperAdmin: 3,
+  Employee: 4
+}
+
 export {
-  downloadFile, rules, confirmAction, employeeFunctions, contractTypes, foodTypes, QuarterType
+  downloadFile, rules, confirmAction, employeeFunctions, contractTypes, foodTypes, QuarterType, UserType
 }

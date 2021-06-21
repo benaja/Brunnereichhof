@@ -31,6 +31,15 @@ class UserController extends Controller
             ->get();
     }
 
+    public function show(User $user)
+    {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+
+        $user->load(['employee', 'customer']);
+
+        return $user;
+    }
+
     // POST password/change
     public function changePassword(Request $request)
     {

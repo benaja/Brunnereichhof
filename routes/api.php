@@ -68,6 +68,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('password/change', 'UserController@changePassword');
     Route::post('resetpassword/{user}', 'UserController@resetPassword');
     Route::get('users', 'UserController@index');
+    Route::get('users/{user}', 'UserController@show');
 
     Route::get('times/{date}', 'TimeController@index');
     Route::get('times/week/{date}', 'TimeController@week');
@@ -125,8 +126,8 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::post('transactions/bulk', 'TransactionsController@bulkCreate');
     Route::get('transactions/stats', 'TransactionsController@stats');
     Route::resource('transactions', 'TransactionsController');
-    Route::get('employees/{employee}/transactions', 'TransactionsController@getByEmployee');
-    Route::get('transactions-sum', 'TransactionsController@saldo');
+    Route::get('users/{user}/transactions', 'TransactionsController@getByUser');
+    Route::get('users/{user}/transactions-sum', 'TransactionsController@saldo');
     Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
 
     // resource planner

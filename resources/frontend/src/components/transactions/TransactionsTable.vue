@@ -14,10 +14,10 @@
         <tr>
           <td v-if="withEmployee">
             <router-link
-              :to="`/employee/${item.employee.id}`"
+              :to="`/user/${item.user.id}`"
               class="employee-link"
             >
-              {{ item.employee.lastname }} {{ item.employee.firstname }}
+              {{ item.user.name }}
             </router-link>
           </td>
           <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { confirmAction } from '@/utils'
+import { confirmAction, UserType } from '@/utils'
 import EditTransaction from '@/components/transactions/EditTransaction'
 
 export default {
@@ -95,7 +95,8 @@ export default {
     return {
       editTransaction: null,
       pagination: {},
-      sortOptions: {}
+      sortOptions: {},
+      UserType
     }
   },
   computed: {

@@ -315,8 +315,6 @@ export default {
   async mounted() {
     const { data } = await this.axios.$get('languages')
     this.languages = data
-
-    console.log(this.original.languages)
   },
 
   methods: {

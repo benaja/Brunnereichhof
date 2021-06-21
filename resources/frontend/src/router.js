@@ -84,6 +84,12 @@ export default new Router({
       }
     },
     {
+      path: '/user/:id',
+      name: 'UserRedirect',
+      component: () => import('./views/UserRedirect'),
+      meta: { auth: true }
+    },
+    {
       path: '/employee',
       name: 'Employees',
       component: () => import('./views/Employee/Employees'),

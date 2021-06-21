@@ -198,7 +198,7 @@ class EmployeeController extends Controller
         }
 
         $employee->profileimage = $employee->getProfileimageUrl();
-        // $employee->saldo = $employee->transactions()->where('entered', false)->sum('amount');
+        $employee->saldo = $employee->user->transactions()->where('entered', false)->sum('amount');
 
         return $employee;
     }
@@ -248,10 +248,6 @@ class EmployeeController extends Controller
                 'isLoginActive' => $request->isLoginActive,
                 'isActive' => $request->isActive,
             ]);
-
-            // if (! $request->isLoginActive) {
-            //     $employee->user->logout();
-            // }
         });
     }
 

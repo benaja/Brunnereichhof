@@ -28,7 +28,7 @@
               {{ item.name }}
 
               <v-chip
-                v-if="item.isWorker"
+                v-if="item.type_id === UserType.Worker"
                 class="ml-2"
                 small
               >
@@ -127,7 +127,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { downloadFile } from '@/utils'
+import { downloadFile, UserType } from '@/utils'
 import AddTransaction from '@/components/transactions/AddTransaction'
 import TransactionsTable from '@/components/transactions/TransactionsTable'
 
@@ -150,34 +150,28 @@ export default {
       loadingTransactions: false,
       onlyActive: true,
       isLoadingPdf: false,
-      users: []
+      users: [],
+      UserType
     }
   },
   computed: {
     ...mapGetters(['isLoading']),
     filteredUsers() {
-      return [...this.users].filter(u => true
-        // return u.employee && u.employee.isActive
-        // if (u.employee) {
-        //   console.log(!!u.employee.isActive === this.onlyActive)
-        //   return !!u.employee.isActive === this.onlyActive
-        // }
-        // return !!u.isActive === this.onlyActive
-      ).sort((a, b) => {
-        const nameA = `${a.name}`.toLowerCase()
-        const nameB = `${b.name}`.toLowerCase()
+      return [...this.users].filter(u => !!u.isActive === this.onlyActive)
+        .sort((a, b) => {
+          const nameA = `${a.name}`.toLowerCase()
+          const nameB = `${b.name}`.toLowerCase()
 
-        if (nameA < nameB) return -1
-        if (nameA > nameB) return 1
-        return 0
-      })
+          if (nameA < nameB) return -1
+          if (nameA > nameB) return 1
+          return 0
+        })
     }
   },
   watch: {
     selectedUser() {
       if (this.selectedUser) {
-        this.transaction.transactionable_id = this.selectedUser.id
-        this.transaction.transactionable_type = this.selectedUser.isWorker ? 'App\\User' : 'App\\Employee'
+        this.transaction.user_id = this.selectedUser.id
       }
 
       this.saldo = null
@@ -192,18 +186,14 @@ export default {
   methods: {
     loadSaldo() {
       this.loadingSaldo = true
-      this.axios.get('transactions-sum', {
-        params: {
-          isWorker: this.selectedUser.isWorker,
-          id: this.selectedUser.id
-        }
-      }).then(response => {
-        this.saldo = response.data.data
-      }).catch(() => {
-        this.$store.dispatch('error', 'Fehler beim Laden des Saldos')
-      }).finally(() => {
-        this.loadingSaldo = false
-      })
+      this.axios.get(`users/${this.selectedUser.id}/transactions-sum`)
+        .then(response => {
+          this.saldo = response.data.data
+        }).catch(() => {
+          this.$store.dispatch('error', 'Fehler beim Laden des Saldos')
+        }).finally(() => {
+          this.loadingSaldo = false
+        })
     },
     toggleSaldo() {
       if (this.saldo === null) {
@@ -214,7 +204,7 @@ export default {
     },
     loadTransactions(pagination = {}) {
       this.loadingTransactions = true
-      this.axios.get(`employees/${this.selectedUser.id}/transactions`, {
+      this.axios.get(`users/${this.selectedUser.id}/transactions`, {
         params: {
           page: pagination.page,
           per_page: pagination.itemsPerPage
