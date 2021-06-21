@@ -16,15 +16,15 @@
     <v-container>
       <search-bar
         ref="searchBar"
-        v-model="employeesFiltered"
+        v-model="usersFiltered"
         name="employees"
         label="Mitarbeiter suchen"
         disable-deleted
-        :items="mapedEmployees"
+        :items="mapedUsers"
       >
       </search-bar>
       <v-data-table
-        :items="employeesFiltered"
+        :items="usersFiltered"
         :headers="headers"
       >
         <template v-slot:body="{items}">
@@ -43,13 +43,13 @@
       <card-layout
         title="Eingaben überprüfen"
         :saving="saving"
-        :valid="employeesWithValidTransactions().length > 0"
+        :valid="usersWithValidTransactions().length > 0"
         @save="saveTransactions"
         @cancel="verifyModel = false"
       >
         <v-data-table
           :headers="headers"
-          :items="employeesWithValidTransactions()"
+          :items="usersWithValidTransactions()"
         >
           <template v-slot:item="{item}">
             <tr>
@@ -113,20 +113,21 @@ export default {
           value: 'transaction.comment'
         }
       ],
-      employeesFiltered: []
+      usersFiltered: []
     }
   },
   computed: {
-    ...mapGetters(['activeEmployees', 'isLoading', 'transactionTypes']),
-    mapedEmployees() {
-      return this.activeEmployees.map(e => ({
-        ...e,
-        transaction: e.transaction || this.emptyTransaction()
-      }))
+    ...mapGetters(['employeesAndWorkers', 'isLoading', 'transactionTypes']),
+    mapedUsers() {
+      return this.employeesAndWorkers.filter(u => u.isActive)
+        .map(u => ({
+          ...u,
+          transaction: u.transaction || this.emptyTransaction()
+        }))
     }
   },
   async mounted() {
-    await this.$store.dispatch('fetchEmployees')
+    await this.$store.dispatch('fetchUsers')
     await this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {
@@ -140,8 +141,8 @@ export default {
         comment: null
       }
     },
-    employeesWithValidTransactions() {
-      return this.mapedEmployees.filter(e => e.transaction.isValid)
+    usersWithValidTransactions() {
+      return this.mapedUsers.filter(e => e.transaction.isValid)
     },
     getTransactionName(transactionTypeId) {
       const transaction = this.transactionTypes.find(t => t.id === transactionTypeId)
@@ -150,8 +151,8 @@ export default {
     },
     saveTransactions() {
       this.saving = true
-      const transactions = this.employeesWithValidTransactions().map(e => ({
-        employee_id: e.id,
+      const transactions = this.usersWithValidTransactions().map(e => ({
+        user_id: e.id,
         date: e.transaction.date,
         comment: e.transaction.comment,
         transaction_type_id: e.transaction.positive_transaction_type_id
@@ -165,7 +166,7 @@ export default {
       }).then(() => {
         this.$store.dispatch('alert', { text: 'Einträge erfolgreich erstellt' })
         this.verifyModel = false
-        this.mapedEmployees.forEach(e => { e.transaction = this.emptyTransaction() })
+        this.mapedUsers.forEach(e => { e.transaction = this.emptyTransaction() })
       }).catch(() => {
         this.$store.dispatch('error', 'Es ist ein unbekannter Fehler Aufgetreten')
       }).finally(() => {
