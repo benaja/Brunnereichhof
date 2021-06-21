@@ -174,8 +174,8 @@ export default {
     },
     setEntered(transaction) {
       let text
-      if (transaction.employee) {
-        text = `Willst du die Transaktion von "${transaction.employee.lastname} ${transaction.employee.firstname}",
+      if (transaction.user) {
+        text = `Willst du die Transaktion von "${transaction.user.name}",
           Typ: "${transaction.type.name}", Menge: ${transaction.amount} CHF, Datum ${this.$moment(transaction.date).format('DD.MM.YYYY')}
           wirklich auf verbucht setzten?`
       } else {
@@ -188,7 +188,7 @@ export default {
           this.axios.patch(`transactions/${transaction.id}`, {
             entered: true
           }).then(() => {
-            if (transaction.employee) {
+            if (transaction.user) {
               this.$emit('update')
             } else {
               this.paginate(this.pagination)

@@ -15,6 +15,7 @@ import transactionTypes from './modules/transactionTypes'
 import transactions from './modules/transactions'
 import tools from './modules/tools'
 import cars from './modules/cars'
+import users from './modules/users'
 
 Vue.use(Vuex)
 
@@ -34,7 +35,8 @@ export default new Vuex.Store({
     transactionTypes,
     transactions,
     tools,
-    cars
+    cars,
+    users
   },
   state: {
     isMobile: false,

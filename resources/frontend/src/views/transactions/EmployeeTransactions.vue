@@ -150,14 +150,13 @@ export default {
       loadingTransactions: false,
       onlyActive: true,
       isLoadingPdf: false,
-      users: [],
       UserType
     }
   },
   computed: {
-    ...mapGetters(['isLoading']),
+    ...mapGetters(['isLoading', 'employeesAndWorkers']),
     filteredUsers() {
-      return [...this.users].filter(u => !!u.isActive === this.onlyActive)
+      return [...this.employeesAndWorkers].filter(u => !!u.isActive === this.onlyActive)
         .sort((a, b) => {
           const nameA = `${a.name}`.toLowerCase()
           const nameB = `${b.name}`.toLowerCase()
@@ -180,7 +179,7 @@ export default {
     }
   },
   async mounted() {
-    this.users = await this.axios.$get('users')
+    await this.$store.dispatch('fetchUsers')
     await this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {

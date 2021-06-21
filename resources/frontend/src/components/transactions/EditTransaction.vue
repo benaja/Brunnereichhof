@@ -14,9 +14,9 @@
           cols="12"
         >
           <v-autocomplete
-            v-model="transaction.employee_id"
+            v-model="transaction.user_id"
             label="Mitarbeiter"
-            :items="employees"
+            :items="employeesAndWorkers"
             item-value="id"
             item-text="name"
             no-data-text="keine Daten"
@@ -112,7 +112,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['employees', 'transactionTypes'])
+    ...mapGetters(['employeesAndWorkers', 'transactionTypes'])
   },
   watch: {
     value() {
@@ -121,7 +121,7 @@ export default {
   },
   mounted() {
     this.setTransaction()
-    this.$store.dispatch('fetchEmployees')
+    this.$store.dispatch('fetchUsers')
     this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {
