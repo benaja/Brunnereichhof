@@ -8,6 +8,7 @@
       v-for="employee of value"
       :key="employee.id"
       :employee="employee"
+      @rightClick="$emit('add', employee.id)"
     ></employee-card>
   </draggable>
 </template>
@@ -25,6 +26,10 @@ export default {
     value: {
       type: Array,
       default: () => []
+    },
+    selectedResource: {
+      type: Object,
+      default: null
     }
   }
 }

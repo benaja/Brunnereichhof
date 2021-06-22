@@ -9,7 +9,9 @@
           v-if="employee.callname"
           class="font-italic"
         >{{ employee.callname }}</span>
-        <span v-if="employee.function">{{ employeeFunction.text }}</span>
+        <span v-if="employee.function">
+          - {{ employeeFunction.text }}
+        </span>
       </p>
       <p class="mb-0 font-italic">
         <span v-if="employee.languages.length">Sprachkenntnisse: </span>

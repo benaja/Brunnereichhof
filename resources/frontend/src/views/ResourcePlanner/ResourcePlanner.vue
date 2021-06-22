@@ -30,7 +30,7 @@
         <v-btn
           v-else
           color="primary"
-          class="my-2"
+          class="mx-2"
           outlined
           @click="finish(false)"
         >
@@ -74,6 +74,7 @@
           <v-tabs-items v-model="selectedTab">
             <v-tab-item>
               <resource-planner-filter
+                ref="employeeSearch"
                 v-model="filteredEmployees"
                 :items="activeEmployees"
                 :item-search-text="getEmployeeName"
@@ -83,6 +84,8 @@
                 <draggable-employee-list
                   :value="filteredEmployees"
                   class="list-min-height"
+                  :selected-resource="selectedResource"
+                  @add="addEmployeeToSelectedResource"
                 ></draggable-employee-list>
               </div>
             </v-tab-item>
@@ -96,6 +99,7 @@
                 <draggable-car-list
                   class="list-min-height"
                   :value="filteredCars"
+                  @add="addCardToSelectedResource"
                 ></draggable-car-list>
               </div>
             </v-tab-item>
@@ -109,6 +113,7 @@
                 <draggable-tool-list
                   :value="filteredTools"
                   class="list-min-height"
+                  @add="addToolToSelectedResource"
                 ></draggable-tool-list>
               </div>
             </v-tab-item>
@@ -133,11 +138,12 @@
           ></v-text-field>
           <div class="item-list-scroll-container">
             <v-expansion-panels
-              multiple
+              v-model="openCustomer"
               flat
             >
               <customer-card
                 v-for="resource of filteredResources"
+                ref="customerCards"
                 :key="resource.id"
                 :resource="resource"
                 :date="date"
@@ -147,6 +153,7 @@
                 :amount-of-use-per-tool="amountOfUsePerTool"
                 :disabled="isCompleted || !isAllowedToEdit"
                 @remove="removeResource(resource)"
+                @employeeAdded="employeeAdded"
               ></customer-card>
             </v-expansion-panels>
           </div>
@@ -191,7 +198,8 @@ export default {
       filteredCars: [],
       filteredTools: [],
       plannerDay: null,
-      isLoadingPdf: false
+      isLoadingPdf: false,
+      openCustomer: null
     }
   },
   computed: {
@@ -232,6 +240,11 @@ export default {
     },
     isToday() {
       return this.$moment(this.date).isSame(this.$moment(), 'day')
+    },
+    selectedResource() {
+      if (this.openCustomer === null) return null
+
+      return this.filteredResources[this.openCustomer]
     }
   },
   watch: {
@@ -318,6 +331,31 @@ export default {
     },
     setDateToToday() {
       this.date = this.$moment().format('YYYY-MM-DD')
+    },
+    addEmployeeToSelectedResource(employeeId) {
+      if (this.selectedResource) {
+        this.$refs.customerCards[this.openCustomer].addEmployee(employeeId)
+      }
+    },
+    addCardToSelectedResource(carId) {
+      if (this.selectedResource) {
+        this.$refs.customerCards[this.openCustomer].addCar(carId)
+      }
+    },
+    addToolToSelectedResource(toolId) {
+      if (this.selectedResource) {
+        const alreadyExists = this.selectedResource.tools.find(t => t.id === toolId)
+        if (alreadyExists) {
+          this.$refs.customerCards[this.openCustomer].increaseTool(alreadyExists)
+        } else {
+          this.$refs.customerCards[this.openCustomer].addTool(toolId)
+        }
+      }
+    },
+    employeeAdded() {
+      if (this.$refs.employeeSearch) {
+        this.$refs.employeeSearch.reset()
+      }
     }
   }
 }

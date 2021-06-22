@@ -72,10 +72,6 @@ export default {
     }
   },
 
-  mounted() {
-    console.log(this.customers.filter(c => c.hourrecords.length))
-  },
-
   methods: {
     addCustomer() {
       this.$emit('input', this.selectedCustomer)

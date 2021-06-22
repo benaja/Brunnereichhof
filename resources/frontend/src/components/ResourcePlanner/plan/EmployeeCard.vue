@@ -2,6 +2,7 @@
   <draggable-card
     :data-employee-id="employee.id"
     class="teal lighten-5"
+    @rightClick="$emit('rightClick', $event)"
   >
     <employee-card-content :employee="employee"></employee-card-content>
   </draggable-card>

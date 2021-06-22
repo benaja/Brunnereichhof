@@ -13,6 +13,7 @@
       :customer="customer"
       :value="rapportdetail"
       :disabled="disabled"
+      @rightClick="$emit('remove', rapportdetail.id)"
     ></rapportdetail-card>
   </draggable>
 </template>

@@ -11,6 +11,7 @@
       v-for="car of internalValue"
       :key="car.id"
       :car="car"
+      @rightClick="rightClickOnCar(car.id)"
     ></car-card>
   </draggable>
 </template>
@@ -32,10 +33,6 @@ export default {
     customerId: {
       type: Number,
       default: null
-    },
-    usedCarIds: {
-      type: Array,
-      default: () => []
     },
     disabled: {
       type: Boolean,
@@ -72,6 +69,14 @@ export default {
 
     canPut(to, from, item) {
       return !!item.dataset.carId
+    },
+
+    rightClickOnCar(carId) {
+      if (this.customerId) {
+        this.$emit('remove', carId)
+      } else {
+        this.$emit('add', carId)
+      }
     }
   }
 }

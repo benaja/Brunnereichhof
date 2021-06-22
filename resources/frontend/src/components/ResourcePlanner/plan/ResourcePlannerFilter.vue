@@ -57,6 +57,11 @@ export default {
   },
   mounted() {
     this.$emit('input', this.filteredItems)
+  },
+  methods: {
+    reset() {
+      this.searchString = null
+    }
   }
 }
 </script>

@@ -17,7 +17,7 @@
                 {{ customer.firstname }}{{ resource.rapportdetails.length ? ':': '' }}</span>
 
               <span
-                v-for="(rapportdetail, index) of resource.rapportdetails"
+                v-for="(rapportdetail, index) of sortedRapportdetails"
                 :key="'r'+rapportdetail.id"
                 class="mb-1 teal--text text--darken-2"
               >{{ index !== 0 ? ',' : '' }}
@@ -88,11 +88,12 @@
               {{ $t('Mitarbeiter') }}
             </p>
             <draggable-rapportdetail-list
-              v-model="resource.rapportdetails"
+              :value="sortedRapportdetails"
               class="employees draggable-list"
               :customer="customer"
               :selected-employee-ids="selectedEmployeeIds"
               :disabled="disabled"
+              @input="rapport.rapportdetails = $event"
               @add="addEmployee"
               @remove="removeEmployee"
             ></draggable-rapportdetail-list>
@@ -108,7 +109,6 @@
             <draggable-car-list
               v-model="resource.cars"
               :customer-id="customer.id"
-              :used-car-ids="usedCarIds"
               :disabled="disabled"
               class="cars draggable-list"
               @add="addCar"
@@ -189,7 +189,7 @@
 <script>
 import Draggable from 'vuedraggable'
 import TimeTextField from '@/components/general/TimeTextField'
-import { confirmAction } from '@/utils'
+import { confirmAction, employeeFunctions } from '@/utils'
 import { mapGetters } from 'vuex'
 import DraggableRapportdetailList from './DraggableRapportdetailList'
 import DraggableCarList from './DraggableCarList'
@@ -263,6 +263,15 @@ export default {
       const carSeats = this.resource.cars.reduce((seats, car) => seats + car.seats, 0)
 
       return carSeats < this.resource.rapportdetails.length
+    },
+
+    sortedRapportdetails() {
+      return [...this.resource.rapportdetails].sort((a, b) => {
+        const functionA = employeeFunctions.find(f => f.value === a.employee.function)
+        const functionB = employeeFunctions.find(f => f.value === b.employee.function)
+
+        return functionB.rank - functionA.rank
+      })
     }
   },
 
@@ -287,10 +296,10 @@ export default {
       }
 
       this.axios.$post(`resources/${this.resource.id}/rapportdetails`, {
-        employee_id: employeeId,
-        date: this.date
+        employee_id: employeeId
       }).then(({ data }) => {
         this.resource.rapportdetails.push(data)
+        this.$emit('employeeAdded')
       }).catch(error => {
         if (error.includes('Employee already exists fot that day and customer')) {
           this.$store.dispatch('alert', { type: 'warning', text: this.$t('Mitarbeiter bereits bei diesem Kunde vorhanden') })
