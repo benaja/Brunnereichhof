@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Evaluation;
 use App\Employee;
 use App\Enums\FoodTypeEnum;
 use App\Helpers\Pdf;
+use App\Helpers\PdfHelperFunctions;
 use App\Helpers\Settings as HelpersSettings;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
@@ -67,12 +68,7 @@ class EmployeePdfController extends Controller
         $firstDate = Utils::firstDate('month', $request->date);
         $lastDate = Utils::lastDate('month', $request->date);
 
-        $rapportdetails = Rapportdetail::with('employee.user')
-            ->with(['employee.transactions' => function ($query) {
-                $query->where('entered', 0)
-                    ->join('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
-                    ->orderBy('transactions.date');
-            }])
+        $rapportdetails = Rapportdetail::with(['employee.user.transactions' => fn ($query) => PdfHelperFunctions::openTransactionsQuery($query)])
             ->where('date', '>=', $firstDate->format('Y-m-d'))
             ->where('date', '<=', $lastDate->format('Y-m-d'))
             ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
@@ -327,7 +323,11 @@ class EmployeePdfController extends Controller
         while ($firstDayOfWeek <= $lastOfMonth) {
             $firstDay = $firstDayOfWeek >= $firstOfMonth ? $firstDayOfWeek : $firstOfMonth;
             $lastday = $lastDayOfWeek <= $lastOfMonth ? $lastDayOfWeek : $lastOfMonth;
-            $rapportdetailsOfWeek = $employee->rapportdetails->where('date', '>=', $firstDay->format('Y-m-d'))->where('date', '<=', $lastday->format('Y-m-d'))->sortBy('date');
+            $rapportdetailsOfWeek = $employee->rapportdetails
+                ->where('date', '>=', $firstDay->format('Y-m-d'))
+                ->where('date', '<=', $lastday->format('Y-m-d'))
+                ->sortBy('date');
+
             if (count($rapportdetailsOfWeek) > 0) {
                 $weeks = $this->getWeek($rapportdetailsOfWeek, $firstDayOfWeek, $lastDayOfWeek);
                 array_push($lines, $weeks);
@@ -337,18 +337,8 @@ class EmployeePdfController extends Controller
         }
         $this->pdf->table($titles, $lines, [3]);
 
-        if ($withTransactions && count($employee->transactions) > 0) {
-            $lines = [];
-            foreach ($employee->transactions as $transaction) {
-                array_push($lines, [$transaction->amount, $transaction->date->format('d.m.Y'), $transaction->name, $transaction->comment]);
-            }
-            if (count($lines) > 1) {
-                $openAmount = $employee->transactions->sum('amount');
-                array_push($lines, ['Total: '.$openAmount]);
-            }
-            $this->pdf->SetX(10);
-            $this->pdf->documentTitle('Vorauszahlungen');
-            $this->pdf->table(['Menge', 'Datum', 'Vorschuss Typ', 'Bemerkung'], $lines, [1, 1, 1, 2], ['lastLineBold' => count($lines) > 1]);
+        if ($withTransactions) {
+            PdfHelperFunctions::openTransactionsTable($this->pdf, $employee->user);
         }
 
         $this->pdf->signaturePlaceHolder();
