@@ -246,4 +246,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public function saldo()
+    {
+        return $this->transactions()->where('entered', false)->sum('amount');
+    }
 }

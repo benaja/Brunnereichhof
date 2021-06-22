@@ -129,7 +129,7 @@ export default {
       if (this.withEmployee) {
         headers.unshift({
           text: 'Mitarbeiter',
-          value: 'employee.lastname'
+          value: 'user.lastname'
         })
       }
       if (this.$auth.user().hasPermission(['superadmin'], ['transaction_write'])) {

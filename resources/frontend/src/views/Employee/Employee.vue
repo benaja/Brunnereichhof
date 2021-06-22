@@ -28,27 +28,10 @@
         @change="changed"
         @submit="saveChanges"
       ></employee-form>
-      <v-row>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <p><strong>Saldo:</strong> {{ employee.saldo | round }} CHF</p>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-btn
-            depressed
-            color="primary"
-            :loading="isLoadingSaldoPdf"
-            @click="generateSaldoPdf"
-          >
-            Saldo Pdf erstellen
-          </v-btn>
-        </v-col>
-      </v-row>
+      <user-saldo
+        :user="employee.user"
+        :saldo="employee.saldo"
+      ></user-saldo>
       <family-allowance-accordion
         :value="employee.family_allowance"
         :parent="employee"
@@ -71,14 +54,16 @@
 </template>
 
 <script>
-import { rules, downloadFile, confirmAction } from '@/utils'
+import { rules, confirmAction } from '@/utils'
 import EmployeeForm from '@/components/forms/EmployeeForm'
 import FamilyAllowanceAccordion from '@/components/FamilyAllowance/FamilyAllowanceAccordion'
+import UserSaldo from '@/components/transactions/UserSaldo'
 
 export default {
   components: {
     EmployeeForm,
-    FamilyAllowanceAccordion
+    FamilyAllowanceAccordion,
+    UserSaldo
   },
   data() {
     return {
@@ -96,8 +81,7 @@ export default {
       isLoadingRevert: false,
       isLoadingDelete: false,
       isUploadingImage: false,
-      isDeleteingImage: false,
-      isLoadingSaldoPdf: false
+      isDeleteingImage: false
     }
   },
   computed: {
@@ -187,14 +171,6 @@ export default {
             this.$store.dispatch('error', 'Mitarbeiter konnte nicht gelöscht werden')
           })
         }
-      })
-    },
-    generateSaldoPdf() {
-      this.isLoadingSaldoPdf = true
-      downloadFile(`pdf/employees/${this.employee.id}/saldo`).catch(() => {
-        this.$store.dispatch('error', 'Pdf konnte nicht erstellt werden')
-      }).finally(() => {
-        this.isLoadingSaldoPdf = false
       })
     }
   }

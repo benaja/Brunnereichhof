@@ -128,7 +128,7 @@ Route::group(['middleware' => 'jwt'], function () {
     Route::resource('transactions', 'TransactionsController');
     Route::get('users/{user}/transactions', 'TransactionsController@getByUser');
     Route::get('users/{user}/transactions-sum', 'TransactionsController@saldo');
-    Route::get('pdf/employees/{employeeId}/saldo', 'Evaluation\TransactionPdfController@saldo');
+    Route::get('pdf/users/{userId}/saldo', 'Evaluation\TransactionPdfController@saldo');
 
     // resource planner
     // take post method for update because image upload doesnt work on put
