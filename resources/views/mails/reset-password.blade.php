@@ -13,7 +13,7 @@
         <p>Bitte besuchen Sie den unten stehenden Link. Wenn Sie diese Änderung nicht angefordert haben, ignorieren Sie diese E-Mail. </p>
 
         <p class="button">
-            <a href="https://rapport-brunnereichhof.ch/set-password?token={{$data['token']}}&userId={{$data['userId']}}">Passwort zurücksetzen</a>
+            <a href="{{config('app.frontend_url')}}set-password?token={{$data['token']}}&userId={{$data['userId']}}">Passwort zurücksetzen</a>
         </p>
     </td>
 </tr>
