@@ -68,23 +68,39 @@ class EmployeePdfController extends Controller
         $firstDate = Utils::firstDate('month', $request->date);
         $lastDate = Utils::lastDate('month', $request->date);
 
-        $rapportdetails = Rapportdetail::with(['employee.user.transactions' => fn ($query) => PdfHelperFunctions::openTransactionsQuery($query)])
-            ->where('date', '>=', $firstDate->format('Y-m-d'))
-            ->where('date', '<=', $lastDate->format('Y-m-d'))
-            ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
-            ->get()
-            ->sortBy('employee.user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
-            ->values();
-
         $this->pdf = new Pdf();
         $monthName = HelpersSettings::getMonthName($firstDate);
-        $pdfTitle = "Monatsrapport: $monthName {$firstDate->format('Y')}";
-        $this->pdf->documentTitle($pdfTitle);
-        $this->pdf->textToInsertOnPageBreak = $pdfTitle;
-        $this->addMonthOverviewForAllEmployees($rapportdetails);
-        $this->addDetailsForAllEmployees($rapportdetails, $monthName);
 
-        $filename = "Monatsrapport $monthName {$firstDate->format('Y')}.pdf";
+        if ($request->get('employeeId') === 'all') {
+            $rapportdetails = Rapportdetail::with(['employee.user.transactions' => fn ($query) => PdfHelperFunctions::openTransactionsQuery($query)])
+                ->where('date', '>=', $firstDate->format('Y-m-d'))
+                ->where('date', '<=', $lastDate->format('Y-m-d'))
+                ->join('employee', 'employee.id', '=', 'rapportdetail.employee_id')
+                ->get()
+                ->sortBy('employee.user.lastname', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
+
+            $pdfTitle = "Monatsrapport: $monthName {$firstDate->format('Y')}";
+            $this->pdf->documentTitle($pdfTitle);
+            $this->pdf->textToInsertOnPageBreak = $pdfTitle;
+            $this->addMonthOverviewForAllEmployees($rapportdetails);
+            $this->addDetailsForAllEmployees($rapportdetails, $monthName);
+
+            $filename = "Monatsrapport $monthName {$firstDate->format('Y')}.pdf";
+        } else {
+            $employee = Employee::with([
+                'rapportdetails' => function ($query) use ($firstDate, $lastDate) {
+                    $query->where('date', '>=', $firstDate->format('Y-m-d'))
+                    ->where('date', '<=', $lastDate->format('Y-m-d'));
+                },
+                'user.transactions' => fn ($query) => PdfHelperFunctions::openTransactionsQuery($query),
+            ])
+                ->find($request->get('employeeId'));
+
+            $this->addDetailsForMonth($employee, $firstDate, $monthName, $employee->rapportdetails->sum('hours'), true);
+
+            $filename = "Monatsrapport {$employee->name} $monthName {$firstDate->format('Y')}.pdf";
+        }
 
         return $this->pdf->export($filename);
     }

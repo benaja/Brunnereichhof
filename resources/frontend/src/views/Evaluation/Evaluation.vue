@@ -87,11 +87,19 @@ export default {
               title: 'Monatsrapport',
               inputFields: [
                 {
+                  key: 'employee',
+                  dispatch: 'employees',
+                  getter: 'activeEmployees',
+                  label: 'Mitarbeiter',
+                  selectAll: true,
+                  type: EVALUATION_INPUT_TYPES.COMBOBOX
+                },
+                {
                   key: 'month',
                   type: EVALUATION_INPUT_TYPES.MONTH_PICKER
                 }
               ],
-              url: 'pdf/employees/month-rapport?date={month}',
+              url: 'pdf/employees/month-rapport?date={month}&employeeId={employee}',
               rules: {
                 month: v => !!v
               }
