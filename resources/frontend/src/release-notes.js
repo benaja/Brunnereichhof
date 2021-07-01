@@ -1,5 +1,13 @@
 export default [
   {
+    version: '2.9',
+    changes: [
+      'Vorschüsse für Hofmitarbeiter.'
+    ],
+    bugfixes: [],
+    date: '01.07.2021'
+  },
+  {
     version: '2.8.5',
     changes: [],
     bugfixes: ['Roomdispositioner Fehler bei Statistiken mit totalen und verwendeten Betten behoben.'],
