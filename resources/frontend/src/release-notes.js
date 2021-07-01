@@ -1,5 +1,11 @@
 export default [
   {
+    version: '2.8.5',
+    changes: [],
+    bugfixes: ['Roomdispositioner Fehler bei Statistiken mit totalen und verwendeten Betten behoben.'],
+    date: '01.07.2021'
+  },
+  {
     version: '2.8.4',
     changes: [
       'Im Einsatzplaner können Mitarbeiter, Autos und Werkzeuge per Rechtsklick zum geöffneten Kunden hinzugefügt und auch wieder entfernt werden.',
