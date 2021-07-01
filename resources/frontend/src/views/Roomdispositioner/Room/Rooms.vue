@@ -19,18 +19,6 @@
       </div>
     </navigation-bar>
     <v-container>
-      <v-row dense>
-        <v-col
-          cols="12"
-          md="9"
-        >
-        </v-col>
-        <v-col
-          cols="12"
-          md="3"
-        >
-        </v-col>
-      </v-row>
       <search-bar
         ref="searchBar"
         v-model="roomsFiltered"

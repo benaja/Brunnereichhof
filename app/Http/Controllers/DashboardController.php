@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Employee;
 use App\Helpers\Settings;
 use App\Hour;
-use App\Pivots\BedRoomPivot;
 use App\Rapportdetail;
+use App\Reservation;
+use App\Room;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -68,27 +69,23 @@ class DashboardController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['roomdispositioner_read']);
 
-        $beds = BedRoomPivot::join('reservation', function ($join) {
-            $join->on('reservation.bed_room_id', '=', 'bed_room.id');
-        })
-            ->join('room', 'room.id', '=', 'bed_room.room_id')
-            ->where('room.deleted_at', null)
-            ->where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
+        $usedPlaces = Reservation::where('reservation.entry', '<=', (new \DateTime())->format('Y-m-d'))
             ->where('reservation.exit', '>=', (new \DateTime())->format('Y-m-d'))
-            ->where('reservation.deleted_at', null)
             ->get();
 
-        $allBeds = BedRoomPivot::with(['bed', 'room'])->get()->toArray();
-        $amountOfAllBeds = array_sum(array_map(function ($bedRoomPivot) {
-            if ($bedRoomPivot['room'] && $bedRoomPivot['room']['deleted_at']) {
-                return 0;
-            }
+        $amountOfAllBeds = Room::with('beds')
+            ->get()
+            ->map(function ($room) {
+                return collect($room['beds'])
+                    ->filter(fn ($bed) => ! $bed['deleted_at'] && ! $bed['pivot']['deleted_at'])
+                    ->map(fn ($bed) => $bed['places'])
+                    ->sum();
+            })
+            ->sum();
 
-            return $bedRoomPivot['bed'] && $bedRoomPivot['bed']['places'];
-        }, $allBeds));
         $stats = [
-            'freePlaces' => $amountOfAllBeds - count($beds),
-            'usedPlaces' => count($beds),
+            'freePlaces' => $amountOfAllBeds - count($usedPlaces),
+            'usedPlaces' => count($usedPlaces),
             'totalPlaces' => $amountOfAllBeds,
         ];
 
