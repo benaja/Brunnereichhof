@@ -11,7 +11,7 @@
       <v-row class="mx-1">
         <v-col
           cols="12"
-          sm="6"
+          sm="4"
         >
           <p class="text-left mb-0 text-sm-center">
             Totale Stunden: {{ rapport.hours }}
@@ -19,11 +19,25 @@
         </v-col>
         <v-col
           cols="12"
-          sm="6"
+          sm="4"
         >
           <p class="text-left text-sm-center">
             Abgeschlossen: {{ rapport.isFinished ? 'Ja' : 'Nein' }}
           </p>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="4"
+        >
+          <v-btn
+            color="primary"
+            depressed
+            :loading="loadingPdf"
+            @click="generatePdf"
+          >
+            <v-icon>picture_as_pdf</v-icon>
+            <span class="ml-3">PDF generieren</span>
+          </v-btn>
         </v-col>
       </v-row>
       <div
@@ -162,6 +176,7 @@
 import Comment from '@/components/CustomerPortal/Rapport/Comment'
 import DayTitle from '@/components/CustomerPortal/Rapport/DayTitle'
 import { mapGetters } from 'vuex'
+import { downloadFile } from '@/utils'
 
 export default {
   components: {
@@ -193,7 +208,8 @@ export default {
           text: 'Keine Angabe'
         }
       ],
-      isLoading: true
+      isLoading: true,
+      loadingPdf: false
     }
   },
   computed: {
@@ -267,6 +283,14 @@ export default {
         totalHours += rapportdetailsByEmployee[day] ? rapportdetailsByEmployee[day].hours : 0
       }
       return totalHours
+    },
+    generatePdf() {
+      this.loadingPdf = true
+      downloadFile(`pdf/rapports/${this.id}`).catch(() => {
+        this.$store.dispatch('error', 'Fehler beim Erstellen des PDFs')
+      }).finally(() => {
+        this.loadingPdf = false
+      })
     }
   }
 }

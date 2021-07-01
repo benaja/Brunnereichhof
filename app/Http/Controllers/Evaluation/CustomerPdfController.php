@@ -28,7 +28,11 @@ class CustomerPdfController extends Controller
     // GET /rapport/{id}/pdf
     public function weekRapportByRapportId(Request $request, Rapport $rapport)
     {
-        auth()->user()->authorize(['superadmin'], ['rapport_read']);
+        auth()->user()->authorize(['superadmin', 'customer'], ['rapport_read']);
+
+        if (auth()->user()->isType(['customer']) && $rapport->customer_id !== auth()->user()->customer->id) {
+            abort(403, 'This action is forbidden.');
+        }
 
         $this->rapportFoodTypeEnabled = Settings::value('rapportFoodTypeEnabled');
         $this->pdf = new Pdf();
@@ -216,13 +220,13 @@ class CustomerPdfController extends Controller
         $comments = ['Bemerkung', $rapport->comment_mo, $rapport->comment_tu, $rapport->comment_we, $rapport->comment_th, $rapport->comment_fr, $rapport->comment_sa];
 
         $totalHours = $rapport->rapportdetails->sum('hours');
-        $this->pdf->documentTitle("Stunden: $totalHours");
+        $this->pdf->documentTitle("Stunden: {$totalHours}");
 
         $staffGrantHours = $rapport->rapportdetails->where('contract_type', 'staff_grant')->sum('hours');
 
         if ($staffGrantHours > 0) {
             $workContractHours = $rapport->rapportdetails->where('contract_type', 'work_contract')->sum('hours');
-            $this->pdf->documentTitle("Werksvertrag: $workContractHours, Personalverlei: $staffGrantHours");
+            $this->pdf->documentTitle("Werksvertrag: {$workContractHours}, Personalverlei: {$staffGrantHours}");
         }
 
         if ($this->rapportFoodTypeEnabled) {
