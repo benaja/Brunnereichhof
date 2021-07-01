@@ -227,7 +227,7 @@ class EmployeeController extends Controller
         $doesEmailExist = User::where('id', '!=', $employee->user_id)
             ->where('email', strtolower($request->email))
             ->first();
-        if ($doesEmailExist) {
+        if ($doesEmailExist && $request->email) {
             return response('Email already exist', 400);
         }
 
