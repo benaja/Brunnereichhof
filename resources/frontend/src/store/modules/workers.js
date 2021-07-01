@@ -8,7 +8,9 @@ export default {
   getters: {
     workers: state => state.workers.filter(w => !w.deleted_at),
     allWorkers: state => state.workers,
-    deletedWorkers: state => state.workers.filter(w => w.deleted_at)
+    deletedWorkers: state => state.workers.filter(w => w.deleted_at),
+    activeWorkers: state => state.workers
+      .filter(w => !w.deleted_at && w.isActive)
   },
   mutations: {
     setWorkers(state, workers) {

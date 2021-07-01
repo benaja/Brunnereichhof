@@ -14,10 +14,10 @@
         <tr>
           <td v-if="withEmployee">
             <router-link
-              :to="`/employee/${item.employee.id}`"
+              :to="`/user/${item.user.id}`"
               class="employee-link"
             >
-              {{ item.employee.lastname }} {{ item.employee.firstname }}
+              {{ item.user.name }}
             </router-link>
           </td>
           <td>{{ $moment(item.date).format('DD.MM.YYYY') }}</td>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { confirmAction } from '@/utils'
+import { confirmAction, UserType } from '@/utils'
 import EditTransaction from '@/components/transactions/EditTransaction'
 
 export default {
@@ -95,7 +95,8 @@ export default {
     return {
       editTransaction: null,
       pagination: {},
-      sortOptions: {}
+      sortOptions: {},
+      UserType
     }
   },
   computed: {
@@ -128,7 +129,7 @@ export default {
       if (this.withEmployee) {
         headers.unshift({
           text: 'Mitarbeiter',
-          value: 'employee.lastname'
+          value: 'user.lastname'
         })
       }
       if (this.$auth.user().hasPermission(['superadmin'], ['transaction_write'])) {
@@ -173,8 +174,8 @@ export default {
     },
     setEntered(transaction) {
       let text
-      if (transaction.employee) {
-        text = `Willst du die Transaktion von "${transaction.employee.lastname} ${transaction.employee.firstname}",
+      if (transaction.user) {
+        text = `Willst du die Transaktion von "${transaction.user.name}",
           Typ: "${transaction.type.name}", Menge: ${transaction.amount} CHF, Datum ${this.$moment(transaction.date).format('DD.MM.YYYY')}
           wirklich auf verbucht setzten?`
       } else {
@@ -187,7 +188,7 @@ export default {
           this.axios.patch(`transactions/${transaction.id}`, {
             entered: true
           }).then(() => {
-            if (transaction.employee) {
+            if (transaction.user) {
               this.$emit('update')
             } else {
               this.paginate(this.pagination)

@@ -97,6 +97,8 @@ class WorkerController extends Controller
         $worker->holidaysPlant = $worker->holydaysPlant(new \DateTime('now'));
         $worker->holidaysDone = $worker->holydaysDone(new \DateTime('now'));
 
+        $worker->saldo = $worker->saldo();
+
         return $worker;
     }
 

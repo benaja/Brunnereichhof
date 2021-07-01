@@ -133,5 +133,6 @@ export default {
   Abgelaufen: 'Abgelaufen',
   'Familienzulagen ausbezahlt': 'Familienzulagen ausbezahlt',
   Stellvertretung: 'Stellvertretung',
-  Suche: 'Suche'
+  Suche: 'Suche',
+  Hofmitarbeiter: 'Hofmitarbeiter'
 }

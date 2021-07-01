@@ -31,7 +31,7 @@ class TransactionRequest extends FormRequest
             'date' => ['required', 'date', $sometimes ? 'sometimes' : ''],
             'comment' => ['nullable', 'string', $sometimes ? 'sometimes' : ''],
             'transaction_type_id' => ['required', 'exists:transaction_types,id', $sometimes ? 'sometimes' : ''],
-            'employee_id' => ['required', 'exists:employee,id', $sometimes ? 'sometimes' : ''],
+            'user_id' => ['required', 'exists:user,id', $sometimes ? 'sometimes' : ''],
             'entered' => ['nullable', 'boolean', $sometimes ? 'sometimes' : ''],
         ];
     }

@@ -7,6 +7,7 @@ use App\Http\Requests\TransactionBulkRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Transaction;
+use App\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,21 +23,20 @@ class TransactionsController extends Controller
     public function index(Request $request)
     {
         $dir = $request->get('sort_desc') === 'true' ? 'desc' : 'asc';
-        $transactions = Transaction::with(['employee', 'type'])
+        $transactions = Transaction::with(['user', 'type'])
             ->select('transactions.*')
-            ->leftJoin('employee', 'employee.id', '=', 'transactions.employee_id')
-            ->leftJoin('user', 'user.id', '=', 'employee.user_id')
+            ->leftJoin('user', 'user.id', '=', 'transactions.user_id')
             ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transactions.transaction_type_id')
             ->when(
                 $request->has('sort_by') &&
-                Str::is('employee.lastname', $request->get('sort_by')),
+                Str::is('user.lastname', $request->get('sort_by')),
                 function (Builder $query) use ($dir) {
                     return $query->orderByRaw("user.lastname $dir");
                 }
             )
             ->when(
                 $request->has('sort_by') &&
-                ! Str::is('employee.lastname', $request->get('sort_by')) &&
+                ! Str::is('user.lastname', $request->get('sort_by')) &&
                 $request->get('sort_by') !== 'type.name',
                 function (Builder $query) use ($request, $dir) {
                     return $query->orderBy($request->get('sort_by'), $dir);
@@ -110,11 +110,11 @@ class TransactionsController extends Controller
         $transaction->delete();
     }
 
-    public function getByEmployee(Employee $employee)
+    public function getByUser(User $user)
     {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
-        $transactions = $employee->transactions()->with('type')
+        $transactions = $user->transactions()->with('type')
             ->orderBy('created_at', 'desc');
 
         if (request()->get('per_page') > 0) {
@@ -126,12 +126,12 @@ class TransactionsController extends Controller
         return TransactionResource::collection($transactions);
     }
 
-    public function saldo(Employee $employee)
+    public function saldo(User $user)
     {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
         return [
-            'data' => $employee->transactions()->where('entered', false)->sum('amount'),
+            'data' => $user->transactions()->where('entered', false)->sum('amount'),
         ];
     }
 

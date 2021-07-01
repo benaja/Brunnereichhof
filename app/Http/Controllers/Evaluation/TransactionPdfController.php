@@ -5,22 +5,23 @@ namespace App\Http\Controllers\Evaluation;
 use App\Employee;
 use App\Helpers\Pdf;
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Http\Request;
 
 class TransactionPdfController extends Controller
 {
     private Pdf $pdf;
 
-    public function saldo($employeeId)
+    public function saldo($userId)
     {
         auth()->user()->authorize(['superadmin'], ['evaluation_employee']);
 
         $this->pdf = new Pdf('P');
 
-        if ($employeeId === 'all') {
+        if ($userId === 'all') {
             return $this->saldoOverviewForAllEmployees();
         } else {
-            return $this->saldoForEmployee($employeeId);
+            return $this->saldoForUser($userId);
         }
     }
 
@@ -45,19 +46,19 @@ class TransactionPdfController extends Controller
         return $this->pdf->export('Saldo Mitarbeiter.pdf');
     }
 
-    private function saldoForEmployee($employeeId)
+    private function saldoForUser($userId)
     {
-        $employee = Employee::with(['transactions' => function ($query) {
+        $user = User::with(['transactions' => function ($query) {
             $query->orderBy('date', 'desc');
             $query->with('type');
-        }])->find($employeeId);
+        }])->find($userId);
 
-        $this->pdf->documentTitle("Saldo Übersicht für {$employee->name()}");
-        $this->pdf->documentTitle("Saldo: {$employee->transactions()->where('entered', false)->sum('amount')} CHF");
+        $this->pdf->documentTitle("Saldo Übersicht für {$user->name}");
+        $this->pdf->documentTitle("Saldo: {$user->transactions()->where('entered', false)->sum('amount')} CHF");
         $this->pdf->newLine();
-        $this->pdf->textToInsertOnPageBreak = "Saldo Übersicht für {$employee->name()}";
+        $this->pdf->textToInsertOnPageBreak = "Saldo Übersicht für {$user->name}";
 
-        $columns = $employee->transactions->map(function ($transaction) {
+        $columns = $user->transactions->map(function ($transaction) {
             return [
                 $transaction->date->format('d.m.Y'),
                 $transaction->type->name,
@@ -75,6 +76,6 @@ class TransactionPdfController extends Controller
             'Kommentar',
         ], $columns, [0.6, 0.9, 0.7, 0.5, 1.5]);
 
-        return $this->pdf->export("Saldo {$employee->name()}.pdf");
+        return $this->pdf->export("Saldo {$user->name}.pdf");
     }
 }

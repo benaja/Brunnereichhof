@@ -15,7 +15,7 @@ class Transaction extends Model
         'date',
         'comment',
         'transaction_type_id',
-        'employee_id',
+        'user_id',
         'entered',
     ];
 
@@ -23,9 +23,9 @@ class Transaction extends Model
         'date',
     ];
 
-    public function employee()
+    public function user()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(User::class);
     }
 
     public function type()

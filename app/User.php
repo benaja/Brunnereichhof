@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -25,6 +26,8 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password', 'remember_token', 'passwordResetToken',
     ];
+
+    protected $appends = ['name'];
 
     public function fullName()
     {
@@ -66,9 +69,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->morphOne(FamilyAllowance::class, 'family_allowanceable');
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     public function authorize($userTypes, $rules = [])
     {
-        if ($this->deleted_at !== null) {
+        if ($this->deleted_at !== null || ! $this->isActive || ! $this->isLoginActive) {
             return abort(401, 'This action is unauthorized.');
         }
 
@@ -107,6 +115,11 @@ class User extends Authenticatable implements JWTSubject
         $currentDate = new \DateTime('now');
 
         return $this->totalHoursByMonth($currentDate);
+    }
+
+    public function getNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
     }
 
     public function totalHoursByMonth($dateOfMonth, $worktype = null)
@@ -232,5 +245,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function saldo()
+    {
+        return $this->transactions()->where('entered', false)->sum('amount');
     }
 }

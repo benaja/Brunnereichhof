@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Evaluation;
 
 use App\Helpers\Pdf;
+use App\Helpers\PdfHelperFunctions;
 use App\Helpers\Settings;
 use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
@@ -77,15 +78,19 @@ class WorkerPdfController extends Controller
         $firstDayOfMonth = Utils::firstDate('month', new \DateTime($date));
         $lastDayOfMonth = Utils::lastDate('month', new \DateTime($date));
 
-        $workers = User::workers()->with(['timerecords' => function ($query) use ($firstDayOfMonth, $lastDayOfMonth) {
-            $query->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
-                ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
-                ->with('hours.worktype');
-        }])->when($workerId !== 'all', function ($query) use ($workerId) {
-            $query->where('id', $workerId);
-        })->withTrashed()
-            ->orderby('lastname')
-            ->get();
+        $workers = User::workers()
+            ->with([
+                'timerecords' => function ($query) use ($firstDayOfMonth, $lastDayOfMonth) {
+                    $query->where('date', '>=', $firstDayOfMonth->format('Y-m-d'))
+                    ->where('date', '<=', $lastDayOfMonth->format('Y-m-d'))
+                    ->with('hours.worktype');
+                },
+                'transactions' => fn ($query) => PdfHelperFunctions::openTransactionsQuery($query),
+            ])->when($workerId !== 'all', function ($query) use ($workerId) {
+                $query->where('id', $workerId);
+            })->withTrashed()
+                ->orderby('lastname')
+                ->get();
 
         if ($workerId === 'all') {
             $workers = $workers->filter(function ($worker) use ($firstDayOfMonth) {
@@ -116,7 +121,7 @@ class WorkerPdfController extends Controller
             if ($workerId == 'all') {
                 $this->pdf->addNewPage('L');
             }
-            $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName);
+            $this->monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName, true);
         }
 
         if ($workerId != 'all') {
@@ -216,14 +221,16 @@ class WorkerPdfController extends Controller
         $this->pdf->table(['Hofmitarbeiter', 'Verpflegungen', 'Frühstück', 'Mittagessen', 'Abendessen'], $columns, [2, 1, 1, 1, 1]);
     }
 
-    private function monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName)
+    private function monthRapportForSingleWorker($worker, $firstDayOfMonth, $monthName, $withTransactions = false)
     {
         $lastDayOfMonth = clone $firstDayOfMonth;
         $lastDayOfMonth->modify('last day of this month');
 
-        $this->pdf->documentTitle("Mitarbeiter: $worker->lastname $worker->firstname");
+        $this->pdf->documentTitle("Mitarbeiter: $worker->name");
         $this->pdf->documentTitle("Monat: $monthName");
         $this->pdf->documentTitle("Totale Arbeitsstunden: {$worker->totalHoursByMonth($firstDayOfMonth)}h");
+
+        $this->pdf->textToInsertOnPageBreak = "Mitarbeiter: $worker->name \nMonat: $monthName";
 
         $worktpyes = Worktype::all();
         foreach ($worktpyes as $worktype) {
@@ -305,6 +312,11 @@ class WorkerPdfController extends Controller
                 $this->pdf->comment($date, $comment);
             }
         }
+
+        if ($withTransactions) {
+            PdfHelperFunctions::openTransactionsTable($this->pdf, $worker);
+        }
+
         $this->pdf->signaturePlaceHolder();
     }
 }

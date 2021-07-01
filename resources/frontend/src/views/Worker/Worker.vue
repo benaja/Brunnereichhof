@@ -32,6 +32,10 @@
         @submit="saveChanges"
         @change="change($event)"
       ></worker-form>
+      <user-saldo
+        :user="worker"
+        :saldo="worker.saldo"
+      ></user-saldo>
       <family-allowance-accordion
         :value="worker.family_allowance"
         :parent="worker"
@@ -80,12 +84,14 @@ import TimeView from '@/views/Time'
 import { confirmAction } from '@/utils'
 import WorkerForm from '@/components/worker/WorkerForm'
 import FamilyAllowanceAccordion from '@/components/FamilyAllowance/FamilyAllowanceAccordion'
+import UserSaldo from '@/components/transactions/UserSaldo'
 
 export default {
   components: {
     TimeView,
     WorkerForm,
-    FamilyAllowanceAccordion
+    FamilyAllowanceAccordion,
+    UserSaldo
   },
   data() {
     return {

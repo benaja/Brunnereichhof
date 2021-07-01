@@ -76,17 +76,16 @@ export default {
             email: this.email,
             password: this.password
           },
-          error: () => {
-            this.isLoading = false
-            this.shake = true
-            setTimeout(() => {
-              this.shake = false
-            }, 800)
-            this.loginError = 'Email oder Passwort inkorrekt'
-          },
           rememberMe: true,
           redirect: '/',
           fetchUser: true
+        }).catch(() => {
+          this.isLoading = false
+          this.shake = true
+          setTimeout(() => {
+            this.shake = false
+          }, 800)
+          this.loginError = 'Email oder Passwort inkorrekt'
         })
       }
     }

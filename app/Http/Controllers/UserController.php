@@ -19,6 +19,27 @@ class UserController extends Controller
         $this->middleware('jwt.auth');
     }
 
+    public function index()
+    {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+
+        return User::with(['employee' => function ($query) {
+            $query->where('isGuest', false);
+        }])
+            // ->where('type_id', UserTypeEnum::Employee)
+            // ->orWhere('type_id', UserTypeEnum::Worker)
+            ->get();
+    }
+
+    public function show(User $user)
+    {
+        auth()->user()->authorize(['superadmin'], ['transaction_read']);
+
+        $user->load(['employee', 'customer']);
+
+        return $user;
+    }
+
     // POST password/change
     public function changePassword(Request $request)
     {

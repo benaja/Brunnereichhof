@@ -47,10 +47,12 @@ axios.interceptors.response.use(
       router.push('/login')
     } else if (error.status(403) && error.includes('Your account has been deactivated')) {
       Vue.swal(
-        'Benuter deaktiviert',
+        'Benutzer deaktiviert',
         'Dein Benutzer wurde deaktiviert. Bitte kontaktiere Steffan Brunner um deinen Benutzer wieder zu aktivieren.',
         'error',
-      )
+      ).then(() => {
+        Vue.auth.logout()
+      })
     } else if (error.status(403)) {
       Vue.swal('Nicht berechtigt', 'Du bist für diese Aktion nicht berechtigt', 'error')
     }
