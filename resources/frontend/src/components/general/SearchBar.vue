@@ -10,6 +10,8 @@
           v-model="searchString"
           :label="label"
           :color="color"
+          :hint="value.length + ' Resultat' + (value.length !== 1 ? 'e' : '')"
+          persistent-hint
           prepend-icon="search"
         ></v-text-field>
       </v-col>
