@@ -12,4 +12,9 @@ class Language extends Model
     {
         return $this->belongsToMany(Employee::class);
     }
+
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
 }

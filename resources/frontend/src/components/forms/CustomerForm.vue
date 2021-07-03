@@ -204,6 +204,20 @@
           @change="$emit('change', 'comment')"
         ></text-field>
       </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <select-field
+          v-model="value.language_id"
+          :items="languages"
+          :original="original.language_id"
+          item-value="id"
+          item-text="name"
+          label="Sprache"
+          @change="$emit('change', 'language_id')"
+        ></select-field>
+      </v-col>
       <v-col cols="12">
         <p>Projekte</p>
         <edit-projects
@@ -243,7 +257,7 @@
 </template>
 
 <script>
-import { TextField, TextArea } from '@/components/FormComponents'
+import { TextField, TextArea, SelectField } from '@/components/FormComponents'
 import EditAddress from '@/components/customer/EditAddress'
 import { rules } from '@/utils'
 import EditProjects from '@/components/customer/EditProjects'
@@ -253,7 +267,8 @@ export default {
     TextField,
     EditAddress,
     EditProjects,
-    TextArea
+    TextArea,
+    SelectField
   },
   props: {
     value: {
@@ -268,8 +283,13 @@ export default {
   },
   data() {
     return {
-      rules
+      rules,
+      languages: []
     }
+  },
+  async mounted() {
+    const { data } = await this.axios.$get('languages')
+    this.languages = data
   },
   methods: {
     validate() {

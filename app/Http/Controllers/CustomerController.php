@@ -108,6 +108,7 @@ class CustomerController extends Controller
                 'differingBillingAddress' => request('differingBillingAddress'),
                 'is_blacklisted' => request('is_blacklisted'),
                 'blacklist_comment' => request('blacklist_comment'),
+                'language_id' => request('language_id'),
             ]);
 
             $address = Address::create($request->address);
@@ -194,6 +195,7 @@ class CustomerController extends Controller
             'differingBillingAddress' => $request->differingBillingAddress,
             'is_blacklisted' => $request->is_blacklisted,
             'blacklist_comment' => $request->blacklist_comment,
+            'language_id' => $request->language_id,
         ]);
         $customer->user->username = $request->customer_number;
         $customer->user->save();
@@ -292,6 +294,7 @@ class CustomerController extends Controller
         'differingBillingAddress' => 'nullable|boolean',
         'is_blacklisted' => 'nullable|boolean',
         'blacklist_comment' => 'nullable|string|max:1000',
+        'language_id' => 'nullable|integer|exists:languages,id',
     ];
 
     private function validateAddress($request, $addressType)

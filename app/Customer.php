@@ -30,6 +30,7 @@ class Customer extends Model
         'differingBillingAddress',
         'is_blacklisted',
         'blacklist_comment',
+        'language_id',
     ];
 
     public function user()
@@ -70,5 +71,10 @@ class Customer extends Model
     public function resources()
     {
         return $this->hasMany(Resource::class);
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
     }
 }
