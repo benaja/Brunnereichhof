@@ -15,6 +15,7 @@
         :headers="headers"
         :items="customersFiltered"
         single-expand
+        :sort-by="['lastname']"
         :footer-props="tableFooterProps"
       >
         <template v-slot:item="{item, expand, isExpanded }">
