@@ -93,7 +93,12 @@ export default {
         {
           text: 'Kundennummer',
           value: 'customer_number',
-          width: 140
+          width: 140,
+          sort: (a, b) => {
+            if (a === null) return 1
+            if (b === null) return -1
+            return a - b
+          }
         },
         {
           text: 'Nachname',
@@ -109,7 +114,8 @@ export default {
         },
         {
           text: 'Details',
-          width: 90
+          width: 90,
+          sortable: false
         }
       ],
       tableFooterProps: {
