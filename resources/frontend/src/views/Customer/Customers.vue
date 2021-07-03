@@ -11,17 +11,54 @@
         @showDeleted="s => (showDeleted = s)"
       ></search-bar>
       <progress-linear :loading="$store.getters.isLoading.customers"></progress-linear>
-      <v-expansion-panels>
-        <virtual-list
-          :data-key="'firstname'"
-          :data-sources="customersFiltered"
-          :data-component="CustomerExpansionPanel"
-          :keeps="20"
-          page-mode
-          :extra-props="{ restoreCustomer, showDeleted }"
-          class="virtual-list"
-        />
-      </v-expansion-panels>
+      <v-data-table
+        :headers="headers"
+        :items="customersFiltered"
+        single-expand
+        :footer-props="tableFooterProps"
+      >
+        <template v-slot:item="{item, expand, isExpanded }">
+          <tr
+            :class="{ 'white--text grey darken-4': item.is_blacklisted }"
+            @click="expand(!isExpanded)"
+          >
+            <td>
+              {{ item.customer_number }}
+            </td>
+            <td>
+              {{ item.lastname }}
+            </td>
+            <td>
+              {{ item.firstname }}
+            </td>
+            <td>
+              {{ item.address.street }}, {{ item.address.plz }} {{ item.address.place }}
+            </td>
+            <td>
+              <v-btn
+                v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['customer_write'])"
+                max-width="200"
+                color="primary"
+                text
+                @click="e => restoreCustomer(item)"
+              >
+                Wiederherstellen
+              </v-btn>
+              <v-btn
+                v-else-if="!showDeleted"
+                icon
+                :color="item.is_blacklisted ? 'white' : 'grey darken-2'"
+                :to="'/customer/' + item.id"
+              >
+                <v-icon>edit</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </template>
+        <template v-slot:expanded-item="{ item }">
+          <customer-expanded-table-item :source="item"></customer-expanded-table-item>
+        </template>
+      </v-data-table>
       <v-btn
         v-if="$auth.user().hasPermission(['superadmin'], ['customer_write'])"
         to="/customer/add"
@@ -40,20 +77,46 @@
 <script>
 import SearchBar from '@/components/general/SearchBar'
 import { mapGetters } from 'vuex'
-import VirtualList from 'vue-virtual-scroll-list'
-import CustomerExpansionPanel from '@/components/customer/CustomerExpansionPanel'
+import CustomerExpandedTableItem from '@/components/customer/CustomerExpandedTableItem'
 
 
 export default {
   components: {
     SearchBar,
-    VirtualList
+    CustomerExpandedTableItem
   },
   data() {
     return {
       showDeleted: false,
       customersFiltered: [],
-      CustomerExpansionPanel
+      headers: [
+        {
+          text: 'Kundennummer',
+          value: 'customer_number',
+          width: 140
+        },
+        {
+          text: 'Nachname',
+          value: 'lastname'
+        },
+        {
+          text: 'Vorname',
+          value: 'firstname'
+        },
+        {
+          text: 'Adresse',
+          value: 'address.place'
+        },
+        {
+          text: 'Details',
+          width: 90
+        }
+      ],
+      tableFooterProps: {
+        itemsPerPageOptions: [20, 50, 100, -1],
+        itemsPerPageAllText: 'Alle',
+        itemsPerPageText: 'Einträge pro Seite'
+      }
     }
   },
   computed: {
@@ -63,7 +126,7 @@ export default {
     this.$store.dispatch('fetchCustomers')
   },
   methods: {
-    restoreCustomer(event, customer) {
+    restoreCustomer(customer) {
       this.$refs.searchBar.restoreItem(customer)
     }
   }
