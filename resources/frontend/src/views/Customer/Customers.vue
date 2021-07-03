@@ -34,7 +34,9 @@
             <td>
               {{ item.address.street }}, {{ item.address.plz }} {{ item.address.place }}
             </td>
-            <td>
+            <td
+              v-if="!showDeleted || $auth.user().hasPermission(['superadmin'], ['customer_write'])"
+            >
               <v-btn
                 v-if="showDeleted && $auth.user().hasPermission(['superadmin'], ['customer_write'])"
                 max-width="200"
@@ -50,7 +52,12 @@
                 :color="item.is_blacklisted ? 'white' : 'grey darken-2'"
                 :to="'/customer/' + item.id"
               >
-                <v-icon>edit</v-icon>
+                <v-icon v-if="$auth.user().hasPermission(['superadmin'], ['customer_write'])">
+                  edit
+                </v-icon>
+                <v-icon v-else>
+                  visibility
+                </v-icon>
               </v-btn>
             </td>
           </tr>
@@ -89,7 +96,17 @@ export default {
     return {
       showDeleted: false,
       customersFiltered: [],
-      headers: [
+      tableFooterProps: {
+        itemsPerPageOptions: [20, 50, 100, -1],
+        itemsPerPageAllText: 'Alle',
+        itemsPerPageText: 'Einträge pro Seite'
+      }
+    }
+  },
+  computed: {
+    ...mapGetters(['allCustomers']),
+    headers() {
+      const headers = [
         {
           text: 'Kundennummer',
           value: 'customer_number',
@@ -111,22 +128,18 @@ export default {
         {
           text: 'Adresse',
           value: 'address.place'
-        },
-        {
-          text: 'Details',
-          width: 90,
-          sortable: false
         }
-      ],
-      tableFooterProps: {
-        itemsPerPageOptions: [20, 50, 100, -1],
-        itemsPerPageAllText: 'Alle',
-        itemsPerPageText: 'Einträge pro Seite'
+      ]
+
+      if (!this.showDeleted || this.$auth.user().hasPermission(['superadmin'], ['customer_write'])) {
+        headers.push({
+          text: 'Details',
+          sortable: false
+        })
       }
+
+      return headers
     }
-  },
-  computed: {
-    ...mapGetters(['allCustomers'])
   },
   mounted() {
     this.$store.dispatch('fetchCustomers')
