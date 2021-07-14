@@ -3,8 +3,8 @@
     <v-row class="filter-controlls">
       <v-col
         cols="12"
-        :md="disableDeleted ? 12 : customFilterFunction ? 7 : 9"
-        :lg="disableDeleted ? 12 : customFilterFunction ? 9 : 10"
+        :md="mdColWidth"
+        :lg="lgColWidth"
       >
         <v-text-field
           v-model="searchString"
@@ -18,8 +18,8 @@
       <v-col
         v-if="customFilterFunction"
         cols="6"
-        md="2"
-        lg="1"
+        md="3"
+        lg="2"
       >
         <slot name="custom-filter"></slot>
       </v-col>
@@ -97,6 +97,20 @@ export default {
         if (item[this.customFilterIndex]) fullName += ` ${item[this.customFilterIndex]}`
         return fullName.toLowerCase().includes(`${this.searchString}`.toLowerCase())
       })
+    },
+
+    mdColWidth() {
+      let initial = 12
+      if (this.customFilterFunction) initial -= 3
+      if (!this.disableDeleted) initial -= 3
+      return initial
+    },
+
+    lgColWidth() {
+      let initial = 12
+      if (this.customFilterFunction) initial -= 2
+      if (!this.disableDeleted) initial -= 2
+      return initial
     }
   },
   watch: {

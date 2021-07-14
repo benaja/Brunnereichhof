@@ -20,8 +20,14 @@
         name="employees"
         label="Mitarbeiter suchen"
         disable-deleted
+        :custom-filter-function="filterWorkers"
         :items="mapedUsers"
       >
+        <v-switch
+          slot="custom-filter"
+          v-model="showWorkers"
+          label="Hofmitarbeiter"
+        ></v-switch>
       </search-bar>
       <v-data-table
         :items="usersFiltered"
@@ -76,6 +82,7 @@ import CardLayout from '@/components/general/CardLayout'
 import TransactionForm from '@/components/transactions/TransactionForm'
 import SearchBar from '@/components/general/SearchBar'
 import { mapGetters } from 'vuex'
+import { UserType } from '@/utils'
 
 export default {
   components: {
@@ -87,6 +94,7 @@ export default {
     return {
       verifyModel: false,
       saving: false,
+      showWorkers: false,
       headers: [
         {
           text: 'Mitarbeiter',
@@ -131,6 +139,10 @@ export default {
     await this.$store.dispatch('fetchTransactionTypes')
   },
   methods: {
+    filterWorkers(user) {
+      if (this.showWorkers) return user.type_id === UserType.Worker
+      return user.type_id === UserType.Employee
+    },
     emptyTransaction() {
       return {
         isValid: false,

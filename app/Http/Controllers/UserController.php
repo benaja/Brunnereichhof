@@ -23,11 +23,12 @@ class UserController extends Controller
     {
         auth()->user()->authorize(['superadmin'], ['transaction_read']);
 
-        return User::with(['employee' => function ($query) {
-            $query->where('isGuest', false);
-        }])
-            // ->where('type_id', UserTypeEnum::Employee)
-            // ->orWhere('type_id', UserTypeEnum::Worker)
+        return User::with(['employee'])
+            ->leftJoin('employee', 'employee.user_id', '=', 'user.id')
+            ->where('employee.isGuest', false)
+            ->orWhere('employee.isGuest', null)
+            ->select('user.*')
+            ->orderBy('user.lastname')
             ->get();
     }
 
